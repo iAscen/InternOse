@@ -1,3 +1,1 @@
 # MonStage
-
-## Initial Commit
