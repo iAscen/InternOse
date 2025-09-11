@@ -1,5 +1,5 @@
 ﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Docker Compose" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+  <configuration default="false" name="DockerCompose" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
     <deployment type="docker-compose.yml">
       <settings>
         <option name="services">
@@ -7,7 +7,7 @@
             <option value="db" />
           </list>
         </option>
-        <option name="sourceFilePath" value="docker-compose.yml" />
+        <option name="sourceFilePath" value="DockerCompose.yml" />
       </settings>
     </deployment>
     <method v="2" />
