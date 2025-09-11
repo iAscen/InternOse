@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cal.ose</groupId>
-    <artifactId>MonStage</artifactId>
+    <artifactId>internose</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>MonStage</name>
-    <description>MonStage</description>
+    <name>InternOSE</name>
+    <description>InternOSE</description>
     <url/>
     <licenses>
         <license/>
