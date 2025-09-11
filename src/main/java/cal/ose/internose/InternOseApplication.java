@@ -1,11 +1,11 @@
-package cal.ose.monstage;
+package cal.ose.internose;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MonStageApplication {
+public class InternOseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MonStageApplication.class, args);
+        SpringApplication.run(InternOseApplication.class, args);
     }
 }
