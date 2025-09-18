@@ -1,10 +1,34 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import FormInput from "../FormInput";
+import FormSection from "../FormSection";
 
 interface StudentFormProps {
   onBack: () => void;
 }
 
 export default function StudentForm({ onBack }: StudentFormProps) {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phoneNumber: '',
+  });
+
+  const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: value 
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submitted:', formData);
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="text-center mb-12">
@@ -12,39 +36,111 @@ export default function StudentForm({ onBack }: StudentFormProps) {
           Inscription <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Étudiant</span>
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Formulaire d'inscription étudiant (à venir)
+          Créez votre compte étudiant et trouvez votre stage idéal
         </p>
       </div>
-      
-      <div className="bg-white rounded-lg shadow-lg p-8 md:p-12 max-w-2xl mx-auto text-center">
-        <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+      <div className="bg-white rounded-lg shadow-lg p-8 max-w-6xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Informations personnelles */}
+          <FormSection title="Informations personnelles">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormInput
+                id="firstName"
+                name="firstName"
+                type="text"
+                label="Prénom"
+                placeholder="Votre prénom"
+                value={formData.firstName}
+                onChange={handleChanges}
+                required
+              />
+              <FormInput
+                id="lastName"
+                name="lastName"
+                type="text"
+                label="Nom"
+                placeholder="Votre nom"
+                value={formData.lastName}
+                onChange={handleChanges}
+                required
+              />
+              <FormInput
+                id="email"
+                name="email"
+                type="email"
+                label="Email"
+                placeholder="votre.email@etudiant.com"
+                value={formData.email}
+                onChange={handleChanges}
+                required
+              />
+              <FormInput
+                id="phoneNumber"
+                name="phoneNumber"
+                type="tel"
+                label="Téléphone"
+                placeholder="+1 514 555 5555"
+                value={formData.phoneNumber}
+                onChange={handleChanges}
+              />
+            </div>
+          </FormSection>
+
+          {/* Mot de passe */}
+          <FormSection title="Sécurité">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <FormInput
+                  id="password"
+                  name="password"
+                  type="password"
+                  label="Mot de passe"
+                  placeholder="Votre mot de passe"
+                  value={formData.password}
+                  onChange={handleChanges}
+                  required
+                  minLength={8}
+                />
+                <p className="mt-1 text-xs text-gray-500">Au moins 8 caractères</p>
+              </div>
+              <FormInput
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                label="Confirmer le mot de passe"
+                placeholder="Confirmez votre mot de passe"
+                value={formData.confirmPassword}
+                onChange={handleChanges}
+                required
+                minLength={8}
+              />
+            </div>
+          </FormSection>
+
+          {/* Bouton de soumission */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Créer mon compte étudiant
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Bouton retour au choix */}
+      <div className="text-center mt-6">
+        <button
+          onClick={onBack}
+          className="inline-flex items-center px-6 py-3 text-lg font-semibold text-gray-700 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-300 cursor-pointer"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Bientôt disponible</h2>
-        <p className="text-gray-600 mb-8 text-lg">Cette fonctionnalité sera disponible prochainement. Revenez bientôt !</p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg cursor-pointer"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Retour au choix
-          </button>
-          <Link
-            to="/"
-            className="inline-flex items-center px-6 py-3 text-lg font-semibold text-gray-700 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:text-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-300"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Retour à l'accueil
-          </Link>
-        </div>
+          Retour au choix
+        </button>
       </div>
     </div>
   );

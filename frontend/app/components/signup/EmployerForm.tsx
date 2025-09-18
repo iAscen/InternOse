@@ -81,7 +81,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 name="phoneNumber"
                 type="tel"
                 label="Téléphone"
-                placeholder="+33 1 23 45 67 89"
+                placeholder="+1 514 555 5555"
                 value={formData.phoneNumber}
                 onChange={handleChanges}
               />
