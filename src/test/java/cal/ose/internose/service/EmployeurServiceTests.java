@@ -44,9 +44,10 @@ public class EmployeurServiceTests {
     public void testCreerOffreStage() {
         // Arrange
         OffreStage offreStage = listerOffresStage().getFirst();
+        OffreStageDTO offreStageDTO = OffreStageDTO.fromEntity(offreStage);
         when(offreStageDAO.save(any(OffreStage.class))).thenReturn(offreStage);
         // Act
-        Optional<OffreStage> nouvelleOffreStage = employeurService.creerOffreStage(OffreStageDTO.fromEntity(offreStage));
+        Optional<OffreStage> nouvelleOffreStage = employeurService.creerOffreStage(offreStageDTO);
         // Assert
         assertThat(nouvelleOffreStage).isPresent();
         verify(offreStageDAO, times(1)).save(any(OffreStage.class));
