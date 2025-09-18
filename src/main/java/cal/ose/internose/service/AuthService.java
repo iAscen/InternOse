@@ -32,11 +32,17 @@ public class AuthService {
     @Transactional
     public String registerEmployer(EmployerDTO employerDTO) {
         try {
-            if (employerDTO.getPassword().length() < 8 ||
-                    !employerDTO.getPassword().matches(".*[A-Z].*") ||
-                    !employerDTO.getPassword().matches(".*[0-9].*") ||
-                    !employerDTO.getPassword().matches(".*[!@#$%^&()_+\\-=\\[\\]{};':|,.<>/?].*")) {
-                throw new WeakPasswordException("Mot de passe trop faible. Doit inclure une lettre majuscule, un numero, un symbole speciale et doit avoir une taille de 8");
+            if (employerDTO.getPassword().length() < 8) {
+                throw new WeakPasswordException("Le mot de passe doit contenir au moins 8 caractères.");
+            }
+            if (!employerDTO.getPassword().matches(".*[A-Z].*")) {
+                throw new WeakPasswordException("Le mot de passe doit contenir au moins une lettre majuscule.");
+            }
+            if (!employerDTO.getPassword().matches(".*[0-9].*")) {
+                throw new WeakPasswordException("Le mot de passe doit contenir au moins un chiffre.");
+            }
+            if (!employerDTO.getPassword().matches(".*[!@#$%^&()_+\\-=\\[\\]{};':|,.<>/?].*")) {
+                throw new WeakPasswordException("Le mot de passe doit contenir au moins un caractère spécial.");
             }
 
             if (userAppRepository.findUserAppByEmail(employerDTO.getEmail()).isPresent()) {

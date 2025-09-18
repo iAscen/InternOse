@@ -13,4 +13,10 @@ import lombok.experimental.SuperBuilder;
 public class EmployerDTO extends UserAppDTO{
     private String enterprise;
 
+    public EmployerDTO( String firstName, String lastName, String email, String password, Role role, String enterprise) {
+        super(firstName, lastName, email, password, role);
+        this.enterprise = enterprise;
+    }
+
+
 }
