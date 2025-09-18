@@ -1,10 +1,10 @@
-package cal.ose.internose.service.dto;
+package cal.ose.internose.service.DTOs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ErreurReponseDTO {
+public class ErrorResponseDTO {
     private String message;
 }
