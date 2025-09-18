@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -21,20 +22,8 @@ public class EmployeurService {
         return OffreStageDTO.fromEntityList(offreStageDAO.findAll());
     }
 
-    public void creerOffreStage(OffreStageDTO offreStageDTO) {
-        offreStageDAO.save(
-            OffreStage.builder()
-                .titrePoste(offreStageDTO.getTitrePoste())
-                .descriptionTaches(offreStageDTO.getDescriptionTaches())
-                .competencesRequises(offreStageDTO.getCompetencesRequises())
-                .adresse(offreStageDTO.getAdresse())
-                .duree(offreStageDTO.getDuree())
-                .dateDebut(offreStageDTO.getDateDebut())
-                .dateFin(
-                    offreStageDTO.getDateDebut().plusWeeks(offreStageDTO.getDuree())
-                )
-                .remuneration(offreStageDTO.getRemuneration())
-                .build()
-        );
+    public Optional<OffreStage> creerOffreStage(OffreStageDTO offreStageDTO) {
+        OffreStage offreStage = offreStageDAO.save(OffreStage.fromDTO(offreStageDTO));
+        return Optional.of(offreStage);
     }
 }

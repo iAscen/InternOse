@@ -1,5 +1,6 @@
 package cal.ose.internose.modele;
 
+import cal.ose.internose.service.DTOs.OffreStageDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,4 +28,19 @@ public class OffreStage {
     private double remuneration;
     private String adresse;
     private boolean validee = false;
+
+    public static OffreStage fromDTO(OffreStageDTO offreStageDTO) {
+        return OffreStage.builder()
+            .titrePoste(offreStageDTO.getTitrePoste())
+            .descriptionTaches(offreStageDTO.getDescriptionTaches())
+            .competencesRequises(offreStageDTO.getCompetencesRequises())
+            .duree(offreStageDTO.getDuree())
+            .dateDebut(offreStageDTO.getDateDebut())
+            .dateFin(
+                offreStageDTO.getDateDebut().plusWeeks(offreStageDTO.getDuree())
+            )
+            .remuneration(offreStageDTO.getRemuneration())
+            .adresse(offreStageDTO.getAdresse())
+            .build();
+    }
 }
