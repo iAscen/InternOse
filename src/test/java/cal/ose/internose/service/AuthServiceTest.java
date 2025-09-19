@@ -59,7 +59,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testRegistreEmployerToken() {
+    void testRegisterEmployerToken() {
         EmployerDTO dto = new EmployerDTO("testNom", "testPrenom", "testEmail", "TestPassword1@", Role.EMPLOYER, "testEntreprise");
 
         when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
@@ -81,7 +81,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testEmployerMotPasseChar() {
+    void testEmployerPasswordTooShort() {
         EmployerDTO dto = new EmployerDTO("testNom", "testPrenom", "testEmail", "J4ck!", Role.EMPLOYER, "testEntreprise");
 
         WeakPasswordException exception = assertThrows(WeakPasswordException.class, () -> authService.registerEmployer(dto));
@@ -90,7 +90,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testEmployerMotPasseMaj() {
+    void testEmployerPasswordMissingUppercaseLetter() {
         EmployerDTO dto = new EmployerDTO("testNom", "testPrenom", "testEmail", "jacques4@", Role.EMPLOYER, "testEntreprise");
 
         WeakPasswordException exception = assertThrows(WeakPasswordException.class, () -> authService.registerEmployer(dto));
@@ -99,7 +99,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testEmployerMotPasseChiffre() {
+    void testEmployerPasswordMissingNumber() {
         EmployerDTO dto = new EmployerDTO("testNom", "testPrenom", "testEmail", "Jacques-", Role.EMPLOYER, "testEntreprise");
 
         WeakPasswordException exception = assertThrows(WeakPasswordException.class, () -> authService.registerEmployer(dto));
@@ -109,7 +109,7 @@ public class AuthServiceTest {
 
 
     @Test
-    void testEmployerChampsManque() {
+    void testEmployerMissingFields() {
         EmployerDTO dto = new EmployerDTO(null, "testPrenom", "testEmail", "TestPassword1@", Role.EMPLOYER, "testEntreprise");
 
         when(employerRepository.save(any(Employer.class))).thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
@@ -120,7 +120,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testEmployerEmailExistant() {
+    void testEmployerEmailNotExists() {
         EmployerDTO dto = new EmployerDTO("testNom", "testPrenom", "testEmail", "TestPassword1@", Role.EMPLOYER, "testEntreprise");
 
         when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
