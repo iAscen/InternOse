@@ -1,6 +1,6 @@
 package cal.ose.internose.security;
 
-import cal.ose.internose.persistance.UserAppRepository;
+import cal.ose.internose.persistance.UserAppDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +36,7 @@ import static org.springframework.http.HttpMethod.POST;
 public class SecurityConfiguration {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserAppRepository userAppRepository;
+    private final UserAppDAO userAppDAO;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     private static final String EMPLOYER_REGISTER_PATH = "/employer/register";
@@ -113,7 +113,7 @@ public class SecurityConfiguration {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userAppRepository);
+        return new JwtAuthenticationFilter(jwtTokenProvider, userAppDAO);
     }
 
     @Bean

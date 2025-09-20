@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface UserAppRepository extends JpaRepository<UserApp, Long> {
+public interface UserAppDAO extends JpaRepository<UserApp, Long> {
 
     @Query("""
         select u from UserApp u where trim(u.credentials.email) = :email

@@ -1,7 +1,7 @@
 package cal.ose.internose.security;
 
 import cal.ose.internose.modele.UserApp;
-import cal.ose.internose.persistance.UserAppRepository;
+import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.exception.AuthenticationException;
 import cal.ose.internose.security.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthProvider implements AuthenticationProvider{
 	private final PasswordEncoder passwordEncoder;
-	private final UserAppRepository userAppRepository;
+	private final UserAppDAO userAppDAO;
 
 	@Override
 	public Authentication authenticate(Authentication authentication) {
@@ -37,7 +37,7 @@ public class AuthProvider implements AuthenticationProvider{
 
 	private UserApp loadUserByEmail(String email) throws UsernameNotFoundException{
         System.out.println("loadUserByEmail: " + passwordEncoder.encode(email));
-		return userAppRepository.findUserAppByEmail(email)
+		return userAppDAO.findUserAppByEmail(email)
 			.orElseThrow(UserNotFoundException::new);
 	}
 
