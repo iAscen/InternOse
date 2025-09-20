@@ -33,6 +33,12 @@ export default function Header() {
             >
               S'inscrire
             </Link>
+              <Link
+                  to="/login"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                  Connexion
+              </Link>
           </div>
 
           {/* Mobile menu button */}
