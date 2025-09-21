@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
+import PasswordField from "./PasswordField";
 
 interface StudentFormProps {
   onBack: () => void;
@@ -16,6 +17,8 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     phoneNumber: '',
   });
 
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+
   const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ 
@@ -24,8 +27,25 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     });
   };
 
+  const handlePasswordChange = (password: string) => {
+    setFormData(prev => ({ ...prev, password }));
+  };
+
+  const handleConfirmPasswordChange = (confirmPassword: string) => {
+    setFormData(prev => ({ ...prev, confirmPassword }));
+  };
+
+  const handlePasswordValidationChange = (isValid: boolean) => {
+    setIsPasswordValid(isValid);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isPasswordValid) {
+      return;
+    }
+
     console.log('Form submitted:', formData);
   };
 
@@ -89,33 +109,11 @@ export default function StudentForm({ onBack }: StudentFormProps) {
 
           {/* Mot de passe */}
           <FormSection title="Sécurité">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <FormInput
-                  id="password"
-                  name="password"
-                  type="password"
-                  label="Mot de passe"
-                  placeholder="Votre mot de passe"
-                  value={formData.password}
-                  onChange={handleChanges}
-                  required
-                  minLength={8}
-                />
-                <p className="mt-1 text-xs text-gray-500">Au moins 8 caractères</p>
-              </div>
-              <FormInput
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                label="Confirmer le mot de passe"
-                placeholder="Confirmez votre mot de passe"
-                value={formData.confirmPassword}
-                onChange={handleChanges}
-                required
-                minLength={8}
-              />
-            </div>
+            <PasswordField
+              onPasswordChange={handlePasswordChange}
+              onConfirmPasswordChange={handleConfirmPasswordChange}
+              onValidationChange={handlePasswordValidationChange}
+            />
           </FormSection>
 
           {/* Bouton de soumission */}
