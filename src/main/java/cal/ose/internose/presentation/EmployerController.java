@@ -1,22 +1,49 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.service.AuthService;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import lombok.AllArgsConstructor;
+import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-@RequestMapping("/employer")
-@AllArgsConstructor
-public class EmployerController {
-    private AuthService authService;
+import java.util.List;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerEmployer(@RequestBody EmployerDTO employerDTO) {
-        String jwt = authService.registerEmployer(employerDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(jwt);
+@RestController
+@RequestMapping("/api/employer")
+@CrossOrigin(origins = "http://localhost:5173")
+public class EmployerController {
+    private final EmployerService employerService;
+    private final ObjectMapper objectMapper;
+
+    public EmployerController(EmployerService employerService, ObjectMapper objectMapper) {
+        this.employerService = employerService;
+        this.objectMapper = objectMapper;
+    }
+
+    @GetMapping("/internship-offers")
+    public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers() {
+        return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers());
+    }
+
+    @PostMapping("/internship-offers")
+    public ResponseEntity<String> createInternshipOffer(@RequestBody String requestBody) {
+        InternshipOfferDTO internshipOfferDTO;
+        try {
+            internshipOfferDTO = objectMapper.readValue(requestBody, InternshipOfferDTO.class);
+            employerService.createInternshipOffer(internshipOfferDTO);
+            return getResponseEntity(
+                HttpStatus.CREATED, "{ \"message\": \"Nouvelle offre de stage créée avec succès\"}"
+            );
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"La structure JSON fournie est incorrecte\" }"
+            );
+        }
+    }
+
+    private <T> ResponseEntity<T> getResponseEntity(HttpStatus status, T body) {
+        return ResponseEntity.status(status).body(body);
     }
 }

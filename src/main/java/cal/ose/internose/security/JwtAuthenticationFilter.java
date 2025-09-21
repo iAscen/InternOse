@@ -1,7 +1,7 @@
 package cal.ose.internose.security;
 
 
-import cal.ose.internose.persistance.UserAppRepository;
+import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.modele.UserApp;
 import cal.ose.internose.security.exception.UserNotFoundException;
 import jakarta.servlet.FilterChain;
@@ -18,11 +18,11 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
-    private final UserAppRepository userAppRepository;
+    private final UserAppDAO userAppDAO;
 
-    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, UserAppRepository userAppRepository) {
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, UserAppDAO userAppDAO) {
         this.tokenProvider = tokenProvider;
-        this.userAppRepository = userAppRepository;
+        this.userAppDAO = userAppDAO;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 tokenProvider.validateToken(token);
                 String email = tokenProvider.getEmailFromJWT(token);
-                UserApp userApp = userAppRepository.findUserAppByEmail(email).orElseThrow(UserNotFoundException::new);
+                UserApp userApp = userAppDAO.findUserAppByEmail(email).orElseThrow(UserNotFoundException::new);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userApp.getEmail(), null, userApp.getAuthorities()
                 );

@@ -1,7 +1,8 @@
 package cal.ose.internose.modele;
 
 public enum Role{
-	EMPLOYER("ROLE_EMPLOYER");
+	EMPLOYER("ROLE_EMPLOYER"),
+    STUDENT("ROLE_STUDENT");
 
 	private final String string;
 
