@@ -1,7 +1,7 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.service.DTOs.OffreStageDTO;
-import cal.ose.internose.service.EmployeurService;
+import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -11,28 +11,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/employeur")
+@RequestMapping("/api/employer")
 @CrossOrigin(origins = "http://localhost:5173")
-public class EmployeurController {
-    private final EmployeurService employeurService;
+public class EmployerController {
+    private final EmployerService employerService;
     private final ObjectMapper objectMapper;
 
-    public EmployeurController(EmployeurService employeurService, ObjectMapper objectMapper) {
-        this.employeurService = employeurService;
+    public EmployerController(EmployerService employerService, ObjectMapper objectMapper) {
+        this.employerService = employerService;
         this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/offres-stage")
-    public ResponseEntity<List<OffreStageDTO>> listerOffresStage() {
-        return getResponseEntity(HttpStatus.OK, employeurService.listerOffresStage());
+    @GetMapping("/internship-offers")
+    public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers() {
+        return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers());
     }
 
-    @PostMapping("/offres-stage")
-    public ResponseEntity<String> creerOffreStage(@RequestBody String requestBody) {
-        OffreStageDTO offreStageDTO;
+    @PostMapping("/internship-offers")
+    public ResponseEntity<String> createInternshipOffer(@RequestBody String requestBody) {
+        InternshipOfferDTO internshipOfferDTO;
         try {
-            offreStageDTO = objectMapper.readValue(requestBody, OffreStageDTO.class);
-            employeurService.creerOffreStage(offreStageDTO);
+            internshipOfferDTO = objectMapper.readValue(requestBody, InternshipOfferDTO.class);
+            employerService.createInternshipOffer(internshipOfferDTO);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Nouvelle offre de stage créée avec succès\"}"
             );

@@ -7,21 +7,21 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import cal.ose.internose.security.Paths;
 
 @RestController
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-@RequestMapping("/register")
 @AllArgsConstructor
 public class AuthController {
     private AuthService authService;
 
-    @PostMapping("/employer")
+    @PostMapping(Paths.EMPLOYER_REGISTER_PATH)
     public ResponseEntity<String> registerEmployer(@RequestBody EmployerDTO employerDTO) {
         String jwt = authService.registerEmployer(employerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(jwt);
     }
 
-    @PostMapping("/student")
+    @PostMapping(Paths.STUDENT_REGISTER_PATH)
     public ResponseEntity<String> registerStudent(@RequestBody StudentDTO studentDTO) {
         String jwt = authService.registerStudent(studentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(jwt);

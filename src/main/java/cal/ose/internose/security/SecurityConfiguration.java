@@ -27,6 +27,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -39,15 +40,16 @@ public class SecurityConfiguration {
     private final UserAppDAO userAppDAO;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
-    private static final String EMPLOYER_REGISTER_PATH = "/employer/register";
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(POST, EMPLOYER_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST,  Paths.STUDENT_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST,  Paths.INTERNSHIP_OFFERS_PATH).permitAll()
+                        .requestMatchers(GET, Paths.INTERNSHIP_OFFERS_PATH).permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()) // for h2-console
