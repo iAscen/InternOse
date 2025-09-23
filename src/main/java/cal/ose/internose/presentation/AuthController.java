@@ -2,6 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.service.AuthService;
 import cal.ose.internose.service.DTOs.EmployerDTO;
+import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,5 +26,11 @@ public class AuthController {
     public ResponseEntity<String> registerStudent(@RequestBody StudentDTO studentDTO) {
         String jwt = authService.registerStudent(studentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(jwt);
+    }
+
+    @PostMapping(Paths.LOGIN_PATH)
+    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+        String jwt = authService.login(loginDTO);
+        return ResponseEntity.ok(jwt);
     }
 }

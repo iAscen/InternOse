@@ -3,6 +3,7 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
+import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exception.ErrorMessages;
 import cal.ose.internose.service.exception.UserAlreadyExistsException;
@@ -26,6 +27,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserAppDAO userAppDAO;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public String registerEmployer(EmployerDTO employerDTO) {
@@ -54,6 +56,16 @@ public class AuthService {
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);
     }
 
+    public String login(LoginDTO loginDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDTO.getEmail(),
+                        loginDTO.getPassword()
+                )
+        );
+        
+        return jwtTokenProvider.generateToken(authentication);
+    }
 
     private String registerUser(String email, String password, UserApp user) {
         try {

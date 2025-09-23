@@ -4,9 +4,11 @@ import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.AuthService;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
+import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exception.ErrorMessages;
 import cal.ose.internose.service.exception.WeakPasswordException;
+import cal.ose.internose.security.exception.AuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +104,40 @@ class AuthControllerTest {
         // assert
         assertMvcResult(mvcResult, HttpStatus.BAD_REQUEST,
                 ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(), null);
+    }
+
+    @Test
+    void testLoginSuccess() throws Exception {
+        // arrange
+        LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
+
+        when(authService.login(any())).thenReturn("jwt-token");
+
+        String requestJson = objectMapper.writeValueAsString(loginDTO);
+
+        // act
+        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestJson);
+
+        // assert
+        assertMvcResult(mvcResult, HttpStatus.OK,
+                null, "jwt-token");
+    }
+
+    @Test
+    void testLoginFail() throws Exception {
+        // arrange
+        LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
+
+        when(authService.login(any())).thenThrow(new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password"));
+
+        String requestJson = objectMapper.writeValueAsString(loginDTO);
+
+        // act
+        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestJson);
+
+        // assert
+        assertMvcResult(mvcResult, HttpStatus.FORBIDDEN,
+                "Incorrect username or password", null);
     }
 
     private MvcResult performRequest(String path, String body) throws Exception {

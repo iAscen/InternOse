@@ -4,6 +4,7 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.EmployerDTO;
+import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exception.ErrorMessages;
 import cal.ose.internose.service.exception.RequiredFieldException;
@@ -17,6 +18,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -35,6 +39,8 @@ public class AuthServiceTest {
     private UserAppDAO userAppDAO;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private AuthService authService;
@@ -172,6 +178,37 @@ public class AuthServiceTest {
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> authService.registerStudent(dto));
 
         assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()), exception.getMessage());
+    }
+
+    @Test
+    void testLoginSuccess() {
+        LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
+        Authentication mockAuthentication = mock(Authentication.class);
+        
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(mockAuthentication);
+        when(jwtTokenProvider.generateToken(mockAuthentication)).thenReturn("jwt-token");
+
+        String token = authService.login(loginDTO);
+
+        assertNotNull(token);
+        assertEquals("jwt-token", token);
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtTokenProvider).generateToken(mockAuthentication);
+    }
+
+    @Test
+    void testLoginWithInvalidCredentials() {
+        LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
+        
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new org.springframework.security.core.AuthenticationException("Invalid credentials") {});
+
+        assertThrows(org.springframework.security.core.AuthenticationException.class, 
+                () -> authService.login(loginDTO));
+        
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtTokenProvider, never()).generateToken(any());
     }
 
     private StudentDTO createStudentDTO(String password) {

@@ -46,6 +46,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(POST, Paths.LOGIN_PATH).permitAll()
                         .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
                         .requestMatchers(POST,  Paths.STUDENT_REGISTER_PATH).permitAll()
                         .requestMatchers(POST,  Paths.INTERNSHIP_OFFERS_PATH).permitAll()
