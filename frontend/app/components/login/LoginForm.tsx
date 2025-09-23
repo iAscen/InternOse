@@ -55,7 +55,10 @@ export default function LoginForm({ onBack }: LoginFormProps) {
                 onChange={handleChanges}
                 required
               />
-                <FormInput
+            </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              <FormInput
                     id="password"
                     name="password"
                     type="password"
@@ -66,7 +69,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
                     required
                     minLength={8}
                 />
-            </div>
+              </div>
           </FormSection>
 
           {/* Bouton de soumission */}
