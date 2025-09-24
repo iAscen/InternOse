@@ -44,14 +44,16 @@ export default function LoginForm({ onBack }: LoginFormProps) {
         
         console.log('Connexion réussie ! Token:', response.data);
         
-        // Déterminer le rôle utilisateur et rediriger vers le bon dashboard
-        const userRole = apiService.getUserRole();
-        if (userRole === 'EMPLOYER') {
+        // Déterminer le rôle utilisateur depuis le JWT et rediriger vers le bon dashboard
+        const userRoleFromJWT = apiService.getUserRoleFromJWT();
+        if (userRoleFromJWT === 'EMPLOYER') {
+          apiService.saveUserRole('EMPLOYER');
           window.location.href = '/dashboard';
-        } else if (userRole === 'STUDENT') {
+        } else if (userRoleFromJWT === 'STUDENT') {
+          apiService.saveUserRole('STUDENT');
           window.location.href = '/student-dashboard';
         } else {
-          // Si le rôle n'est pas défini, essayer de le déterminer basé sur l'email
+          // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
           const determinedRole = await apiService.determineUserRole(formData.email);
           if (determinedRole === 'EMPLOYER') {
             apiService.saveUserRole('EMPLOYER');

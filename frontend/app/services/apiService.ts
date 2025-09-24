@@ -298,11 +298,43 @@ class ApiService {
     }
   }
 
-  // Méthode pour déterminer le rôle utilisateur basé sur l'email
+  // Récupérer le rôle utilisateur depuis le JWT
+  getUserRoleFromJWT(): 'STUDENT' | 'EMPLOYER' | null {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      
+      // Le backend stocke les autorités dans le claim "authorities"
+      const authorities = decoded.authorities;
+      if (authorities && Array.isArray(authorities) && authorities.length > 0) {
+        const role = authorities[0].authority || authorities[0];
+        if (role === 'STUDENT' || role === 'EMPLOYER') {
+          return role;
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour le rôle:', error);
+      return null;
+    }
+  }
+
+  // Méthode pour déterminer le rôle utilisateur basé sur l'email (fallback)
   async determineUserRole(email: string): Promise<'STUDENT' | 'EMPLOYER' | null> {
     try {
-      // Solution temporaire : déterminer le rôle basé sur l'email
-      // Logique plus permissive pour détecter les étudiants
+      // Essayer d'abord de récupérer le rôle depuis le JWT
+      const roleFromJWT = this.getUserRoleFromJWT();
+      if (roleFromJWT) {
+        return roleFromJWT;
+      }
+
+      // Si pas de JWT ou rôle non trouvé, utiliser la logique de fallback basée sur l'email
       const studentPatterns = [
         '@student', '@etudiant', '@univ', '@college', '@edu', 
         '@university', '@school', '@campus', '@academic'
@@ -315,6 +347,13 @@ class ApiService {
       
       const emailLower = email.toLowerCase();
       
+      // Vérifier les patterns employeurs en premier (plus spécifiques)
+      for (const pattern of employerPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'EMPLOYER';
+        }
+      }
+      
       // Vérifier les patterns étudiants
       for (const pattern of studentPatterns) {
         if (emailLower.includes(pattern)) {
@@ -322,16 +361,8 @@ class ApiService {
         }
       }
       
-      // Vérifier les patterns employeurs
-      for (const pattern of employerPatterns) {
-        if (emailLower.includes(pattern)) {
-          return 'EMPLOYER';
-        }
-      }
-      
-      // Par défaut, considérer comme étudiant si pas de pattern spécifique
-      // (la plupart des utilisateurs seront des étudiants)
-      return 'STUDENT';
+      // Si aucun pattern trouvé, ne pas deviner - retourner null
+      return null;
     } catch (error) {
       return null;
     }
