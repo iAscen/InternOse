@@ -46,10 +46,13 @@ class ApiService {
       if (technicalMessage === 'Incorrect username or password' || technicalMessage.includes('Incorrect username or password')) {
         return 'Email ou mot de passe incorrect. Veuillez vérifier vos identifiants.';
       }
+      if (technicalMessage.includes('token') || technicalMessage.includes('jwt') || technicalMessage.includes('Token')) {
+        return 'Session expirée. Veuillez vous reconnecter.';
+      }
       return 'Email ou mot de passe incorrect.';
     }
     
-    // Erreurs d'inscription
+    // Erreurs d'inscription - email déjà utilisé
     if (status === 409) {
       if (technicalMessage.includes('existe déjà') || technicalMessage.includes('already exists') || technicalMessage.includes('L\'utilisateur avec l\'email')) {
         return 'Un compte avec cet email existe déjà. Essayez de vous connecter ou utilisez un autre email.';
@@ -57,7 +60,24 @@ class ApiService {
       return 'Cet email est déjà utilisé.';
     }
     
+    // Erreurs de validation (400)
     if (status === 400) {
+      // Erreurs de mot de passe spécifiques
+      if (technicalMessage.includes('Le mot de passe doit contenir au moins 8 caractères')) {
+        return 'Le mot de passe doit contenir au moins 8 caractères.';
+      }
+      if (technicalMessage.includes('Le mot de passe doit contenir au moins une lettre majuscule')) {
+        return 'Le mot de passe doit contenir au moins une lettre majuscule.';
+      }
+      if (technicalMessage.includes('Le mot de passe doit contenir au moins un chiffre')) {
+        return 'Le mot de passe doit contenir au moins un chiffre.';
+      }
+      if (technicalMessage.includes('Le mot de passe doit contenir au moins un caractère spécial')) {
+        return 'Le mot de passe doit contenir au moins un caractère spécial.';
+      }
+      if (technicalMessage.includes('Il y a des champs manquants')) {
+        return 'Veuillez remplir tous les champs obligatoires.';
+      }
       if (technicalMessage.includes('mot de passe') || technicalMessage.includes('password') || technicalMessage.includes('Le mot de passe doit')) {
         return 'Le mot de passe ne respecte pas les critères requis.';
       }
