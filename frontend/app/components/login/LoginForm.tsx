@@ -1,29 +1,21 @@
 import { useState } from "react";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
-import { apiService, type LoginRequest } from "../../services/apiService";
+import { apiService } from "../../services/apiService";
+import { useForm } from "../../hooks";
+import type { LoginRequest } from "../../interfaces";
 
 interface LoginFormProps {
   onBack: () => void;
 }
 
 export default function LoginForm({ onBack }: LoginFormProps) {
-  const [formData, setFormData] = useState({
+  const { formData, error, setError, handleChange } = useForm({
     email: '',
     password: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    // Effacer l'erreur quand l'utilisateur tape
-    if (error) setError(null);
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +92,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
                         label="Email"
                         placeholder="votre.email@etudiant.com"
                         value={formData.email}
-                        onChange={handleChanges}
+                        onChange={handleChange}
                         required
                     />
                     <FormInput
@@ -110,7 +102,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
                         label="Mot de passe"
                         placeholder="Votre mot de passe"
                         value={formData.password}
-                        onChange={handleChanges}
+                        onChange={handleChange}
                         required
                         minLength={8}
                     />

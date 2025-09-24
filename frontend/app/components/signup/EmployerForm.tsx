@@ -2,14 +2,16 @@ import { useState } from "react";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
 import PasswordField from "./PasswordField";
-import { apiService, type EmployerRegistrationRequest } from "../../services/apiService";
+import { apiService } from "../../services/apiService";
+import { useForm } from "../../hooks";
+import type { EmployerRegistrationRequest } from "../../interfaces";
 
 interface EmployerFormProps {
   onBack: () => void;
 }
 
 export default function EmployerForm({ onBack }: EmployerFormProps) {
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, error, setError, handleChange } = useForm({
     firstName: '',
     lastName: '',
     email: '',
@@ -21,17 +23,6 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
 
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-    // Effacer l'erreur quand l'utilisateur tape
-    if (error) setError(null);
-  };
 
   const handlePasswordChange = (password: string) => {
     setFormData(prev => ({ ...prev, password }));
@@ -110,7 +101,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 label="Prénom"
                 placeholder="Votre prénom"
                 value={formData.firstName}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -120,7 +111,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 label="Nom"
                 placeholder="Votre nom"
                 value={formData.lastName}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -130,7 +121,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 label="Email"
                 placeholder="votre.email@entreprise.com"
                 value={formData.email}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -140,7 +131,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 label="Téléphone"
                 placeholder="+1 514 555 5555"
                 value={formData.phoneNumber}
-                onChange={handleChanges}
+                onChange={handleChange}
               />
             </div>
           </FormSection>
@@ -164,7 +155,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 label="Nom de l'entreprise"
                 placeholder="Nom de votre entreprise"
                 value={formData.companyName}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
                 minLength={2}
               />

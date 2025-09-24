@@ -49,8 +49,8 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, Paths.LOGIN_PATH).permitAll()
                         .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, Paths.STUDENT_REGISTER_PATH).permitAll()
-                        .requestMatchers(POST, Paths.INTERNSHIP_OFFERS_PATH).permitAll()
-                        .requestMatchers(GET, Paths.INTERNSHIP_OFFERS_PATH).permitAll()
+                        .requestMatchers(POST, Paths.INTERNSHIP_OFFERS_PATH).authenticated()
+                        .requestMatchers(GET, Paths.INTERNSHIP_OFFERS_PATH).authenticated()
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()) // for h2-console
                 .sessionManagement((secuManagement) -> {

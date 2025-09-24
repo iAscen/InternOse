@@ -27,6 +27,7 @@ public class InternshipOffer {
     private LocalDate endDate;
     private double salary;
     private String address;
+    @Builder.Default
     private boolean validee = false;
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {

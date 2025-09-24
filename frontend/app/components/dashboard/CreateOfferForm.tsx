@@ -1,14 +1,5 @@
 import { useState } from 'react';
-
-interface CreateOfferFormData {
-  jobTitle: string;
-  taskDescription: string;
-  qualifications: string;
-  duration: number;
-  startDate: string;
-  salary: number;
-  address: string;
-}
+import type { CreateOfferFormData } from '../../interfaces';
 
 interface CreateOfferFormProps {
   onSubmit: (data: CreateOfferFormData) => Promise<void>;

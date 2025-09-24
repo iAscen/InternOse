@@ -1,36 +1,14 @@
 import { Link } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { apiService } from "../services/apiService";
+import { useAuth, useClickOutside } from "../hooks";
 
 export default function Header() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<'STUDENT' | 'EMPLOYER' | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { isAuthenticated, userRole, userEmail } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Vérifier l'authentification côté client seulement
-    setIsAuthenticated(apiService.isAuthenticated());
-    setUserRole(apiService.getUserRole());
-    setUserEmail(apiService.getUserEmail());
-  }, []);
-
-  // Fermer le menu quand on clique ailleurs
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showUserMenu) {
-        setShowUserMenu(false);
-      }
-    };
-
-    if (showUserMenu) {
-      document.addEventListener('click', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showUserMenu]);
+  useClickOutside(menuRef, () => setShowUserMenu(false));
 
   return (
     <header className="bg-gray-50 shadow-lg border-b border-gray-200">
@@ -48,12 +26,14 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link 
-              to="/" 
-              className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
-            >
-              Accueil
-            </Link>
+            {!isAuthenticated && (
+              <Link 
+                to="/" 
+                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
+              >
+                Accueil
+              </Link>
+            )}
             {isAuthenticated && userRole === 'EMPLOYER' && (
               <Link 
                 to="/dashboard" 
@@ -92,7 +72,7 @@ export default function Header() {
             ) : (
               <div className="flex items-center space-x-4">
                 {/* Menu déroulant utilisateur */}
-                <div className="relative">
+                <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"

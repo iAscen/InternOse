@@ -1,15 +1,4 @@
-interface InternshipOffer {
-  id?: number;
-  jobTitle: string;
-  taskDescription: string;
-  qualifications: string;
-  duration: number;
-  startDate: string;
-  endDate: string;
-  salary: number;
-  address: string;
-  validee?: boolean;
-}
+import type { InternshipOffer } from '../../interfaces';
 
 interface OfferListProps {
   offers: InternshipOffer[];

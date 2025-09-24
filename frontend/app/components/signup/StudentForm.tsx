@@ -2,14 +2,16 @@ import { useState } from "react";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
 import PasswordField from "./PasswordField";
-import { apiService, type StudentRegistrationRequest } from "../../services/apiService";
+import { apiService } from "../../services/apiService";
+import { useForm } from "../../hooks";
+import type { StudentRegistrationRequest } from "../../interfaces";
 
 interface StudentFormProps {
   onBack: () => void;
 }
 
 export default function StudentForm({ onBack }: StudentFormProps) {
-  const [formData, setFormData] = useState({
+  const { formData, setFormData, error, setError, handleChange } = useForm({
     firstName: '',
     lastName: '',
     email: '',
@@ -20,17 +22,6 @@ export default function StudentForm({ onBack }: StudentFormProps) {
 
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-    // Effacer l'erreur quand l'utilisateur tape
-    if (error) setError(null);
-  };
 
   const handlePasswordChange = (password: string) => {
     setFormData(prev => ({ ...prev, password }));
@@ -108,7 +99,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 label="Prénom"
                 placeholder="Votre prénom"
                 value={formData.firstName}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -118,7 +109,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 label="Nom"
                 placeholder="Votre nom"
                 value={formData.lastName}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -128,7 +119,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 label="Email"
                 placeholder="votre.email@etudiant.com"
                 value={formData.email}
-                onChange={handleChanges}
+                onChange={handleChange}
                 required
               />
               <FormInput
@@ -138,7 +129,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 label="Téléphone"
                 placeholder="+1 514 555 5555"
                 value={formData.phoneNumber}
-                onChange={handleChanges}
+                onChange={handleChange}
               />
             </div>
           </FormSection>
