@@ -1,7 +1,7 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.EmployerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -23,16 +23,16 @@ public class EmployerController {
     }
 
     @GetMapping("/internship-offers")
-    public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers() {
-        return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers());
+    public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers(@RequestParam Long employerID) {
+        return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers(employerID));
     }
 
     @PostMapping("/internship-offers")
-    public ResponseEntity<String> createInternshipOffer(@RequestBody String requestBody) {
+    public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
         InternshipOfferDTO internshipOfferDTO;
         try {
             internshipOfferDTO = objectMapper.readValue(requestBody, InternshipOfferDTO.class);
-            employerService.createInternshipOffer(internshipOfferDTO);
+            employerService.createInternshipOffer(employerID, internshipOfferDTO);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Nouvelle offre de stage créée avec succès\"}"
             );

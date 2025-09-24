@@ -1,6 +1,8 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +24,9 @@ import static org.mockito.Mockito.*;
 @DisplayName("EmployerService Tests")
 public class EmployerServiceTests {
     @Mock
+    private EmployerDAO employerDAO;
+
+    @Mock
     private InternshipOfferDAO internshipOfferDAO;
 
     @InjectMocks
@@ -31,33 +36,45 @@ public class EmployerServiceTests {
     @DisplayName("Test de la méthode listInternshipOffers()")
     public void testListInternshipOffers() {
         // Arrange
-        when(internshipOfferDAO.findAll()).thenReturn(listInternshipOffers());
+        Long employerID = 1L;
+        when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
+        when(internshipOfferDAO.findAllByEmployer(any(Employer.class))).thenReturn(exampleInternshipOffers());
         // Act
-        List<InternshipOfferDTO> internshipOfferDTOs = employerService.listInternshipOffers();
+        List<InternshipOfferDTO> internshipOfferDTOs = employerService.listInternshipOffers(employerID);
         // Assert
         assertThat(internshipOfferDTOs.size()).isEqualTo(1);
-        verify(internshipOfferDAO, times(1)).findAll();
+        verify(internshipOfferDAO, times(1)).findAllByEmployer(any(Employer.class));
     }
 
     @Test
     @DisplayName("Test de la méthode createInternshipOffer()")
     public void testCreateInternshipOffer() {
         // Arrange
-        InternshipOffer internshipOffer = listInternshipOffers().getFirst();
+        Long employerID = 1L;
+        InternshipOffer internshipOffer = exampleInternshipOffers().getFirst();
         InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
+        when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
         when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(internshipOffer);
         // Act
-        Optional<InternshipOffer> newInternshipOffer = employerService.createInternshipOffer(internshipOfferDTO);
+        Optional<InternshipOffer> newInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
         // Assert
         assertThat(newInternshipOffer).isPresent();
         verify(internshipOfferDAO, times(1)).save(any(InternshipOffer.class));
     }
 
-    private List<InternshipOffer> listInternshipOffers() {
+    private Employer exampleEmployer() {
+        return Employer.builder()
+            .firstName("Artyom")
+            .lastName("M.")
+            .enterprise("Artyom Tech Inc.")
+            .build();
+    }
+
+    private List<InternshipOffer> exampleInternshipOffers() {
         List<InternshipOffer> internshipOffers = new ArrayList<>();
         internshipOffers.add(
             InternshipOffer.builder()
-                .jobTitle("Ingénieur logiciel junior chez Hydro-Québec")
+                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
                 .taskDescription("*description ici*")
                 .qualifications("*compétences requises ici*")
                 .duration(6)

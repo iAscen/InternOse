@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,11 +47,12 @@ public class EmployerControllerTests {
     @DisplayName("Test de GET /api/employer/internship-offers")
     public void testGETInternshipOffers() throws Exception {
         // Arrange
-        List<InternshipOfferDTO> internshipOffers = listInternshipOffers();
-        when(employerService.listInternshipOffers()).thenReturn(internshipOffers);
+        Long employerID = 1L;
+        List<InternshipOfferDTO> internshipOffers = exampleInternshipOffers();
+        when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(Paths.INTERNSHIP_OFFERS_PATH)
+            get(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType("application/json")
         ).andReturn();
 
@@ -67,12 +69,13 @@ public class EmployerControllerTests {
     @DisplayName("Test de POST /api/employer/internship-offers")
     public void testPOSTInternshipOffers() throws Exception {
         // Arrange
-        InternshipOfferDTO internshipOfferDTO = listInternshipOffers().getFirst();
+        Long employerID = 1L;
+        InternshipOfferDTO internshipOfferDTO = exampleInternshipOffers().getFirst();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
-        when(employerService.createInternshipOffer(any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOffer));
+        when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOffer));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post(Paths.INTERNSHIP_OFFERS_PATH)
+            post(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType("application/json")
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();
@@ -80,11 +83,11 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
     }
 
-    private List<InternshipOfferDTO> listInternshipOffers() {
+    private List<InternshipOfferDTO> exampleInternshipOffers() {
         List<InternshipOfferDTO> offresStage = new ArrayList<>();
         offresStage.add(
             InternshipOfferDTO.builder()
-                .jobTitle("Ingénieur logiciel junior chez Hydro-Québec")
+                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
                 .taskDescription("*description ici*")
                 .qualifications("*compétences requises ici*")
                 .duration(6)

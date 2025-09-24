@@ -19,6 +19,8 @@ public class InternshipOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @ManyToOne
+    private Employer employer;
     private String jobTitle;
     private String taskDescription;
     private String qualifications;
