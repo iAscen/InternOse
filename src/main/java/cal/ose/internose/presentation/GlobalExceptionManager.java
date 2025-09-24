@@ -43,11 +43,9 @@ public class GlobalExceptionManager {
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 
-    @ExceptionHandler({
-            AuthenticationException.class
-    })
-    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(Exception e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
+        return ResponseEntity.status(e.getStatus())
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 }
