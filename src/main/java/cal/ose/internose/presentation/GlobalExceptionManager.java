@@ -1,5 +1,6 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.security.exception.AuthenticationException;
 import cal.ose.internose.service.exception.UserAlreadyExistsException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.exception.RequiredFieldException;
@@ -39,6 +40,12 @@ public class GlobalExceptionManager {
     })
     public ResponseEntity<ErrorResponseDTO> handleWeakPasswordException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
+        return ResponseEntity.status(e.getStatus())
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 }
