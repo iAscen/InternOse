@@ -48,11 +48,10 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(POST, Paths.LOGIN_PATH).permitAll()
                         .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
-                        .requestMatchers(POST,  Paths.STUDENT_REGISTER_PATH).permitAll()
-                        .requestMatchers(POST,  Paths.INTERNSHIP_OFFERS_PATH).permitAll()
+                        .requestMatchers(POST, Paths.STUDENT_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, Paths.INTERNSHIP_OFFERS_PATH).permitAll()
                         .requestMatchers(GET, Paths.INTERNSHIP_OFFERS_PATH).permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()) // for h2-console
                 .sessionManagement((secuManagement) -> {
                     secuManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -68,9 +67,9 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 1. Specify allowed origins (VERY IMPORTANT!)
-        //    Must match your React app's URL exactly (e.g., http://localhost:3000)
-        //    Do NOT use "*" if you need credentials (like sending Authorization headers)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Adjust if your frontend runs elsewhere
+        // Must match your React app's URL exactly (e.g., http://localhost:5173)
+        // Do NOT use "*" if you need credentials (like sending Authorization headers)
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend runs on port 5173
 
         // 2. Specify allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
@@ -82,8 +81,8 @@ public class SecurityConfiguration {
         ));
 
         // 3. Specify allowed headers
-        //    Include standard headers and importantly "Authorization" for JWT,
-        //    and "Content-Type". Add any other custom headers your frontend sends.
+        // Include standard headers and importantly "Authorization" for JWT,
+        // and "Content-Type". Add any other custom headers your frontend sends.
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Cache-Control",
@@ -91,15 +90,16 @@ public class SecurityConfiguration {
                 "Accept",
                 "X-Requested-With",
                 "*"
-                // Add any other headers needed by your frontend
+        // Add any other headers needed by your frontend
         ));
 
         // 4. Allow credentials (cookies, Authorization headers)
-        //    Required if your frontend sends credentials.
+        // Required if your frontend sends credentials.
         configuration.setAllowCredentials(true);
 
         // 5. (Optional) Specify exposed headers
-        //    If your frontend needs to read headers from the response (e.g., a custom header)
+        // If your frontend needs to read headers from the response (e.g., a custom
+        // header)
         // configuration.setExposedHeaders(List.of("Custom-Header"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -121,13 +121,12 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
-    ) throws Exception{
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder(){
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

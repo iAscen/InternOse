@@ -5,4 +5,8 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  server: {
+    port: 5173,
+    strictPort: true, // Échoue si le port est occupé au lieu d'essayer un autre port
+  },
 });

@@ -19,8 +19,16 @@ export default function PasswordField({
   const validatePasswords = (pwd: string, confirm: string) => {
     const newErrors: {password?: string; confirmPassword?: string} = {};
 
-    if (pwd && pwd.length < 8) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+    if (pwd) {
+      if (pwd.length < 8) {
+        newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+      } else if (!/[A-Z]/.test(pwd)) {
+        newErrors.password = 'Le mot de passe doit contenir au moins une lettre majuscule';
+      } else if (!/[0-9]/.test(pwd)) {
+        newErrors.password = 'Le mot de passe doit contenir au moins un chiffre';
+      } else if (!/[!@#$%^&()_+\-=\[\]{};':|,.<>/?]/.test(pwd)) {
+        newErrors.password = 'Le mot de passe doit contenir au moins un caractère spécial';
+      }
     }
 
     if (confirm && pwd !== confirm) {
@@ -72,7 +80,9 @@ export default function PasswordField({
           required
           minLength={8}
         />
-        <p className="mt-1 text-xs text-gray-500">Au moins 8 caractères</p>
+        <p className="mt-1 text-xs text-gray-500">
+          Au moins 8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial
+        </p>
       </div>
       <div>
         <FormInput
