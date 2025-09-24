@@ -1,6 +1,9 @@
 import type { Route } from "./+types/home";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { apiService } from "../services/apiService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,6 +13,20 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  // Rediriger automatiquement vers le bon dashboard si l'utilisateur est connecté
+  useEffect(() => {
+    if (apiService.isAuthenticated()) {
+      const userRole = apiService.getUserRole();
+      if (userRole === 'EMPLOYER') {
+        navigate('/dashboard');
+      } else if (userRole === 'STUDENT') {
+        navigate('/student-dashboard');
+      }
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />

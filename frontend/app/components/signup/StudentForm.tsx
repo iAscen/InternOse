@@ -67,12 +67,13 @@ export default function StudentForm({ onBack }: StudentFormProps) {
       const response = await apiService.registerStudent(registrationData);
 
       if (response.success && response.data) {
-        // Sauvegarder le token JWT
+        // Sauvegarder le token JWT et le rôle
         apiService.saveToken(response.data);
+        apiService.saveUserRole('STUDENT');
         
         console.log('Inscription réussie ! Token:', response.data);
-        // Rediriger vers la page d'accueil
-        window.location.href = '/';
+        // Rediriger vers le dashboard étudiant
+        window.location.href = '/student-dashboard';
       } else {
         setError(response.error || 'Erreur lors de l\'inscription');
       }

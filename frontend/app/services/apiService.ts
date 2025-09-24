@@ -24,6 +24,31 @@ export interface EmployerRegistrationRequest {
   enterprise: string;
 }
 
+// Types pour les offres de stage
+export interface InternshipOffer {
+  id?: number;
+  jobTitle: string;
+  taskDescription: string;
+  qualifications: string;
+  duration: number;
+  startDate: string;
+  endDate: string;
+  salary: number;
+  address: string;
+  validee?: boolean;
+}
+
+export interface CreateInternshipOfferRequest {
+  jobTitle: string;
+  taskDescription: string;
+  qualifications: string;
+  duration: number;
+  startDate: string;
+  endDate: string;
+  salary: number;
+  address: string;
+}
+
 // Type pour les réponses d'erreur du GlobalExceptionManager
 export interface ErrorResponseDTO {
   message: string;
@@ -138,6 +163,7 @@ class ApiService {
     }
   }
 
+
   // Méthode d'inscription étudiant - correspond à AuthController.registerStudent()
   async registerStudent(studentData: StudentRegistrationRequest): Promise<ApiResponse<string>> {
     try {
@@ -224,19 +250,171 @@ class ApiService {
 
   // Gestion du token JWT
   saveToken(token: string): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('jwt_token', token);
   }
 
   getToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('jwt_token');
   }
 
   removeToken(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user_role');
   }
 
   isAuthenticated(): boolean {
+    if (typeof window === 'undefined') return false;
     return this.getToken() !== null;
+  }
+
+  // Gestion du rôle utilisateur
+  saveUserRole(role: 'STUDENT' | 'EMPLOYER'): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('user_role', role);
+  }
+
+  getUserRole(): 'STUDENT' | 'EMPLOYER' | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('user_role') as 'STUDENT' | 'EMPLOYER' | null;
+  }
+
+  // Récupérer l'email depuis le JWT (décodage simple)
+  getUserEmail(): string | null {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded.sub || decoded.email || null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT:', error);
+      return null;
+    }
+  }
+
+  // Méthode pour déterminer le rôle utilisateur basé sur l'email
+  async determineUserRole(email: string): Promise<'STUDENT' | 'EMPLOYER' | null> {
+    try {
+      // Solution temporaire : déterminer le rôle basé sur l'email
+      // Logique plus permissive pour détecter les étudiants
+      const studentPatterns = [
+        '@student', '@etudiant', '@univ', '@college', '@edu', 
+        '@university', '@school', '@campus', '@academic'
+      ];
+      
+      const employerPatterns = [
+        '@company', '@entreprise', '@corp', '@business', 
+        '@org', '@firm', '@agency'
+      ];
+      
+      const emailLower = email.toLowerCase();
+      
+      // Vérifier les patterns étudiants
+      for (const pattern of studentPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'STUDENT';
+        }
+      }
+      
+      // Vérifier les patterns employeurs
+      for (const pattern of employerPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'EMPLOYER';
+        }
+      }
+      
+      // Par défaut, considérer comme étudiant si pas de pattern spécifique
+      // (la plupart des utilisateurs seront des étudiants)
+      return 'STUDENT';
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Méthodes pour les offres de stage
+  async getInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/employer/internship-offers`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du chargement des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/employer/internship-offers`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(offerData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: result.message || 'Offre créée avec succès',
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la création de l\'offre',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
   }
 
   // Vérification de la santé du serveur

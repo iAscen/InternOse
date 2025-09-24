@@ -43,8 +43,27 @@ export default function LoginForm({ onBack }: LoginFormProps) {
         apiService.saveToken(response.data);
         
         console.log('Connexion réussie ! Token:', response.data);
-        // Rediriger vers la page d'accueil
-        window.location.href = '/';
+        
+        // Déterminer le rôle utilisateur et rediriger vers le bon dashboard
+        const userRole = apiService.getUserRole();
+        if (userRole === 'EMPLOYER') {
+          window.location.href = '/dashboard';
+        } else if (userRole === 'STUDENT') {
+          window.location.href = '/student-dashboard';
+        } else {
+          // Si le rôle n'est pas défini, essayer de le déterminer basé sur l'email
+          const determinedRole = await apiService.determineUserRole(formData.email);
+          if (determinedRole === 'EMPLOYER') {
+            apiService.saveUserRole('EMPLOYER');
+            window.location.href = '/dashboard';
+          } else if (determinedRole === 'STUDENT') {
+            apiService.saveUserRole('STUDENT');
+            window.location.href = '/student-dashboard';
+          } else {
+            // Si on ne peut toujours pas déterminer, rediriger vers l'accueil
+            window.location.href = '/';
+          }
+        }
       } else {
         setError(response.error || 'Erreur de connexion');
       }

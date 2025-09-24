@@ -1,6 +1,37 @@
 import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { apiService } from "../services/apiService";
 
 export default function Header() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'STUDENT' | 'EMPLOYER' | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  useEffect(() => {
+    // Vérifier l'authentification côté client seulement
+    setIsAuthenticated(apiService.isAuthenticated());
+    setUserRole(apiService.getUserRole());
+    setUserEmail(apiService.getUserEmail());
+  }, []);
+
+  // Fermer le menu quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showUserMenu) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
   return (
     <header className="bg-gray-50 shadow-lg border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,22 +54,92 @@ export default function Header() {
             >
               Accueil
             </Link>
+            {isAuthenticated && userRole === 'EMPLOYER' && (
+              <Link 
+                to="/dashboard" 
+                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
+              >
+                Dashboard
+              </Link>
+            )}
+            {isAuthenticated && userRole === 'STUDENT' && (
+              <Link 
+                to="/student-dashboard" 
+                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
+              >
+                Mon Espace
+              </Link>
+            )}
           </nav>
 
           {/* CTA Button */}
           <div className="flex items-center space-x-4">
-            <Link
-              to="/signup"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              S'inscrire
-            </Link>
-              <Link
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/signup"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  S'inscrire
+                </Link>
+                <Link
                   to="/login"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
+                >
                   Connexion
-              </Link>
+                </Link>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                {/* Menu déroulant utilisateur */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <span className="font-medium">
+                      {userRole === 'EMPLOYER' ? 'Employeur' : 'Étudiant'}
+                    </span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Menu déroulant */}
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                      <div className="p-4">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-semibold text-sm">
+                              {userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {userRole === 'EMPLOYER' ? 'Employeur' : 'Étudiant'}
+                            </p>
+                            <p className="text-xs text-gray-500">{userEmail}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="border-t border-gray-200 pt-3">
+                          <button
+                            onClick={() => {
+                              apiService.removeToken();
+                              window.location.href = '/';
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            Déconnexion
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}

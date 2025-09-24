@@ -69,12 +69,13 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
       const response = await apiService.registerEmployer(registrationData);
 
       if (response.success && response.data) {
-        // Sauvegarder le token JWT
+        // Sauvegarder le token JWT et le rôle
         apiService.saveToken(response.data);
+        apiService.saveUserRole('EMPLOYER');
         
         console.log('Inscription réussie ! Token:', response.data);
-        // Rediriger vers la page d'accueil
-        window.location.href = '/';
+        // Rediriger vers le dashboard employeur
+        window.location.href = '/dashboard';
       } else {
         setError(response.error || 'Erreur lors de l\'inscription');
       }
