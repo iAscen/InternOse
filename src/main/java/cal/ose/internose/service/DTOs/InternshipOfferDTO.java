@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @Getter
 public class InternshipOfferDTO {
+    private String domain;
     private String jobTitle;
     private String taskDescription;
     private String qualifications;

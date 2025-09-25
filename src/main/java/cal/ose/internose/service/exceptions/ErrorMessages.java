@@ -1,4 +1,4 @@
-package cal.ose.internose.service.exception;
+package cal.ose.internose.service.exceptions;
 
 import lombok.Getter;
 
