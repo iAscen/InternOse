@@ -307,6 +307,90 @@ class ApiService {
     }
   }
 
+  // Méthodes pour les CV des étudiants
+  async uploadCV(file: File): Promise<ApiResponse<string>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const formData = new FormData();
+      formData.append('cv', file);
+
+      const response = await fetch(`${API_BASE_URL}/student/cv`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: result.message || 'CV téléversé avec succès',
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du téléversement du CV',
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléversement du CV:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string }>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/cv/status`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: result,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la récupération du statut du CV',
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du statut du CV:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   // Méthodes pour les offres de stage
   async getInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
     try {
