@@ -89,6 +89,7 @@ public class EmployerControllerTests {
             InternshipOfferDTO.builder()
                 .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
                 .taskDescription("*description ici*")
+                .domain("Technique de l'informatique")
                 .qualifications("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))

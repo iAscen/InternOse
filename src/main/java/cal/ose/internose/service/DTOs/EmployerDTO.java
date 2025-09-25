@@ -17,6 +17,4 @@ public class EmployerDTO extends UserAppDTO{
         super(firstName, lastName, email, password, role);
         this.enterprise = enterprise;
     }
-
-
 }

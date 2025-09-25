@@ -1,10 +1,10 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.exception.AuthenticationException;
-import cal.ose.internose.service.exception.UserAlreadyExistsException;
+import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
-import cal.ose.internose.service.exception.RequiredFieldException;
-import cal.ose.internose.service.exception.WeakPasswordException;
+import cal.ose.internose.service.exceptions.RequiredFieldException;
+import cal.ose.internose.service.exceptions.WeakPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

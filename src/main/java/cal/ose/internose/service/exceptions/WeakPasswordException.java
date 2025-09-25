@@ -1,4 +1,4 @@
-package cal.ose.internose.service.exception;
+package cal.ose.internose.service.exceptions;
 
 public class WeakPasswordException extends RuntimeException {
     public WeakPasswordException(String message) {
