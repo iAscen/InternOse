@@ -189,6 +189,54 @@ class ApiService {
     }
   }
 
+  // Récupérer l'ID de l'employeur depuis le JWT
+  async getEmployerIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      
+      console.log('🔍 Contenu du JWT:', decoded);
+      
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
+      const userId = decoded.userId || decoded.id || decoded.employerId || decoded.employer_id;
+      
+      if (userId) {
+        console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+      
+      // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les employeurs (${email})`);
+        return 1;
+      }
+      
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID employeur:', error);
+      return null;
+    }
+  }
+
+  // Générer un ID unique basé sur l'email (solution temporaire)
+  private generateUniqueIdFromEmail(email: string): number {
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+      const char = email.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Retourner un ID entre 1 et 9999 pour éviter les conflits
+    return Math.abs(hash) % 9999 + 1;
+  }
+
   // Récupérer le rôle utilisateur depuis le JWT
   getUserRoleFromJWT(): 'STUDENT' | 'EMPLOYER' | null {
     if (typeof window === 'undefined') return null;
@@ -270,7 +318,16 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/employer/internship-offers`, {
+      // Récupérer l'ID de l'employeur depuis le JWT
+      const employerId = await this.getEmployerIdFromJWT();
+      if (!employerId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'employeur. Vérifiez que le JWT contient l\'ID ou que l\'endpoint getEmployerIdByEmail est implémenté.',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/employer/internship-offers?employerID=${employerId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -309,7 +366,17 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/employer/internship-offers`, {
+      // Récupérer l'ID de l'employeur depuis le JWT
+      const employerId = await this.getEmployerIdFromJWT();
+      if (!employerId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'employeur. Vérifiez que le JWT contient l\'ID ou que l\'endpoint getEmployerIdByEmail est implémenté.',
+        };
+      }
+
+      // Envoyer l'ID de l'employeur comme paramètre de requête (pas dans le body)
+      const response = await fetch(`${API_BASE_URL}/employer/internship-offers?employerID=${employerId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

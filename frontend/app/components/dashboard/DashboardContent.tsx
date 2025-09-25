@@ -26,14 +26,19 @@ export default function DashboardContent() {
   const loadOffers = async () => {
     try {
       setLoading(true);
+      console.log('Chargement des offres...');
       const response = await dashboardService.getInternshipOffers();
+      console.log('Réponse du serveur:', response);
       
       if (response.success && response.data) {
+        console.log('Offres chargées:', response.data);
         setOffers(response.data);
       } else {
+        console.error('Erreur lors du chargement:', response.error);
         setError(response.error || 'Erreur lors du chargement des offres');
       }
     } catch (err) {
+      console.error('Erreur de connexion:', err);
       setError('Erreur de connexion au serveur');
     } finally {
       setLoading(false);
@@ -60,16 +65,21 @@ export default function DashboardContent() {
 
     try {
       setLoading(true);
+      console.log('Création de l\'offre avec les données:', formData);
       const response = await dashboardService.createInternshipOffer(formData);
+      console.log('Réponse de création:', response);
 
       if (response.success) {
         setSuccess('Offre de stage créée avec succès ! Elle est en attente de validation.');
         setShowCreateForm(false);
+        console.log('Rechargement des offres...');
         loadOffers(); // Recharger la liste
       } else {
+        console.error('Erreur lors de la création:', response.error);
         setError(response.error || 'Erreur lors de la création de l\'offre');
       }
     } catch (err) {
+      console.error('Erreur de connexion lors de la création:', err);
       setError('Erreur de connexion au serveur');
     } finally {
       setLoading(false);

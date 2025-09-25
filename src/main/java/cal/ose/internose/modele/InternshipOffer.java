@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 public class InternshipOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,16 +36,15 @@ public class InternshipOffer {
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
-            .jobTitle(internshipOfferDTO.getJobTitle())
-            .taskDescription(internshipOfferDTO.getTaskDescription())
-            .qualifications(internshipOfferDTO.getQualifications())
-            .duration(internshipOfferDTO.getDuration())
-            .startDate(internshipOfferDTO.getStartDate())
-            .endDate(
-                internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration())
-            )
-            .salary(internshipOfferDTO.getSalary())
-            .address(internshipOfferDTO.getAddress())
-            .build();
+                .jobTitle(internshipOfferDTO.getJobTitle())
+                .taskDescription(internshipOfferDTO.getTaskDescription())
+                .qualifications(internshipOfferDTO.getQualifications())
+                .duration(internshipOfferDTO.getDuration())
+                .startDate(internshipOfferDTO.getStartDate())
+                .endDate(
+                        internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration()))
+                .salary(internshipOfferDTO.getSalary())
+                .address(internshipOfferDTO.getAddress())
+                .build();
     }
 }

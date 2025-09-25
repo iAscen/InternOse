@@ -29,8 +29,9 @@ public class EmployerService {
 
     public Optional<InternshipOffer> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
-        InternshipOffer internshipOffer = internshipOfferDAO.save(InternshipOffer.fromDTO(internshipOfferDTO));
-        employer.addInternshipOffer(internshipOffer);
+        InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
+        internshipOffer.setEmployer(employer); // Définir l'employeur AVANT de sauvegarder
+        internshipOffer = internshipOfferDAO.save(internshipOffer);
         return Optional.of(internshipOffer);
     }
 }

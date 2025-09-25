@@ -31,27 +31,25 @@ public class AuthService {
 
     @Transactional
     public String registerEmployer(EmployerDTO employerDTO) {
-        Employer employer =
-                Employer.builder()
-                        .credentials(new Credentials(employerDTO.getEmail(),
-                                passwordEncoder.encode(employerDTO.getPassword()), Role.EMPLOYER))
-                        .firstName(employerDTO.getFirstName())
-                        .lastName(employerDTO.getLastName())
-                        .enterprise(employerDTO.getEnterprise())
-                        .build();
+        Employer employer = Employer.builder()
+                .credentials(new Credentials(employerDTO.getEmail(),
+                        passwordEncoder.encode(employerDTO.getPassword()), Role.EMPLOYER))
+                .firstName(employerDTO.getFirstName())
+                .lastName(employerDTO.getLastName())
+                .enterprise(employerDTO.getEnterprise())
+                .build();
 
         return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
     }
 
     @Transactional
     public String registerStudent(StudentDTO studentDTO) {
-        Student student =
-                Student.builder()
-                        .credentials(new Credentials(studentDTO.getEmail(),
-                                passwordEncoder.encode(studentDTO.getPassword()), Role.STUDENT))
-                        .firstName(studentDTO.getFirstName())
-                        .lastName(studentDTO.getLastName())
-                        .build();
+        Student student = Student.builder()
+                .credentials(new Credentials(studentDTO.getEmail(),
+                        passwordEncoder.encode(studentDTO.getPassword()), Role.STUDENT))
+                .firstName(studentDTO.getFirstName())
+                .lastName(studentDTO.getLastName())
+                .build();
 
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);
     }
@@ -60,11 +58,13 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDTO.getEmail(),
-                        loginDTO.getPassword()
-                )
-        );
-        
-        return jwtTokenProvider.generateToken(authentication);
+                        loginDTO.getPassword()));
+
+        // Récupérer l'ID de l'utilisateur depuis la base de données
+        UserApp user = userAppDAO.findUserAppByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        return jwtTokenProvider.generateToken(authentication, user.getId());
     }
 
     private String registerUser(String email, String password, UserApp user) {
@@ -73,21 +73,17 @@ public class AuthService {
 
             if (userAppDAO.findUserAppByEmail(email).isPresent()) {
                 throw new UserAlreadyExistsException(
-                        String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), email)
-                );
+                        String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), email));
             }
 
-            userAppDAO.save(user);
+            UserApp savedUser = userAppDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    email, password
-            );
+                    email, password);
 
             return jwtTokenProvider.generateToken(
-                    authentication
-            );
-        }
-        catch (DataIntegrityViolationException e) {
+                    authentication, savedUser.getId());
+        } catch (DataIntegrityViolationException e) {
             throw new RequiredFieldException(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage());
         }
     }
