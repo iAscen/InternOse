@@ -259,25 +259,6 @@
 
 ---
 
-## Script de démo
-
-### Introduction
-
-"Bonjour, je vais vous présenter InternOSE, une plateforme de gestion de stages que j'ai développée. Cette application permet aux employeurs de créer et gérer des offres de stage, et aux étudiants de téléverser leur CV pour postuler."
-
-### Transition entre sections
-
-- "Commençons par l'inscription des utilisateurs..."
-- "Maintenant, explorons le dashboard employeur..."
-- "Passons au côté étudiant..."
-- "Regardons les aspects techniques..."
-
-### Conclusion
-
-"InternOSE est une plateforme complète qui répond aux besoins des employeurs et des étudiants dans la gestion des stages. L'architecture est extensible et prête pour de futures fonctionnalités comme la recherche d'offres ou le système de candidatures."
-
----
-
 ## Préparation technique
 
 ### Avant la démo
