@@ -18,7 +18,6 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
     password: '',
     confirmPassword: '',
     companyName: '',
-    phoneNumber: '',
   });
 
   const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -123,15 +122,6 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 value={formData.email}
                 onChange={handleChange}
                 required
-              />
-              <FormInput
-                id="phoneNumber"
-                name="phoneNumber"
-                type="tel"
-                label="Téléphone"
-                placeholder="+1 514 555 5555"
-                value={formData.phoneNumber}
-                onChange={handleChange}
               />
             </div>
           </FormSection>

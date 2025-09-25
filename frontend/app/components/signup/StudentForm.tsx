@@ -17,7 +17,6 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     email: '',
     password: '',
     confirmPassword: '',
-    phoneNumber: '',
   });
 
   const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -121,15 +120,6 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 value={formData.email}
                 onChange={handleChange}
                 required
-              />
-              <FormInput
-                id="phoneNumber"
-                name="phoneNumber"
-                type="tel"
-                label="Téléphone"
-                placeholder="+1 514 555 5555"
-                value={formData.phoneNumber}
-                onChange={handleChange}
               />
             </div>
           </FormSection>
