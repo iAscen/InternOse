@@ -10,4 +10,7 @@ public class Paths {
 
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";
     public static final String INTERNSHIP_OFFERS_PATH = EMPLOYER_BASE_PATH + "/internship-offers";
+
+    public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";
+    public static final String SEARCH_INTERNSHIPS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/search";
 }
