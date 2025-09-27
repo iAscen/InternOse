@@ -11,7 +11,6 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "OFFRES_STAGE")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
