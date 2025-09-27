@@ -17,4 +17,9 @@ import lombok.experimental.SuperBuilder;
 public class Employer extends UserApp {
     @Column(nullable = false)
     private String enterprise;
+
+    public Employer(Long id, String firstName, String lastName, Credentials credentials, String enterprise) {
+        super(id, firstName, lastName, credentials);
+        this.enterprise = enterprise;
+    }
 }
