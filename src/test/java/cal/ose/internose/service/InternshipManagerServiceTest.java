@@ -35,6 +35,8 @@ class InternshipManagerServiceTest {
         assertFalse(internshipOfferDTOS.getFirst().isValidee());
     }
 
+
+
     @Test
     void findInternshipsByNothingFound() {
         when(internshipOfferDAO.findInternshipsBy("non", null, null))
@@ -62,7 +64,14 @@ class InternshipManagerServiceTest {
                         .validee(true)
                         .jobTitle("Software Senior")
                         .domain("Informatique")
+                        .build(),
+                InternshipOffer.builder()
+                        .validee(true)
+                        .jobTitle("Junior Designer")
+                        .domain("Architecture")
                         .build()
         );
     }
+
+
 }
