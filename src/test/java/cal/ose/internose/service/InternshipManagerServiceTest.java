@@ -1,5 +1,6 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
@@ -38,6 +39,24 @@ class InternshipManagerServiceTest {
 
 
     @Test
+    void sortByDomain() {
+        when(internshipOfferDAO.findInternshipsBy(null, null, null))
+                .thenReturn(List.of(
+                        InternshipOffer.builder().domain("Informatique").validee(true).build(),
+                        InternshipOffer.builder().domain("Biologie").validee(true).build(),
+                        InternshipOffer.builder().domain("Architecture").validee(false).build()
+                ));
+
+        List<InternshipOfferDTO> result = internshipManagerService
+                .findInternshipsBy(null, null, null, null);
+
+        assertEquals(3, result.size());
+        assertEquals("Architecture", result.get(0).getDomain());
+        assertEquals("Biologie", result.get(1).getDomain());
+        assertEquals("Informatique", result.get(2).getDomain());
+    }
+
+    @Test
     void findInternshipsByNothingFound() {
         when(internshipOfferDAO.findInternshipsBy("non", null, null))
                 .thenReturn(List.of());
@@ -72,6 +91,4 @@ class InternshipManagerServiceTest {
                         .build()
         );
     }
-
-
 }
