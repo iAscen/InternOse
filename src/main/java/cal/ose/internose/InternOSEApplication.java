@@ -19,7 +19,7 @@ public class InternOSEApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
-        internshipManagerDTO.setEmail("managerEmail");
+        internshipManagerDTO.setEmail("managerEmail@email");
         internshipManagerDTO.setPassword("managerPassword1@");
         internshipManagerDTO.setFirstName("manager");
         internshipManagerDTO.setLastName("manager");
