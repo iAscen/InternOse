@@ -1,7 +1,6 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.EmployerService;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(EmployerController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@DisplayName("EmployerController Tests")
 public class EmployerControllerTests {
     @Autowired
     private MockMvc mockMvc;
@@ -39,9 +40,6 @@ public class EmployerControllerTests {
 
     @MockitoBean
     private EmployerService employerService;
-
-    @MockitoBean
-    private InternshipOfferDAO internshipOfferDAO;
 
     @Test
     @DisplayName("Test de GET /api/employer/internship-offers")
@@ -53,7 +51,7 @@ public class EmployerControllerTests {
         // Act
         MvcResult mvcResult = mockMvc.perform(
             get(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
-            .contentType("application/json")
+            .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
@@ -76,7 +74,7 @@ public class EmployerControllerTests {
         // Act
         MvcResult mvcResult = mockMvc.perform(
             post(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
-            .contentType("application/json")
+            .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();
         // Assert

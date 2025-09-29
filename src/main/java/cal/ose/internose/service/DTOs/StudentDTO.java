@@ -10,11 +10,8 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class StudentDTO extends UserAppDTO{
-
+public class StudentDTO extends UserAppDTO {
     public StudentDTO(String firstName, String lastName, String email, String password, Role role) {
         super(firstName, lastName, email, password, role);
     }
-
-
 }
