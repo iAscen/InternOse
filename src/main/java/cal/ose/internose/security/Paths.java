@@ -13,4 +13,7 @@ public class Paths {
 
     public static final String STUDENT_BASE_PATH = API_BASE_PATH + "/student";
     public static final String STUDENT_CV_PATH = STUDENT_BASE_PATH + "/cv";
+  
+    public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";
+    public static final String SEARCH_INTERNSHIPS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/search";
 }

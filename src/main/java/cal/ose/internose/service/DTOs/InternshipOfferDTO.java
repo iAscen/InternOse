@@ -3,12 +3,14 @@ package cal.ose.internose.service.DTOs;
 import cal.ose.internose.modele.InternshipOffer;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Builder
 @Getter
+@ToString
 public class InternshipOfferDTO {
     private String domain;
     private String jobTitle;
@@ -19,6 +21,7 @@ public class InternshipOfferDTO {
     private LocalDate endDate;
     private double salary;
     private String address;
+    private boolean validee;
 
     public static InternshipOfferDTO fromEntity(InternshipOffer internshipOffer) {
         return InternshipOfferDTO.builder()
@@ -30,6 +33,8 @@ public class InternshipOfferDTO {
             .endDate(internshipOffer.getEndDate())
             .salary(internshipOffer.getSalary())
             .address(internshipOffer.getAddress())
+            .domain(internshipOffer.getDomain())
+            .validee(internshipOffer.isValidee())
             .build();
     }
 

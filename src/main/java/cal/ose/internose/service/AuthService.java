@@ -1,8 +1,10 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.InternshipManagerDAO;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
+import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
@@ -28,6 +30,18 @@ public class AuthService {
     private final UserAppDAO userAppDAO;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+    @Transactional
+    public String registerInternshipManager(InternshipManagerDTO internshipManagerDTO) {
+        InternshipManager internshipManager = InternshipManager.builder()
+                .credentials(new Credentials(internshipManagerDTO.getEmail(),
+                        passwordEncoder.encode(internshipManagerDTO.getPassword()), Role.INTERNSHIP_MANAGER))
+                .firstName(internshipManagerDTO.getFirstName())
+                .lastName(internshipManagerDTO.getLastName())
+                .build();
+
+        return registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
+    }
 
     @Transactional
     public String registerEmployer(EmployerDTO employerDTO) {
