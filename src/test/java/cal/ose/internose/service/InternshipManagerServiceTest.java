@@ -3,6 +3,7 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -123,7 +124,7 @@ class InternshipManagerServiceTest {
         Long missingId = 999L;
         when(internshipOfferDAO.findInternshipOfferById(missingId)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ResourceNotFoundException.class, () ->
                 internshipManagerService.validateInternshipOffer(missingId, true, null)
         );
 

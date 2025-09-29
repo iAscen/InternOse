@@ -4,6 +4,7 @@ import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Role;
 import cal.ose.internose.modele.UserApp;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class InternshipManagerService {
     public InternshipOffer getInternshipOfferById(Long id) {
         InternshipOffer offer = internshipOfferDAO.findInternshipOfferById(id);
         if (offer == null) {
-            throw new IllegalArgumentException("TK");
+            throw new ResourceNotFoundException("Internship Offer not found");
         }
         return offer;
     }
