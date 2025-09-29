@@ -1,5 +1,6 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,12 @@ public class InternshipManagerController {
                                                                       @RequestParam(required = false) String filter) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, filter));
+    }
+
+    @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
+    public ResponseEntity<String> validateInternshipOffer(@RequestParam Long offerId, @RequestParam Boolean approved, @RequestParam(required = false) String commentaire) {
+        internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Paths.INTERNSHIP_VALIDATION_PATH);
     }
 }

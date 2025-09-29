@@ -20,4 +20,6 @@ public interface InternshipOfferDAO extends JpaRepository<InternshipOffer, Long>
     List<InternshipOffer> findInternshipsBy(@Param("domain") String domain,
                                             @Param("valid") Boolean valid,
                                             @Param("enterprise") String enterprise);
+
+    InternshipOffer findInternshipOfferById(Long id);
 }

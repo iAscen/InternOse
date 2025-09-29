@@ -1,6 +1,8 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.Role;
+import cal.ose.internose.modele.UserApp;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import lombok.AllArgsConstructor;
@@ -52,5 +54,31 @@ public class InternshipManagerService {
         }
 
         return InternshipOfferDTO.fromEntityList(internshipOffers);
+    }
+
+    public InternshipOffer getInternshipOfferById(Long id) {
+        InternshipOffer offer = internshipOfferDAO.findInternshipOfferById(id);
+        if (offer == null) {
+            throw new IllegalArgumentException("TK");
+        }
+        return offer;
+    }
+
+    // approuve: true = approuvé, false = rejeté
+    public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
+
+        InternshipOffer offer = getInternshipOfferById(id);
+
+        offer.setValidee(true);
+        if (!approuve) {
+            offer.setRejectionReason(commentaire);
+            offer.setValidationStatus("rejeté");
+        }
+        else {
+            offer.setValidationStatus("approuvé");
+            offer.setRejectionReason(null);
+        }
+
+        internshipOfferDAO.save(offer);
     }
 }
