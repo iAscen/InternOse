@@ -67,7 +67,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
         
         console.log('Inscription réussie ! Token:', response.data);
         // Rediriger vers le dashboard employeur
-        window.location.href = '/dashboard';
+        window.location.href = '/employer-dashboard';
       } else {
         setError(response.error || t('auth.registrationError'));
       }

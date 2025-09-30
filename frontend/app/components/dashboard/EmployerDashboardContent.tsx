@@ -8,7 +8,7 @@ import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
 import type { InternshipOffer, CreateOfferFormData } from '../../interfaces';
 
-export default function DashboardContent() {
+export default function EmployerDashboardContent() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [offers, setOffers] = useState<InternshipOffer[]>([]);

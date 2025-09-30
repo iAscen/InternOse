@@ -4,6 +4,7 @@ export default [
   index("routes/home.tsx"),
   route("signup", "routes/signup.tsx"),
   route("login", "routes/login.tsx"),
-  route("dashboard", "routes/dashboard.tsx"),
+  route("employer-dashboard", "routes/employer-dashboard.tsx"),
   route("student-dashboard", "routes/student-dashboard.tsx"),
+  route("im-dashboard", "routes/im-dashboard.tsx"),
 ] satisfies RouteConfig;

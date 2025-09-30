@@ -35,30 +35,37 @@ export default function LoginForm({ onBack }: LoginFormProps) {
       if (response.success && response.data) {
         // Sauvegarder le token JWT
         apiService.saveToken(response.data);
-        
-        console.log('Connexion réussie ! Token:', response.data);
-        
         // Déterminer le rôle utilisateur depuis le JWT et rediriger vers le bon dashboard
         const userRoleFromJWT = apiService.getUserRoleFromJWT();
-        if (userRoleFromJWT === 'EMPLOYER') {
-          apiService.saveUserRole('EMPLOYER');
-          window.location.href = '/dashboard';
-        } else if (userRoleFromJWT === 'STUDENT') {
-          apiService.saveUserRole('STUDENT');
-          window.location.href = '/student-dashboard';
-        } else {
-          // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
-          const determinedRole = await apiService.determineUserRole(formData.email);
-          if (determinedRole === 'EMPLOYER') {
+        switch (userRoleFromJWT) {
+          case 'EMPLOYER':
             apiService.saveUserRole('EMPLOYER');
-            window.location.href = '/dashboard';
-          } else if (determinedRole === 'STUDENT') {
+            window.location.href = '/employer-dashboard';
+            break;
+          case 'STUDENT':
             apiService.saveUserRole('STUDENT');
             window.location.href = '/student-dashboard';
-          } else {
-            // Si on ne peut toujours pas déterminer, rediriger vers l'accueil
-            window.location.href = '/';
-          }
+            break;
+          case 'INTERNSHIP-MANAGER':
+            apiService.saveUserRole('INTERNSHIP-OFFER');
+            window.location.href = '/im-dashboard';
+            break;
+          default:
+            // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
+            const determinedRole = await apiService.determineUserRole(formData.email);
+            if (determinedRole === 'EMPLOYER') {
+              apiService.saveUserRole('EMPLOYER');
+              window.location.href = '/dashboard';
+            } else if (determinedRole === 'STUDENT') {
+              apiService.saveUserRole('STUDENT');
+              window.location.href = '/student-dashboard';
+            } else if (determinedRole === 'INTERNSHIP-MANAGER') {
+              apiService.saveUserRole('INTERNSHIP-MANAGER');
+              window.location.href = '/im-dashboard';
+            } else {
+              // Si on ne peut toujours pas déterminer, rediriger vers l'accueil
+              window.location.href = '/';
+            }
         }
       } else {
         setError(response.error || t('errors.networkError'));
@@ -130,7 +137,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
                 t('common.login')
               )}
             </button>
-            
+
             {/* Affichage des erreurs sous le bouton */}
             {error && (
               <div className="mt-4 text-center">
