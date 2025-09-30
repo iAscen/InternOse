@@ -3,7 +3,8 @@ package cal.ose.internose.modele;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 public class Student extends UserApp {
     private String CVFileName;
     private String CVFileType;
-    @Lob
+    @JdbcTypeCode(SqlTypes.VARBINARY)
     @Column(columnDefinition = "BYTEA")
     private byte[] CVFileData;
 }

@@ -33,6 +33,10 @@ public class InternshipOffer {
     private String address;
     @Builder.Default
     private boolean validee = false;
+    private String validationStatus;
+
+    @Column(length = 2000)
+    private String rejectionReason;
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()

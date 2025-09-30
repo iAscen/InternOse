@@ -1,11 +1,12 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class InternshipManagerServiceTest {
@@ -65,6 +66,68 @@ class InternshipManagerServiceTest {
                 .findInternshipsBy("non", null, null, null);
 
         assertEquals(0, internshipOfferDTOS.size());
+    }
+
+    @Test
+    void approveInternshipOffer() {
+        Long offerId = 1L;
+        InternshipOffer existing = InternshipOffer.builder()
+                .id(offerId)
+                .validee(false)
+                .validationStatus(null)
+                .rejectionReason("Old reason that should be cleared")
+                .build();
+        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+
+
+        internshipManagerService.validateInternshipOffer(offerId, true, "any comment should be ignored on approve");
+
+
+        ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
+        verify(internshipOfferDAO, times(1)).save(captor.capture());
+        InternshipOffer saved = captor.getValue();
+
+        assertTrue(saved.isValidee(), "Offer must be marked as validated");
+        assertEquals("approuvé", saved.getValidationStatus(), "Status must be 'approuvé' on approval");
+        assertNull(saved.getRejectionReason(), "Rejection reason must be cleared on approval");
+    }
+
+
+    @Test
+    void rejectInternshipOffer() {
+        Long offerId = 2L;
+        String rejectionComment = "Détails insufficient dans la description";
+        InternshipOffer existing = InternshipOffer.builder()
+                .id(offerId)
+                .validee(false)
+                .validationStatus(null)
+                .rejectionReason(null)
+                .build();
+        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+
+
+        internshipManagerService.validateInternshipOffer(offerId, false, rejectionComment);
+
+
+        ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
+        verify(internshipOfferDAO, times(1)).save(captor.capture());
+        InternshipOffer saved = captor.getValue();
+
+        assertTrue(saved.isValidee());
+        assertEquals("rejeté", saved.getValidationStatus());
+        assertEquals(rejectionComment, saved.getRejectionReason());
+    }
+
+    @Test
+    void validationInternshipOfferNotFound() {
+        Long missingId = 999L;
+        when(internshipOfferDAO.findInternshipOfferById(missingId)).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                internshipManagerService.validateInternshipOffer(missingId, true, null)
+        );
+
+        verify(internshipOfferDAO, never()).save(any());
     }
 
     private List<InternshipOffer> getInternships() {

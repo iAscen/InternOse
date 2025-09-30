@@ -3,9 +3,7 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,5 +26,12 @@ public class InternshipManagerController {
                                                                       @RequestParam(required = false) String filter) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, filter));
+    }
+
+    @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
+    public ResponseEntity<String> validateInternshipOffer(@RequestParam Long offerId, @RequestParam Boolean approved, @RequestParam(required = false) String commentaire) {
+        internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Paths.INTERNSHIP_VALIDATION_PATH);
     }
 }
