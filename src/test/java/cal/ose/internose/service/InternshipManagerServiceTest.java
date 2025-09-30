@@ -1,6 +1,5 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
