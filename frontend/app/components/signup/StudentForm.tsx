@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
 import PasswordField from "./PasswordField";
@@ -11,6 +12,7 @@ interface StudentFormProps {
 }
 
 export default function StudentForm({ onBack }: StudentFormProps) {
+  const { t } = useTranslation();
   const { formData, setFormData, error, setError, handleChange } = useForm({
     firstName: '',
     lastName: '',
@@ -38,7 +40,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     e.preventDefault();
     
     if (!isPasswordValid) {
-      setError('Veuillez corriger les erreurs de mot de passe');
+      setError(t('auth.passwordErrors'));
       return;
     }
 
@@ -65,10 +67,10 @@ export default function StudentForm({ onBack }: StudentFormProps) {
         // Rediriger vers le dashboard étudiant
         window.location.href = '/student-dashboard';
       } else {
-        setError(response.error || 'Erreur lors de l\'inscription');
+        setError(response.error || t('auth.registrationError'));
       }
     } catch (err) {
-      setError('Erreur de connexion au serveur');
+      setError(t('auth.serverError'));
     } finally {
       setIsLoading(false);
     }
@@ -78,10 +80,10 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          Inscription <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Étudiant</span>
+          {t('auth.studentSignupTitle')} <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"></span>
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Créez votre compte étudiant et trouvez votre stage idéal
+          {t('auth.studentSignupSubtitle')}
         </p>
       </div>
 
@@ -89,14 +91,14 @@ export default function StudentForm({ onBack }: StudentFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Informations personnelles */}
-          <FormSection title="Informations personnelles">
+          <FormSection title={t('auth.personalInfo')}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormInput
                 id="firstName"
                 name="firstName"
                 type="text"
-                label="Prénom"
-                placeholder="Votre prénom"
+                label={t('common.firstName')}
+                placeholder={t('auth.firstNamePlaceholder')}
                 value={formData.firstName}
                 onChange={handleChange}
                 required
@@ -105,8 +107,8 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 id="lastName"
                 name="lastName"
                 type="text"
-                label="Nom"
-                placeholder="Votre nom"
+                label={t('common.lastName')}
+                placeholder={t('auth.lastNamePlaceholder')}
                 value={formData.lastName}
                 onChange={handleChange}
                 required
@@ -115,8 +117,8 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 id="email"
                 name="email"
                 type="email"
-                label="Email"
-                placeholder="votre.email@etudiant.com"
+                label={t('common.email')}
+                placeholder={t('auth.emailPlaceholder')}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -125,7 +127,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
           </FormSection>
 
           {/* Mot de passe */}
-          <FormSection title="Sécurité">
+          <FormSection title={t('auth.security')}>
             <PasswordField
               onPasswordChange={handlePasswordChange}
               onConfirmPasswordChange={handleConfirmPasswordChange}
@@ -146,10 +148,10 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Création du compte...
+                  {t('auth.creatingAccount')}
                 </>
               ) : (
-                'Créer mon compte étudiant'
+                t('auth.createStudentAccount')
               )}
             </button>
             
@@ -177,7 +179,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Retour au choix
+          {t('auth.backToChoice')}
         </button>
       </div>
     </div>

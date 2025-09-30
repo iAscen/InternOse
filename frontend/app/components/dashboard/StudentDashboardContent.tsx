@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { apiService } from '../../services/apiService';
 import CVUploadSection from './CVUploadSection';
 import CVStatusCard from './CVStatusCard';
 import StatisticsCard from './StatisticsCard';
 
 export default function StudentDashboardContent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [cvStatus, setCvStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [cvFileName, setCvFileName] = useState<string | null>(null);
@@ -84,15 +86,15 @@ export default function StudentDashboardContent() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Tableau de bord étudiant</h1>
-              <p className="text-gray-600 mt-2">Gérez votre profil et vos candidatures</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('student.dashboard')}</h1>
+              <p className="text-gray-600 mt-2">{t('student.dashboardSubtitle')}</p>
             </div>
             <div>
               <button
                 onClick={() => setShowUploadForm(!showUploadForm)}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {showUploadForm ? 'Annuler' : 'Téléverser mon CV'}
+                {showUploadForm ? t('common.cancel') : t('student.uploadMyCV')}
               </button>
             </div>
           </div>
@@ -101,28 +103,28 @@ export default function StudentDashboardContent() {
         {/* Cartes de statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatisticsCard
-            title="CV validé"
+            title={t('student.cvValidated')}
             value={stats.cvStatus}
             icon={statsIcons.cvStatus}
             bgColor="bg-blue-100"
             iconColor="text-blue-600"
           />
           <StatisticsCard
-            title="Candidatures"
+            title={t('student.applications')}
             value={stats.applications}
             icon={statsIcons.applications}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
           />
           <StatisticsCard
-            title="En attente"
+            title={t('student.pending')}
             value={stats.pendingApplications}
             icon={statsIcons.pendingApplications}
             bgColor="bg-yellow-100"
             iconColor="text-yellow-600"
           />
           <StatisticsCard
-            title="Acceptées"
+            title={t('student.accepted')}
             value={stats.approvedApplications}
             icon={statsIcons.approvedApplications}
             bgColor="bg-green-100"
@@ -151,7 +153,7 @@ export default function StudentDashboardContent() {
 
         {/* Section d'information pour les étudiants */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Informations importantes</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('student.importantInfo')}</h2>
           <div className="space-y-4">
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
@@ -161,7 +163,7 @@ export default function StudentDashboardContent() {
               </div>
               <div>
                 <p className="text-sm text-gray-700">
-                  <strong>CV requis :</strong> Vous devez téléverser un CV validé pour pouvoir postuler aux offres de stage.
+                  <strong>{t('student.cvRequired')}</strong> {t('student.cvRequiredDesc')}
                 </p>
               </div>
             </div>
@@ -173,7 +175,7 @@ export default function StudentDashboardContent() {
               </div>
               <div>
                 <p className="text-sm text-gray-700">
-                  <strong>Format accepté :</strong> Seuls les fichiers PDF sont acceptés, taille maximale 10MB.
+                  <strong>{t('student.acceptedFormat')}</strong> {t('student.acceptedFormatDesc')}
                 </p>
               </div>
             </div>
@@ -185,7 +187,7 @@ export default function StudentDashboardContent() {
               </div>
               <div>
                 <p className="text-sm text-gray-700">
-                  <strong>Validation :</strong> Votre CV sera validé par le gestionnaire de stage dans les plus brefs délais.
+                  <strong>{t('student.validation')}</strong> {t('student.validationDesc')}
                 </p>
               </div>
             </div>

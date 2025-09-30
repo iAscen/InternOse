@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CreateOfferFormData } from '../../interfaces';
 
 interface CreateOfferFormProps {
@@ -8,6 +9,7 @@ interface CreateOfferFormProps {
 }
 
 export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateOfferFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<CreateOfferFormData>({
     jobTitle: '',
     taskDescription: '',
@@ -33,12 +35,12 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Créer une nouvelle offre de stage</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('internship.createNewOffer')}</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-2">
-              Titre du poste *
+              {t('internship.jobTitle')} *
             </label>
             <input
               type="text"
@@ -48,13 +50,13 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-              placeholder="Ex: Développeur Full Stack"
+              placeholder={t('internship.jobTitlePlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-              Lieu du stage *
+              {t('internship.location')} *
             </label>
             <input
               type="text"
@@ -64,13 +66,13 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-              placeholder="Ex: Montréal, QC"
+              placeholder={t('internship.locationPlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
-              Durée (en semaines) *
+              {t('internship.durationWeeks')} *
             </label>
             <input
               type="number"
@@ -83,13 +85,13 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
             <p className="text-sm text-gray-500 mt-1">
-              La date de fin sera calculée automatiquement
+              {t('internship.endDateCalculated')}
             </p>
           </div>
 
           <div>
             <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-2">
-              Rémunération (par semaine)
+              {t('internship.salaryPerWeek')}
             </label>
             <input
               type="number"
@@ -105,7 +107,7 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
 
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-              Date de début *
+              {t('internship.startDate')} *
             </label>
             <input
               type="date"
@@ -121,7 +123,7 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
 
         <div>
           <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 mb-2">
-            Description détaillée des tâches *
+            {t('internship.detailedDescription')} *
           </label>
           <textarea
             id="taskDescription"
@@ -131,13 +133,13 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
             required
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-            placeholder="Décrivez les tâches que l'étudiant devra accomplir..."
+            placeholder={t('internship.descriptionPlaceholder')}
           />
         </div>
 
         <div>
           <label htmlFor="qualifications" className="block text-sm font-medium text-gray-700 mb-2">
-            Compétences requises *
+            {t('internship.requiredSkills')} *
           </label>
           <textarea
             id="qualifications"
@@ -147,7 +149,7 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
             required
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-            placeholder="Ex: Java, Spring Boot, React, SQL..."
+            placeholder={t('internship.skillsPlaceholder')}
           />
         </div>
 
@@ -157,14 +159,14 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
             onClick={onCancel}
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            Annuler
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
             disabled={loading}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            {loading ? 'Création...' : 'Créer l\'offre'}
+            {loading ? t('internship.creating') : t('internship.createOffer')}
           </button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import FormInput from '../FormInput';
 
 interface PasswordFieldProps {
@@ -12,6 +13,7 @@ export default function PasswordField({
   onConfirmPasswordChange, 
   onValidationChange 
 }: PasswordFieldProps) {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{password?: string; confirmPassword?: string}>({});
@@ -21,18 +23,18 @@ export default function PasswordField({
 
     if (pwd) {
       if (pwd.length < 8) {
-        newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+        newErrors.password = t('auth.passwordMinLength');
       } else if (!/[A-Z]/.test(pwd)) {
-        newErrors.password = 'Le mot de passe doit contenir au moins une lettre majuscule';
+        newErrors.password = t('auth.passwordUppercase');
       } else if (!/[0-9]/.test(pwd)) {
-        newErrors.password = 'Le mot de passe doit contenir au moins un chiffre';
+        newErrors.password = t('auth.passwordDigit');
       } else if (!/[!@#$%^&()_+\-=\[\]{};':|,.<>/?]/.test(pwd)) {
-        newErrors.password = 'Le mot de passe doit contenir au moins un caractère spécial';
+        newErrors.password = t('auth.passwordSpecial');
       }
     }
 
     if (confirm && pwd !== confirm) {
-      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
+      newErrors.confirmPassword = t('auth.passwordMismatch');
     }
 
     setErrors(newErrors);
@@ -72,8 +74,8 @@ export default function PasswordField({
           id="password"
           name="password"
           type="password"
-          label="Mot de passe"
-          placeholder="Votre mot de passe"
+          label={t('common.password')}
+          placeholder={t('auth.passwordPlaceholder')}
           value={password}
           onChange={handlePasswordChange}
           error={errors.password}
@@ -81,7 +83,7 @@ export default function PasswordField({
           minLength={8}
         />
         <p className="mt-1 text-xs text-gray-500">
-          Au moins 8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial
+          {t('auth.passwordRequirements')}
         </p>
       </div>
       <div>
@@ -89,8 +91,8 @@ export default function PasswordField({
           id="confirmPassword"
           name="confirmPassword"
           type="password"
-          label="Confirmer le mot de passe"
-          placeholder="Confirmez votre mot de passe"
+          label={t('common.confirmPassword')}
+          placeholder={t('common.confirmPassword')}
           value={confirmPassword}
           onChange={handleConfirmPasswordChange}
           error={errors.confirmPassword}

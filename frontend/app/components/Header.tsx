@@ -1,84 +1,93 @@
 import { Link } from "react-router";
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { apiService } from "../services/apiService";
 import { useAuth, useClickOutside } from "../hooks";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
   const { isAuthenticated, userRole, userEmail } = useAuth();
+  const { t } = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(menuRef, () => setShowUserMenu(false));
+  useClickOutside(mobileMenuRef, () => setShowMobileMenu(false));
 
   return (
     <header className="bg-gray-50 shadow-lg border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">I</span>
-              </div>
-              <span className="ml-3 text-2xl font-bold text-gray-900">InternOSE</span>
-            </Link>
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18 md:h-20 w-full">
+          {/* Left side: Logo + Navigation */}
+          <div className="flex items-center">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link to="/" className="flex items-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg sm:text-xl">I</span>
+                </div>
+                <span className="ml-2 sm:ml-3 text-xl sm:text-2xl font-bold text-gray-900">InternOSE</span>
+              </Link>
+            </div>
+
+            {/* Navigation - right next to logo */}
+            <nav className="hidden lg:flex ml-4 md:ml-6 lg:ml-8 space-x-3 md:space-x-4 lg:space-x-6">
+              {!isAuthenticated && (
+                <Link 
+                  to="/" 
+                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                >
+                  {t('navigation.home')}
+                </Link>
+              )}
+              {isAuthenticated && userRole === 'EMPLOYER' && (
+                <Link 
+                  to="/dashboard" 
+                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                >
+                  {t('navigation.dashboard')}
+                </Link>
+              )}
+              {isAuthenticated && userRole === 'STUDENT' && (
+                <Link 
+                  to="/student-dashboard" 
+                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                >
+                  {t('student.dashboard')}
+                </Link>
+              )}
+            </nav>
           </div>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {!isAuthenticated && (
-              <Link 
-                to="/" 
-                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
-              >
-                Accueil
-              </Link>
-            )}
-            {isAuthenticated && userRole === 'EMPLOYER' && (
-              <Link 
-                to="/dashboard" 
-                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
-              >
-                Dashboard
-              </Link>
-            )}
-            {isAuthenticated && userRole === 'STUDENT' && (
-              <Link 
-                to="/student-dashboard" 
-                className="text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md text-base font-semibold transition-colors hover:bg-gray-100"
-              >
-                Mon Espace
-              </Link>
-            )}
-          </nav>
-
-          {/* CTA Button */}
-          <div className="flex items-center space-x-4">
+          {/* Right side: Actions + Language Switcher */}
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
             {!isAuthenticated ? (
               <>
                 <Link
                   to="/signup"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  S'inscrire
+                  {t('common.signup')}
                 </Link>
                 <Link
                   to="/login"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  Connexion
+                  {t('common.login')}
                 </Link>
               </>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
                 {/* Menu déroulant utilisateur */}
                 <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <span className="font-medium">
-                      {userRole === 'EMPLOYER' ? 'Employeur' : 'Étudiant'}
+                      {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
                     </span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -97,7 +106,7 @@ export default function Header() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {userRole === 'EMPLOYER' ? 'Employeur' : 'Étudiant'}
+                              {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
                             </p>
                             <p className="text-xs text-gray-500">{userEmail}</p>
                           </div>
@@ -111,7 +120,7 @@ export default function Header() {
                             }}
                             className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           >
-                            Déconnexion
+                            {t('common.logout')}
                           </button>
                         </div>
                       </div>
@@ -120,19 +129,64 @@ export default function Header() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
-              aria-label="Menu"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            
+            {/* Mobile menu button - Show hamburger menu on small screens */}
+            <div className="sm:hidden ml-2" ref={mobileMenuRef}>
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                aria-label="Menu"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              
+              {/* Mobile dropdown menu */}
+              {showMobileMenu && (
+                <div className="absolute right-2 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                  {!isAuthenticated ? (
+                    <>
+                      <Link
+                        to="/login"
+                        onClick={() => setShowMobileMenu(false)}
+                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {t('common.login')}
+                      </Link>
+                      <Link
+                        to="/signup"
+                        onClick={() => setShowMobileMenu(false)}
+                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-200"
+                      >
+                        {t('common.signup')}
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-4 py-3 border-b border-gray-200">
+                        <p className="text-sm font-medium text-gray-900">
+                          {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
+                        </p>
+                        <p className="text-xs text-gray-500">{userEmail}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          apiService.removeToken();
+                          window.location.href = '/';
+                        }}
+                        className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        {t('common.logout')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Language Switcher - Always at the far right */}
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

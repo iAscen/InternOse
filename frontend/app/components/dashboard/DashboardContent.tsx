@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { apiService } from '../../services/apiService';
 import { dashboardService } from '../../services/dashboardService';
 import StatisticsCard from './StatisticsCard';
@@ -8,6 +9,7 @@ import OfferList from './OfferList';
 import type { InternshipOffer, CreateOfferFormData } from '../../interfaces';
 
 export default function DashboardContent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [offers, setOffers] = useState<InternshipOffer[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -35,11 +37,11 @@ export default function DashboardContent() {
         setOffers(response.data);
       } else {
         console.error('Erreur lors du chargement:', response.error);
-        setError(response.error || 'Erreur lors du chargement des offres');
+        setError(response.error || t('dashboard.loadingError'));
       }
     } catch (err) {
       console.error('Erreur de connexion:', err);
-      setError('Erreur de connexion au serveur');
+      setError(t('dashboard.serverError'));
     } finally {
       setLoading(false);
     }
@@ -70,17 +72,17 @@ export default function DashboardContent() {
       console.log('Réponse de création:', response);
 
       if (response.success) {
-        setSuccess('Offre de stage créée avec succès ! Elle est en attente de validation.');
+        setSuccess(t('dashboard.offerCreatedSuccess'));
         setShowCreateForm(false);
         console.log('Rechargement des offres...');
         loadOffers(); // Recharger la liste
       } else {
         console.error('Erreur lors de la création:', response.error);
-        setError(response.error || 'Erreur lors de la création de l\'offre');
+        setError(response.error || t('dashboard.creationError'));
       }
     } catch (err) {
       console.error('Erreur de connexion lors de la création:', err);
-      setError('Erreur de connexion au serveur');
+      setError(t('dashboard.serverError'));
     } finally {
       setLoading(false);
     }
@@ -117,15 +119,15 @@ export default function DashboardContent() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-              <p className="text-gray-600 mt-2">Gérez vos offres de stage</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
+              <p className="text-gray-600 mt-2">{t('dashboard.subtitle')}</p>
             </div>
             <div>
               <button
                 onClick={() => setShowCreateForm(!showCreateForm)}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {showCreateForm ? 'Annuler' : 'Créer une offre'}
+                {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
               </button>
             </div>
           </div>
@@ -146,28 +148,28 @@ export default function DashboardContent() {
         {/* Cartes de statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatisticsCard
-            title="Total des offres"
+            title={t('dashboard.totalOffers')}
             value={stats.total}
             icon={statsIcons.total}
             bgColor="bg-blue-100"
             iconColor="text-blue-600"
           />
           <StatisticsCard
-            title="En attente"
+            title={t('dashboard.pending')}
             value={stats.pending}
             icon={statsIcons.pending}
             bgColor="bg-yellow-100"
             iconColor="text-yellow-600"
           />
           <StatisticsCard
-            title="Validées"
+            title={t('dashboard.validated')}
             value={stats.approved}
             icon={statsIcons.approved}
             bgColor="bg-green-100"
             iconColor="text-green-600"
           />
           <StatisticsCard
-            title="Expirées"
+            title={t('dashboard.expired')}
             value={stats.expired}
             icon={statsIcons.expired}
             bgColor="bg-red-100"

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '../../interfaces';
 
 interface OfferListProps {
@@ -6,15 +7,16 @@ interface OfferListProps {
 }
 
 export default function OfferList({ offers, loading }: OfferListProps) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Mes offres de stage</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
         </div>
         <div className="p-6 text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">Chargement...</p>
+          <p className="mt-2 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -24,11 +26,10 @@ export default function OfferList({ offers, loading }: OfferListProps) {
     return (
       <div className="bg-white rounded-lg shadow-md">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Mes offres de stage</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
         </div>
         <div className="p-6 text-center text-gray-500">
-          <p>Aucune offre de stage créée pour le moment.</p>
-          <p className="mt-2">Cliquez sur "Créer une offre" pour commencer.</p>
+          <p>{t('dashboard.noOffers')}</p>
         </div>
       </div>
     );
@@ -48,11 +49,11 @@ export default function OfferList({ offers, loading }: OfferListProps) {
                 <h3 className="text-lg font-semibold text-gray-900">{offer.jobTitle}</h3>
                 <p className="text-gray-600 mt-1">{offer.address}</p>
                 <p className="text-sm text-gray-500 mt-2">
-                  {offer.startDate} - {offer.endDate} ({offer.duration} semaines)
+                  {offer.startDate} - {offer.endDate} ({offer.duration} {t('internship.weeks')})
                 </p>
                 {offer.salary > 0 && (
                   <p className="text-sm text-green-600 font-medium mt-1">
-                    ${offer.salary}/semaine
+                    ${offer.salary}{t('internship.perWeek')}
                   </p>
                 )}
                 <div className="mt-3">
@@ -61,17 +62,17 @@ export default function OfferList({ offers, loading }: OfferListProps) {
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {offer.validee ? 'Validée' : 'En attente de validation'}
+                    {offer.validee ? t('dashboard.validated') : t('dashboard.pending')}
                   </span>
                 </div>
               </div>
             </div>
             <div className="mt-4">
               <p className="text-sm text-gray-700">
-                <strong>Description :</strong> {offer.taskDescription}
+                <strong>{t('internship.description')} :</strong> {offer.taskDescription}
               </p>
               <p className="text-sm text-gray-700 mt-2">
-                <strong>Compétences requises :</strong> {offer.qualifications}
+                <strong>{t('internship.requirements')} :</strong> {offer.qualifications}
               </p>
             </div>
           </div>
