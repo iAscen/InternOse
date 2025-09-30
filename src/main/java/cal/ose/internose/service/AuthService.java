@@ -1,7 +1,6 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.InternshipManagerDAO;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;

@@ -1,6 +1,5 @@
 package cal.ose.internose;
 
-import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.AuthService;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
