@@ -93,7 +93,17 @@
     "validationDesc": "Your resume will be validated by the internship manager as soon as possible."
   },
   "im": {
-    "dashboard": "Internship Manager Dashboard"
+    "dashboard": "Internship Manager Dashboard",
+    "dashboardSubtitle": "View internship offers from employers and resumes from students and approve or reject them",
+    "pendingSubmissions": "Pending submissions",
+    "approvedSubmissions": "Approved submissions",
+    "refusedSubmissions": "Refused submissions",
+    "internshipOffersSection": "Employers' internship offers",
+    "internshipOffersSectionEmpty": "There is no internship offers published yet.",
+    "resumesSection": "Students' resumes",
+    "resumesSectionEmpty": "There is no resumes uploaded yet.",
+    "sort": "Sort",
+    "filter": "Filter"
   },
   "employer": {
     "dashboard": "Employer Dashboard",
@@ -116,7 +126,7 @@
     "apply": "Apply",
     "deadline": "Deadline",
     "weeks": "weeks",
-    "perWeek": "/week",
+    "perHour": "/hour",
     "pendingValidation": "Pending validation",
     "createNewOffer": "Create a new internship offer",
     "jobTitle": "Job Title",
@@ -124,7 +134,7 @@
     "locationPlaceholder": "Ex: Montreal, QC",
     "durationWeeks": "Duration (in weeks)",
     "endDateCalculated": "End date will be calculated automatically",
-    "salaryPerWeek": "Compensation (per week)",
+    "salaryPerHour": "Compensation (per hour)",
     "detailedDescription": "Detailed task description",
     "descriptionPlaceholder": "Describe the tasks the student will need to accomplish...",
     "requiredSkills": "Required skills",

@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+/prof_scripts/eq6hours.sh
+/prof_scripts/JiraCsv-2.1-jar-with-dependencies.jar

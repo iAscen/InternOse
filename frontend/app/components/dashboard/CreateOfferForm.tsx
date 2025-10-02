@@ -91,7 +91,7 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
 
           <div>
             <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('internship.salaryPerWeek')}
+              {t('internship.salaryPerHour')}
             </label>
             <input
               type="number"

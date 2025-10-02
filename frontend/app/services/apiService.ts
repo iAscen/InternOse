@@ -512,6 +512,45 @@ class ApiService {
     }
   }
 
+  async getAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/search`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du chargement des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     try {
       const token = this.getToken();

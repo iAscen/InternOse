@@ -93,7 +93,17 @@
     "validationDesc": "Votre CV sera validé par le gestionnaire de stage dans les plus brefs délais."
   },
   "im": {
-    "dashboard": "Tableau de bord gestionnaire de stages"
+    "dashboard": "Tableau de bord gestionnaire de stages",
+    "dashboardSubtitle": "Consultez les offres de stage des employeurs et les candidatures des étudiants et approuvez-les ou rejetez-les",
+    "pendingSubmissions": "Soumissions en attente de validation",
+    "approvedSubmissions": "Soumissions approuvées",
+    "refusedSubmissions": "Soumissions refusées",
+    "internshipOffersSection": "Offres de stage des employeurs",
+    "internshipOffersSectionEmpty": "Il n'y a aucune offre de stage publiée pour le moment.",
+    "resumesSection": "Candidatures (CVs) des étudiants",
+    "resumesSectionEmpty": "Il n'y a aucune candidature (CV) téléversé pour le moment.",
+    "sort": "Trier",
+    "filter": "Filtrer"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",
@@ -116,7 +126,7 @@
     "apply": "Postuler",
     "deadline": "Date limite",
     "weeks": "semaines",
-    "perWeek": "/semaine",
+    "perHour": "/heure",
     "pendingValidation": "En attente de validation",
     "createNewOffer": "Créer une nouvelle offre de stage",
     "jobTitle": "Titre du poste",
@@ -124,7 +134,7 @@
     "locationPlaceholder": "Ex: Montréal, QC",
     "durationWeeks": "Durée (en semaines)",
     "endDateCalculated": "La date de fin sera calculée automatiquement",
-    "salaryPerWeek": "Rémunération (par semaine)",
+    "salaryPerHour": "Rémunération (par heure)",
     "detailedDescription": "Description détaillée des tâches",
     "descriptionPlaceholder": "Décrivez les tâches que l'étudiant devra accomplir...",
     "requiredSkills": "Compétences requises",

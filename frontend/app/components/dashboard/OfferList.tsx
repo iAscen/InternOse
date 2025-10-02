@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import type { InternshipOffer } from '../../interfaces';
+import type { InternshipOffer } from '~/interfaces';
 
 interface OfferListProps {
-  offers: InternshipOffer[];
+  isEmployer: boolean;
   loading: boolean;
+  offers: InternshipOffer[];
 }
 
-export default function OfferList({ offers, loading }: OfferListProps) {
+export default function OfferList({ isEmployer, loading, offers }: OfferListProps) {
   const { t } = useTranslation();
   if (loading) {
     return (
@@ -25,11 +26,13 @@ export default function OfferList({ offers, loading }: OfferListProps) {
   if (offers.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
-        </div>
+        { isEmployer &&
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+          </div>
+        }
         <div className="p-6 text-center text-gray-500">
-          <p>{t('dashboard.noOffers')}</p>
+          <p>{isEmployer ? t('dashboard.noOffers') : t('im.internshipOffersSectionEmpty')}</p>
         </div>
       </div>
     );
@@ -37,10 +40,12 @@ export default function OfferList({ offers, loading }: OfferListProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Mes offres de stage</h2>
-      </div>
-      
+      { isEmployer &&
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+        </div>
+      }
+
       <div className="divide-y divide-gray-200">
         {offers.map((offer, index) => (
           <div key={offer.id || index} className="p-6">
@@ -53,7 +58,7 @@ export default function OfferList({ offers, loading }: OfferListProps) {
                 </p>
                 {offer.salary > 0 && (
                   <p className="text-sm text-green-600 font-medium mt-1">
-                    ${offer.salary}{t('internship.perWeek')}
+                    ${offer.salary}{t('internship.perHour')}
                   </p>
                 )}
                 <div className="mt-3">
