@@ -47,7 +47,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
             window.location.href = '/student-dashboard';
             break;
           case 'INTERNSHIP-MANAGER':
-            apiService.saveUserRole('INTERNSHIP-OFFER');
+            apiService.saveUserRole('INTERNSHIP-MANAGER');
             window.location.href = '/im-dashboard';
             break;
           default:

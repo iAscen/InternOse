@@ -39,6 +39,7 @@
     "signupHere": "Sign up here",
     "loginHere": "Login here",
     "studentAccount": "Student Account",
+    "imAccount": "Internship Manager Account",
     "employerAccount": "Employer Account",
     "chooseAccountType": "Choose your account type",
     "emailPlaceholder": "your.email@student.com",
@@ -90,6 +91,9 @@
     "acceptedFormatDesc": "Only PDF files are accepted, maximum size 10MB.",
     "validation": "Validation:",
     "validationDesc": "Your resume will be validated by the internship manager as soon as possible."
+  },
+  "im": {
+    "dashboard": "Internship Manager Dashboard"
   },
   "employer": {
     "dashboard": "Employer Dashboard",

@@ -39,6 +39,7 @@
     "signupHere": "Inscrivez-vous ici",
     "loginHere": "Connectez-vous ici",
     "studentAccount": "Compte Étudiant",
+    "imAccount": "Compte Gestionnaire de stages",
     "employerAccount": "Compte Employeur",
     "chooseAccountType": "Choisissez votre type de compte",
     "emailPlaceholder": "votre.email@etudiant.com",
@@ -90,6 +91,9 @@
     "acceptedFormatDesc": "Seuls les fichiers PDF sont acceptés, taille maximale 10MB.",
     "validation": "Validation :",
     "validationDesc": "Votre CV sera validé par le gestionnaire de stage dans les plus brefs délais."
+  },
+  "im": {
+    "dashboard": "Tableau de bord gestionnaire de stages"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",

@@ -24,9 +24,11 @@ export default function Home() {
     if (apiService.isAuthenticated()) {
       const userRole = apiService.getUserRole();
       if (userRole === 'EMPLOYER') {
-        navigate('/dashboard');
+        navigate('/employer-dashboard');
       } else if (userRole === 'STUDENT') {
         navigate('/student-dashboard');
+      } else if (userRole === 'INTERNSHIP-MANAGER') {
+        navigate('/im-dashboard');
       }
     }
   }, [navigate]);

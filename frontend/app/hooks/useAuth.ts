@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { apiService } from '../services/apiService';
+import { apiService } from '~/services/apiService';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<'STUDENT' | 'EMPLOYER' | null>(null);
+  const [userRole, setUserRole] = useState<'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {

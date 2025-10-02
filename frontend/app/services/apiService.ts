@@ -7,7 +7,7 @@ import type {
   CreateInternshipOfferRequest,
   ErrorResponseDTO,
   ApiResponse
-} from '../interfaces';
+} from '~/interfaces';
 import { ErrorService } from './errorService';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -162,14 +162,14 @@ class ApiService {
   }
 
   // Gestion du rôle utilisateur
-  saveUserRole(role: 'STUDENT' | 'EMPLOYER'): void {
+  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER'): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem('user_role', role);
   }
 
-  getUserRole(): 'STUDENT' | 'EMPLOYER' | null {
+  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('user_role') as 'STUDENT' | 'EMPLOYER' | null;
+    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null;
   }
 
   // Récupérer l'email depuis le JWT (décodage simple)
@@ -238,7 +238,7 @@ class ApiService {
   }
 
   // Récupérer le rôle utilisateur depuis le JWT
-  getUserRoleFromJWT(): 'STUDENT' | 'EMPLOYER' | null {
+  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
@@ -252,7 +252,7 @@ class ApiService {
       const authorities = decoded.authorities;
       if (authorities && Array.isArray(authorities) && authorities.length > 0) {
         const role = authorities[0].authority || authorities[0];
-        if (role === 'STUDENT' || role === 'EMPLOYER') {
+        if (role === 'EMPLOYER' || role === 'MANAGER' || role === 'INTERNSHIP-MANAGER') {
           return role;
         }
       }
@@ -265,7 +265,7 @@ class ApiService {
   }
 
   // Méthode pour déterminer le rôle utilisateur basé sur l'email (fallback)
-  async determineUserRole(email: string): Promise<'STUDENT' | 'EMPLOYER' | null> {
+  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP-MANAGER" | null> {
     try {
       // Essayer d'abord de récupérer le rôle depuis le JWT
       const roleFromJWT = this.getUserRoleFromJWT();

@@ -44,10 +44,10 @@ export default function Header() {
               )}
               {isAuthenticated && userRole === 'EMPLOYER' && (
                 <Link 
-                  to="/dashboard" 
+                  to="/employer-dashboard"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
-                  {t('navigation.dashboard')}
+                  {t('employer.dashboard')}
                 </Link>
               )}
               {isAuthenticated && userRole === 'STUDENT' && (
@@ -56,6 +56,14 @@ export default function Header() {
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
                   {t('student.dashboard')}
+                </Link>
+              )}
+              {isAuthenticated && userRole === 'INTERNSHIP-MANAGER' && (
+                <Link
+                  to="/student-dashboard"
+                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                >
+                  {t('im.dashboard')}
                 </Link>
               )}
             </nav>
@@ -87,7 +95,9 @@ export default function Header() {
                     className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <span className="font-medium">
-                      {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
+                      {userRole === 'EMPLOYER' && t('auth.employerAccount')}
+                      {userRole === 'STUDENT' && t('auth.studentAccount')}
+                      {userRole === 'INTERNSHIP-MANAGER' && t('auth.imAccount')}
                     </span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -106,7 +116,9 @@ export default function Header() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
+                              {userRole === 'EMPLOYER' && t('auth.employerAccount')}
+                              {userRole === 'STUDENT' && t('auth.studentAccount')}
+                              {userRole === 'INTERNSHIP-MANAGER' && t('auth.imAccount')}
                             </p>
                             <p className="text-xs text-gray-500">{userEmail}</p>
                           </div>
