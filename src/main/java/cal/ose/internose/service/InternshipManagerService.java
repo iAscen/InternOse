@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
 
-    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String enterprise, String filter) {
+    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String enterprise, String sortBy) {
         List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domain, valid, enterprise);
 
         if (domain != null) {
@@ -37,11 +37,11 @@ public class InternshipManagerService {
         }
 
         if (!internshipOffers.isEmpty()) {
-            if (filter != null && filter.equals("enterprise")) {
+            if (sortBy != null && sortBy.equals("enterprise")) {
                 internshipOffers = internshipOffers.stream()
                         .sorted(Comparator.comparing(io -> io.getEmployer().getEnterprise()))
                         .toList();
-            } else if (filter != null && filter.equals("status")) {
+            } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
                         .sorted(Comparator.comparing(InternshipOffer::isValidee))
                         .toList();

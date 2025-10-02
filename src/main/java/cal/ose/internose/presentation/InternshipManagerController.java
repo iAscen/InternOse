@@ -26,9 +26,9 @@ public class InternshipManagerController {
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
                                                                       @RequestParam(required = false) Boolean valid,
                                                                       @RequestParam(required = false) String enterprise,
-                                                                      @RequestParam(required = false) String filter) {
+                                                                      @RequestParam(required = false) String sortBy) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, filter));
+                .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
