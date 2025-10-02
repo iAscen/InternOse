@@ -25,10 +25,10 @@ public class InternshipManagerController {
     @GetMapping(Paths.SEARCH_INTERNSHIPS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
                                                                       @RequestParam(required = false) Boolean valid,
-                                                                      @RequestParam(required = false) String enterprise,
+                                                                      @RequestParam(required = false) String title,
                                                                       @RequestParam(required = false) String sortBy) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, sortBy));
+                .body(internshipManagerService.findInternshipsBy(domain, valid, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
