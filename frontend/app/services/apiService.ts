@@ -225,6 +225,42 @@ class ApiService {
     }
   }
 
+  // Récupérer l'ID de l'étudiant depuis le JWT
+  async getStudentIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      
+      console.log('🔍 Contenu du JWT pour étudiant:', decoded);
+      
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'étudiant)
+      const userId = decoded.userId || decoded.id || decoded.studentId || decoded.student_id;
+      
+      if (userId) {
+        console.log(`✅ ID étudiant trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+      
+      // Fallback : utiliser l'ID 1 pour tous les étudiants (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les étudiants (${email})`);
+        return 1;
+      }
+      
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID étudiant:', error);
+      return null;
+    }
+  }
+
   // Générer un ID unique basé sur l'email (solution temporaire)
   private generateUniqueIdFromEmail(email: string): number {
     let hash = 0;
@@ -318,8 +354,18 @@ class ApiService {
         };
       }
 
+      // Récupérer l'ID de l'étudiant depuis le JWT
+      const studentId = await this.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant',
+        };
+      }
+
       const formData = new FormData();
-      formData.append('cv', file);
+      formData.append('file', file);
+      formData.append('studentID', studentId.toString());
 
       const response = await fetch(`${API_BASE_URL}/student/cv`, {
         method: 'POST',
@@ -351,7 +397,7 @@ class ApiService {
     }
   }
 
-  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string }>> {
+  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string; validatedAt: string; rejectionReason: string }>> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -361,7 +407,16 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/cv/status`, {
+      // Récupérer l'ID de l'étudiant depuis le JWT
+      const studentId = await this.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/cv/status?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -373,13 +428,19 @@ class ApiService {
         const result = await response.json();
         return {
           success: true,
-          data: result,
+          data: {
+            status: result.status || 'none',
+            fileName: result.fileName || '',
+            uploadedAt: result.uploadedAt || '',
+            validatedAt: result.validatedAt || '',
+            rejectionReason: result.rejectionReason || ''
+          },
         };
       } else {
         const errorData = await response.json();
         return {
           success: false,
-          error: errorData.message || 'Erreur lors de la récupération du statut du CV',
+          error: errorData.error || 'Erreur lors de la récupération du statut du CV',
         };
       }
     } catch (error) {

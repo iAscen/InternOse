@@ -10,7 +10,7 @@ interface LoginFormProps {
   onBack: () => void;
 }
 
-export default function LoginForm({ onBack }: LoginFormProps) {
+export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
   const { t } = useTranslation();
   const { formData, error, setError, handleChange } = useForm({
     email: '',

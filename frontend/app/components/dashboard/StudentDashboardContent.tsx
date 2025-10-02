@@ -17,15 +17,31 @@ export default function StudentDashboardContent() {
   useEffect(() => {
     if (!apiService.isAuthenticated()) {
       navigate('/login');
+    } else {
+      // Charger le statut du CV au chargement
+      loadCVStatus();
     }
   }, [navigate]);
+
+  // Charger le statut du CV depuis le backend
+  const loadCVStatus = async () => {
+    try {
+      const response = await apiService.getCVStatus();
+      if (response.success && response.data) {
+        setCvStatus(response.data.status as 'none' | 'pending' | 'approved' | 'rejected');
+        setCvFileName(response.data.fileName || null);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du statut du CV:', error);
+    }
+  };
 
   // Calculer les statistiques pour l'étudiant
   const getStudentStats = () => {
     return {
       cvStatus: cvStatus === 'approved' ? 1 : 0,
       applications: 0, // À implémenter plus tard
-      pendingApplications: 0, // À implémenter plus tard
+      pendingApplications: cvStatus === 'pending' ? 1 : 0, // Affiche 1 si CV en attente
       approvedApplications: 0 // À implémenter plus tard
     };
   };
@@ -36,22 +52,37 @@ export default function StudentDashboardContent() {
     try {
       console.log('Téléversement du CV:', file.name);
       
-      // Simulation du téléversement (en attendant le backend)
-      // TODO: Remplacer par l'appel API réel quand le backend sera implémenté
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulation délai
+      // Vérifier le type de fichier
+      if (file.type !== 'application/pdf') {
+        alert('Seuls les fichiers PDF sont acceptés');
+        return;
+      }
       
-      setCvFileName(file.name);
-      setCvStatus('pending');
-      console.log('✅ CV téléversé avec succès (simulation)');
+      // Vérifier la taille du fichier (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert('Le fichier est trop volumineux. Taille maximale : 10MB');
+        return;
+      }
       
-      // Simulation de la validation après 3 secondes
-      setTimeout(() => {
-        setCvStatus('approved');
-        console.log('✅ CV validé (simulation)');
-      }, 3000);
+      // Appel API réel
+      const response = await apiService.uploadCV(file);
+      
+      if (response.success) {
+        setCvFileName(file.name);
+        setCvStatus('pending');
+        console.log('✅ CV téléversé avec succès:', response.data);
+        
+        // Recharger le statut depuis le backend pour s'assurer de la cohérence
+        await loadCVStatus();
+      } else {
+        console.error('❌ Erreur lors du téléversement:', response.error);
+        alert(`Erreur lors du téléversement: ${response.error}`);
+      }
       
     } catch (error) {
       console.error('Erreur lors du téléversement du CV:', error);
+      alert('Erreur de connexion au serveur');
     }
   };
 
