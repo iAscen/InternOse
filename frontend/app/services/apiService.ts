@@ -162,14 +162,14 @@ class ApiService {
   }
 
   // Gestion du rôle utilisateur
-  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER'): void {
+  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER'): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem('user_role', role);
   }
 
-  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null {
+  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null;
+    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null;
   }
 
   // Récupérer l'email depuis le JWT (décodage simple)
@@ -274,7 +274,7 @@ class ApiService {
   }
 
   // Récupérer le rôle utilisateur depuis le JWT
-  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP-MANAGER' | null {
+  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
@@ -288,7 +288,7 @@ class ApiService {
       const authorities = decoded.authorities;
       if (authorities && Array.isArray(authorities) && authorities.length > 0) {
         const role = authorities[0].authority || authorities[0];
-        if (role === 'EMPLOYER' || role === 'MANAGER' || role === 'INTERNSHIP-MANAGER') {
+        if (role === 'EMPLOYER' || role === 'STUDENT' || role === 'INTERNSHIP_MANAGER') {
           return role;
         }
       }
@@ -301,7 +301,7 @@ class ApiService {
   }
 
   // Méthode pour déterminer le rôle utilisateur basé sur l'email (fallback)
-  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP-MANAGER" | null> {
+  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP_MANAGER" | null> {
     try {
       // Essayer d'abord de récupérer le rôle depuis le JWT
       const roleFromJWT = this.getUserRoleFromJWT();
@@ -319,10 +319,21 @@ class ApiService {
         '@company', '@entreprise', '@corp', '@business', 
         '@org', '@firm', '@agency'
       ];
+
+      const managerPatterns = [
+        '@manager', '@gestionnaire', '@admin', '@stage'
+      ];
       
       const emailLower = email.toLowerCase();
       
-      // Vérifier les patterns employeurs en premier (plus spécifiques)
+      // Vérifier les patterns gestionnaires en premier (plus spécifiques)
+      for (const pattern of managerPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'INTERNSHIP_MANAGER';
+        }
+      }
+      
+      // Vérifier les patterns employeurs
       for (const pattern of employerPatterns) {
         if (emailLower.includes(pattern)) {
           return 'EMPLOYER';

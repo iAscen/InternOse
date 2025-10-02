@@ -27,7 +27,7 @@ export default function Home() {
         navigate('/employer-dashboard');
       } else if (userRole === 'STUDENT') {
         navigate('/student-dashboard');
-      } else if (userRole === 'INTERNSHIP-MANAGER') {
+      } else if (userRole === 'INTERNSHIP_MANAGER') {
         navigate('/im-dashboard');
       }
     }

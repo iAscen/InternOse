@@ -46,10 +46,10 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
             apiService.saveUserRole('STUDENT');
             window.location.href = '/student-dashboard';
             break;
-          case 'INTERNSHIP-MANAGER':
-            apiService.saveUserRole('INTERNSHIP-MANAGER');
-            window.location.href = '/im-dashboard';
-            break;
+           case 'INTERNSHIP_MANAGER':
+             apiService.saveUserRole('INTERNSHIP_MANAGER');
+             window.location.href = '/im-dashboard';
+             break;
           default:
             // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
             const determinedRole = await apiService.determineUserRole(formData.email);
@@ -59,9 +59,9 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
             } else if (determinedRole === 'STUDENT') {
               apiService.saveUserRole('STUDENT');
               window.location.href = '/student-dashboard';
-            } else if (determinedRole === 'INTERNSHIP-MANAGER') {
-              apiService.saveUserRole('INTERNSHIP-MANAGER');
-              window.location.href = '/im-dashboard';
+             } else if (determinedRole === 'INTERNSHIP_MANAGER') {
+               apiService.saveUserRole('INTERNSHIP_MANAGER');
+               window.location.href = '/im-dashboard';
             } else {
               // Si on ne peut toujours pas déterminer, rediriger vers l'accueil
               window.location.href = '/';

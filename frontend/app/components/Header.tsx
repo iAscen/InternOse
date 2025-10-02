@@ -58,7 +58,7 @@ export default function Header() {
                   {t('student.dashboard')}
                 </Link>
               )}
-              {isAuthenticated && userRole === 'INTERNSHIP-MANAGER' && (
+              {isAuthenticated && userRole === 'INTERNSHIP_MANAGER' && (
                 <Link
                   to="/student-dashboard"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
@@ -97,7 +97,7 @@ export default function Header() {
                     <span className="font-medium">
                       {userRole === 'EMPLOYER' && t('auth.employerAccount')}
                       {userRole === 'STUDENT' && t('auth.studentAccount')}
-                      {userRole === 'INTERNSHIP-MANAGER' && t('auth.imAccount')}
+                      {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
                     </span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -118,7 +118,7 @@ export default function Header() {
                             <p className="text-sm font-medium text-gray-900">
                               {userRole === 'EMPLOYER' && t('auth.employerAccount')}
                               {userRole === 'STUDENT' && t('auth.studentAccount')}
-                              {userRole === 'INTERNSHIP-MANAGER' && t('auth.imAccount')}
+                              {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
                             </p>
                             <p className="text-xs text-gray-500">{userEmail}</p>
                           </div>
@@ -178,7 +178,9 @@ export default function Header() {
                     <>
                       <div className="px-4 py-3 border-b border-gray-200">
                         <p className="text-sm font-medium text-gray-900">
-                          {userRole === 'EMPLOYER' ? t('auth.employerAccount') : t('auth.studentAccount')}
+                          {userRole === 'EMPLOYER' ? t('auth.employerAccount') : 
+                       userRole === 'INTERNSHIP_MANAGER' ? 'Compte Gestionnaire de Stage' : 
+                       t('auth.studentAccount')}
                         </p>
                         <p className="text-xs text-gray-500">{userEmail}</p>
                       </div>
