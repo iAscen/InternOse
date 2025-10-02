@@ -17,8 +17,24 @@ export default function StudentDashboardContent() {
   useEffect(() => {
     if (!apiService.isAuthenticated()) {
       navigate('/login');
+    } else {
+      // Charger le statut du CV au chargement
+      loadCVStatus();
     }
   }, [navigate]);
+
+  // Charger le statut du CV depuis le backend
+  const loadCVStatus = async () => {
+    try {
+      const response = await apiService.getCVStatus();
+      if (response.success && response.data) {
+        setCvStatus(response.data.status as 'none' | 'pending' | 'approved' | 'rejected');
+        setCvFileName(response.data.fileName || null);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du statut du CV:', error);
+    }
+  };
 
   // Calculer les statistiques pour l'étudiant
   const getStudentStats = () => {
@@ -57,8 +73,8 @@ export default function StudentDashboardContent() {
         setCvStatus('pending');
         console.log('✅ CV téléversé avec succès:', response.data);
         
-        // Note: Le statut "approved" sera géré par le backend quand il sera implémenté
-        // Pour l'instant, on reste en "pending"
+        // Recharger le statut depuis le backend pour s'assurer de la cohérence
+        await loadCVStatus();
       } else {
         console.error('❌ Erreur lors du téléversement:', response.error);
         alert(`Erreur lors du téléversement: ${response.error}`);

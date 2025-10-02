@@ -397,18 +397,59 @@ class ApiService {
     }
   }
 
-  // Note: getCVStatus n'est pas encore implémenté dans le backend
-  // Pour l'instant, on retourne un statut par défaut
-  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string }>> {
-    // Simulation temporaire en attendant l'implémentation backend
-    return {
-      success: true,
-      data: {
-        status: 'none',
-        fileName: '',
-        uploadedAt: ''
+  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string; validatedAt: string; rejectionReason: string }>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
       }
-    };
+
+      // Récupérer l'ID de l'étudiant depuis le JWT
+      const studentId = await this.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/cv/status?studentID=${studentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: {
+            status: result.status || 'none',
+            fileName: result.fileName || '',
+            uploadedAt: result.uploadedAt || '',
+            validatedAt: result.validatedAt || '',
+            rejectionReason: result.rejectionReason || ''
+          },
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la récupération du statut du CV',
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du statut du CV:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
   }
 
   // Méthodes pour les offres de stage
