@@ -7,4 +7,5 @@ export default [
   route("employer-dashboard", "routes/employer-dashboard.tsx"),
   route("student-dashboard", "routes/student-dashboard.tsx"),
   route("im-dashboard", "routes/im-dashboard.tsx"),
+  route("im-validation/:id", "routes/im-validation.tsx"),
 ] satisfies RouteConfig;
