@@ -43,19 +43,123 @@ public class StudentService {
                 .toList();
     }
 
-    public void validateStudentCV(Long studentId, boolean approved, String reason) {
-        Student student = studentDAO.findById(studentId).orElseThrow();
-        
-        if (approved) {
-            student.setCvStatus(CVStatus.APPROVED);
-            student.setCvValidatedAt(LocalDateTime.now());
-            student.setCvRejectionReason(null);
-        } else {
-            student.setCvStatus(CVStatus.REJECTED);
-            student.setCvRejectionReason(reason);
-            student.setCvValidatedAt(LocalDateTime.now());
+    public List<Student> getAllStudentsWithCVs(String sortBy, String sortOrder, String status, String program,
+            String institution) {
+        List<Student> students = studentDAO.findAll().stream()
+                .filter(student -> student.getCvStatus() != CVStatus.NONE)
+                .toList();
+
+        // Filtrage par statut
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                CVStatus statusFilter = CVStatus.valueOf(status.toUpperCase());
+                students = students.stream()
+                        .filter(student -> student.getCvStatus() == statusFilter)
+                        .toList();
+            } catch (IllegalArgumentException e) {
+                // Si le statut n'est pas valide, on ignore le filtre et on continue avec tous
+                // les CV
+            }
         }
-        
-        studentDAO.save(student);
+
+        // Filtrage par programme (si disponible dans le modèle)
+        if (program != null && !program.trim().isEmpty()) {
+            students = students.stream()
+                    .filter(student -> student.getFirstName() != null &&
+                            student.getFirstName().toLowerCase().contains(program.toLowerCase()))
+                    .toList();
+        }
+
+        // Filtrage par établissement (si disponible dans le modèle)
+        if (institution != null && !institution.trim().isEmpty()) {
+            students = students.stream()
+                    .filter(student -> student.getLastName() != null &&
+                            student.getLastName().toLowerCase().contains(institution.toLowerCase()))
+                    .toList();
+        }
+
+        // Tri
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            boolean ascending = sortOrder == null || !sortOrder.toLowerCase().equals("desc");
+
+            switch (sortBy.toLowerCase()) {
+                case "name":
+                case "nom":
+                    students = students.stream()
+                            .sorted((s1, s2) -> {
+                                String name1 = s1.getFirstName() + " " + s1.getLastName();
+                                String name2 = s2.getFirstName() + " " + s2.getLastName();
+                                return ascending ? name1.compareToIgnoreCase(name2) : name2.compareToIgnoreCase(name1);
+                            })
+                            .toList();
+                    break;
+                case "date":
+                case "uploadedat":
+                    students = students.stream()
+                            .sorted((s1, s2) -> {
+                                if (s1.getCvUploadedAt() == null && s2.getCvUploadedAt() == null)
+                                    return 0;
+                                if (s1.getCvUploadedAt() == null)
+                                    return ascending ? 1 : -1;
+                                if (s2.getCvUploadedAt() == null)
+                                    return ascending ? -1 : 1;
+                                return ascending ? s1.getCvUploadedAt().compareTo(s2.getCvUploadedAt())
+                                        : s2.getCvUploadedAt().compareTo(s1.getCvUploadedAt());
+                            })
+                            .toList();
+                    break;
+                case "status":
+                case "statut":
+                    students = students.stream()
+                            .sorted((s1, s2) -> {
+                                return ascending ? s1.getCvStatus().name().compareTo(s2.getCvStatus().name())
+                                        : s2.getCvStatus().name().compareTo(s1.getCvStatus().name());
+                            })
+                            .toList();
+                    break;
+                case "email":
+                    students = students.stream()
+                            .sorted((s1, s2) -> {
+                                String email1 = "";
+                                String email2 = "";
+                                try {
+                                    email1 = (s1.getEmail() != null) ? s1.getEmail() : "";
+                                } catch (Exception e) {
+                                    email1 = "";
+                                }
+                                try {
+                                    email2 = (s2.getEmail() != null) ? s2.getEmail() : "";
+                                } catch (Exception e) {
+                                    email2 = "";
+                                }
+                                return ascending ? email1.compareToIgnoreCase(email2)
+                                        : email2.compareToIgnoreCase(email1);
+                            })
+                            .toList();
+                    break;
+                default:
+                    // Tri par défaut par nom si le critère n'est pas reconnu
+                    students = students.stream()
+                            .sorted((s1, s2) -> {
+                                String name1 = s1.getFirstName() + " " + s1.getLastName();
+                                String name2 = s2.getFirstName() + " " + s2.getLastName();
+                                return name1.compareToIgnoreCase(name2);
+                            })
+                            .toList();
+                    break;
+            }
+        } else {
+            // Tri par défaut par nom si aucun critère de tri n'est spécifié
+            students = students.stream()
+                    .sorted((s1, s2) -> {
+                        String name1 = s1.getFirstName() + " " + s1.getLastName();
+                        String name2 = s2.getFirstName() + " " + s2.getLastName();
+                        return name1.compareToIgnoreCase(name2);
+                    })
+                    .toList();
+        }
+
+        return students;
     }
+
 }
