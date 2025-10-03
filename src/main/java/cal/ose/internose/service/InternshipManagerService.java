@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
 
-    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String enterprise, String filter) {
-        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domain, valid, enterprise);
+    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String title, String sortBy) {
+        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domain, valid, title);
 
         if (domain != null) {
             internshipOffers = internshipOffers.stream()
@@ -30,18 +30,18 @@ public class InternshipManagerService {
                     .filter(io -> Objects.equals(io.isValidee(), valid))
                     .collect(Collectors.toList());
         }
-        if (enterprise != null) {
+        if (title != null) {
             internshipOffers = internshipOffers.stream()
-                    .filter(io -> io.getEmployer() != null && Objects.equals(io.getEmployer().getEnterprise(), enterprise))
+                    .filter(io -> Objects.equals(io.getJobTitle(), title))
                     .collect(Collectors.toList());
         }
 
         if (!internshipOffers.isEmpty()) {
-            if (filter != null && filter.equals("enterprise")) {
+            if (sortBy != null && sortBy.equals("title")) {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(io -> io.getEmployer().getEnterprise()))
+                        .sorted(Comparator.comparing(InternshipOffer::getJobTitle))
                         .toList();
-            } else if (filter != null && filter.equals("status")) {
+            } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
                         .sorted(Comparator.comparing(InternshipOffer::isValidee))
                         .toList();
