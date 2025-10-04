@@ -103,7 +103,16 @@
     "resumesSection": "Candidatures (CVs) des étudiants",
     "resumesSectionEmpty": "Il n'y a aucune candidature (CV) téléversé pour le moment.",
     "sort": "Trier",
-    "filter": "Filtrer"
+    "sortBy": "Trier par:",
+    "filter": "Filtrer",
+    "filterAccordingTo": "Filtrer selon:",
+    "applyFilters": "Appliquer les filtres",
+    "status": "Statut",
+    "domain": "Domaine",
+    "title": "Titre",
+    "placeholderPending": "Ex: En attente de validation",
+    "placeholderCS": "Ex: Informatique",
+    "placeholderDev": "Ex: Développeur"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",

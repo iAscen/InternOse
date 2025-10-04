@@ -512,7 +512,7 @@ class ApiService {
     }
   }
 
-  async getAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+  async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -522,7 +522,10 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/internship-manager/search`, {
+      const status = filterBy ? filterBy[0] : null;
+      const domain = filterBy ? filterBy[1] : null;
+      const title = filterBy ? filterBy[2] : null;
+      const response = await fetch(`${API_BASE_URL}/internship-manager/search?sortBy=${sortBy}&status=${status}&domain=${domain}&title=${title}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

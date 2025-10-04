@@ -103,7 +103,16 @@
     "resumesSection": "Students' resumes",
     "resumesSectionEmpty": "There is no resumes uploaded yet.",
     "sort": "Sort",
-    "filter": "Filter"
+    "sortBy": "Sort by:",
+    "filter": "Filter",
+    "filterAccordingTo": "Filtrer according to:",
+    "applyFilters": "Apply filters",
+    "status": "Status",
+    "domain": "Domain",
+    "title": "Title",
+    "placeholderPending": "Ex: Pending",
+    "placeholderCS": "Ex: Computer Science",
+    "placeholderDev": "Ex: Developer"
   },
   "employer": {
     "dashboard": "Employer Dashboard",

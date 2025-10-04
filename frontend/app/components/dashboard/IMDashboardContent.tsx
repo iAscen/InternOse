@@ -4,16 +4,42 @@ import { useTranslation } from "react-i18next";
 import { apiService } from "~/services/apiService";
 import { dashboardService } from "~/services/dashboardService";
 import type { InternshipOffer } from "~/interfaces";
-import OfferList from "~/components/dashboard/OfferList";
+import StatisticsCard from "~/components/dashboard/StatisticsCard";
 import SortButton from "~/components/dashboard/SortButton";
+import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
 import FilterButton from "~/components/dashboard/FilterButton";
+import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
+import OfferList from "~/components/dashboard/OfferList";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [offers, setOffers] = useState<InternshipOffer[]>([]);
+    const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
+    const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
+    const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
+    const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Icônes pour les statistiques
+    const statsIcons = {
+        pending: (
+            <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        ),
+        approved: (
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        ),
+        refused: (
+            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        )
+    };
 
     // Vérifier l'authentification au chargement
     useEffect(() => {
@@ -39,10 +65,10 @@ export default function IMDashboardContent() {
     }, [navigate]);
 
     // Charger les offres de stage
-    const loadOffers = async () => {
+    const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
         try {
             setLoading(true);
-            const response = await dashboardService.getAllInternshipOffers();
+            const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
             if (response.success && response.data) {
                 setOffers(response.data);
             } else {
@@ -62,7 +88,7 @@ export default function IMDashboardContent() {
         <div>
             <div className="min-h-screen bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {/* Header */}
+                    {/* Titre et sous-titre */}
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-gray-900">
                             {t('im.dashboard')}
@@ -72,49 +98,37 @@ export default function IMDashboardContent() {
                         </p>
                     </div>
 
+                    {/* Messages d'erreur */}
+                    {error && (
+                        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Statistiques */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <div className="flex items-center">
-                                <div className="p-2 bg-yellow-100 rounded-lg">
-                                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t("im.pendingSubmissions")}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">0</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <div className="flex items-center">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t("im.approvedSubmissions")}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">0</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <div className="flex items-center">
-                                <div className="p-2 bg-red-100 rounded-lg">
-                                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t("im.refusedSubmissions")}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">0</p>
-                                </div>
-                            </div>
-                        </div>
+                        {/* TODO: Ajouter le calcul des statistiques */}
+                        <StatisticsCard
+                            title={t('im.pendingSubmissions')}
+                            value={0}
+                            icon={statsIcons.pending}
+                            bgColor="bg-yellow-100"
+                            iconColor="text-yellow-600"
+                        />
+                        <StatisticsCard
+                            title={t('im.approvedSubmissions')}
+                            value={0}
+                            icon={statsIcons.approved}
+                            bgColor="bg-green-100"
+                            iconColor="text-green-600"
+                        />
+                        <StatisticsCard
+                            title={t('im.refusedSubmissions')}
+                            value={0}
+                            icon={statsIcons.refused}
+                            bgColor="bg-red-100"
+                            iconColor="text-red-600"
+                        />
                     </div>
 
                     {/* Section "Offres de stages des employeurs" */}
@@ -123,8 +137,34 @@ export default function IMDashboardContent() {
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {t("im.internshipOffersSection")}
                             </h2>
-                            <SortButton />
-                            <FilterButton />
+                            <div className="relative">
+                                <SortButton onClick={() => {
+                                    setShowSortMenuOffers(!showSortMenuOffers)
+                                    setShowFilterMenuOffers(false)
+                                    setShowSortMenuResumes(false)
+                                    setShowFilterMenuResumes(false)
+                                }} />
+                                {showSortMenuOffers &&
+                                    <SortMenuOffers applySorting={(sortBy: string) => {
+                                        setShowSortMenuOffers(false);
+                                        loadOffers(sortBy, undefined);
+                                    }}/>
+                                }
+                            </div>
+                            <div className="relative">
+                                <FilterButton onClick={() => {
+                                    setShowSortMenuOffers(false)
+                                    setShowFilterMenuOffers(!showFilterMenuOffers)
+                                    setShowSortMenuResumes(false)
+                                    setShowFilterMenuResumes(false)
+                                }}/>
+                                {showFilterMenuOffers &&
+                                    <FilterMenuOffers applyFilters={(filterBy: string[]) => {
+                                        setShowFilterMenuOffers(false);
+                                        loadOffers(undefined, filterBy);
+                                    }}/>
+                                }
+                            </div>
                         </div>
                         <p className="text-gray-600">
                             <OfferList isEmployer={false} loading={loading} offers={offers}/>
@@ -137,8 +177,24 @@ export default function IMDashboardContent() {
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {t("im.resumesSection")}
                             </h2>
-                            <SortButton />
-                            <FilterButton />
+                            <div className="relative">
+                                <SortButton onClick={() => {
+                                    setShowSortMenuOffers(false)
+                                    setShowFilterMenuOffers(false)
+                                    setShowSortMenuResumes(!showSortMenuResumes)
+                                    setShowFilterMenuResumes(false)
+                                }} />
+                                {showSortMenuResumes} {/* TODO: Ajoute le menu pour trier les CVs ici */}
+                            </div>
+                            <div className="relative">
+                                <FilterButton onClick={() => {
+                                    setShowSortMenuOffers(false)
+                                    setShowFilterMenuOffers(false)
+                                    setShowSortMenuResumes(false)
+                                    setShowFilterMenuResumes(!showFilterMenuResumes)
+                                }}/>
+                                {showFilterMenuResumes} {/* TODO: Ajoute le menu pour filtrer les CVs ici */}
+                            </div>
                         </div>
                         <p className="text-gray-600">
                             Cette section sera bientôt disponible.
