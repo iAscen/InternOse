@@ -26,7 +26,8 @@ public class InternshipManagerService {
         if (!internshipOffers.isEmpty()) {
             if (sortBy != null && sortBy.equals("title")) {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(InternshipOffer::getJobTitle))
+                        .sorted(Comparator.comparing(InternshipOffer::getJobTitle, 
+                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                         .toList();
             } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
@@ -34,7 +35,8 @@ public class InternshipManagerService {
                         .toList();
             } else {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(InternshipOffer::getDomain))
+                        .sorted(Comparator.comparing(InternshipOffer::getDomain, 
+                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                         .toList();
             }
         }
