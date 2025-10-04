@@ -112,7 +112,10 @@
     "title": "Titre",
     "placeholderPending": "Ex: En attente de validation",
     "placeholderCS": "Ex: Informatique",
-    "placeholderDev": "Ex: Développeur"
+    "placeholderDev": "Ex: Développeur",
+    "resumesSectionComingSoon": "Cette section sera bientôt disponible",
+    "resumesSectionDescription": "Vous pourrez consulter et gérer les CVs des étudiants",
+    "allStatuses": "Tous les statuts"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",

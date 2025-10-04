@@ -16,6 +16,13 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
         title: ""
     });
 
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        handleChange({
+            target: { name, value }
+        } as React.ChangeEvent<HTMLInputElement>);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const status = formData.status != "" ? formData.status : undefined;
@@ -30,17 +37,22 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                 <form onSubmit={handleSubmit}>
                     <div className="flex items-center space-x-3 mb-3">
                         <FormSection title={t('im.filterAccordingTo')}>
-                            <FormInput
-                                className={"mb-3"}
-                                id={"status"}
-                                name={"status"}
-                                type={"text"}
-                                label={t('im.status')}
-                                placeholder={t('im.placeholderPending')}
-                                value={formData.status}
-                                onChange={handleChange}
-                                required={false}
-                            />
+                            <div className="mb-3">
+                                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                                    {t('im.status')}
+                                </label>
+                                <select
+                                    id="status"
+                                    name="status"
+                                    value={formData.status}
+                                    onChange={handleSelectChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                                >
+                                    <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
+                                    <option value="false" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
+                                    <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+                                </select>
+                            </div>
                             <FormInput
                                 className={"mb-3"}
                                 id={"domain"}

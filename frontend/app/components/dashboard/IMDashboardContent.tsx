@@ -133,72 +133,84 @@ export default function IMDashboardContent() {
 
                     {/* Section "Offres de stages des employeurs" */}
                     <div className="bg-white rounded-lg shadow-md mb-8 p-6">
-                        <div className="flex items-center space-x-10 flex-shrink-0 mb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {t("im.internshipOffersSection")}
                             </h2>
-                            <div className="relative">
-                                <SortButton onClick={() => {
-                                    setShowSortMenuOffers(!showSortMenuOffers)
-                                    setShowFilterMenuOffers(false)
-                                    setShowSortMenuResumes(false)
-                                    setShowFilterMenuResumes(false)
-                                }} />
-                                {showSortMenuOffers &&
-                                    <SortMenuOffers applySorting={(sortBy: string) => {
-                                        setShowSortMenuOffers(false);
-                                        loadOffers(sortBy, undefined);
+                            <div className="flex items-center space-x-4">
+                                <div className="relative">
+                                    <SortButton onClick={() => {
+                                        setShowSortMenuOffers(!showSortMenuOffers)
+                                        setShowFilterMenuOffers(false)
+                                        setShowSortMenuResumes(false)
+                                        setShowFilterMenuResumes(false)
+                                    }} />
+                                    {showSortMenuOffers &&
+                                        <SortMenuOffers applySorting={(sortBy: string) => {
+                                            setShowSortMenuOffers(false);
+                                            loadOffers(sortBy, undefined);
+                                        }}/>
+                                    }
+                                </div>
+                                <div className="relative">
+                                    <FilterButton onClick={() => {
+                                        setShowSortMenuOffers(false)
+                                        setShowFilterMenuOffers(!showFilterMenuOffers)
+                                        setShowSortMenuResumes(false)
+                                        setShowFilterMenuResumes(false)
                                     }}/>
-                                }
-                            </div>
-                            <div className="relative">
-                                <FilterButton onClick={() => {
-                                    setShowSortMenuOffers(false)
-                                    setShowFilterMenuOffers(!showFilterMenuOffers)
-                                    setShowSortMenuResumes(false)
-                                    setShowFilterMenuResumes(false)
-                                }}/>
-                                {showFilterMenuOffers &&
-                                    <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                        setShowFilterMenuOffers(false);
-                                        loadOffers(undefined, filterBy);
-                                    }}/>
-                                }
+                                    {showFilterMenuOffers &&
+                                        <FilterMenuOffers applyFilters={(filterBy: string[]) => {
+                                            setShowFilterMenuOffers(false);
+                                            loadOffers(undefined, filterBy);
+                                        }}/>
+                                    }
+                                </div>
                             </div>
                         </div>
-                        <p className="text-gray-600">
-                            <OfferList isEmployer={false} loading={loading} offers={offers}/>
-                        </p>
+                        <OfferList isEmployer={false} loading={loading} offers={offers}/>
                     </div>
 
                     {/* Section "Candidatures (CVs) des étudiants" */}
                     <div className="bg-white rounded-lg shadow-md p-6">
-                        <div className="flex items-center space-x-10 flex-shrink-0 mb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {t("im.resumesSection")}
                             </h2>
-                            <div className="relative">
-                                <SortButton onClick={() => {
-                                    setShowSortMenuOffers(false)
-                                    setShowFilterMenuOffers(false)
-                                    setShowSortMenuResumes(!showSortMenuResumes)
-                                    setShowFilterMenuResumes(false)
-                                }} />
-                                {showSortMenuResumes} {/* TODO: Ajoute le menu pour trier les CVs ici */}
-                            </div>
-                            <div className="relative">
-                                <FilterButton onClick={() => {
-                                    setShowSortMenuOffers(false)
-                                    setShowFilterMenuOffers(false)
-                                    setShowSortMenuResumes(false)
-                                    setShowFilterMenuResumes(!showFilterMenuResumes)
-                                }}/>
-                                {showFilterMenuResumes} {/* TODO: Ajoute le menu pour filtrer les CVs ici */}
+                            <div className="flex items-center space-x-4">
+                                <div className="relative">
+                                    <SortButton onClick={() => {
+                                        setShowSortMenuOffers(false)
+                                        setShowFilterMenuOffers(false)
+                                        setShowSortMenuResumes(!showSortMenuResumes)
+                                        setShowFilterMenuResumes(false)
+                                    }} />
+                                    {showSortMenuResumes} {/* TODO: Ajoute le menu pour trier les CVs ici */}
+                                </div>
+                                <div className="relative">
+                                    <FilterButton onClick={() => {
+                                        setShowSortMenuOffers(false)
+                                        setShowFilterMenuOffers(false)
+                                        setShowSortMenuResumes(false)
+                                        setShowFilterMenuResumes(!showFilterMenuResumes)
+                                    }}/>
+                                    {showFilterMenuResumes} {/* TODO: Ajoute le menu pour filtrer les CVs ici */}
+                                </div>
                             </div>
                         </div>
-                        <p className="text-gray-600">
-                            Cette section sera bientôt disponible.
-                        </p>
+                        <div className="text-center py-8">
+                            <div className="text-gray-400 mb-4">
+                                <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <p className="text-gray-600 text-lg font-medium mb-2">
+                                {t("im.resumesSectionComingSoon")}
+                            </p>
+                            <p className="text-gray-500 text-sm">
+                                {t("im.resumesSectionDescription")}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

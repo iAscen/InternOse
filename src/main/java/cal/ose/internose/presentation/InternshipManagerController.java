@@ -24,11 +24,17 @@ public class InternshipManagerController {
 
     @GetMapping(Paths.SEARCH_INTERNSHIPS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
-                                                                      @RequestParam(required = false) Boolean valid,
+                                                                      @RequestParam(required = false) String valid,
                                                                       @RequestParam(required = false) String title,
                                                                       @RequestParam(required = false) String sortBy) {
+        // Convertir le paramètre valid de String vers Boolean
+        Boolean validBoolean = null;
+        if (valid != null && !valid.isEmpty() && !valid.equals("null")) {
+            validBoolean = Boolean.parseBoolean(valid);
+        }
+        
         return ResponseEntity.status(HttpStatus.OK)
-                .body(internshipManagerService.findInternshipsBy(domain, valid, title, sortBy));
+                .body(internshipManagerService.findInternshipsBy(domain, validBoolean, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)

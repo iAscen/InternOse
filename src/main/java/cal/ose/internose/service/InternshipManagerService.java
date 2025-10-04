@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 @Service
 @AllArgsConstructor
@@ -18,23 +17,11 @@ public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String title, String sortBy) {
-        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domain, valid, title);
-
-        if (domain != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> Objects.equals(io.getDomain(), domain))
-                    .collect(Collectors.toList());
-        }
-        if (valid != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> Objects.equals(io.isValidee(), valid))
-                    .collect(Collectors.toList());
-        }
-        if (title != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> Objects.equals(io.getJobTitle(), title))
-                    .collect(Collectors.toList());
-        }
+        // Ajouter les wildcards pour la recherche LIKE
+        String domainPattern = domain != null ? "%" + domain + "%" : null;
+        String titlePattern = title != null ? "%" + title + "%" : null;
+        
+        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domainPattern, valid, titlePattern);
 
         if (!internshipOffers.isEmpty()) {
             if (sortBy != null && sortBy.equals("title")) {
