@@ -29,14 +29,12 @@ export default function PdfViewer({ fileUrl }: { fileUrl: string }) {
 
     return (
         <div>
-            {/* Optional zoom controls */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))}>-</button>
-                <span>Zoom: {(scale * 100).toFixed(0)}%</span>
-                <button onClick={() => setScale(s => Math.min(3, s + 0.1))}>+</button>
+                <button className="text-black" onClick={() => setScale(s => Math.max(0.5, s - 0.1))}>-</button>
+                <span className="text-black">Zoom: {(scale * 100).toFixed(0)}%</span>
+                <button className="text-black" onClick={() => setScale(s => Math.min(3, s + 0.1))}>+</button>
             </div>
 
-            {/* Scrollable viewer area */}
             <div style={{
                 height: '80vh',
                 width: '100%',

@@ -28,8 +28,8 @@ export default function ValidationPage() {
             <p className="text-gray-700">This is the verification page for user id: <strong>{id}</strong></p>
 
             <div className="mt-6">
-                <h2 className="text-xl font-medium mb-2">Preview PDF</h2>
-                <Suspense fallback={<div>Loading PDF viewer…</div>}>
+                <h2 className="text-xl font-medium mb-2 text-black">Preview PDF</h2>
+                <Suspense fallback={<div className="text-black">Loading PDF viewer…</div>}>
                     {PdfViewer ? <PdfViewer fileUrl={pdfUrl} /> : <div>Loading PDF viewer…</div>}
                 </Suspense>
             </div>
