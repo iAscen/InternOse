@@ -2,15 +2,17 @@ package cal.ose.internose;
 
 import cal.ose.internose.service.AuthService;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class InternOSEApplication implements CommandLineRunner {
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public InternOSEApplication(AuthService authService) {
+        this.authService = authService;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(InternOSEApplication.class, args);
@@ -19,11 +21,10 @@ public class InternOSEApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
-        internshipManagerDTO.setEmail("managerEmail@email");
-        internshipManagerDTO.setPassword("managerPassword1@");
-        internshipManagerDTO.setFirstName("manager");
-        internshipManagerDTO.setLastName("manager");
-
+        internshipManagerDTO.setEmail("gs@gmail.com");
+        internshipManagerDTO.setPassword("Password123!");
+        internshipManagerDTO.setFirstName("François");
+        internshipManagerDTO.setLastName("L.");
         authService.registerInternshipManager(internshipManagerDTO);
     }
 }

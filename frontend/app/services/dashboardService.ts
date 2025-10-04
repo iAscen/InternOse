@@ -12,6 +12,11 @@ class DashboardService {
     return await apiService.getInternshipOffers();
   }
 
+  // Récupérer toutes les offres de stages de tous les employeurs (pour le gestionnaire de stages)
+  async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.getAllInternshipOffers(sortBy, filterBy);
+  }
+
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     return await apiService.createInternshipOffer(offerData);

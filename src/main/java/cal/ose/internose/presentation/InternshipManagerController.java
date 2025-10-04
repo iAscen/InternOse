@@ -5,8 +5,6 @@ import cal.ose.internose.modele.Student;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,11 +32,17 @@ public class InternshipManagerController {
 
     @GetMapping(Paths.SEARCH_INTERNSHIPS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
-            @RequestParam(required = false) Boolean valid,
-            @RequestParam(required = false) String enterprise,
-            @RequestParam(required = false) String filter) {
+                                                                      @RequestParam(required = false) String valid,
+                                                                      @RequestParam(required = false) String title,
+                                                                      @RequestParam(required = false) String sortBy) {
+        // Convertir le paramètre valid de String vers Boolean
+        Boolean validBoolean = null;
+        if (valid != null && !valid.isEmpty() && !valid.equals("null")) {
+            validBoolean = Boolean.parseBoolean(valid);
+        }
+        
         return ResponseEntity.status(HttpStatus.OK)
-                .body(internshipManagerService.findInternshipsBy(domain, valid, enterprise, filter));
+                .body(internshipManagerService.findInternshipsBy(domain, validBoolean, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)

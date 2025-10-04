@@ -512,6 +512,59 @@ class ApiService {
     }
   }
 
+  async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const status = filterBy ? filterBy[0] : null;
+      const domain = filterBy ? filterBy[1] : null;
+      const title = filterBy ? filterBy[2] : null;
+      
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      if (sortBy) params.append('sortBy', sortBy);
+      if (status) {
+        const valid = status.toLowerCase() === 'true' || status.toLowerCase() === 'validated' || status.toLowerCase() === 'approuvé';
+        params.append('valid', valid.toString());
+      }
+      if (domain) params.append('domain', domain);
+      if (title) params.append('title', title);
+      
+      const response = await fetch(`${API_BASE_URL}/internship-manager/search?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du chargement des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     try {
       const token = this.getToken();
