@@ -43,8 +43,7 @@ public class StudentService {
                 .toList();
     }
 
-    public List<Student> getAllStudentsWithCVs(String sortBy, String sortOrder, String status, String program,
-            String institution) {
+    public List<Student> getAllStudentsWithCVs(String sortBy, String sortOrder, String status) {
         List<Student> students = studentDAO.findAll().stream()
                 .filter(student -> student.getCvStatus() != CVStatus.NONE)
                 .toList();
@@ -62,21 +61,6 @@ public class StudentService {
             }
         }
 
-        // Filtrage par programme (si disponible dans le modèle)
-        if (program != null && !program.trim().isEmpty()) {
-            students = students.stream()
-                    .filter(student -> student.getFirstName() != null &&
-                            student.getFirstName().toLowerCase().contains(program.toLowerCase()))
-                    .toList();
-        }
-
-        // Filtrage par établissement (si disponible dans le modèle)
-        if (institution != null && !institution.trim().isEmpty()) {
-            students = students.stream()
-                    .filter(student -> student.getLastName() != null &&
-                            student.getLastName().toLowerCase().contains(institution.toLowerCase()))
-                    .toList();
-        }
 
         // Tri
         if (sortBy != null && !sortBy.trim().isEmpty()) {

@@ -60,7 +60,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("name", "asc", null, null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs("name", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -76,7 +76,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("date", "desc", null, null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs("date", "desc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -92,7 +92,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "PENDING", null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "PENDING");
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
@@ -107,41 +107,12 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "INVALID_STATUS", null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "INVALID_STATUS");
 
         // Assert - Devrait retourner tous les CV car le statut invalide est ignoré
         assertThat(result.size()).isEqualTo(2);
     }
 
-    @Test
-    @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par programme")
-    public void testGetAllStudentsWithCVs_FilterByProgram() {
-        // Arrange
-        List<Student> students = createTestStudents();
-        when(studentDAO.findAll()).thenReturn(students);
-
-        // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, null, "Alice", null);
-
-        // Assert
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getFirstName()).isEqualTo("Alice");
-    }
-
-    @Test
-    @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par établissement")
-    public void testGetAllStudentsWithCVs_FilterByInstitution() {
-        // Arrange
-        List<Student> students = createTestStudents();
-        when(studentDAO.findAll()).thenReturn(students);
-
-        // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, null, null, "Smith");
-
-        // Assert
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getLastName()).isEqualTo("Smith");
-    }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec paramètres vides")
@@ -151,7 +122,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("", "", "", "", "");
+        List<Student> result = studentService.getAllStudentsWithCVs("", "", "");
 
         // Assert - Devrait retourner tous les CV triés par nom par défaut
         assertThat(result.size()).isEqualTo(2);
@@ -166,7 +137,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("status", "asc", null, null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs("status", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -182,7 +153,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("email", "asc", null, null, null);
+        List<Student> result = studentService.getAllStudentsWithCVs("email", "asc", null);
 
         // Assert - Le tri par email devrait fonctionner même avec des emails null
         assertThat(result.size()).isEqualTo(2);

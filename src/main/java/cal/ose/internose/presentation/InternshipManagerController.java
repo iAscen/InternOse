@@ -57,9 +57,7 @@ public class InternshipManagerController {
     public ResponseEntity<Map<String, Object>> getAllStudentCVs(
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortOrder,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String program,
-            @RequestParam(required = false) String institution) {
+            @RequestParam(required = false) String status) {
         try {
             // Validation des paramètres de tri
             if (sortBy != null && sortBy.trim().isEmpty()) {
@@ -69,8 +67,7 @@ public class InternshipManagerController {
                 sortOrder = null; // Utiliser l'ordre par défaut (ascendant)
             }
 
-            List<Student> students = studentService.getAllStudentsWithCVs(sortBy, sortOrder, status, program,
-                    institution);
+            List<Student> students = studentService.getAllStudentsWithCVs(sortBy, sortOrder, status);
             List<Map<String, Object>> response = students.stream()
                     .map(student -> {
                         Map<String, Object> studentData = new HashMap<>();

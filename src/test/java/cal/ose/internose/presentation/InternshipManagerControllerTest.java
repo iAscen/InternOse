@@ -205,7 +205,7 @@ class InternshipManagerControllerTest {
     @Test
     void getAllStudentCVs() throws Exception {
         // Test de base pour récupérer tous les CVs des étudiants
-        when(studentService.getAllStudentsWithCVs(null, null, null, null, null))
+        when(studentService.getAllStudentsWithCVs(null, null, null))
                 .thenReturn(createTestStudents());
 
         MvcResult mvcResult = mockMvc.perform(
@@ -223,7 +223,7 @@ class InternshipManagerControllerTest {
     @Test
     void getAllStudentCVsWithFilters() throws Exception {
         // Test avec filtrage par statut et tri
-        when(studentService.getAllStudentsWithCVs("name", "asc", "PENDING", null, null))
+        when(studentService.getAllStudentsWithCVs("name", "asc", "PENDING"))
                 .thenReturn(createTestStudents().stream()
                         .filter(s -> s.getCvStatus() == CVStatus.PENDING)
                         .toList());
@@ -242,50 +242,11 @@ class InternshipManagerControllerTest {
         assertThat(responseContent).contains("pending");
     }
 
-    @Test
-    void getAllStudentCVsWithProgramFilter() throws Exception {
-        // Test avec filtrage par programme
-        when(studentService.getAllStudentsWithCVs(null, null, null, "Alice", null))
-                .thenReturn(createTestStudents().stream()
-                        .filter(s -> s.getFirstName().contains("Alice"))
-                        .toList());
-
-        MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/cvs")
-                    .param("program", "Alice")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
-        assertThat(responseContent).contains("Alice");
-    }
-
-    @Test
-    void getAllStudentCVsWithInstitutionFilter() throws Exception {
-        // Test avec filtrage par établissement
-        when(studentService.getAllStudentsWithCVs(null, null, null, null, "Smith"))
-                .thenReturn(createTestStudents().stream()
-                        .filter(s -> s.getLastName().contains("Smith"))
-                        .toList());
-
-        MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/cvs")
-                    .param("institution", "Smith")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
-        assertThat(responseContent).contains("Smith");
-    }
 
     @Test
     void getAllStudentCVsWithSorting() throws Exception {
         // Test avec tri par date
-        when(studentService.getAllStudentsWithCVs("date", "desc", null, null, null))
+        when(studentService.getAllStudentsWithCVs("date", "desc", null))
                 .thenReturn(createTestStudents());
 
         MvcResult mvcResult = mockMvc.perform(
