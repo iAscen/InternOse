@@ -5,26 +5,27 @@ import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class InternOSEApplication implements CommandLineRunner {
-    private final AuthService authService;
-
-    public InternOSEApplication(AuthService authService) {
-        this.authService = authService;
-    }
+public class InternOSEApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(InternOSEApplication.class, args);
     }
 
-    @Override
-    public void run(String... args) {
-        InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
-        internshipManagerDTO.setEmail("gs@gmail.com");
-        internshipManagerDTO.setPassword("Password123!");
-        internshipManagerDTO.setFirstName("François");
-        internshipManagerDTO.setLastName("L.");
-        authService.registerInternshipManager(internshipManagerDTO);
+    @Bean
+    public CommandLineRunner commandLineRunner(org.springframework.beans.factory.ObjectProvider<AuthService> authServiceProvider) {
+        return _ -> {
+            AuthService authService = authServiceProvider.getIfAvailable();
+            if (authService != null) {
+                InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
+                internshipManagerDTO.setEmail("gs@gmail.com");
+                internshipManagerDTO.setPassword("Password123!");
+                internshipManagerDTO.setFirstName("François");
+                internshipManagerDTO.setLastName("L.");
+                authService.registerInternshipManager(internshipManagerDTO);
+            }
+        };
     }
 }

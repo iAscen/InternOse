@@ -1,8 +1,10 @@
 package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.InternshipOffer;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -11,6 +13,8 @@ import java.util.List;
 @Builder
 @Getter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class InternshipOfferDTO {
     private String domain;
     private String jobTitle;
