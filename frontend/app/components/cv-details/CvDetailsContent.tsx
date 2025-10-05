@@ -110,7 +110,7 @@ export function CvDetailsContent() {
   if (!error && !loading && cvDetails)
     return (
         <>
-            <div onClick={() => {navigate("/im-dashboard")}} className="flex items-center gap-2 w-[10%] bg-red-600 text-white px-3 py-2 rounded cursor-pointer hover:bg-red-700 transition">
+            <div onClick={() => {navigate("/im-dashboard")}} className="flex items-center gap-2 w-[10%] bg-red-600 text-white px-3 py-2 rounded cursor-pointer hover:bg-red-700 transition mt-3 ml-3">
                 <svg
                     className="w-4 h-4"
                     fill="none"
