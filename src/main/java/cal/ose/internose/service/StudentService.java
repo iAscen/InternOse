@@ -61,7 +61,6 @@ public class StudentService {
             }
         }
 
-
         // Tri
         if (sortBy != null && !sortBy.trim().isEmpty()) {
             boolean ascending = sortOrder == null || !sortOrder.toLowerCase().equals("desc");
@@ -144,6 +143,27 @@ public class StudentService {
         }
 
         return students;
+    }
+
+    public void validateStudentCV(Long studentId, Boolean approved, String reason) {
+        Student student = studentDAO.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+
+        if (student.getCvStatus() != CVStatus.PENDING) {
+            throw new RuntimeException("Ce CV a déjà été traité");
+        }
+
+        if (approved) {
+            student.setCvStatus(CVStatus.APPROVED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(null);
+        } else {
+            student.setCvStatus(CVStatus.REJECTED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(reason);
+        }
+
+        studentDAO.save(student);
     }
 
 }

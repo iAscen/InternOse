@@ -113,7 +113,6 @@ public class StudentServiceTests {
         assertThat(result.size()).isEqualTo(2);
     }
 
-
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec paramètres vides")
     public void testGetAllStudentsWithCVs_EmptyParameters() {
@@ -187,5 +186,120 @@ public class StudentServiceTests {
         student2.setId(2L);
 
         return List.of(student1, student2);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - Approbation")
+    public void testValidateStudentCV_Approve() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(studentDAO.save(any(Student.class))).thenReturn(student);
+
+        // Act
+        studentService.validateStudentCV(studentId, true, null);
+
+        // Assert
+        assertThat(student.getCvStatus()).isEqualTo(CVStatus.APPROVED);
+        assertThat(student.getCvValidatedAt()).isNotNull();
+        assertThat(student.getCvRejectionReason()).isNull();
+        verify(studentDAO, times(1)).save(student);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - Refus")
+    public void testValidateStudentCV_Reject() {
+        // Arrange
+        Long studentId = 1L;
+        String rejectionReason = "CV incomplet";
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(studentDAO.save(any(Student.class))).thenReturn(student);
+
+        // Act
+        studentService.validateStudentCV(studentId, false, rejectionReason);
+
+        // Assert
+        assertThat(student.getCvStatus()).isEqualTo(CVStatus.REJECTED);
+        assertThat(student.getCvValidatedAt()).isNotNull();
+        assertThat(student.getCvRejectionReason()).isEqualTo(rejectionReason);
+        verify(studentDAO, times(1)).save(student);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - Étudiant non trouvé")
+    public void testValidateStudentCV_StudentNotFound() {
+        // Arrange
+        Long studentId = 999L;
+        when(studentDAO.findById(studentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        try {
+            studentService.validateStudentCV(studentId, true, null);
+            assertThat(false).isTrue(); // Ne devrait pas arriver ici
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage()).isEqualTo("Étudiant non trouvé");
+        }
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - CV déjà traité")
+    public void testValidateStudentCV_AlreadyProcessed() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.APPROVED); // Déjà traité
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        // Act & Assert
+        try {
+            studentService.validateStudentCV(studentId, true, null);
+            assertThat(false).isTrue(); // Ne devrait pas arriver ici
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage()).isEqualTo("Ce CV a déjà été traité");
+        }
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - Refus avec raison vide")
+    public void testValidateStudentCV_RejectWithEmptyReason() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(studentDAO.save(any(Student.class))).thenReturn(student);
+
+        // Act
+        studentService.validateStudentCV(studentId, false, "");
+
+        // Assert
+        assertThat(student.getCvStatus()).isEqualTo(CVStatus.REJECTED);
+        assertThat(student.getCvValidatedAt()).isNotNull();
+        assertThat(student.getCvRejectionReason()).isEqualTo("");
+        verify(studentDAO, times(1)).save(student);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode validateStudentCV() - Approbation avec raison")
+    public void testValidateStudentCV_ApproveWithReason() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(studentDAO.save(any(Student.class))).thenReturn(student);
+
+        // Act
+        studentService.validateStudentCV(studentId, true, "CV excellent");
+
+        // Assert
+        assertThat(student.getCvStatus()).isEqualTo(CVStatus.APPROVED);
+        assertThat(student.getCvValidatedAt()).isNotNull();
+        assertThat(student.getCvRejectionReason()).isNull(); // Doit être null pour approbation
+        verify(studentDAO, times(1)).save(student);
     }
 }

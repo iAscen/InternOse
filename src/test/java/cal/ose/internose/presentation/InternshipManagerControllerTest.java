@@ -23,10 +23,14 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @WebMvcTest(InternshipManagerController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -45,21 +49,19 @@ class InternshipManagerControllerTest {
     @Test
     void findInternshipsBy() throws Exception {
         when(internshipManagerService.findInternshipsBy(
-            "Informatique", null, null, null
-        )).thenReturn(
-                List.of(InternshipOfferDTO.builder().domain("Informatique").build())
-        );
+                "Informatique", null, null, null)).thenReturn(
+                        List.of(InternshipOfferDTO.builder().domain("Informatique").build()));
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
-                    .param("domain", "Informatique")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("domain", "Informatique")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         List<InternshipOfferDTO> responseList = objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(),
-                new TypeReference<List<InternshipOfferDTO>>() {}
-        );
+                new TypeReference<List<InternshipOfferDTO>>() {
+                });
 
         assertThat(mvcResult.getResponse().getStatus())
                 .isEqualTo(HttpStatus.OK.value());
@@ -71,27 +73,26 @@ class InternshipManagerControllerTest {
     void findInternshipsByWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
-            "Informatique", true, "Développeur", "title"
-        )).thenReturn(
-                List.of(
-                    InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Java").validee(true).build(),
-                    InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Python").validee(true).build()
-                )
-        );
+                "Informatique", true, "Développeur", "title")).thenReturn(
+                        List.of(
+                                InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Java")
+                                        .validee(true).build(),
+                                InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Python")
+                                        .validee(true).build()));
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
-                    .param("domain", "Informatique")
-                    .param("valid", "true")
-                    .param("title", "Développeur")
-                    .param("sortBy", "title")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("domain", "Informatique")
+                        .param("valid", "true")
+                        .param("title", "Développeur")
+                        .param("sortBy", "title")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         List<InternshipOfferDTO> responseList = objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(),
-                new TypeReference<List<InternshipOfferDTO>>() {}
-        );
+                new TypeReference<List<InternshipOfferDTO>>() {
+                });
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(responseList.size()).isEqualTo(2);
@@ -102,24 +103,21 @@ class InternshipManagerControllerTest {
     void findInternshipsByWithSorting() throws Exception {
         // Test avec tri par statut
         when(internshipManagerService.findInternshipsBy(
-            null, null, null, "status"
-        )).thenReturn(
-                List.of(
-                    InternshipOfferDTO.builder().domain("Informatique").validee(false).build(),
-                    InternshipOfferDTO.builder().domain("Biologie").validee(true).build()
-                )
-        );
+                null, null, null, "status")).thenReturn(
+                        List.of(
+                                InternshipOfferDTO.builder().domain("Informatique").validee(false).build(),
+                                InternshipOfferDTO.builder().domain("Biologie").validee(true).build()));
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
-                    .param("sortBy", "status")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("sortBy", "status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         List<InternshipOfferDTO> responseList = objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(),
-                new TypeReference<List<InternshipOfferDTO>>() {}
-        );
+                new TypeReference<List<InternshipOfferDTO>>() {
+                });
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(responseList.size()).isEqualTo(2);
@@ -129,19 +127,18 @@ class InternshipManagerControllerTest {
     void findInternshipsByEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
-            "NonExistent", null, null, null
-        )).thenReturn(List.of());
+                "NonExistent", null, null, null)).thenReturn(List.of());
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
-                    .param("domain", "NonExistent")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("domain", "NonExistent")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         List<InternshipOfferDTO> responseList = objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(),
-                new TypeReference<List<InternshipOfferDTO>>() {}
-        );
+                new TypeReference<List<InternshipOfferDTO>>() {
+                });
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(responseList.size()).isEqualTo(0);
@@ -156,11 +153,11 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_VALIDATION_PATH)
-                    .param("offerId", String.valueOf(offerId))
-                    .param("approved", String.valueOf(approved))
-                    .param("commentaire", comment)
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("offerId", String.valueOf(offerId))
+                        .param("approved", String.valueOf(approved))
+                        .param("commentaire", comment)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(mvcResult.getResponse().getContentAsString()).contains(Paths.INTERNSHIP_VALIDATION_PATH);
@@ -175,11 +172,11 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_VALIDATION_PATH)
-                    .param("offerId", String.valueOf(offerId))
-                    .param("approved", String.valueOf(approved))
-                    .param("commentaire", comment)
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("offerId", String.valueOf(offerId))
+                        .param("approved", String.valueOf(approved))
+                        .param("commentaire", comment)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(mvcResult.getResponse().getContentAsString()).contains(Paths.INTERNSHIP_VALIDATION_PATH);
@@ -193,10 +190,10 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_VALIDATION_PATH)
-                    .param("offerId", String.valueOf(offerId))
-                    .param("approved", String.valueOf(approved))
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("offerId", String.valueOf(offerId))
+                        .param("approved", String.valueOf(approved))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(mvcResult.getResponse().getContentAsString()).contains(Paths.INTERNSHIP_VALIDATION_PATH);
@@ -210,8 +207,8 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/cvs")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -230,18 +227,17 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/cvs")
-                    .param("sortBy", "name")
-                    .param("sortOrder", "asc")
-                    .param("status", "PENDING")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("sortBy", "name")
+                        .param("sortOrder", "asc")
+                        .param("status", "PENDING")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("success");
         assertThat(responseContent).contains("pending");
     }
-
 
     @Test
     void getAllStudentCVsWithSorting() throws Exception {
@@ -251,10 +247,10 @@ class InternshipManagerControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/cvs")
-                    .param("sortBy", "date")
-                    .param("sortOrder", "desc")
-                    .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .param("sortBy", "date")
+                        .param("sortOrder", "desc")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -282,4 +278,177 @@ class InternshipManagerControllerTest {
 
         return List.of(student1, student2);
     }
+
+    // ===== MES NOUVELLES MÉTHODES DE TEST POUR LA VALIDATION DES CVs =====
+
+    @Test
+    void getStudentCVDetails_Success() throws Exception {
+        // Test de récupération des détails d'un CV d'étudiant
+        Student student = createTestStudents().get(0);
+        student.setCVFileName("alice_cv.pdf");
+        student.setCVFileType("application/pdf");
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+
+        MvcResult mvcResult = mockMvc.perform(
+                get("/api/internship-manager/students/1/cv")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("success");
+        assertThat(responseContent).contains("Alice");
+    }
+
+    @Test
+    void getStudentCVDetails_StudentNotFound() throws Exception {
+        // Test avec étudiant non trouvé
+        when(studentService.getStudentById(999L)).thenReturn(Optional.empty());
+
+        MvcResult mvcResult = mockMvc.perform(
+                get("/api/internship-manager/students/999/cv")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Étudiant non trouvé");
+    }
+
+    @Test
+    void downloadStudentCV_Success() throws Exception {
+        // Test de téléchargement d'un CV
+        Student student = createTestStudents().get(0);
+        student.setCVFileData("test cv data".getBytes());
+        student.setCVFileName("test_cv.pdf");
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+
+        MvcResult mvcResult = mockMvc.perform(
+                get("/api/internship-manager/students/1/cv/download")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    void downloadStudentCV_StudentNotFound() throws Exception {
+        // Test de téléchargement avec étudiant non trouvé
+        when(studentService.getStudentById(999L)).thenReturn(Optional.empty());
+
+        MvcResult mvcResult = mockMvc.perform(
+                get("/api/internship-manager/students/999/cv/download")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void validateStudentCV_Approve() throws Exception {
+        // Test d'approbation d'un CV
+        Student student = createTestStudents().get(0);
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+        doNothing().when(studentService).validateStudentCV(1L, true, null);
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/1/cv/validate")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("CV validé avec succès");
+    }
+
+    @Test
+    void validateStudentCV_Reject() throws Exception {
+        // Test de refus d'un CV
+        Student student = createTestStudents().get(0);
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+        doNothing().when(studentService).validateStudentCV(1L, false, "CV incomplet");
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/1/cv/validate")
+                        .param("approved", "false")
+                        .param("reason", "CV incomplet")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("CV refusé avec succès");
+    }
+
+    @Test
+    void validateStudentCV_StudentNotFound() throws Exception {
+        // Test avec étudiant non trouvé
+        when(studentService.getStudentById(999L)).thenReturn(Optional.empty());
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/999/cv/validate")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Étudiant non trouvé");
+    }
+
+    @Test
+    void validateStudentCV_AlreadyProcessed() throws Exception {
+        // Test avec CV déjà traité
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.APPROVED);
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/1/cv/validate")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Ce CV a déjà été traité");
+    }
+
+    @Test
+    void validateStudentCV_NoCV() throws Exception {
+        // Test avec étudiant sans CV
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(CVStatus.NONE);
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/1/cv/validate")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Aucun CV trouvé pour cet étudiant");
+    }
+
+    @Test
+    void validateStudentCV_ServiceException() throws Exception {
+        // Test avec exception du service
+        Student student = createTestStudents().get(0);
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+        doThrow(new RuntimeException("Erreur de service")).when(studentService).validateStudentCV(1L, true, null);
+
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/internship-manager/students/1/cv/validate")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Erreur lors de la validation du CV");
+    }
+
 }
