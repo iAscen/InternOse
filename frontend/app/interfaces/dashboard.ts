@@ -46,7 +46,8 @@ export interface Cv {
   email: string;
   cvStatus: string;
   cvFileName: string;
+  cvFileType: string;
   uploadedAt?: string;
   validatedAt?: string;
-  rejectionReason?: string
+  rejectionReason?: string;
 }

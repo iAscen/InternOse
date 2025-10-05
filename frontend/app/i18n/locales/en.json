@@ -119,7 +119,8 @@
     "resumesSectionComingSoon": "This section will be available soon",
     "resumesSectionDescription": "You will be able to view and manage student CVs",
     "allStatuses": "All statuses",
-    "ascendingOrder": "Ascending"
+    "ascendingOrder": "Ascending",
+    "noCvsFound": "No CV found"
   },
   "employer": {
     "dashboard": "Employer Dashboard",
@@ -225,5 +226,12 @@
       "getStarted": "Get started now",
       "learnMore": "Learn more"
     }
+    
+  },
+  "cv-details": {
+    "fileName": "File name",
+    "fileType": "File type",
+    "downloadCv": "Download",
+    "goBack": "Go back"
   }
 }

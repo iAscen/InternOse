@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
 import type { Cv } from "~/interfaces";
 
 interface CvListProps {
@@ -9,6 +10,7 @@ interface CvListProps {
 
 export default function CvList({cvs}: CvListProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(cvs)
@@ -18,7 +20,7 @@ export default function CvList({cvs}: CvListProps) {
     return (
       <div>
           {cvs.map((cv, index) => (
-          <div className="text-gray-900 bg-white shadow-md rounded-lg mb-2 p-5" key={index}>
+          <div onClick={() => {navigate("/cv/" + cv.studentId)}} className="text-gray-900 cursor-pointer hover:scale-101 transition shadow-md rounded-lg mb-2 p-5" key={index}>
             <div className="flex mb-4">
               <div className="flex-auto">
                 <p className="text-lg font-medium">{cv.cvFileName}</p>

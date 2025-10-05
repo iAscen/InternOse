@@ -234,6 +234,11 @@ export default function IMDashboardContent() {
                             </div>
                         </div>
                         {cvs.length != 0 && <CvList cvs={cvs}></CvList>}
+                        {cvs.length == 0 && 
+                            <div className="text-center text-gray-900">
+                                {t('im.noCvsFound')}
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

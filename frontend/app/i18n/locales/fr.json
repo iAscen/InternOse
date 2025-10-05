@@ -119,7 +119,8 @@
     "resumesSectionComingSoon": "Cette section sera bientôt disponible",
     "resumesSectionDescription": "Vous pourrez consulter et gérer les CVs des étudiants",
     "allStatuses": "Tous les statuts",
-    "ascendingOrder": "Ascendant"
+    "ascendingOrder": "Ascendant",
+    "noCvsFound": "Aucun CV trouve"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",
@@ -225,5 +226,11 @@
       "getStarted": "Commencer maintenant",
       "learnMore": "En savoir plus"
     }
+  },
+  "cv-details": {
+    "fileName": "Nom du fichier",
+    "fileType": "Type de fichier",
+    "downloadCv": "Télécharger",
+    "goBack": "Retourner"
   }
 }

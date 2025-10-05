@@ -668,6 +668,86 @@ class ApiService {
     }
   }
 
+  async getCvDetails(studentId: number): Promise<ApiResponse<Cv>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        return {
+          success: true,
+          data: body.data,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la recuperation du cv',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCvBlob(studentId: Number): Promise<ApiResponse<Blob>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const bytes = await response.blob()
+
+        return {
+          success: true,
+          data: bytes
+        }
+      }
+      else {
+        return {
+          success: false,
+          error: "Erreur lors de la recuperation du cv"
+        }
+      }
+    }
+    catch (error) {
+      return {
+        success: false,
+        error: "Erreur de connexion au server"
+      }
+    }
+  }
+
   // Vérification de la santé du serveur
   async healthCheck(): Promise<boolean> {
     try {
