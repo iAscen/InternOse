@@ -152,7 +152,8 @@ public class InternshipManagerController {
                     student.getCvValidatedAt() != null
                             ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                             : "",
-                    "rejectionReason", student.getCvRejectionReason()));
+                    "rejectionReason", student.getCvRejectionReason() != null
+                            ? student.getCvRejectionReason() : ""));
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
