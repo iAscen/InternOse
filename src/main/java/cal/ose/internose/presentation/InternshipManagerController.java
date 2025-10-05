@@ -53,7 +53,7 @@ public class InternshipManagerController {
         return ResponseEntity.status(HttpStatus.OK).body(Paths.INTERNSHIP_VALIDATION_PATH);
     }
 
-    @GetMapping("/api/internship-manager/students/cvs")
+    @GetMapping(Paths.SEARCH_STUDENTS_PATH)
     public ResponseEntity<Map<String, Object>> getAllStudentCVs(
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortOrder,
@@ -110,7 +110,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/api/internship-manager/students/{studentId}/cv")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_PATH)
     public ResponseEntity<Map<String, Object>> getStudentCVDetails(@PathVariable Long studentId) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(studentId);
@@ -163,7 +163,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/api/internship-manager/students/{studentId}/cv/download")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_DOWNLOAD_PATH)
     public ResponseEntity<byte[]> downloadStudentCV(@PathVariable Long studentId) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(studentId);
@@ -192,7 +192,7 @@ public class InternshipManagerController {
         }
     }
 
-    @PostMapping("/api/internship-manager/students/{studentId}/cv/validate")
+    @PostMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_VALIDATE_PATH)
     public ResponseEntity<Map<String, Object>> validateStudentCV(
             @PathVariable Long studentId,
             @RequestParam Boolean approved,
