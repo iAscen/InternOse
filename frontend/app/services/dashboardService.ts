@@ -23,8 +23,8 @@ class DashboardService {
     return await apiService.createInternshipOffer(offerData);
   }
 
-  async getAllCvs(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<Cv[]>> {
-    return await apiService.getAllCvs(sortBy, filterBy)
+  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
+    return await apiService.getAllCvs(sortBy, filterBy, sortOrder)
   }
 
   // Calculer les statistiques du dashboard

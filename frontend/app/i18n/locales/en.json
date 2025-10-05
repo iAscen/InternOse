@@ -118,7 +118,8 @@
     "placeholderProgram": "Ex: IT",
     "resumesSectionComingSoon": "This section will be available soon",
     "resumesSectionDescription": "You will be able to view and manage student CVs",
-    "allStatuses": "All statuses"
+    "allStatuses": "All statuses",
+    "ascendingOrder": "Ascending"
   },
   "employer": {
     "dashboard": "Employer Dashboard",

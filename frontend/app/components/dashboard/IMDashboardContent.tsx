@@ -86,10 +86,10 @@ export default function IMDashboardContent() {
         }
     };
 
-    const loadCvs = async (sortBy?: string, filterBy?: string[]) => {
+    const loadCvs = async (sortBy?: string, filterBy?: string[], sortOrder?: string) => {
         try {
             setLoading(true);
-            const response = await dashboardService.getAllCvs(sortBy, filterBy);
+            const response = await dashboardService.getAllCvs(sortBy, filterBy, sortOrder);
             if (response.success && response.data) {
                 const cvs: Cv[] = response.data
                 console.log(cvs)
@@ -211,9 +211,9 @@ export default function IMDashboardContent() {
                                         setShowFilterMenuResumes(false)
                                     }} />
                                     {showSortMenuResumes &&
-                                        <SortMenuCvs applySorting={(sortBy: string) => {
+                                        <SortMenuCvs applySorting={(sortBy: string, sortOrder: string) => {
                                             setShowSortMenuResumes(false);
-                                            loadCvs(sortBy, undefined)
+                                            loadCvs(sortBy, undefined, sortOrder)
                                         }}/>
                                     }
                                 </div>
@@ -227,7 +227,7 @@ export default function IMDashboardContent() {
                                     {showFilterMenuResumes &&
                                         <FilterMenuCvs applyFilters={(filterBy: string[]) => {
                                             setShowFilterMenuResumes(false);
-                                            loadCvs(undefined, filterBy);
+                                            loadCvs(undefined, filterBy, "desc");
                                         }}/>
                                     }
                                 </div>

@@ -616,7 +616,7 @@ class ApiService {
     }
   }
 
-  async getAllCvs(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<Cv[]>> {
+  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -633,6 +633,7 @@ class ApiService {
       // Construire les paramètres de requête
       const params = new URLSearchParams();
       if (sortBy) params.append('sortBy', sortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder)
       if (status) params.append('status', status)
       if (program) params.append('program', program);
       if (institution) params.append('institution', institution);
