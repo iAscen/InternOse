@@ -4,12 +4,14 @@ import { useTranslation } from "react-i18next";
 import { apiService } from "~/services/apiService";
 import { dashboardService } from "~/services/dashboardService";
 import type { InternshipOffer } from "~/interfaces";
+import type { Cv } from "~/interfaces"
 import StatisticsCard from "~/components/dashboard/StatisticsCard";
 import SortButton from "~/components/dashboard/SortButton";
 import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
 import FilterButton from "~/components/dashboard/FilterButton";
 import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
+import CvList from "./CvList";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -20,6 +22,7 @@ export default function IMDashboardContent() {
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
+    const [cvs, setCvs] = useState<Cv[]>([])
     const [error, setError] = useState<string | null>(null);
 
     // Icônes pour les statistiques
@@ -80,8 +83,28 @@ export default function IMDashboardContent() {
             setLoading(false);
         }
     };
+
+    const loadCvs = async (sortBy?: string, filterBy?: string[]) => {
+        try {
+            setLoading(true);
+            const response = await dashboardService.getAllCvs(sortBy, filterBy);
+            if (response.success && response.data) {
+                const cvs: Cv[] = response.data
+                console.log(cvs)
+                setCvs(cvs);
+            } else {
+                setError(response.error || t('dashboard.loadingError'));
+            }
+        } catch (err) {
+            setError(t('dashboard.serverError'));
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         loadOffers();
+        loadCvs();
     }, []);
 
     return (
@@ -177,7 +200,7 @@ export default function IMDashboardContent() {
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {t("im.resumesSection")}
                             </h2>
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-4 text-gray-900">
                                 <div className="relative">
                                     <SortButton onClick={() => {
                                         setShowSortMenuOffers(false)
@@ -198,19 +221,7 @@ export default function IMDashboardContent() {
                                 </div>
                             </div>
                         </div>
-                        <div className="text-center py-8">
-                            <div className="text-gray-400 mb-4">
-                                <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <p className="text-gray-600 text-lg font-medium mb-2">
-                                {t("im.resumesSectionComingSoon")}
-                            </p>
-                            <p className="text-gray-500 text-sm">
-                                {t("im.resumesSectionDescription")}
-                            </p>
-                        </div>
+                        {cvs.length != 0 && <CvList cvs={cvs}></CvList>}
                     </div>
                 </div>
             </div>

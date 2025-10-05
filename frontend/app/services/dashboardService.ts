@@ -3,7 +3,8 @@ import type {
   InternshipOffer, 
   CreateInternshipOfferRequest, 
   DashboardStats, 
-  ApiResponse 
+  ApiResponse, 
+  Cv
 } from '../interfaces';
 
 class DashboardService {
@@ -20,6 +21,10 @@ class DashboardService {
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     return await apiService.createInternshipOffer(offerData);
+  }
+
+  async getAllCvs(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<Cv[]>> {
+    return await apiService.getAllCvs(sortBy, filterBy)
   }
 
   // Calculer les statistiques du dashboard

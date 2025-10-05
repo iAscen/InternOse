@@ -39,13 +39,13 @@ export interface DashboardStats {
   expired: number;
 }
 
-export interface cv {
-  id?: number;
+export interface Cv {
+  studentId?: number;
   firstName: string;
   lastName: string;
   email: string;
-  status: string;
-  fileName: string;
+  cvStatus: string;
+  cvFileName: string;
   uploadedAt?: string;
   validatedAt?: string;
   rejectionReason?: string
