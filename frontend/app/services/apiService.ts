@@ -6,7 +6,8 @@ import type {
   InternshipOffer,
   CreateInternshipOfferRequest,
   ErrorResponseDTO,
-  ApiResponse
+  ApiResponse,
+  Cv
 } from '~/interfaces';
 import { ErrorService } from './errorService';
 
@@ -612,6 +613,138 @@ class ApiService {
         success: false,
         error: 'Erreur de connexion au serveur',
       };
+    }
+  }
+
+  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const status = filterBy ? filterBy[0] : null;
+      const program = filterBy ? filterBy[1] : null;
+      const institution = filterBy ? filterBy[2] : null;
+      
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      if (sortBy) params.append('sortBy', sortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder)
+      if (status) params.append('status', status)
+      if (program) params.append('program', program);
+      if (institution) params.append('institution', institution);
+      
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/cvs?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        const cvs = body.data
+        return {
+          success: true,
+          data: cvs,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors du chargement des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCvDetails(studentId: number): Promise<ApiResponse<Cv>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        return {
+          success: true,
+          data: body.data,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la recuperation du cv',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCvBlob(studentId: Number): Promise<ApiResponse<Blob>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const bytes = await response.blob()
+
+        return {
+          success: true,
+          data: bytes
+        }
+      }
+      else {
+        return {
+          success: false,
+          error: "Erreur lors de la recuperation du cv"
+        }
+      }
+    }
+    catch (error) {
+      return {
+        success: false,
+        error: "Erreur de connexion au server"
+      }
     }
   }
 

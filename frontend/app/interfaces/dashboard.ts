@@ -38,3 +38,16 @@ export interface DashboardStats {
   approved: number;
   expired: number;
 }
+
+export interface Cv {
+  studentId?: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cvStatus: string;
+  cvFileName: string;
+  cvFileType: string;
+  uploadedAt?: string;
+  validatedAt?: string;
+  rejectionReason?: string;
+}

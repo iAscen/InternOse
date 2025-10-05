@@ -110,12 +110,17 @@
     "status": "Statut",
     "domain": "Domaine",
     "title": "Titre",
+    "program": "Programme",
+    "name": "Nom",
     "placeholderPending": "Ex: En attente de validation",
     "placeholderCS": "Ex: Informatique",
     "placeholderDev": "Ex: Développeur",
+    "placeholderProgram": "Ex: Informatique",
     "resumesSectionComingSoon": "Cette section sera bientôt disponible",
     "resumesSectionDescription": "Vous pourrez consulter et gérer les CVs des étudiants",
-    "allStatuses": "Tous les statuts"
+    "allStatuses": "Tous les statuts",
+    "ascendingOrder": "Ascendant",
+    "noCvsFound": "Aucun CV trouve"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",
@@ -166,13 +171,17 @@
     "totalOffers": "Total des offres",
     "pending": "En attente",
     "validated": "Validées",
+    "rejected": "Rejeter",
     "expired": "Expirées",
     "myOffers": "Mes offres de stage",
     "noOffers": "Aucune offre de stage créée pour le moment. Cliquez sur \"Créer une offre\" pour commencer.",
     "offerCreatedSuccess": "Offre de stage créée avec succès ! Elle est en attente de validation.",
     "loadingError": "Erreur lors du chargement des offres",
     "creationError": "Erreur lors de la création de l'offre",
-    "serverError": "Erreur de connexion au serveur"
+    "serverError": "Erreur de connexion au serveur",
+    "student": "Étudiant",
+    "rejectionReason": "Raison de rejet",
+    "uploadedAt": "Téléversé le"
   },
   "errors": {
     "required": "Ce champ est requis",
@@ -217,5 +226,11 @@
       "getStarted": "Commencer maintenant",
       "learnMore": "En savoir plus"
     }
+  },
+  "cv-details": {
+    "fileName": "Nom du fichier",
+    "fileType": "Type de fichier",
+    "downloadCv": "Télécharger",
+    "goBack": "Retourner"
   }
 }
