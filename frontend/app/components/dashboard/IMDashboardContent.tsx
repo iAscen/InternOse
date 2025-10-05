@@ -12,6 +12,8 @@ import FilterButton from "~/components/dashboard/FilterButton";
 import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
 import CvList from "./CvList";
+import SortMenuCvs from "./SortMenuCvs";
+import FilterMenuCvs from "./FilterMenuCvs";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -208,7 +210,12 @@ export default function IMDashboardContent() {
                                         setShowSortMenuResumes(!showSortMenuResumes)
                                         setShowFilterMenuResumes(false)
                                     }} />
-                                    {showSortMenuResumes} {/* TODO: Ajoute le menu pour trier les CVs ici */}
+                                    {showSortMenuResumes &&
+                                        <SortMenuCvs applySorting={(sortBy: string) => {
+                                            setShowSortMenuResumes(false);
+                                            loadCvs(sortBy, undefined)
+                                        }}/>
+                                    }
                                 </div>
                                 <div className="relative">
                                     <FilterButton onClick={() => {
@@ -217,7 +224,12 @@ export default function IMDashboardContent() {
                                         setShowSortMenuResumes(false)
                                         setShowFilterMenuResumes(!showFilterMenuResumes)
                                     }}/>
-                                    {showFilterMenuResumes} {/* TODO: Ajoute le menu pour filtrer les CVs ici */}
+                                    {showFilterMenuResumes &&
+                                        <FilterMenuCvs applyFilters={(filterBy: string[]) => {
+                                            setShowFilterMenuResumes(false);
+                                            loadCvs(undefined, filterBy);
+                                        }}/>
+                                    }
                                 </div>
                             </div>
                         </div>
