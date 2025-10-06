@@ -1,14 +1,53 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '~/interfaces';
+import OfferValidationModal from './OfferValidationModal';
 
 interface OfferListProps {
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
+  onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
 }
 
-export default function OfferList({ isEmployer, loading, offers }: OfferListProps) {
+export default function OfferList({ isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
   const { t } = useTranslation();
+  const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleValidateOffer = (offer: InternshipOffer) => {
+    setSelectedOffer(offer);
+    setIsModalOpen(true);
+  };
+
+  const handleValidationSuccess = () => {
+    if (onOfferValidation) {
+      onOfferValidation();
+    }
+  };
+
+  const getStatusBadge = (offer: InternshipOffer) => {
+    if (offer.validationStatus === 'approuvé') {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+          {t('im.approved')}
+        </span>
+      );
+    } else if (offer.validationStatus === 'rejeté') {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+          {t('im.rejected')}
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          {t('im.pending')}
+        </span>
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md">
@@ -86,14 +125,19 @@ export default function OfferList({ isEmployer, loading, offers }: OfferListProp
                       </div>
                     )}
                   </div>
-                  <div className="ml-4">
-                    <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-                      offer.validee 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {offer.validee ? t('dashboard.validated') : t('dashboard.pending')}
-                    </span>
+                  <div className="ml-4 flex flex-col items-end space-y-2">
+                    {getStatusBadge(offer)}
+                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'en_attente') && (
+                      <button
+                        onClick={() => handleValidateOffer(offer)}
+                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {t('im.validateOffer')}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -107,10 +151,30 @@ export default function OfferList({ isEmployer, loading, offers }: OfferListProp
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
               </div>
+              {/* Affichage de la raison de rejet si applicable */}
+              {offer.validationStatus === 'rejeté' && offer.rejectionReason && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <h4 className="text-sm font-medium text-red-800 mb-1">{t('dashboard.rejectionReason')}</h4>
+                  <p className="text-sm text-red-700">{offer.rejectionReason}</p>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Validation Modal */}
+      {selectedOffer && (
+        <OfferValidationModal
+          offer={selectedOffer}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedOffer(null);
+          }}
+          onValidationSuccess={handleValidationSuccess}
+        />
+      )}
     </div>
   );
 }

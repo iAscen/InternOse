@@ -20,7 +20,9 @@
     "previous": "Précédent",
     "loading": "Chargement...",
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "optional": "Optionnel",
+    "processing": "Traitement en cours..."
   },
   "navigation": {
     "home": "Accueil",
@@ -120,7 +122,17 @@
     "resumesSectionDescription": "Vous pourrez consulter et gérer les CVs des étudiants",
     "allStatuses": "Tous les statuts",
     "ascendingOrder": "Ascendant",
-    "noCvsFound": "Aucun CV trouve"
+    "noCvsFound": "Aucun CV trouve",
+    "validateOffer": "Valider l'offre",
+    "approveOffer": "Approuver l'offre",
+    "rejectOffer": "Refuser l'offre",
+    "rejectionReason": "Raison du refus",
+    "rejectionReasonPlaceholder": "Expliquez pourquoi cette offre est refusée...",
+    "confirmApprove": "Confirmer l'approbation",
+    "confirmReject": "Confirmer le refus",
+    "approved": "Approuvé",
+    "rejected": "Refusé",
+    "pending": "En attente"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",

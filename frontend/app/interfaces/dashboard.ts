@@ -10,6 +10,9 @@ export interface InternshipOffer {
   salary: number;
   address: string;
   validee?: boolean;
+  validationStatus?: string; // "approuvé", "rejeté", null
+  rejectionReason?: string; // Raison du rejet si applicable
+  domain?: string; // Domaine de l'offre
 }
 
 export interface CreateInternshipOfferRequest {

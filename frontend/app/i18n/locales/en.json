@@ -20,7 +20,9 @@
     "previous": "Previous",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "optional": "Optional",
+    "processing": "Processing..."
   },
   "navigation": {
     "home": "Home",
@@ -120,7 +122,17 @@
     "resumesSectionDescription": "You will be able to view and manage student CVs",
     "allStatuses": "All statuses",
     "ascendingOrder": "Ascending",
-    "noCvsFound": "No CV found"
+    "noCvsFound": "No CV found",
+    "validateOffer": "Validate offer",
+    "approveOffer": "Approve offer",
+    "rejectOffer": "Reject offer",
+    "rejectionReason": "Rejection reason",
+    "rejectionReasonPlaceholder": "Explain why this offer is being rejected...",
+    "confirmApprove": "Confirm approval",
+    "confirmReject": "Confirm rejection",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending"
   },
   "employer": {
     "dashboard": "Employer Dashboard",

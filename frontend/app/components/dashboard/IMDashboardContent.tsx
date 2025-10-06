@@ -132,24 +132,23 @@ export default function IMDashboardContent() {
 
                     {/* Statistiques */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {/* TODO: Ajouter le calcul des statistiques */}
                         <StatisticsCard
                             title={t('im.pendingSubmissions')}
-                            value={0}
+                            value={offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'en_attente').length}
                             icon={statsIcons.pending}
                             bgColor="bg-yellow-100"
                             iconColor="text-yellow-600"
                         />
                         <StatisticsCard
                             title={t('im.approvedSubmissions')}
-                            value={0}
+                            value={offers.filter(offer => offer.validationStatus === 'approuvé').length}
                             icon={statsIcons.approved}
                             bgColor="bg-green-100"
                             iconColor="text-green-600"
                         />
                         <StatisticsCard
                             title={t('im.refusedSubmissions')}
-                            value={0}
+                            value={offers.filter(offer => offer.validationStatus === 'rejeté').length}
                             icon={statsIcons.refused}
                             bgColor="bg-red-100"
                             iconColor="text-red-600"
@@ -193,7 +192,12 @@ export default function IMDashboardContent() {
                                 </div>
                             </div>
                         </div>
-                        <OfferList isEmployer={false} loading={loading} offers={offers}/>
+                        <OfferList 
+                          isEmployer={false} 
+                          loading={loading} 
+                          offers={offers}
+                          onOfferValidation={() => loadOffers()}
+                        />
                     </div>
 
                     {/* Section "Candidatures (CVs) des étudiants" */}
