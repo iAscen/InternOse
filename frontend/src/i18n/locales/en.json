@@ -20,7 +20,9 @@
     "previous": "Previous",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "optional": "Optional",
+    "processing": "Processing..."
   },
   "navigation": {
     "home": "Home",
@@ -110,12 +112,27 @@
     "status": "Status",
     "domain": "Domain",
     "title": "Title",
+    "program": "Program",
+    "name": "Name",
     "placeholderPending": "Ex: Pending",
     "placeholderCS": "Ex: Computer Science",
     "placeholderDev": "Ex: Developer",
+    "placeholderProgram": "Ex: IT",
     "resumesSectionComingSoon": "This section will be available soon",
     "resumesSectionDescription": "You will be able to view and manage student CVs",
-    "allStatuses": "All statuses"
+    "allStatuses": "All statuses",
+    "ascendingOrder": "Ascending",
+    "noCvsFound": "No CV found",
+    "validateOffer": "Validate offer",
+    "approveOffer": "Approve offer",
+    "rejectOffer": "Reject offer",
+    "rejectionReason": "Rejection reason",
+    "rejectionReasonPlaceholder": "Explain why this offer is being rejected...",
+    "confirmApprove": "Confirm approval",
+    "confirmReject": "Confirm rejection",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending"
   },
   "employer": {
     "dashboard": "Employer Dashboard",
@@ -166,13 +183,17 @@
     "totalOffers": "Total offers",
     "pending": "Pending",
     "validated": "Validated",
+    "rejected": "Rejected",
     "expired": "Expired",
     "myOffers": "My internship offers",
     "noOffers": "No internship offer created yet. Click on \"Create offer\" to get started.",
     "offerCreatedSuccess": "Internship offer created successfully! It is pending validation.",
     "loadingError": "Error loading offers",
     "creationError": "Error creating offer",
-    "serverError": "Server connection error"
+    "serverError": "Server connection error",
+    "student": "Student",
+    "rejectionReason": "Reason of rejection",
+    "uploadedAt": "Uploaded at"
   },
   "errors": {
     "required": "This field is required",
@@ -217,5 +238,12 @@
       "getStarted": "Get started now",
       "learnMore": "Learn more"
     }
+    
+  },
+  "cv-details": {
+    "fileName": "File name",
+    "fileType": "File type",
+    "downloadCv": "Download",
+    "goBack": "Go back"
   }
 }

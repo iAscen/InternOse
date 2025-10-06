@@ -6,7 +6,8 @@ import type {
   InternshipOffer,
   CreateInternshipOfferRequest,
   ErrorResponseDTO,
-  ApiResponse
+  ApiResponse,
+  Cv
 } from '~/interfaces';
 import { ErrorService } from './errorService';
 
@@ -546,6 +547,8 @@ class ApiService {
 
       if (response.ok) {
         const offers = await response.json();
+        console.log('🔍 Offers received from backend:', offers);
+        console.log('🔍 First offer details:', offers[0]);
         return {
           success: true,
           data: offers,
@@ -608,6 +611,204 @@ class ApiService {
         };
       }
     } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const status = filterBy ? filterBy[0] : null;
+      const program = filterBy ? filterBy[1] : null;
+      const institution = filterBy ? filterBy[2] : null;
+      
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      if (sortBy) params.append('sortBy', sortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder)
+      if (status) params.append('status', status)
+      if (program) params.append('program', program);
+      if (institution) params.append('institution', institution);
+      
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/cvs?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        const cvs = body.data
+        return {
+          success: true,
+          data: cvs,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors du chargement des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCvDetails(studentId: number): Promise<ApiResponse<Cv>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        return {
+          success: true,
+          data: body.data,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la recuperation du cv',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async getCvBlob(studentId: Number): Promise<ApiResponse<Blob>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const bytes = await response.blob()
+
+        return {
+          success: true,
+          data: bytes
+        }
+      }
+      else {
+        return {
+          success: false,
+          error: "Erreur lors de la recuperation du cv"
+        }
+      }
+    }
+    catch (error) {
+      return {
+        success: false,
+        error: "Erreur de connexion au server"
+      }
+    }
+  }
+
+  // Méthode pour valider/refuser une offre de stage (gestionnaire de stages)
+  async validateInternshipOffer(offerId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      params.append('offerId', offerId.toString());
+      params.append('approved', approved.toString());
+      if (comment && comment.trim()) {
+        params.append('commentaire', comment.trim());
+      }
+
+      const url = `${API_BASE_URL}/internship-manager/validation?${params.toString()}`;
+      console.log('🔍 Validation URL:', url);
+      console.log('🔍 Params:', { offerId, approved, comment });
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response ok:', response.ok);
+
+      if (response.ok) {
+        const responseText = await response.text();
+        console.log('🔍 Response body:', responseText);
+        return {
+          success: true,
+          data: approved ? 'Offre approuvée avec succès' : 'Offre refusée avec succès',
+        };
+      } else {
+        let errorMessage = 'Erreur lors de la validation de l\'offre';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          console.log('🔍 Error data:', errorData);
+        } catch (parseError) {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+          console.log('🔍 Error text:', errorText);
+        }
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
       return {
         success: false,
         error: 'Erreur de connexion au serveur',
