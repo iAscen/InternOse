@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InternshipOfferDTO {
+    private Long id;
     private String domain;
     private String jobTitle;
     private String taskDescription;
@@ -35,6 +36,7 @@ public class InternshipOfferDTO {
 
     public static InternshipOfferDTO fromEntity(InternshipOffer internshipOffer) {
         return InternshipOfferDTO.builder()
+                .id(internshipOffer.getId())
                 .jobTitle(internshipOffer.getJobTitle())
                 .taskDescription(internshipOffer.getTaskDescription())
                 .qualifications(internshipOffer.getQualifications())
