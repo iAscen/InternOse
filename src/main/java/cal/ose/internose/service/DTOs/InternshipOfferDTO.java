@@ -29,7 +29,6 @@ public class InternshipOfferDTO {
     private DocumentStatus validationStatus;
     private String rejectionReason;
 
-    // Backward compatibility method
     public boolean isValidee() {
         return validationStatus != DocumentStatus.PENDING;
     }

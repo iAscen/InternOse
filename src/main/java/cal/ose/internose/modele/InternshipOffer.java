@@ -39,7 +39,6 @@ public class InternshipOffer {
     @Column(name = "offer_rejection_reason", length = 2000)
     private String rejectionReason;
 
-    // Backward compatibility method
     public boolean isValidee() {
         return validationStatus != DocumentStatus.PENDING;
     }
