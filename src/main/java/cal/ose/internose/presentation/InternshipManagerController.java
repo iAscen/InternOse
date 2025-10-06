@@ -224,7 +224,7 @@ public class InternshipManagerController {
             }
 
             // Valider ou refuser le CV
-            studentService.validateStudentCV(studentId, approved, reason);
+            internshipManagerService.validateStudentCV(studentId, approved, reason);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

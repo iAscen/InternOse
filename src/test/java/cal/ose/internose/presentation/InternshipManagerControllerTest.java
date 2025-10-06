@@ -349,7 +349,7 @@ class InternshipManagerControllerTest {
         // Test d'approbation d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doNothing().when(studentService).validateStudentCV(1L, true, null);
+        doNothing().when(internshipManagerService).validateStudentCV(1L, true, null);
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -367,7 +367,7 @@ class InternshipManagerControllerTest {
         // Test de refus d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doNothing().when(studentService).validateStudentCV(1L, false, "CV incomplet");
+        doNothing().when(internshipManagerService).validateStudentCV(1L, false, "CV incomplet");
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -438,7 +438,7 @@ class InternshipManagerControllerTest {
         // Test avec exception du service
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doThrow(new RuntimeException("Erreur de service")).when(studentService).validateStudentCV(1L, true, null);
+        doThrow(new RuntimeException("Erreur de service")).when(internshipManagerService).validateStudentCV(1L, true, null);
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")

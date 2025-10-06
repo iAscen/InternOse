@@ -145,25 +145,4 @@ public class StudentService {
         return students;
     }
 
-    public void validateStudentCV(Long studentId, Boolean approved, String reason) {
-        Student student = studentDAO.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
-
-        if (student.getCvStatus() != DocumentStatus.PENDING) {
-            throw new RuntimeException("Ce CV a déjà été traité");
-        }
-
-        if (approved) {
-            student.setCvStatus(DocumentStatus.APPROVED);
-            student.setCvValidatedAt(LocalDateTime.now());
-            student.setCvRejectionReason(null);
-        } else {
-            student.setCvStatus(DocumentStatus.REJECTED);
-            student.setCvValidatedAt(LocalDateTime.now());
-            student.setCvRejectionReason(reason);
-        }
-
-        studentDAO.save(student);
-    }
-
 }

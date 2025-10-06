@@ -2,12 +2,15 @@ package cal.ose.internose.service;
 
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
+    private final StudentDAO studentDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String title, String sortBy) {
         // Ajouter les wildcards pour la recherche LIKE
@@ -53,7 +57,6 @@ public class InternshipManagerService {
         return offer;
     }
 
-    // approuve: true = approuvé, false = rejeté
     public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
 
         InternshipOffer offer = getInternshipOfferById(id);
@@ -69,5 +72,27 @@ public class InternshipManagerService {
         }
 
         internshipOfferDAO.save(offer);
+    }
+
+
+    public void validateStudentCV(Long studentId, Boolean approved, String reason) {
+        Student student = studentDAO.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+
+        if (student.getCvStatus() != DocumentStatus.PENDING) {
+            throw new RuntimeException("Ce CV a déjà été traité");
+        }
+
+        if (approved) {
+            student.setCvStatus(DocumentStatus.APPROVED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(null);
+        } else {
+            student.setCvStatus(DocumentStatus.REJECTED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(reason);
+        }
+
+        studentDAO.save(student);
     }
 }
