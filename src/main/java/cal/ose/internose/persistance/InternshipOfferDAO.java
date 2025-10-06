@@ -14,7 +14,7 @@ public interface InternshipOfferDAO extends JpaRepository<InternshipOffer, Long>
     @Query(
             "SELECT io FROM InternshipOffer io " +
             "WHERE (:domain IS NULL OR io.domain LIKE :domain) " +
-            "AND (:valid IS NULL OR io.validee = :valid) " +
+            "AND (:valid IS NULL OR io.validationStatus = :valid) " +
             "AND (:title IS NULL OR io.jobTitle LIKE :title)"
     )
     List<InternshipOffer> findInternshipsBy(@Param("domain") String domain,

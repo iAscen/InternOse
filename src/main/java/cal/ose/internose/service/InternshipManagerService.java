@@ -36,7 +36,8 @@ public class InternshipManagerService {
                         .toList();
             } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(InternshipOffer::isValidee))
+                        .filter(offer -> offer.getValidationStatus() == DocumentStatus.PENDING)
+                        .sorted(Comparator.comparing(InternshipOffer::getValidationStatus))
                         .toList();
             } else {
                 internshipOffers = internshipOffers.stream()
@@ -49,26 +50,25 @@ public class InternshipManagerService {
         return InternshipOfferDTO.fromEntityList(internshipOffers);
     }
 
-    public InternshipOffer getInternshipOfferById(Long id) {
+
+    public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
+
         InternshipOffer offer = internshipOfferDAO.findInternshipOfferById(id);
         if (offer == null) {
             throw new ResourceNotFoundException("Internship Offer not found");
         }
-        return offer;
-    }
 
-    public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
-
-        InternshipOffer offer = getInternshipOfferById(id);
-
-        offer.setValidee(true);
-        if (!approuve) {
-            offer.setRejectionReason(commentaire);
-            offer.setValidationStatus(DocumentStatus.REJECTED);
+        if (offer.getValidationStatus() != DocumentStatus.PENDING) {
+            throw new RuntimeException("This offer has already been validated");
         }
-        else {
+
+        if (approuve) {
             offer.setValidationStatus(DocumentStatus.APPROVED);
             offer.setRejectionReason(null);
+        }
+        else {
+            offer.setRejectionReason(commentaire);
+            offer.setValidationStatus(DocumentStatus.REJECTED);
         }
 
         internshipOfferDAO.save(offer);

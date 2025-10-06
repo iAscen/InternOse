@@ -76,9 +76,9 @@ class InternshipManagerControllerTest {
                 "Informatique", true, "Développeur", "title")).thenReturn(
                         List.of(
                                 InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Java")
-                                        .validee(true).build(),
+                                        .validationStatus(DocumentStatus.APPROVED).build(),
                                 InternshipOfferDTO.builder().domain("Informatique").jobTitle("Développeur Python")
-                                        .validee(true).build()));
+                                        .validationStatus(DocumentStatus.APPROVED).build()));
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
@@ -105,8 +105,8 @@ class InternshipManagerControllerTest {
         when(internshipManagerService.findInternshipsBy(
                 null, null, null, "status")).thenReturn(
                         List.of(
-                                InternshipOfferDTO.builder().domain("Informatique").validee(false).build(),
-                                InternshipOfferDTO.builder().domain("Biologie").validee(true).build()));
+                                InternshipOfferDTO.builder().domain("Informatique").validationStatus(DocumentStatus.APPROVED).build(),
+                                InternshipOfferDTO.builder().domain("Biologie").validationStatus(DocumentStatus.APPROVED).build()));
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -32,35 +31,33 @@ public class InternshipOffer {
     private LocalDate endDate;
     private double salary;
     private String address;
-    @Builder.Default
-    private boolean validee = false;
     @Enumerated(EnumType.STRING)
     @Column(name = "validation_status")
     @Builder.Default
     private DocumentStatus validationStatus = DocumentStatus.NONE;
 
-    @Column(name = "offer_uploaded_at")
-    private LocalDateTime offerUploadedAt;
-
     @Column(name = "offer_rejection_reason", length = 2000)
     private String rejectionReason;
 
-    @Column(name = "offer_validated_at")
-    private LocalDateTime offerValidatedAt;
+    // Backward compatibility method
+    public boolean isValidee() {
+        return validationStatus != DocumentStatus.PENDING;
+    }
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
-            .jobTitle(internshipOfferDTO.getJobTitle())
-            .taskDescription(internshipOfferDTO.getTaskDescription())
-            .domain(internshipOfferDTO.getDomain())
-            .qualifications(internshipOfferDTO.getQualifications())
-            .duration(internshipOfferDTO.getDuration())
-            .startDate(internshipOfferDTO.getStartDate())
-            .endDate(
-                internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration())
-            )
-            .salary(internshipOfferDTO.getSalary())
-            .address(internshipOfferDTO.getAddress())
-            .build();
+                .jobTitle(internshipOfferDTO.getJobTitle())
+                .taskDescription(internshipOfferDTO.getTaskDescription())
+                .domain(internshipOfferDTO.getDomain())
+                .qualifications(internshipOfferDTO.getQualifications())
+                .duration(internshipOfferDTO.getDuration())
+                .startDate(internshipOfferDTO.getStartDate())
+                .endDate(
+                        internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration()))
+                .salary(internshipOfferDTO.getSalary())
+                .address(internshipOfferDTO.getAddress())
+                .validationStatus(internshipOfferDTO.getValidationStatus())
+                .rejectionReason(internshipOfferDTO.getRejectionReason())
+                .build();
     }
 }

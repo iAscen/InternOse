@@ -2,6 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -46,11 +47,49 @@ public class InternshipManagerController {
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
-    public ResponseEntity<String> validateInternshipOffer(@RequestParam Long offerId, @RequestParam Boolean approved,
+    public ResponseEntity<Map<String, Object>> validateInternshipOffer(@RequestParam Long offerId,
+            @RequestParam Boolean approved,
             @RequestParam(required = false) String commentaire) {
-        internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
+        try {
+            // Valider ou refuser l'offre de stage
+            internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Paths.INTERNSHIP_VALIDATION_PATH);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message",
+                    approved ? "Offre de stage validée avec succès" : "Offre de stage refusée avec succès");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("offerId", offerId);
+            data.put("status", approved ? "approved" : "rejected");
+            data.put("commentaire", commentaire != null ? commentaire : "");
+
+            response.put("data", data);
+
+            return ResponseEntity.ok(response);
+
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Offre de stage non trouvée");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("already been validated")) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Cette offre de stage a déjà été traitée");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Erreur lors de la validation de l'offre de stage");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Erreur lors de la validation de l'offre de stage");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     @GetMapping(Paths.SEARCH_STUDENTS_PATH)

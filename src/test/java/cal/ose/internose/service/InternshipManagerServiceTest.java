@@ -45,16 +45,15 @@ class InternshipManagerServiceTest {
         assertFalse(internshipOfferDTOS.getFirst().isValidee());
     }
 
-
-
     @Test
     void sortByDomain() {
         when(internshipOfferDAO.findInternshipsBy(null, null, null))
                 .thenReturn(List.of(
-                        InternshipOffer.builder().domain("Informatique").validee(true).build(),
-                        InternshipOffer.builder().domain("Biologie").validee(true).build(),
-                        InternshipOffer.builder().domain("Architecture").validee(false).build()
-                ));
+                        InternshipOffer.builder().domain("Informatique").validationStatus(DocumentStatus.APPROVED)
+                                .build(),
+                        InternshipOffer.builder().domain("Biologie").validationStatus(DocumentStatus.APPROVED).build(),
+                        InternshipOffer.builder().domain("Architecture").validationStatus(DocumentStatus.APPROVED)
+                                .build()));
 
         List<InternshipOfferDTO> result = internshipManagerService
                 .findInternshipsBy(null, null, null, null);
@@ -81,25 +80,19 @@ class InternshipManagerServiceTest {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
                 .id(offerId)
-                .validee(false)
-                .validationStatus(null)
                 .rejectionReason("Old reason that should be cleared")
                 .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
-
         internshipManagerService.validateInternshipOffer(offerId, true, "any comment should be ignored on approve");
-
 
         ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertTrue(saved.isValidee(), "Offer must be marked as validated");
         assertEquals(DocumentStatus.APPROVED, saved.getValidationStatus(), "Status must be 'approuvé' on approval");
         assertNull(saved.getRejectionReason(), "Rejection reason must be cleared on approval");
     }
-
 
     @Test
     void rejectInternshipOffer() {
@@ -107,15 +100,11 @@ class InternshipManagerServiceTest {
         String rejectionComment = "Détails insufficient dans la description";
         InternshipOffer existing = InternshipOffer.builder()
                 .id(offerId)
-                .validee(false)
-                .validationStatus(null)
                 .rejectionReason(null)
                 .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
-
         internshipManagerService.validateInternshipOffer(offerId, false, rejectionComment);
-
 
         ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
         verify(internshipOfferDAO, times(1)).save(captor.capture());
@@ -131,9 +120,29 @@ class InternshipManagerServiceTest {
         Long missingId = 999L;
         when(internshipOfferDAO.findInternshipOfferById(missingId)).thenReturn(null);
 
-        assertThrows(ResourceNotFoundException.class, () ->
-                internshipManagerService.validateInternshipOffer(missingId, true, null)
-        );
+        assertThrows(ResourceNotFoundException.class,
+                () -> internshipManagerService.validateInternshipOffer(missingId, true, null));
+
+        verify(internshipOfferDAO, never()).save(any());
+    }
+
+    @Test
+    public void validationInternshipOfferAlreadyValidated() {
+        // Arrange
+        Long offerId = 3L;
+        InternshipOffer existing = InternshipOffer.builder()
+                .id(offerId)
+                .validationStatus(DocumentStatus.APPROVED) // Déjà traitée
+                .build();
+        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+
+        // Act & Assert
+        try {
+            internshipManagerService.validateInternshipOffer(offerId, true, null);
+            assertThat(false).isTrue();
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage()).isEqualTo("This offer has already been validated");
+        }
 
         verify(internshipOfferDAO, never()).save(any());
     }
@@ -141,21 +150,20 @@ class InternshipManagerServiceTest {
     private List<InternshipOffer> getInformatiqueInternships() {
         return List.of(
                 InternshipOffer.builder()
-                        .validee(true)
+                        .validationStatus(DocumentStatus.APPROVED)
                         .jobTitle("Software Intern")
                         .domain("Informatique")
                         .build(),
                 InternshipOffer.builder()
-                        .validee(false)
+                        .validationStatus(DocumentStatus.PENDING)
                         .jobTitle("Software Senior")
                         .domain("Informatique")
                         .build(),
                 InternshipOffer.builder()
-                        .validee(true)
+                        .validationStatus(DocumentStatus.APPROVED)
                         .jobTitle("Software Senior")
                         .domain("Informatique")
-                        .build()
-        );
+                        .build());
     }
 
     private List<Student> createTestStudents() {
@@ -178,7 +186,6 @@ class InternshipManagerServiceTest {
         return List.of(student1, student2);
     }
 
-
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Approbation")
     public void testValidateStudentCV_Approve() {
@@ -198,7 +205,6 @@ class InternshipManagerServiceTest {
         assertThat(student.getCvRejectionReason()).isNull();
         verify(studentDAO, times(1)).save(student);
     }
-
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Refus")
