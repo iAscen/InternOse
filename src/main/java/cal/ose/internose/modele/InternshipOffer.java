@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -33,10 +34,19 @@ public class InternshipOffer {
     private String address;
     @Builder.Default
     private boolean validee = false;
-    private String validationStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "validation_status")
+    @Builder.Default
+    private DocumentStatus validationStatus = DocumentStatus.NONE;
 
-    @Column(length = 2000)
+    @Column(name = "offer_uploaded_at")
+    private LocalDateTime offerUploadedAt;
+
+    @Column(name = "offer_rejection_reason", length = 2000)
     private String rejectionReason;
+
+    @Column(name = "offer_validated_at")
+    private LocalDateTime offerValidatedAt;
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()

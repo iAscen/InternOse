@@ -1,6 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.StudentDAO;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +96,7 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(CVStatus.PENDING);
+        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
     }
 
     @Test
@@ -140,8 +140,8 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(CVStatus.APPROVED);
-        assertThat(result.get(1).getCvStatus()).isEqualTo(CVStatus.PENDING);
+        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
+        assertThat(result.get(1).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class StudentServiceTests {
         Student student1 = Student.builder()
                 .firstName("Alice")
                 .lastName("Johnson")
-                .cvStatus(CVStatus.APPROVED)
+                .cvStatus(DocumentStatus.APPROVED)
                 .cvUploadedAt(LocalDateTime.now().minusDays(2))
                 .build();
         student1.setId(1L);
@@ -180,7 +180,7 @@ public class StudentServiceTests {
         Student student2 = Student.builder()
                 .firstName("Bob")
                 .lastName("Smith")
-                .cvStatus(CVStatus.PENDING)
+                .cvStatus(DocumentStatus.PENDING)
                 .cvUploadedAt(LocalDateTime.now().minusDays(1))
                 .build();
         student2.setId(2L);
@@ -194,7 +194,7 @@ public class StudentServiceTests {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -202,7 +202,7 @@ public class StudentServiceTests {
         studentService.validateStudentCV(studentId, true, null);
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(CVStatus.APPROVED);
+        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
         assertThat(student.getCvValidatedAt()).isNotNull();
         assertThat(student.getCvRejectionReason()).isNull();
         verify(studentDAO, times(1)).save(student);
@@ -215,7 +215,7 @@ public class StudentServiceTests {
         Long studentId = 1L;
         String rejectionReason = "CV incomplet";
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -223,7 +223,7 @@ public class StudentServiceTests {
         studentService.validateStudentCV(studentId, false, rejectionReason);
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(CVStatus.REJECTED);
+        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
         assertThat(student.getCvValidatedAt()).isNotNull();
         assertThat(student.getCvRejectionReason()).isEqualTo(rejectionReason);
         verify(studentDAO, times(1)).save(student);
@@ -251,7 +251,7 @@ public class StudentServiceTests {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.APPROVED); // Déjà traité
+        student.setCvStatus(DocumentStatus.APPROVED); // Déjà traité
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         // Act & Assert
@@ -269,7 +269,7 @@ public class StudentServiceTests {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -277,7 +277,7 @@ public class StudentServiceTests {
         studentService.validateStudentCV(studentId, false, "");
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(CVStatus.REJECTED);
+        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
         assertThat(student.getCvValidatedAt()).isNotNull();
         assertThat(student.getCvRejectionReason()).isEqualTo("");
         verify(studentDAO, times(1)).save(student);
@@ -289,7 +289,7 @@ public class StudentServiceTests {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -297,7 +297,7 @@ public class StudentServiceTests {
         studentService.validateStudentCV(studentId, true, "CV excellent");
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(CVStatus.APPROVED);
+        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
         assertThat(student.getCvValidatedAt()).isNotNull();
         assertThat(student.getCvRejectionReason()).isNull(); // Doit être null pour approbation
         verify(studentDAO, times(1)).save(student);

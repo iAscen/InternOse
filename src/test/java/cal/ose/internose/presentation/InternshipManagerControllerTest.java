@@ -1,6 +1,6 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Credentials;
 import cal.ose.internose.modele.Role;
 import cal.ose.internose.modele.Student;
@@ -222,7 +222,7 @@ class InternshipManagerControllerTest {
         // Test avec filtrage par statut et tri
         when(studentService.getAllStudentsWithCVs("name", "asc", "PENDING"))
                 .thenReturn(createTestStudents().stream()
-                        .filter(s -> s.getCvStatus() == CVStatus.PENDING)
+                        .filter(s -> s.getCvStatus() == DocumentStatus.PENDING)
                         .toList());
 
         MvcResult mvcResult = mockMvc.perform(
@@ -262,7 +262,7 @@ class InternshipManagerControllerTest {
                 .firstName("Alice")
                 .lastName("Smith")
                 .credentials(new Credentials("alice@example.com", "password", Role.STUDENT))
-                .cvStatus(CVStatus.PENDING)
+                .cvStatus(DocumentStatus.PENDING)
                 .cvUploadedAt(LocalDateTime.now().minusDays(1))
                 .build();
         student1.setId(1L);
@@ -271,7 +271,7 @@ class InternshipManagerControllerTest {
                 .firstName("Bob")
                 .lastName("Johnson")
                 .credentials(new Credentials("bob@example.com", "password", Role.STUDENT))
-                .cvStatus(CVStatus.APPROVED)
+                .cvStatus(DocumentStatus.APPROVED)
                 .cvUploadedAt(LocalDateTime.now().minusDays(2))
                 .build();
         student2.setId(2L);
@@ -401,7 +401,7 @@ class InternshipManagerControllerTest {
     void validateStudentCV_AlreadyProcessed() throws Exception {
         // Test avec CV déjà traité
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.APPROVED);
+        student.setCvStatus(DocumentStatus.APPROVED);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -419,7 +419,7 @@ class InternshipManagerControllerTest {
     void validateStudentCV_NoCV() throws Exception {
         // Test avec étudiant sans CV
         Student student = createTestStudents().get(0);
-        student.setCvStatus(CVStatus.NONE);
+        student.setCvStatus(DocumentStatus.NONE);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(

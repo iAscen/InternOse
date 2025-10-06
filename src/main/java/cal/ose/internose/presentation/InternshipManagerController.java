@@ -1,6 +1,6 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
@@ -124,7 +124,7 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == CVStatus.NONE) {
+            if (student.getCvStatus() == DocumentStatus.NONE) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
@@ -174,7 +174,7 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == CVStatus.NONE || student.getCVFileData() == null) {
+            if (student.getCvStatus() == DocumentStatus.NONE || student.getCVFileData() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
             }
 
@@ -209,14 +209,14 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == CVStatus.NONE) {
+            if (student.getCvStatus() == DocumentStatus.NONE) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
 
-            if (student.getCvStatus() != CVStatus.PENDING) {
+            if (student.getCvStatus() != DocumentStatus.PENDING) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Ce CV a déjà été traité");

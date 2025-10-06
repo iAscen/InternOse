@@ -1,5 +1,6 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
@@ -60,10 +61,10 @@ public class InternshipManagerService {
         offer.setValidee(true);
         if (!approuve) {
             offer.setRejectionReason(commentaire);
-            offer.setValidationStatus("rejeté");
+            offer.setValidationStatus(DocumentStatus.REJECTED);
         }
         else {
-            offer.setValidationStatus("approuvé");
+            offer.setValidationStatus(DocumentStatus.APPROVED);
             offer.setRejectionReason(null);
         }
 

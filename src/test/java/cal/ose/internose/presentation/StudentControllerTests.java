@@ -1,6 +1,6 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.StudentService;
@@ -73,7 +73,7 @@ public class StudentControllerTests {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         student.setCVFileName("test.pdf");
         student.setCvUploadedAt(LocalDateTime.now());
         when(studentService.getStudentById(studentID)).thenReturn(Optional.of(student));
