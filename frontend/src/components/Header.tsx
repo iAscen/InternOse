@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { apiService } from "../services/apiService";
-import { useAuth, useClickOutside } from "../hooks";
+import { apiService } from "~/services/apiService";
+import { useAuth, useClickOutside } from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
@@ -60,7 +60,7 @@ export default function Header() {
               )}
               {isAuthenticated && userRole === 'INTERNSHIP_MANAGER' && (
                 <Link
-                  to="/student-dashboard"
+                  to="/im-dashboard"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
                   {t('im.dashboard')}
@@ -178,9 +178,9 @@ export default function Header() {
                     <>
                       <div className="px-4 py-3 border-b border-gray-200">
                         <p className="text-sm font-medium text-gray-900">
-                          {userRole === 'EMPLOYER' ? t('auth.employerAccount') : 
-                       userRole === 'INTERNSHIP_MANAGER' ? 'Compte Gestionnaire de Stage' : 
-                       t('auth.studentAccount')}
+                          {userRole === 'EMPLOYER' && t('auth.employerAccount')}
+                          {userRole === 'STUDENT' && t('auth.studentAccount')}
+                          {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
                         </p>
                         <p className="text-xs text-gray-500">{userEmail}</p>
                       </div>

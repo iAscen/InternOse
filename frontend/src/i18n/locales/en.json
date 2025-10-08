@@ -20,7 +20,9 @@
     "previous": "Previous",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "optional": "Optional",
+    "processing": "Processing..."
   },
   "navigation": {
     "home": "Home",
@@ -93,7 +95,44 @@
     "validationDesc": "Your resume will be validated by the internship manager as soon as possible."
   },
   "im": {
-    "dashboard": "Internship Manager Dashboard"
+    "dashboard": "Internship Manager Dashboard",
+    "dashboardSubtitle": "View internship offers from employers and resumes from students and approve or reject them",
+    "pendingSubmissions": "Pending submissions",
+    "approvedSubmissions": "Approved submissions",
+    "refusedSubmissions": "Refused submissions",
+    "internshipOffersSection": "Employers' internship offers",
+    "internshipOffersSectionEmpty": "There is no internship offers published yet.",
+    "resumesSection": "Students' resumes",
+    "resumesSectionEmpty": "There is no resumes uploaded yet.",
+    "sort": "Sort",
+    "sortBy": "Sort by:",
+    "filter": "Filter",
+    "filterAccordingTo": "Filtrer according to:",
+    "applyFilters": "Apply filters",
+    "status": "Status",
+    "domain": "Domain",
+    "title": "Title",
+    "program": "Program",
+    "name": "Name",
+    "placeholderPending": "Ex: Pending",
+    "placeholderCS": "Ex: Computer Science",
+    "placeholderDev": "Ex: Developer",
+    "placeholderProgram": "Ex: IT",
+    "resumesSectionComingSoon": "This section will be available soon",
+    "resumesSectionDescription": "You will be able to view and manage student CVs",
+    "allStatuses": "All statuses",
+    "ascendingOrder": "Ascending",
+    "noCvsFound": "No CV found",
+    "validateOffer": "Validate offer",
+    "approveOffer": "Approve offer",
+    "rejectOffer": "Reject offer",
+    "rejectionReason": "Rejection reason",
+    "rejectionReasonPlaceholder": "Explain why this offer is being rejected...",
+    "confirmApprove": "Confirm approval",
+    "confirmReject": "Confirm rejection",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending"
   },
   "employer": {
     "dashboard": "Employer Dashboard",
@@ -116,7 +155,7 @@
     "apply": "Apply",
     "deadline": "Deadline",
     "weeks": "weeks",
-    "perWeek": "/week",
+    "perHour": "/hour",
     "pendingValidation": "Pending validation",
     "createNewOffer": "Create a new internship offer",
     "jobTitle": "Job Title",
@@ -124,7 +163,7 @@
     "locationPlaceholder": "Ex: Montreal, QC",
     "durationWeeks": "Duration (in weeks)",
     "endDateCalculated": "End date will be calculated automatically",
-    "salaryPerWeek": "Compensation (per week)",
+    "salaryPerHour": "Compensation (per hour)",
     "detailedDescription": "Detailed task description",
     "descriptionPlaceholder": "Describe the tasks the student will need to accomplish...",
     "requiredSkills": "Required skills",
@@ -144,13 +183,17 @@
     "totalOffers": "Total offers",
     "pending": "Pending",
     "validated": "Validated",
+    "rejected": "Rejected",
     "expired": "Expired",
     "myOffers": "My internship offers",
     "noOffers": "No internship offer created yet. Click on \"Create offer\" to get started.",
     "offerCreatedSuccess": "Internship offer created successfully! It is pending validation.",
     "loadingError": "Error loading offers",
     "creationError": "Error creating offer",
-    "serverError": "Server connection error"
+    "serverError": "Server connection error",
+    "student": "Student",
+    "rejectionReason": "Reason of rejection",
+    "uploadedAt": "Uploaded at"
   },
   "errors": {
     "required": "This field is required",
@@ -195,5 +238,12 @@
       "getStarted": "Get started now",
       "learnMore": "Learn more"
     }
+    
+  },
+  "cv-details": {
+    "fileName": "File name",
+    "fileType": "File type",
+    "downloadCv": "Download",
+    "goBack": "Go back"
   }
 }

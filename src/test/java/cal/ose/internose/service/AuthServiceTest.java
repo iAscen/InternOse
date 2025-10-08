@@ -70,15 +70,15 @@ public class AuthServiceTest {
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(userAppDAO.save(any(Employer.class))).thenReturn(
-                Employer.builder()
-                        .firstName(dto.getFirstName())
-                        .lastName(dto.getLastName())
-                        .enterprise(dto.getEnterprise())
-                        .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.EMPLOYER))
-                        .build()
-        );
-        when(jwtTokenProvider.generateToken(any())).thenReturn("mocked-jwt-token");
+        Employer mockEmployer = Employer.builder()
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .enterprise(dto.getEnterprise())
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.EMPLOYER))
+                .build();
+        mockEmployer.setId(1L);
+        when(userAppDAO.save(any(Employer.class))).thenReturn(mockEmployer);
+        when(jwtTokenProvider.generateToken(any(Authentication.class), anyLong())).thenReturn("mocked-jwt-token");
 
         String token = authService.registerEmployer(dto);
 
@@ -135,14 +135,14 @@ public class AuthServiceTest {
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(userAppDAO.save(any(Student.class))).thenReturn(
-                Student.builder()
-                        .firstName(dto.getFirstName())
-                        .lastName(dto.getLastName())
-                        .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.STUDENT))
-                        .build()
-        );
-        when(jwtTokenProvider.generateToken(any())).thenReturn("mocked-jwt-token");
+        Student mockStudent = Student.builder()
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.STUDENT))
+                .build();
+        mockStudent.setId(1L);
+        when(userAppDAO.save(any(Student.class))).thenReturn(mockStudent);
+        when(jwtTokenProvider.generateToken(any(Authentication.class), anyLong())).thenReturn("mocked-jwt-token");
 
         String token = authService.registerStudent(dto);
 
@@ -184,17 +184,22 @@ public class AuthServiceTest {
     void testLoginSuccess() {
         LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
         Authentication mockAuthentication = mock(Authentication.class);
+        UserApp mockUser = mock(UserApp.class);
         
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mockAuthentication);
-        when(jwtTokenProvider.generateToken(mockAuthentication)).thenReturn("jwt-token");
+        when(userAppDAO.findUserAppByEmail(loginDTO.getEmail()))
+                .thenReturn(Optional.of(mockUser));
+        when(mockUser.getId()).thenReturn(1L);
+        when(jwtTokenProvider.generateToken(mockAuthentication, 1L)).thenReturn("jwt-token");
 
         String token = authService.login(loginDTO);
 
         assertNotNull(token);
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtTokenProvider).generateToken(mockAuthentication);
+        verify(userAppDAO).findUserAppByEmail(loginDTO.getEmail());
+        verify(jwtTokenProvider).generateToken(mockAuthentication, 1L);
     }
 
     @Test

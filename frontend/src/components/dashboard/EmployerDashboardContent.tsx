@@ -187,7 +187,7 @@ export default function EmployerDashboardContent() {
         )}
 
         {/* Liste des offres existantes */}
-        <OfferList offers={offers} loading={loading} />
+        <OfferList isEmployer={true} loading={loading} offers={offers} />
       </div>
     </main>
   );

@@ -10,6 +10,9 @@ export interface InternshipOffer {
   salary: number;
   address: string;
   validee?: boolean;
+  validationStatus?: string; // "approuvé", "rejeté", null
+  rejectionReason?: string; // Raison du rejet si applicable
+  domain?: string; // Domaine de l'offre
 }
 
 export interface CreateInternshipOfferRequest {
@@ -37,4 +40,17 @@ export interface DashboardStats {
   pending: number;
   approved: number;
   expired: number;
+}
+
+export interface Cv {
+  studentId?: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cvStatus: string;
+  cvFileName: string;
+  cvFileType: string;
+  uploadedAt?: string;
+  validatedAt?: string;
+  rejectionReason?: string;
 }

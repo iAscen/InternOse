@@ -9,45 +9,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 @Service
 @AllArgsConstructor
 public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
 
-    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String enterprise, String filter) {
-        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domain, valid, enterprise);
-
-        if (domain != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> Objects.equals(io.getDomain(), domain))
-                    .collect(Collectors.toList());
-        }
-        if (valid != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> Objects.equals(io.isValidee(), valid))
-                    .collect(Collectors.toList());
-        }
-        if (enterprise != null) {
-            internshipOffers = internshipOffers.stream()
-                    .filter(io -> io.getEmployer() != null && Objects.equals(io.getEmployer().getEnterprise(), enterprise))
-                    .collect(Collectors.toList());
-        }
+    public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String title, String sortBy) {
+        // Ajouter les wildcards pour la recherche LIKE
+        String domainPattern = domain != null ? "%" + domain + "%" : null;
+        String titlePattern = title != null ? "%" + title + "%" : null;
+        
+        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(domainPattern, valid, titlePattern);
 
         if (!internshipOffers.isEmpty()) {
-            if (filter != null && filter.equals("enterprise")) {
+            if (sortBy != null && sortBy.equals("title")) {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(io -> io.getEmployer().getEnterprise()))
+                        .sorted(Comparator.comparing(InternshipOffer::getJobTitle, 
+                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                         .toList();
-            } else if (filter != null && filter.equals("status")) {
+            } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
                         .sorted(Comparator.comparing(InternshipOffer::isValidee))
                         .toList();
             } else {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(InternshipOffer::getDomain))
+                        .sorted(Comparator.comparing(InternshipOffer::getDomain, 
+                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                         .toList();
             }
         }

@@ -3,7 +3,8 @@ import type {
   InternshipOffer, 
   CreateInternshipOfferRequest, 
   DashboardStats, 
-  ApiResponse 
+  ApiResponse, 
+  Cv
 } from '../interfaces';
 
 class DashboardService {
@@ -12,9 +13,18 @@ class DashboardService {
     return await apiService.getInternshipOffers();
   }
 
+  // Récupérer toutes les offres de stages de tous les employeurs (pour le gestionnaire de stages)
+  async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.getAllInternshipOffers(sortBy, filterBy);
+  }
+
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     return await apiService.createInternshipOffer(offerData);
+  }
+
+  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
+    return await apiService.getAllCvs(sortBy, filterBy, sortOrder)
   }
 
   // Calculer les statistiques du dashboard

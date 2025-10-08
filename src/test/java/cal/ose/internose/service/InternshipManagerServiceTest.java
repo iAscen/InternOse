@@ -26,8 +26,8 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findInternshipsBy("Informatique", null, null))
-                .thenReturn(getInternships());
+        when(internshipOfferDAO.findInternshipsBy("%Informatique%", null, null))
+                .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
                 .findInternshipsBy("Informatique", null, null, "status");
@@ -59,7 +59,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findInternshipsBy("non", null, null))
+        when(internshipOfferDAO.findInternshipsBy("%non%", null, null))
                 .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -130,7 +130,7 @@ class InternshipManagerServiceTest {
         verify(internshipOfferDAO, never()).save(any());
     }
 
-    private List<InternshipOffer> getInternships() {
+    private List<InternshipOffer> getInformatiqueInternships() {
         return List.of(
                 InternshipOffer.builder()
                         .validee(true)
@@ -146,11 +146,6 @@ class InternshipManagerServiceTest {
                         .validee(true)
                         .jobTitle("Software Senior")
                         .domain("Informatique")
-                        .build(),
-                InternshipOffer.builder()
-                        .validee(true)
-                        .jobTitle("Junior Designer")
-                        .domain("Architecture")
                         .build()
         );
     }
