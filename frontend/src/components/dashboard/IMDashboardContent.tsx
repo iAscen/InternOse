@@ -240,7 +240,7 @@ export default function IMDashboardContent() {
                         {cvs.length != 0 && <CvList cvs={cvs}></CvList>}
                         {cvs.length == 0 && 
                             <div className="text-center text-gray-900">
-                                {t('im.noCvsFound')}
+                                {t('im.resumesSectionEmpty')}
                             </div>
                         }
                     </div>
