@@ -1,6 +1,6 @@
 package cal.ose.internose.modele;
 
-public enum CVStatus {
+public enum DocumentStatus {
     NONE,        // Aucun CV téléversé
     PENDING,     // CV en attente de validation
     APPROVED,    // CV approuvé

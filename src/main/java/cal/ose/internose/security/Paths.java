@@ -17,4 +17,10 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";
     public static final String SEARCH_INTERNSHIPS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/search";
     public static final String INTERNSHIP_VALIDATION_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/validation";
+    public static final String SEARCH_STUDENTS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/students/cvs";
+    public static final String INTERNSHIP_MANAGER_STUDENT_CV_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/students/{studentId}/cv";
+    public static final String INTERNSHIP_MANAGER_STUDENT_CV_DOWNLOAD_PATH = INTERNSHIP_MANAGER_STUDENT_CV_PATH + "/download";
+    public static final String INTERNSHIP_MANAGER_STUDENT_CV_VALIDATE_PATH = INTERNSHIP_MANAGER_STUDENT_CV_PATH + "/validate";
+
+
 }

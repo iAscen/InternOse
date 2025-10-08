@@ -1,12 +1,16 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -15,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
+    private final StudentDAO studentDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(String domain, Boolean valid, String title, String sortBy) {
         // Ajouter les wildcards pour la recherche LIKE
@@ -31,7 +36,8 @@ public class InternshipManagerService {
                         .toList();
             } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
-                        .sorted(Comparator.comparing(InternshipOffer::isValidee))
+//                        .filter(offer -> offer.getValidationStatus() == DocumentStatus.PENDING)
+                        .sorted(Comparator.comparing(InternshipOffer::getValidationStatus))
                         .toList();
             } else {
                 internshipOffers = internshipOffers.stream()
@@ -44,29 +50,49 @@ public class InternshipManagerService {
         return InternshipOfferDTO.fromEntityList(internshipOffers);
     }
 
-    public InternshipOffer getInternshipOfferById(Long id) {
+
+    public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
+
         InternshipOffer offer = internshipOfferDAO.findInternshipOfferById(id);
         if (offer == null) {
             throw new ResourceNotFoundException("Internship Offer not found");
         }
-        return offer;
-    }
 
-    // approuve: true = approuvé, false = rejeté
-    public void validateInternshipOffer(Long id, boolean approuve, String commentaire) {
+        if (offer.getValidationStatus() != DocumentStatus.PENDING) {
+            throw new RuntimeException("This offer has already been validated");
+        }
 
-        InternshipOffer offer = getInternshipOfferById(id);
-
-        offer.setValidee(true);
-        if (!approuve) {
-            offer.setRejectionReason(commentaire);
-            offer.setValidationStatus("rejeté");
+        if (approuve) {
+            offer.setValidationStatus(DocumentStatus.APPROVED);
+            offer.setRejectionReason(null);
         }
         else {
-            offer.setValidationStatus("approuvé");
-            offer.setRejectionReason(null);
+            offer.setRejectionReason(commentaire);
+            offer.setValidationStatus(DocumentStatus.REJECTED);
         }
 
         internshipOfferDAO.save(offer);
+    }
+
+
+    public void validateStudentCV(Long studentId, Boolean approved, String reason) {
+        Student student = studentDAO.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+
+        if (student.getCvStatus() != DocumentStatus.PENDING) {
+            throw new RuntimeException("Ce CV a déjà été traité");
+        }
+
+        if (approved) {
+            student.setCvStatus(DocumentStatus.APPROVED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(null);
+        } else {
+            student.setCvStatus(DocumentStatus.REJECTED);
+            student.setCvValidatedAt(LocalDateTime.now());
+            student.setCvRejectionReason(reason);
+        }
+
+        studentDAO.save(student);
     }
 }

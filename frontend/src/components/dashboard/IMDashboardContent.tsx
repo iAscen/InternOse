@@ -134,21 +134,21 @@ export default function IMDashboardContent() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <StatisticsCard
                             title={t('im.pendingSubmissions')}
-                            value={offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'en_attente').length}
+                            value={offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'PENDING').length}
                             icon={statsIcons.pending}
                             bgColor="bg-yellow-100"
                             iconColor="text-yellow-600"
                         />
                         <StatisticsCard
                             title={t('im.approvedSubmissions')}
-                            value={offers.filter(offer => offer.validationStatus === 'approuvé').length}
+                            value={offers.filter(offer => offer.validationStatus === 'APPROVED').length}
                             icon={statsIcons.approved}
                             bgColor="bg-green-100"
                             iconColor="text-green-600"
                         />
                         <StatisticsCard
                             title={t('im.refusedSubmissions')}
-                            value={offers.filter(offer => offer.validationStatus === 'rejeté').length}
+                            value={offers.filter(offer => offer.validationStatus === 'REJECTED').length}
                             icon={statsIcons.refused}
                             bgColor="bg-red-100"
                             iconColor="text-red-600"

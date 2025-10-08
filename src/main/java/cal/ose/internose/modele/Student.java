@@ -33,7 +33,7 @@ public class Student extends UserApp {
     @Enumerated(EnumType.STRING)
     @Column(name = "cv_status")
     @Builder.Default
-    private CVStatus cvStatus = CVStatus.NONE;
+    private DocumentStatus cvStatus = DocumentStatus.NONE;
     
     @Column(name = "cv_uploaded_at")
     private LocalDateTime cvUploadedAt;

@@ -31,26 +31,32 @@ public class InternshipOffer {
     private LocalDate endDate;
     private double salary;
     private String address;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "validation_status")
     @Builder.Default
-    private boolean validee = false;
-    private String validationStatus;
+    private DocumentStatus validationStatus = DocumentStatus.NONE;
 
-    @Column(length = 2000)
+    @Column(name = "offer_rejection_reason", length = 2000)
     private String rejectionReason;
+
+    public boolean isValidee() {
+        return validationStatus != DocumentStatus.PENDING;
+    }
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
-            .jobTitle(internshipOfferDTO.getJobTitle())
-            .taskDescription(internshipOfferDTO.getTaskDescription())
-            .domain(internshipOfferDTO.getDomain())
-            .qualifications(internshipOfferDTO.getQualifications())
-            .duration(internshipOfferDTO.getDuration())
-            .startDate(internshipOfferDTO.getStartDate())
-            .endDate(
-                internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration())
-            )
-            .salary(internshipOfferDTO.getSalary())
-            .address(internshipOfferDTO.getAddress())
-            .build();
+                .jobTitle(internshipOfferDTO.getJobTitle())
+                .taskDescription(internshipOfferDTO.getTaskDescription())
+                .domain(internshipOfferDTO.getDomain())
+                .qualifications(internshipOfferDTO.getQualifications())
+                .duration(internshipOfferDTO.getDuration())
+                .startDate(internshipOfferDTO.getStartDate())
+                .endDate(
+                        internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration()))
+                .salary(internshipOfferDTO.getSalary())
+                .address(internshipOfferDTO.getAddress())
+                .validationStatus(internshipOfferDTO.getValidationStatus())
+                .rejectionReason(internshipOfferDTO.getRejectionReason())
+                .build();
     }
 }

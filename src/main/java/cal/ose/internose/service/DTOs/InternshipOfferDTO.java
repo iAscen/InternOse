@@ -1,5 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,26 +27,28 @@ public class InternshipOfferDTO {
     private LocalDate endDate;
     private double salary;
     private String address;
-    private boolean validee;
-    private String validationStatus;
+    private DocumentStatus validationStatus;
     private String rejectionReason;
+
+    public boolean isValidee() {
+        return validationStatus != DocumentStatus.PENDING;
+    }
 
     public static InternshipOfferDTO fromEntity(InternshipOffer internshipOffer) {
         return InternshipOfferDTO.builder()
-            .id(internshipOffer.getId())
-            .jobTitle(internshipOffer.getJobTitle())
-            .taskDescription(internshipOffer.getTaskDescription())
-            .qualifications(internshipOffer.getQualifications())
-            .duration(internshipOffer.getDuration())
-            .startDate(internshipOffer.getStartDate())
-            .endDate(internshipOffer.getEndDate())
-            .salary(internshipOffer.getSalary())
-            .address(internshipOffer.getAddress())
-            .domain(internshipOffer.getDomain())
-            .validee(internshipOffer.isValidee())
-            .validationStatus(internshipOffer.getValidationStatus())
-            .rejectionReason(internshipOffer.getRejectionReason())
-            .build();
+                .id(internshipOffer.getId())
+                .jobTitle(internshipOffer.getJobTitle())
+                .taskDescription(internshipOffer.getTaskDescription())
+                .qualifications(internshipOffer.getQualifications())
+                .duration(internshipOffer.getDuration())
+                .startDate(internshipOffer.getStartDate())
+                .endDate(internshipOffer.getEndDate())
+                .salary(internshipOffer.getSalary())
+                .address(internshipOffer.getAddress())
+                .domain(internshipOffer.getDomain())
+                .validationStatus(internshipOffer.getValidationStatus())
+                .rejectionReason(internshipOffer.getRejectionReason())
+                .build();
     }
 
     public static List<InternshipOfferDTO> fromEntityList(List<InternshipOffer> internshipOffers) {

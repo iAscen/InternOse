@@ -1,7 +1,8 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -32,28 +33,66 @@ public class InternshipManagerController {
 
     @GetMapping(Paths.SEARCH_INTERNSHIPS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
-                                                                      @RequestParam(required = false) String valid,
-                                                                      @RequestParam(required = false) String title,
-                                                                      @RequestParam(required = false) String sortBy) {
+            @RequestParam(required = false) String valid,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String sortBy) {
         // Convertir le paramètre valid de String vers Boolean
         Boolean validBoolean = null;
         if (valid != null && !valid.isEmpty() && !valid.equals("null")) {
             validBoolean = Boolean.parseBoolean(valid);
         }
-        
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(internshipManagerService.findInternshipsBy(domain, validBoolean, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
-    public ResponseEntity<String> validateInternshipOffer(@RequestParam Long offerId, @RequestParam Boolean approved,
+    public ResponseEntity<Map<String, Object>> validateInternshipOffer(@RequestParam Long offerId,
+            @RequestParam Boolean approved,
             @RequestParam(required = false) String commentaire) {
-        internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
+        try {
+            // Valider ou refuser l'offre de stage
+            internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Paths.INTERNSHIP_VALIDATION_PATH);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message",
+                    approved ? "Offre de stage validée avec succès" : "Offre de stage refusée avec succès");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("offerId", offerId);
+            data.put("status", approved ? "approved" : "rejected");
+            data.put("commentaire", commentaire != null ? commentaire : "");
+
+            response.put("data", data);
+
+            return ResponseEntity.ok(response);
+
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Offre de stage non trouvée");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("already been validated")) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Cette offre de stage a déjà été traitée");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Erreur lors de la validation de l'offre de stage");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Erreur lors de la validation de l'offre de stage");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
-    @GetMapping("/api/internship-manager/students/cvs")
+    @GetMapping(Paths.SEARCH_STUDENTS_PATH)
     public ResponseEntity<Map<String, Object>> getAllStudentCVs(
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortOrder,
@@ -110,7 +149,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/api/internship-manager/students/{studentId}/cv")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_PATH)
     public ResponseEntity<Map<String, Object>> getStudentCVDetails(@PathVariable Long studentId) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(studentId);
@@ -124,7 +163,7 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == CVStatus.NONE) {
+            if (student.getCvStatus() == DocumentStatus.NONE) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
@@ -133,24 +172,26 @@ public class InternshipManagerController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("data", Map.of(
-                    "studentId", student.getId(),
-                    "firstName", student.getFirstName(),
-                    "lastName", student.getLastName(),
-                    "email", student.getEmail(),
-                    "cvStatus", student.getCvStatus().name().toLowerCase(),
-                    "cvFileName", student.getCVFileName(),
-                    "cvFileType", student.getCVFileType(),
-                    "uploadedAt",
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("studentId", student.getId());
+            data.put("firstName", student.getFirstName());
+            data.put("lastName", student.getLastName());
+            data.put("email", student.getEmail());
+            data.put("cvStatus", student.getCvStatus().name().toLowerCase());
+            data.put("cvFileName", student.getCVFileName());
+            data.put("cvFileType", student.getCVFileType());
+            data.put("uploadedAt",
                     student.getCvUploadedAt() != null
                             ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : "",
-                    "validatedAt",
+                            : "");
+            data.put("validatedAt",
                     student.getCvValidatedAt() != null
                             ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : "",
-                    "rejectionReason", student.getCvRejectionReason() != null
-                            ? student.getCvRejectionReason() : ""));
+                            : "");
+            data.put("rejectionReason", student.getCvRejectionReason());
+
+            response.put("data", data);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -161,7 +202,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/api/internship-manager/students/{studentId}/cv/download")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_DOWNLOAD_PATH)
     public ResponseEntity<byte[]> downloadStudentCV(@PathVariable Long studentId) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(studentId);
@@ -172,7 +213,7 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == CVStatus.NONE || student.getCVFileData() == null) {
+            if (student.getCvStatus() == DocumentStatus.NONE || student.getCVFileData() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
             }
 
@@ -187,6 +228,63 @@ public class InternshipManagerController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new byte[0]);
+        }
+    }
+
+    @PostMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_VALIDATE_PATH)
+    public ResponseEntity<Map<String, Object>> validateStudentCV(
+            @PathVariable Long studentId,
+            @RequestParam Boolean approved,
+            @RequestParam(required = false) String reason) {
+        try {
+            Optional<Student> studentOpt = studentService.getStudentById(studentId);
+
+            if (studentOpt.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Étudiant non trouvé");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            }
+
+            Student student = studentOpt.get();
+
+            if (student.getCvStatus() == DocumentStatus.NONE) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            }
+
+            if (student.getCvStatus() != DocumentStatus.PENDING) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Ce CV a déjà été traité");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+
+            // Valider ou refuser le CV
+            internshipManagerService.validateStudentCV(studentId, approved, reason);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", approved ? "CV validé avec succès" : "CV refusé avec succès");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("studentId", student.getId());
+            data.put("firstName", student.getFirstName());
+            data.put("lastName", student.getLastName());
+            data.put("cvStatus", approved ? "approved" : "rejected");
+            data.put("reason", reason != null ? reason : "");
+
+            response.put("data", data);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Erreur lors de la validation du CV");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 

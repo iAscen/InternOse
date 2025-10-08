@@ -1,6 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.StudentDAO;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +96,7 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(CVStatus.PENDING);
+        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
     }
 
     @Test
@@ -112,7 +112,6 @@ public class StudentServiceTests {
         // Assert - Devrait retourner tous les CV car le statut invalide est ignoré
         assertThat(result.size()).isEqualTo(2);
     }
-
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec paramètres vides")
@@ -141,8 +140,8 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(CVStatus.APPROVED);
-        assertThat(result.get(1).getCvStatus()).isEqualTo(CVStatus.PENDING);
+        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
+        assertThat(result.get(1).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
     }
 
     @Test
@@ -173,7 +172,7 @@ public class StudentServiceTests {
         Student student1 = Student.builder()
                 .firstName("Alice")
                 .lastName("Johnson")
-                .cvStatus(CVStatus.APPROVED)
+                .cvStatus(DocumentStatus.APPROVED)
                 .cvUploadedAt(LocalDateTime.now().minusDays(2))
                 .build();
         student1.setId(1L);
@@ -181,11 +180,126 @@ public class StudentServiceTests {
         Student student2 = Student.builder()
                 .firstName("Bob")
                 .lastName("Smith")
-                .cvStatus(CVStatus.PENDING)
+                .cvStatus(DocumentStatus.PENDING)
                 .cvUploadedAt(LocalDateTime.now().minusDays(1))
                 .build();
         student2.setId(2L);
 
         return List.of(student1, student2);
     }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - Approbation")
+//    public void testValidateStudentCV_Approve() {
+//        // Arrange
+//        Long studentId = 1L;
+//        Student student = createTestStudents().get(0);
+//        student.setCvStatus(DocumentStatus.PENDING);
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+//        when(studentDAO.save(any(Student.class))).thenReturn(student);
+//
+//        // Act
+//        internshipManagerService.validateStudentCV(studentId, true, null);
+//
+//        // Assert
+//        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
+//        assertThat(student.getCvValidatedAt()).isNotNull();
+//        assertThat(student.getCvRejectionReason()).isNull();
+//        verify(studentDAO, times(1)).save(student);
+//    }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - Refus")
+//    public void testValidateStudentCV_Reject() {
+//        // Arrange
+//        Long studentId = 1L;
+//        String rejectionReason = "CV incomplet";
+//        Student student = createTestStudents().get(0);
+//        student.setCvStatus(DocumentStatus.PENDING);
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+//        when(studentDAO.save(any(Student.class))).thenReturn(student);
+//
+//        // Act
+//        internshipManagerService.validateStudentCV(studentId, false, rejectionReason);
+//
+//        // Assert
+//        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
+//        assertThat(student.getCvValidatedAt()).isNotNull();
+//        assertThat(student.getCvRejectionReason()).isEqualTo(rejectionReason);
+//        verify(studentDAO, times(1)).save(student);
+//    }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - Étudiant non trouvé")
+//    public void testValidateStudentCV_StudentNotFound() {
+//        // Arrange
+//        Long studentId = 999L;
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.empty());
+//
+//        // Act & Assert
+//        try {
+//            internshipManagerService.validateStudentCV(studentId, true, null);
+//            assertThat(false).isTrue(); // Ne devrait pas arriver ici
+//        } catch (RuntimeException e) {
+//            assertThat(e.getMessage()).isEqualTo("Étudiant non trouvé");
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - CV déjà traité")
+//    public void testValidateStudentCV_AlreadyProcessed() {
+//        // Arrange
+//        Long studentId = 1L;
+//        Student student = createTestStudents().get(0);
+//        student.setCvStatus(DocumentStatus.APPROVED); // Déjà traité
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+//
+//        // Act & Assert
+//        try {
+//            internshipManagerService.validateStudentCV(studentId, true, null);
+//            assertThat(false).isTrue(); // Ne devrait pas arriver ici
+//        } catch (RuntimeException e) {
+//            assertThat(e.getMessage()).isEqualTo("Ce CV a déjà été traité");
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - Refus avec raison vide")
+//    public void testValidateStudentCV_RejectWithEmptyReason() {
+//        // Arrange
+//        Long studentId = 1L;
+//        Student student = createTestStudents().get(0);
+//        student.setCvStatus(DocumentStatus.PENDING);
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+//        when(studentDAO.save(any(Student.class))).thenReturn(student);
+//
+//        // Act
+//        internshipManagerService.validateStudentCV(studentId, false, "");
+//
+//        // Assert
+//        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
+//        assertThat(student.getCvValidatedAt()).isNotNull();
+//        assertThat(student.getCvRejectionReason()).isEqualTo("");
+//        verify(studentDAO, times(1)).save(student);
+//    }
+//
+//    @Test
+//    @DisplayName("Test de la méthode validateStudentCV() - Approbation avec raison")
+//    public void testValidateStudentCV_ApproveWithReason() {
+//        // Arrange
+//        Long studentId = 1L;
+//        Student student = createTestStudents().get(0);
+//        student.setCvStatus(DocumentStatus.PENDING);
+//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+//        when(studentDAO.save(any(Student.class))).thenReturn(student);
+//
+//        // Act
+//        internshipManagerService.validateStudentCV(studentId, true, "CV excellent");
+//
+//        // Assert
+//        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
+//        assertThat(student.getCvValidatedAt()).isNotNull();
+//        assertThat(student.getCvRejectionReason()).isNull(); // Doit être null pour approbation
+//        verify(studentDAO, times(1)).save(student);
+//    }
 }

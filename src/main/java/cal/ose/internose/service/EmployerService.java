@@ -1,5 +1,6 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.persistance.EmployerDAO;
@@ -30,6 +31,7 @@ public class EmployerService {
     public Optional<InternshipOffer> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
+        internshipOffer.setValidationStatus(DocumentStatus.PENDING);
         internshipOffer.setEmployer(employer); // Définir l'employeur AVANT de sauvegarder
         internshipOffer = internshipOfferDAO.save(internshipOffer);
         return Optional.of(internshipOffer);

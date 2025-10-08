@@ -1,6 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.CVStatus;
+import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.StudentDAO;
 import jakarta.transaction.Transactional;
@@ -26,7 +26,7 @@ public class StudentService {
         student.setCVFileName(CVFile.getOriginalFilename());
         student.setCVFileType(CVFile.getContentType());
         student.setCVFileData(CVFile.getBytes());
-        student.setCvStatus(CVStatus.PENDING);
+        student.setCvStatus(DocumentStatus.PENDING);
         student.setCvUploadedAt(LocalDateTime.now());
         student.setCvRejectionReason(null); // Reset rejection reason when uploading new CV
         student = studentDAO.save(student);
@@ -39,19 +39,19 @@ public class StudentService {
 
     public List<Student> getAllStudentsWithCVs() {
         return studentDAO.findAll().stream()
-                .filter(student -> student.getCvStatus() != CVStatus.NONE)
+                .filter(student -> student.getCvStatus() != DocumentStatus.NONE)
                 .toList();
     }
 
     public List<Student> getAllStudentsWithCVs(String sortBy, String sortOrder, String status) {
         List<Student> students = studentDAO.findAll().stream()
-                .filter(student -> student.getCvStatus() != CVStatus.NONE)
+                .filter(student -> student.getCvStatus() != DocumentStatus.NONE)
                 .toList();
 
         // Filtrage par statut
         if (status != null && !status.trim().isEmpty()) {
             try {
-                CVStatus statusFilter = CVStatus.valueOf(status.toUpperCase());
+                DocumentStatus statusFilter = DocumentStatus.valueOf(status.toUpperCase());
                 students = students.stream()
                         .filter(student -> student.getCvStatus() == statusFilter)
                         .toList();
@@ -60,7 +60,6 @@ public class StudentService {
                 // les CV
             }
         }
-
 
         // Tri
         if (sortBy != null && !sortBy.trim().isEmpty()) {
