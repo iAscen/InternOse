@@ -27,13 +27,13 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
   };
 
   const getStatusBadge = (offer: InternshipOffer) => {
-    if (offer.validationStatus === 'approuvé') {
+    if (offer.validationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
           {t('im.approved')}
         </span>
       );
-    } else if (offer.validationStatus === 'rejeté') {
+    } else if (offer.validationStatus === 'REJECTED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
           {t('im.rejected')}
@@ -127,7 +127,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
-                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'en_attente') && (
+                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'PENDING') && (
                       <button
                         onClick={() => handleValidateOffer(offer)}
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
@@ -152,7 +152,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
               </div>
               {/* Affichage de la raison de rejet si applicable */}
-              {offer.validationStatus === 'rejeté' && offer.rejectionReason && (
+              {offer.validationStatus === 'REJECTED' && offer.rejectionReason && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3">
                   <h4 className="text-sm font-medium text-red-800 mb-1">{t('dashboard.rejectionReason')}</h4>
                   <p className="text-sm text-red-700">{offer.rejectionReason}</p>
