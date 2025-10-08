@@ -816,7 +816,8 @@ class ApiService {
     }
   }
 
-    async validateCv(cvId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
+    async validateCv(studentId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
+
         try {
             const token = this.getToken();
             if (!token) {
@@ -828,18 +829,18 @@ class ApiService {
 
             // Construire les paramètres de requête
             const params = new URLSearchParams();
-            params.append('cvId', cvId.toString());
+            params.append('studentId', studentId.toString());
             params.append('approved', approved.toString());
             if (comment && comment.trim()) {
                 params.append('commentaire', comment.trim());
             }
-
-            const url = `${API_BASE_URL}/internship-manager/validation?${params.toString()}`;
+            //             /api/internship-manager/students/{studentId}/cv/validate
+            const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
             console.log('🔍 Validation URL:', url);
-            console.log('🔍 Params:', {cvId, approved, comment });
+            console.log('🔍 Params:', {cvId: studentId, approved, comment });
 
             const response = await fetch(url, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',

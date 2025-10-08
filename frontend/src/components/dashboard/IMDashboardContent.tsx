@@ -237,7 +237,11 @@ export default function IMDashboardContent() {
                                 </div>
                             </div>
                         </div>
-                        {cvs.length != 0 && <CvList cvs={cvs}></CvList>}
+                        {cvs.length != 0 && <CvList
+                            loading={loading}
+                            cvs={cvs}
+                            onCvValidation={() => loadCvs()}
+                        ></CvList>}
                         {cvs.length == 0 && 
                             <div className="text-center text-gray-900">
                                 {t('im.noCvsFound')}

@@ -22,49 +22,49 @@ export default function CvValidationModal({
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // const handleValidation = async (type: 'approve' | 'reject') => {
-  //   if (!cv.studentId) {
-  //     setError('ID de l\'étudiant manquant');
-  //     return;
-  //   }
-  //
-  //   setIsValidating(true);
-  //   setError(null);
-  //
-  //   console.log('🚀 Starting CV validation:', {
-  //     studentId: cv.studentId,
-  //     type,
-  //     approved: type === 'approve',
-  //     comment: type === 'reject' ? comment : undefined
-  //   });
-  //
-  //   try {
-  //     const response = await apiService.validateCv(
-  //       cv.studentId,
-  //       type === 'approve',
-  //       type === 'reject' ? comment : undefined
-  //     );
-  //
-  //     console.log('🚀 Validation response:', response);
-  //
-  //     if (response.success) {
-  //       console.log('✅ Validation successful');
-  //       onValidationSuccess();
-  //       onClose();
-  //       // Reset form
-  //       setComment('');
-  //       setValidationType(null);
-  //     } else {
-  //       console.error('❌ CV Validation failed:', response.error);
-  //       setError(response.error || 'Erreur lors de la validation du CV');
-  //     }
-  //   } catch (err) {
-  //     console.error('❌ CV Validation error:', err);
-  //     setError('Erreur de connexion au serveur');
-  //   } finally {
-  //     setIsValidating(false);
-  //   }
-  // };
+  const handleValidation = async (type: 'approve' | 'reject') => {
+    if (!cv.studentId) {
+      setError('ID de l\'étudiant manquant');
+      return;
+    }
+
+    setIsValidating(true);
+    setError(null);
+
+    console.log('🚀 Starting CV validation:', {
+      studentId: cv.studentId,
+      type,
+      approved: type === 'approve',
+      comment: type === 'reject' ? comment : undefined
+    });
+
+    try {
+      const response = await apiService.validateCv(
+        cv.studentId,
+        type === 'approve',
+        type === 'reject' ? comment : undefined
+      );
+
+      console.log('🚀 Validation response:', response);
+
+      if (response.success) {
+        console.log('✅ Validation successful');
+        onValidationSuccess();
+        onClose();
+        // Reset form
+        setComment('');
+        setValidationType(null);
+      } else {
+        console.error('❌ CV Validation failed:', response.error);
+        setError(response.error || 'Erreur lors de la validation du CV');
+      }
+    } catch (err) {
+      console.error('❌ CV Validation error:', err);
+      setError('Erreur de connexion au serveur');
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const handleClose = () => {
     setComment('');
@@ -222,7 +222,7 @@ export default function CvValidationModal({
                   {t('common.cancel')}
                 </button>
                 <button
-                  // onClick={() => handleValidation(validationType)}
+                  onClick={() => handleValidation(validationType)}
                   disabled={isValidating}
                   className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
                     ? 'bg-green-600 hover:bg-green-700'
