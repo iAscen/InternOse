@@ -36,7 +36,7 @@ public class InternshipManagerService {
                         .toList();
             } else if (sortBy != null && sortBy.equals("status")) {
                 internshipOffers = internshipOffers.stream()
-                        .filter(offer -> offer.getValidationStatus() == DocumentStatus.PENDING)
+//                        .filter(offer -> offer.getValidationStatus() == DocumentStatus.PENDING)
                         .sorted(Comparator.comparing(InternshipOffer::getValidationStatus))
                         .toList();
             } else {

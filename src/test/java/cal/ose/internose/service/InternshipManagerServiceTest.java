@@ -80,7 +80,7 @@ class InternshipManagerServiceTest {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
                 .id(offerId)
-                .rejectionReason("Old reason that should be cleared")
+                .validationStatus(DocumentStatus.PENDING)
                 .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
@@ -101,6 +101,7 @@ class InternshipManagerServiceTest {
         InternshipOffer existing = InternshipOffer.builder()
                 .id(offerId)
                 .rejectionReason(null)
+                .validationStatus(DocumentStatus.PENDING)
                 .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
