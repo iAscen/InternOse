@@ -464,7 +464,7 @@ class ApiService {
     }
   }
 
-  // Méthodes pour les offres de stage
+  // Méthodes pour les CV
   async getInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
     try {
       const token = this.getToken();
@@ -815,6 +815,74 @@ class ApiService {
       };
     }
   }
+
+    async validateCv(studentId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
+
+        try {
+            const token = this.getToken();
+            if (!token) {
+                return {
+                    success: false,
+                    error: 'Token d\'authentification manquant',
+                };
+            }
+
+            // Construire les paramètres de requête
+            const params = new URLSearchParams();
+            params.append('studentId', studentId.toString());
+            params.append('approved', approved.toString());
+            if (comment && comment.trim()) {
+                params.append('commentaire', comment.trim());
+            }
+            //             /api/internship-manager/students/{studentId}/cv/validate
+            const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
+            console.log('🔍 Validation URL:', url);
+            console.log('🔍 Params:', {cvId: studentId, approved, comment });
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log('🔍 Response status:', response.status);
+            console.log('🔍 Response ok:', response.ok);
+
+            if (response.ok) {
+                const responseText = await response.text();
+                console.log('🔍 Response body:', responseText);
+                return {
+                    success: true,
+                    data: approved ? 'CV approuvée avec succès' : 'CV refusée avec succès',
+                };
+            } else {
+                let errorMessage = 'Erreur lors de la validation du CV';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorData.error || errorMessage;
+                    console.log('🔍 Error data:', errorData);
+                } catch (parseError) {
+                    const errorText = await response.text();
+                    errorMessage = errorText || errorMessage;
+                    console.log('🔍 Error text:', errorText);
+                }
+                return {
+                    success: false,
+                    error: errorMessage,
+                };
+            }
+        } catch (error) {
+            console.error('🔍 Network error:', error);
+            return {
+                success: false,
+                error: 'Erreur de connexion au serveur',
+            };
+        }
+    }
+
+
 
   // Vérification de la santé du serveur
   async healthCheck(): Promise<boolean> {

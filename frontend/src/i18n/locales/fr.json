@@ -123,6 +123,9 @@
     "validateOffer": "Valider l'offre",
     "approveOffer": "Approuver l'offre",
     "rejectOffer": "Refuser l'offre",
+    "validateCv": "Valider le CV",
+    "approveCv": "Approuver le CV",
+    "rejectCv": "Refuser le CV",
     "rejectionReason": "Raison du refus",
     "rejectionReasonPlaceholder": "Expliquez pourquoi cette offre vous refusez cette offre",
     "confirmApprove": "Confirmer l'approbation",
@@ -241,5 +244,24 @@
     "fileType": "Type de fichier",
     "downloadCv": "Télécharger",
     "goBack": "Retourner"
+  },
+  "cvStatus": {
+    "none": {
+      "title": "Aucun CV téléversé",
+      "description": "Téléversez votre CV pour commencer à postuler aux offres de stage."
+    },
+    "pending": {
+      "title": "CV en attente de validation",
+      "description": "Votre CV \"{{fileName}}\" est en cours de validation par le gestionnaire de stage."
+    },
+    "approved": {
+      "title": "CV validé",
+      "description": "Votre CV \"{{fileName}}\" a été validé. Vous pouvez maintenant postuler aux offres de stage."
+    },
+    "rejected": {
+      "title": "CV rejeté",
+      "description": "Votre CV \"{{fileName}}\" a été rejeté. Veuillez téléverser une nouvelle version.",
+      "uploadNewCv": "Téléverser un nouveau CV"
+    }
   }
 }

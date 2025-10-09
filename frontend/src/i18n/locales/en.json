@@ -126,6 +126,9 @@
     "validateOffer": "Validate offer",
     "approveOffer": "Approve offer",
     "rejectOffer": "Reject offer",
+    "validateCv": "Validate CV",
+    "approveCv": "Approve CV",
+    "rejectCv": "Reject CV",
     "rejectionReason": "Rejection reason",
     "rejectionReasonPlaceholder": "Explain why this offer is being rejected...",
     "confirmApprove": "Confirm approval",
@@ -245,5 +248,24 @@
     "fileType": "File type",
     "downloadCv": "Download",
     "goBack": "Go back"
+  },
+  "cvStatus": {
+    "none": {
+      "title": "No CV uploaded",
+      "description": "Upload your CV to start applying for internship offers."
+    },
+    "pending": {
+      "title": "CV pending validation",
+      "description": "Your CV \"{{fileName}}\" is being validated by the internship manager."
+    },
+    "approved": {
+      "title": "CV validated",
+      "description": "Your CV \"{{fileName}}\" has been validated. You can now apply for internship offers."
+    },
+    "rejected": {
+      "title": "CV rejected",
+      "description": "Your CV \"{{fileName}}\" has been rejected. Please upload a new version.",
+      "uploadNewCv": "Upload new CV"
+    }
   }
 }
