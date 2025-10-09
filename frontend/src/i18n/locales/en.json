@@ -135,7 +135,18 @@
     "confirmReject": "Confirm rejection",
     "approved": "Approved",
     "rejected": "Rejected",
-    "pending": "Pending"
+    "pending": "Pending",
+    "clickToValidate": "Click to validate →",
+    "cvAlreadyApproved": "CV Already Approved",
+    "cvAlreadyProcessed": "CV Already Processed",
+    "cvAlreadyProcessedMessage": "This CV has already been {{status}} and cannot be modified.",
+    "cvDetails": "CV Details",
+    "studentInfo": "Student Information",
+    "email": "Email",
+    "fileName": "File Name",
+    "fileType": "File Type",
+    "uploadedAt": "Uploaded On",
+    "currentStatus": "Current Status"
   },
   "employer": {
     "dashboard": "Employer Dashboard",

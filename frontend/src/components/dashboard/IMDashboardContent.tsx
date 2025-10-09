@@ -89,15 +89,19 @@ export default function IMDashboardContent() {
     const loadCvs = async (sortBy?: string, filterBy?: string[], sortOrder?: string) => {
         try {
             setLoading(true);
+            console.log('Loading CVs...');
             const response = await dashboardService.getAllCvs(sortBy, filterBy, sortOrder);
+            console.log('CV response:', response);
             if (response.success && response.data) {
                 const cvs: Cv[] = response.data
-                console.log(cvs)
+                console.log('CVs loaded:', cvs);
                 setCvs(cvs);
             } else {
+                console.error('CV loading failed:', response.error);
                 setError(response.error || t('dashboard.loadingError'));
             }
         } catch (err) {
+            console.error('CV loading error:', err);
             setError(t('dashboard.serverError'));
         } finally {
             setLoading(false);
@@ -134,21 +138,32 @@ export default function IMDashboardContent() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <StatisticsCard
                             title={t('im.pendingSubmissions')}
-                            value={offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'PENDING').length}
+                            value={(() => {
+                                const pendingOffers = offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'PENDING').length;
+                                const pendingCvs = cvs.filter(cv => cv.cvStatus === 'pending').length;
+                                console.log('Pending offers:', pendingOffers, 'Pending CVs:', pendingCvs, 'Total:', pendingOffers + pendingCvs);
+                                return pendingOffers + pendingCvs;
+                            })()}
                             icon={statsIcons.pending}
                             bgColor="bg-yellow-100"
                             iconColor="text-yellow-600"
                         />
                         <StatisticsCard
                             title={t('im.approvedSubmissions')}
-                            value={offers.filter(offer => offer.validationStatus === 'APPROVED').length}
+                            value={
+                                offers.filter(offer => offer.validationStatus === 'APPROVED').length +
+                                cvs.filter(cv => cv.cvStatus === 'approved').length
+                            }
                             icon={statsIcons.approved}
                             bgColor="bg-green-100"
                             iconColor="text-green-600"
                         />
                         <StatisticsCard
                             title={t('im.refusedSubmissions')}
-                            value={offers.filter(offer => offer.validationStatus === 'REJECTED').length}
+                            value={
+                                offers.filter(offer => offer.validationStatus === 'REJECTED').length +
+                                cvs.filter(cv => cv.cvStatus === 'rejected').length
+                            }
                             icon={statsIcons.refused}
                             bgColor="bg-red-100"
                             iconColor="text-red-600"

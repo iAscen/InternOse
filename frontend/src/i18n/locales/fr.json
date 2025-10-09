@@ -132,7 +132,18 @@
     "confirmReject": "Confirmer le refus",
     "approved": "Approuvé",
     "rejected": "Refusé",
-    "pending": "En attente"
+    "pending": "En attente",
+    "clickToValidate": "Cliquer pour valider →",
+    "cvAlreadyApproved": "CV Déjà Approuvé",
+    "cvAlreadyProcessed": "CV Déjà Traité",
+    "cvAlreadyProcessedMessage": "Ce CV a déjà été {{status}} et ne peut pas être modifié.",
+    "cvDetails": "Détails du CV",
+    "studentInfo": "Informations de l'étudiant",
+    "email": "Courriel",
+    "fileName": "Nom du fichier",
+    "fileType": "Type de fichier",
+    "uploadedAt": "Téléversé le",
+    "currentStatus": "Statut actuel"
   },
   "employer": {
     "dashboard": "Tableau de bord employeur",

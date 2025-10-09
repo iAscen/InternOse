@@ -122,6 +122,33 @@ export default function CvValidationModal({
     }
   };
 
+  const handleDownload = async () => {
+    if (!cv.studentId) {
+      setError('ID de l\'étudiant manquant');
+      return;
+    }
+
+    try {
+      const response = await apiService.getCvBlob(cv.studentId);
+      
+      if (response.success && response.data) {
+        const url = window.URL.createObjectURL(response.data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = cv.cvFileName || `cv_${cv.studentId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        setError(response.error || 'Erreur lors du téléchargement du CV');
+      }
+    } catch (err) {
+      console.error('Download error:', err);
+      setError('Erreur lors du téléchargement du CV');
+    }
+  };
+
   const handleClose = () => {
     console.log('Closing CV validation modal - cleaning up...');
 
@@ -172,144 +199,222 @@ export default function CvValidationModal({
         <div className="flex h-[80vh]">
           {/* Left Panel - CV Information and Actions */}
           <div className="w-1/3 px-6 py-4 border-r border-gray-200 overflow-y-auto">
-            {/* CV Details */}
-            <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-900 mb-3">{cv.firstName} {cv.lastName}</h4>
-              <div className="space-y-2 text-sm text-gray-600">
+            {/* Student Information */}
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">{t('im.studentInfo')}</h4>
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                 <div className="flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                  {cv.email}
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                    <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{cv.firstName} {cv.lastName}</p>
+                  </div>
                 </div>
                 <div className="flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {cv.cvFileName}
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                    <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{cv.email}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CV File Information */}
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">{t('im.cvDetails')}</h4>
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                    <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{cv.cvFileName}</p>
+                  </div>
                 </div>
                 <div className="flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                  {cv.cvFileType}
+                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mr-2">
+                    <svg className="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{cv.cvFileType || 'PDF'}</p>
+                  </div>
                 </div>
                 {cv.uploadedAt && (
                   <div className="flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    {t('cv.uploadedAt')}: {new Date(cv.uploadedAt).toLocaleDateString()}
+                    <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+                      <svg className="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{new Date(cv.uploadedAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Current Status */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">{t('cv.currentStatus')}</h4>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cv.cvStatus === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                cv.cvStatus === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                {cv.cvStatus}
-              </span>
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">{t('im.currentStatus')}</h4>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${cv.cvStatus === 'approved' ? 'bg-green-100' :
+                      cv.cvStatus === 'rejected' ? 'bg-red-100' :
+                        'bg-yellow-100'
+                      }`}>
+                      <svg className={`w-3 h-3 ${cv.cvStatus === 'approved' ? 'text-green-600' :
+                        cv.cvStatus === 'rejected' ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${cv.cvStatus === 'approved' ? 'bg-green-100 text-green-800' :
+                      cv.cvStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                      {cv.cvStatus === 'approved' ? t('im.approved') : 
+                       cv.cvStatus === 'rejected' ? t('im.rejected') : 
+                       t('im.pending')}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleDownload}
+                    className="flex items-center px-3 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {t('cv-details.downloadCv')}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Existing Rejection Reason */}
             {cv.rejectionReason && (
-              <div className="mb-6">
+              <div className="mb-4">
                 <h4 className="text-sm font-medium text-gray-900 mb-2">{t('cv.previousRejectionReason')}</h4>
-                <p className="text-sm text-gray-700 leading-relaxed bg-red-50 p-3 rounded-lg border border-red-200">{cv.rejectionReason}</p>
+                <p className="text-xs text-gray-700 leading-relaxed bg-red-50 p-2 rounded-lg border border-red-200">{cv.rejectionReason}</p>
               </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            {/* Validation Actions */}
-            <div className="space-y-4">
-              {/* Approve Button */}
-              <button
-                onClick={() => setValidationType('approve')}
-                disabled={isValidating}
-                className={`w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'approve'
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
-                  } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {t('im.approveCv')}
-              </button>
+            {/* Validation Actions - Only show for pending CVs */}
+            {cv.cvStatus === 'pending' ? (
+              <div className="space-y-3">
+                {/* Approve Button */}
+                <button
+                  onClick={() => setValidationType('approve')}
+                  disabled={isValidating}
+                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'approve'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
+                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {t('im.approveCv')}
+                </button>
 
-              {/* Reject Button */}
-              <button
-                onClick={() => setValidationType('reject')}
-                disabled={isValidating}
-                className={`w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'reject'
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
-                  } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                {t('im.rejectCv')}
-              </button>
+                {/* Reject Button */}
+                <button
+                  onClick={() => setValidationType('reject')}
+                  disabled={isValidating}
+                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'reject'
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
+                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  {t('im.rejectCv')}
+                </button>
 
-              {/* Comment for Rejection */}
-              {validationType === 'reject' && (
-                <div className="mt-4">
-                  <label htmlFor="rejection-comment" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('im.rejectionReason')} <span className="text-gray-500">({t('common.optional')})</span>
-                  </label>
-                  <textarea
-                    id="rejection-comment"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                    placeholder={t('im.rejectionReasonPlaceholder')}
-                  />
+                {/* Comment for Rejection */}
+                {validationType === 'reject' && (
+                  <div className="mt-4">
+                    <label htmlFor="rejection-comment" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('im.rejectionReason')} <span className="text-gray-500">({t('common.optional')})</span>
+                    </label>
+                    <textarea
+                      id="rejection-comment"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                      placeholder={t('im.rejectionReasonPlaceholder')}
+                    />
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                {validationType && (
+                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => setValidationType(null)}
+                      disabled={isValidating}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                    <button
+                      onClick={() => handleValidation(validationType)}
+                      disabled={isValidating}
+                      className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-red-600 hover:bg-red-700'
+                        } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isValidating ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          {t('common.processing')}
+                        </div>
+                      ) : (
+                        validationType === 'approve' ? t('im.confirmApprove') : t('im.confirmReject')
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Message for already processed CVs */
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                <div className="flex items-center justify-center mb-1">
+                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600">
+                    {cv.cvStatus === 'approved' ? t('im.cvAlreadyApproved') : t('im.cvAlreadyProcessed')}
+                  </span>
                 </div>
-              )}
-
-              {/* Action Buttons */}
-              {validationType && (
-                <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => setValidationType(null)}
-                    disabled={isValidating}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    {t('common.cancel')}
-                  </button>
-                  <button
-                    onClick={() => handleValidation(validationType)}
-                    disabled={isValidating}
-                    className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-red-600 hover:bg-red-700'
-                      } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {isValidating ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        {t('common.processing')}
-                      </div>
-                    ) : (
-                      validationType === 'approve' ? t('im.confirmApprove') : t('im.confirmReject')
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
+                <p className="text-xs text-gray-500">
+                  {t('im.cvAlreadyProcessedMessage', { status: cv.cvStatus === 'approved' ? t('im.approved').toLowerCase() : t('im.rejected').toLowerCase() })}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Right Panel - PDF Viewer */}
