@@ -12,7 +12,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
 
     const {formData, handleChange} = useForm({
         status: "",
-        domain: "",
+        program: "",
         title: ""
     });
 
@@ -26,9 +26,9 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const status = formData.status != "" ? formData.status : undefined;
-        const domain = formData.domain != "" ? formData.domain : undefined;
+        const program = formData.program != "" ? formData.program : undefined;
         const title = formData.title != "" ? formData.title : undefined;
-        applyFilters([status, domain, title]);
+        applyFilters([status, program, title]);
     }
 
     return (
@@ -55,12 +55,12 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                             </div>
                             <FormInput
                                 className={"mb-3"}
-                                id={"domain"}
-                                name={"domain"}
+                                id={"program"}
+                                name={"program"}
                                 type={"text"}
-                                label={t('im.domain')}
-                                placeholder={t('im.placeholderCS')}
-                                value={formData.domain}
+                                label={t('im.program')}
+                                placeholder={t('im.placeholderSE')} // Temporaire
+                                value={formData.program}
                                 onChange={handleChange}
                                 required={false}
                             />

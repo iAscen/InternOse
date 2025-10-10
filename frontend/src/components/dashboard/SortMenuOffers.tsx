@@ -15,7 +15,7 @@ export default function SortMenuOffers({ applySorting }: SortMenuOffersProps) {
                     {t('im.status')}
                 </button>
                 <button onClick={() => applySorting("domain")} className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    {t('im.domain')}
+                    {t('im.program')}
                 </button>
                 <button onClick={() => applySorting("title")} className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                     {t('im.title')}

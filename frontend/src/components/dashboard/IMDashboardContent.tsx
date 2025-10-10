@@ -20,11 +20,11 @@ export default function IMDashboardContent() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [offers, setOffers] = useState<InternshipOffer[]>([]);
+    const [cvs, setCvs] = useState<Cv[]>([])
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
-    const [cvs, setCvs] = useState<Cv[]>([])
     const [error, setError] = useState<string | null>(null);
 
     // Icônes pour les statistiques

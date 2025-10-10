@@ -60,7 +60,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                 name={"program"}
                                 type={"text"}
                                 label={t("im.program")}
-                                placeholder={t('im.placeholderProgram')}
+                                placeholder={t('im.placeholderSE')} // Temporaire
                                 value={formData.program}
                                 onChange={handleChange}
                                 required={false}
@@ -71,7 +71,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                 name={"institution"}
                                 type={"text"}
                                 label={"Institution"}
-                                placeholder={"Andre-Laurendeau"}
+                                placeholder={"Cégep André-Laurendeau"}
                                 value={formData.institution}
                                 onChange={handleChange}
                                 required={false}
