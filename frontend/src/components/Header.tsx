@@ -1,13 +1,13 @@
-import { Link } from "react-router";
-import { useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { apiService } from "~/services/apiService";
-import { useAuth, useClickOutside } from "~/hooks";
+import {Link} from "react-router";
+import {useState, useRef} from "react";
+import {useTranslation} from "react-i18next";
+import {apiService} from "~/services/apiService";
+import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
-  const { isAuthenticated, userRole, userEmail } = useAuth();
-  const { t } = useTranslation();
+  const {isAuthenticated, userRole, userName, userEmail} = useAuth();
+  const {t} = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -25,7 +25,8 @@ export default function Header() {
             {/* Logo */}
             <div className="flex-shrink-0">
               <Link to="/" className="flex items-center">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg sm:text-xl">I</span>
                 </div>
                 <span className="ml-2 sm:ml-3 text-xl sm:text-2xl font-bold text-gray-900">InternOSE</span>
@@ -35,15 +36,15 @@ export default function Header() {
             {/* Navigation - right next to logo */}
             <nav className="hidden lg:flex ml-4 md:ml-6 lg:ml-8 space-x-3 md:space-x-4 lg:space-x-6">
               {!isAuthenticated && (
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
                   {t('navigation.home')}
                 </Link>
               )}
               {isAuthenticated && userRole === 'EMPLOYER' && (
-                <Link 
+                <Link
                   to="/employer-dashboard"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
@@ -51,8 +52,8 @@ export default function Header() {
                 </Link>
               )}
               {isAuthenticated && userRole === 'STUDENT' && (
-                <Link 
-                  to="/student-dashboard" 
+                <Link
+                  to="/student-dashboard"
                   className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
                 >
                   {t('student.dashboard')}
@@ -95,18 +96,17 @@ export default function Header() {
                     className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <span className="font-medium">
-                      {userRole === 'EMPLOYER' && t('auth.employerAccount')}
-                      {userRole === 'STUDENT' && t('auth.studentAccount')}
-                      {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
+                      {userName}
                     </span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
                     </svg>
                   </button>
 
                   {/* Menu déroulant */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div
+                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                       <div className="p-4">
                         <div className="flex items-center space-x-3 mb-3">
                           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -115,15 +115,11 @@ export default function Header() {
                             </span>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {userRole === 'EMPLOYER' && t('auth.employerAccount')}
-                              {userRole === 'STUDENT' && t('auth.studentAccount')}
-                              {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
-                            </p>
+                            <p className="text-sm font-medium text-gray-900">{userName}</p>
                             <p className="text-xs text-gray-500">{userEmail}</p>
                           </div>
                         </div>
-                        
+
                         <div className="border-t border-gray-200 pt-3">
                           <button
                             onClick={() => {
@@ -141,7 +137,7 @@ export default function Header() {
                 </div>
               </div>
             )}
-            
+
             {/* Mobile menu button - Show hamburger menu on small screens */}
             <div className="sm:hidden ml-2" ref={mobileMenuRef}>
               <button
@@ -150,13 +146,14 @@ export default function Header() {
                 aria-label="Menu"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
               </button>
-              
+
               {/* Mobile dropdown menu */}
               {showMobileMenu && (
-                <div className="absolute right-2 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                <div
+                  className="absolute right-2 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                   {!isAuthenticated ? (
                     <>
                       <Link
@@ -198,9 +195,9 @@ export default function Header() {
                 </div>
               )}
             </div>
-            
+
             {/* Language Switcher - Always at the far right */}
-            <LanguageSwitcher />
+            <LanguageSwitcher/>
           </div>
         </div>
       </div>
