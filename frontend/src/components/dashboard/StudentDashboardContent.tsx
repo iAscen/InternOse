@@ -34,6 +34,7 @@ export default function StudentDashboardContent() {
     } else {
       // Charger le statut du CV au chargement
       loadCVStatus();
+      loadOffers();
     }
   }, [navigate]);
 
@@ -253,51 +254,54 @@ export default function StudentDashboardContent() {
               </div>
             </div>
           </div>
-
+            {(cvStatus === 'approved') && (
+                <div className="bg-white rounded-lg shadow-md mb-8 p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            {t("im.internshipOffersSection")}
+                        </h2>
+                        <div className="flex items-center space-x-4">
+                            <div className="relative">
+                                <SortButton onClick={() => {
+                                    setShowSortMenuOffers(!showSortMenuOffers)
+                                    setShowFilterMenuOffers(false)
+                                    setShowSortMenuResumes(false)
+                                    setShowFilterMenuResumes(false)
+                                }} />
+                                {showSortMenuOffers &&
+                                    <SortMenuOffers applySorting={(sortBy: string) => {
+                                        setShowSortMenuOffers(false);
+                                        loadOffers(sortBy, undefined);
+                                    }}/>
+                                }
+                            </div>
+                            <div className="relative">
+                                <FilterButton onClick={() => {
+                                    setShowSortMenuOffers(false)
+                                    setShowFilterMenuOffers(!showFilterMenuOffers)
+                                    setShowSortMenuResumes(false)
+                                    setShowFilterMenuResumes(false)
+                                }}/>
+                                {showFilterMenuOffers &&
+                                    <FilterMenuOffers applyFilters={(filterBy: string[]) => {
+                                        setShowFilterMenuOffers(false);
+                                        loadOffers(undefined, filterBy);
+                                    }}/>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <OfferList
+                        isStudent={true}
+                        isEmployer={false}
+                        loading={loading}
+                        offers={offers}
+                        onOfferValidation={() => loadOffers()}
+                    />
+                </div>
+            )}
         </div>
-          <div className="bg-white rounded-lg shadow-md mb-8 p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                      {t("im.internshipOffersSection")}
-                  </h2>
-                  <div className="flex items-center space-x-4">
-                      <div className="relative">
-                          <SortButton onClick={() => {
-                              setShowSortMenuOffers(!showSortMenuOffers)
-                              setShowFilterMenuOffers(false)
-                              setShowSortMenuResumes(false)
-                              setShowFilterMenuResumes(false)
-                          }} />
-                          {showSortMenuOffers &&
-                              <SortMenuOffers applySorting={(sortBy: string) => {
-                                  setShowSortMenuOffers(false);
-                                  loadOffers(sortBy, undefined);
-                              }}/>
-                          }
-                      </div>
-                      <div className="relative">
-                          <FilterButton onClick={() => {
-                              setShowSortMenuOffers(false)
-                              setShowFilterMenuOffers(!showFilterMenuOffers)
-                              setShowSortMenuResumes(false)
-                              setShowFilterMenuResumes(false)
-                          }}/>
-                          {showFilterMenuOffers &&
-                              <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                  setShowFilterMenuOffers(false);
-                                  loadOffers(undefined, filterBy);
-                              }}/>
-                          }
-                      </div>
-                  </div>
-              </div>
-              <OfferList
-                  isEmployer={false}
-                  loading={loading}
-                  offers={offers}
-                  onOfferValidation={() => loadOffers()}
-              />
-          </div>
+
       </div>
     </main>
   );

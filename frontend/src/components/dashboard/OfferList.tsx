@@ -4,14 +4,14 @@ import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 
 interface OfferListProps {
-    // isStudent: boolean;
+  isStudent: boolean;
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
   onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
 }
 
-export default function OfferList({isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
+export default function OfferList({ isStudent, isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
   const { t } = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +28,10 @@ export default function OfferList({isEmployer, loading, offers, onOfferValidatio
   };
 
   const getStatusBadge = (offer: InternshipOffer) => {
+    if (isStudent) {
+      return null
+    }
+
     if (offer.validationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
@@ -66,7 +70,7 @@ export default function OfferList({isEmployer, loading, offers, onOfferValidatio
   if (offers.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md">
-        { isEmployer &&
+        {isEmployer &&
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
           </div>
@@ -80,7 +84,7 @@ export default function OfferList({isEmployer, loading, offers, onOfferValidatio
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      { isEmployer &&
+      {isEmployer &&
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
         </div>
@@ -128,7 +132,7 @@ export default function OfferList({isEmployer, loading, offers, onOfferValidatio
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
-                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'PENDING') && (
+                    {!isEmployer && !isStudent && (!offer.validationStatus || offer.validationStatus === 'PENDING') && (
                       <button
                         onClick={() => handleValidateOffer(offer)}
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
@@ -139,6 +143,17 @@ export default function OfferList({isEmployer, loading, offers, onOfferValidatio
                         {t('im.validateOffer')}
                       </button>
                     )}
+                      {isStudent && offer.validationStatus === 'APPROVED' && (
+                          <button
+                              onClick={() => console.log('Postuler TODO')}
+                              className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                          >
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Postuler
+                          </button>
+                      )}
                   </div>
                 </div>
               </div>
