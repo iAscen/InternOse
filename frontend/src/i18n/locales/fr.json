@@ -69,6 +69,33 @@
     "passwordSpecial": "Le mot de passe doit contenir au moins un caractère spécial",
     "passwordMismatch": "Les mots de passe ne correspondent pas"
   },
+  "programSelector": {
+    "label": "Programme",
+    "placeholder": "Choisir...",
+    "programs": {
+      "410A1": "410.A1 - Gestion des opérations et de la chaîne logistique",
+      "180A0": "180.A0 - Soins infirmiers",
+      "180B0": "180.B0 - Soins infirmiers pour auxiliaires",
+      "410G0": "410.G0 - Techniques d'administration et de gestion",
+      "322A1": "322.A1 - Techniques d'éducation à l'enfance",
+      "420B0": "420.B0 - Techniques de l'informatique",
+      "388A1": "388.A1 - Techniques de travail social",
+      "221A0": "221.A0 - Technologie de l'architecture",
+      "221D0": "221.D0 - Technologie de l'estimation et de l'évaluation en bâtiment",
+      "221B0": "221.B0 - Technologie du génie civil",
+      "243D0": "243.D0 - Technologie du génie électrique: automatisation et contrôle",
+      "244A0": "244.A0 - Technologie du génie physique"
+    }
+  },
+  "employer": {
+    "dashboard": "Tableau de bord employeur",
+    "profile": "Profil employeur",
+    "offers": "Offres de stage",
+    "createOffer": "Créer une offre",
+    "company": "Entreprise",
+    "companyName": "Nom de l'entreprise",
+    "applications": "Candidatures reçues"
+  },
   "student": {
     "dashboard": "Tableau de bord étudiant",
     "profile": "Profil étudiant",
@@ -137,15 +164,6 @@
     "fileType": "Type de fichier",
     "uploadedAt": "Téléversé le",
     "currentStatus": "Statut actuel"
-  },
-  "employer": {
-    "dashboard": "Tableau de bord employeur",
-    "profile": "Profil employeur",
-    "offers": "Offres de stage",
-    "createOffer": "Créer une offre",
-    "company": "Entreprise",
-    "companyName": "Nom de l'entreprise",
-    "applications": "Candidatures reçues"
   },
   "internship": {
     "title": "Titre du stage",

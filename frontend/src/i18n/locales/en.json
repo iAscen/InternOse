@@ -69,6 +69,33 @@
     "passwordSpecial": "Password must contain at least one special character",
     "passwordMismatch": "Passwords do not match"
   },
+  "programSelector": {
+    "label": "Program",
+    "placeholder": "Choose...",
+    "programs": {
+      "410A1": "410.A1 - Management of operations and the logistics chain",
+      "180A0": "180.A0 - Nursing",
+      "180B0": "180.B0 - Auxiliary nursing",
+      "410G0": "410.G0 - Administration and management",
+      "322A1": "322.A1 - Childhood education",
+      "420B0": "420.B0 - Software engineering",
+      "388A1": "388.A1 - Social work",
+      "221A0": "221.A0 - Architecture",
+      "221D0": "221.D0 - Building estimation and evaluation",
+      "221B0": "221.B0 - Civil engineering",
+      "243D0": "243.D0 - Electrical engineering: automation and control",
+      "244A0": "244.A0 - Physics engineering"
+    }
+  },
+  "employer": {
+    "dashboard": "Employer Dashboard",
+    "profile": "Employer Profile",
+    "offers": "Internship Offers",
+    "createOffer": "Create Offer",
+    "company": "Company",
+    "companyName": "Company Name",
+    "applications": "Received Applications"
+  },
   "student": {
     "dashboard": "Student Dashboard",
     "profile": "Student Profile",
@@ -140,15 +167,6 @@
     "fileType": "File Type",
     "uploadedAt": "Uploaded On",
     "currentStatus": "Current Status"
-  },
-  "employer": {
-    "dashboard": "Employer Dashboard",
-    "profile": "Employer Profile",
-    "offers": "Internship Offers",
-    "createOffer": "Create Offer",
-    "company": "Company",
-    "companyName": "Company Name",
-    "applications": "Received Applications"
   },
   "internship": {
     "title": "Internship Title",

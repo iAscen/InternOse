@@ -2,6 +2,7 @@ import {useTranslation} from "react-i18next";
 import {useForm} from "~/hooks";
 import FormSection from "~/components/FormSection";
 import FormInput from "~/components/FormInput";
+import ProgramSelector from "~/components/ProgramSelector";
 
 interface FilterMenuOffersProps {
     applyFilters: Function;
@@ -54,17 +55,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                     <option value="rejected" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
                                 </select>
                             </div>
-                            <FormInput
-                                className={"mb-3"}
-                                id={"program"}
-                                name={"program"}
-                                type={"text"}
-                                label={t("im.program")}
-                                placeholder={t('im.placeholderSE')} // Temporaire
-                                value={formData.program}
-                                onChange={handleChange}
-                                required={false}
-                            />
+                            <ProgramSelector onChange={handleSelectChange} />
                             <FormInput
                                 className={"mb-3"}
                                 id={"institution"}
