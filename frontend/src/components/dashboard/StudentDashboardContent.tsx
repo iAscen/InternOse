@@ -5,6 +5,13 @@ import { apiService } from '../../services/apiService';
 import CVUploadSection from './CVUploadSection';
 import CVStatusCard from './CVStatusCard';
 import StatisticsCard from './StatisticsCard';
+import SortButton from "~/components/dashboard/SortButton";
+import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
+import FilterButton from "~/components/dashboard/FilterButton";
+import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
+import OfferList from "~/components/dashboard/OfferList";
+import type {InternshipOffer} from "~/interfaces";
+import {dashboardService} from "~/services/dashboardService";
 
 export default function StudentDashboardContent() {
   const { t } = useTranslation();
@@ -12,6 +19,13 @@ export default function StudentDashboardContent() {
   const [cvStatus, setCvStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [showUploadForm, setShowUploadForm] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [offers, setOffers] = useState<InternshipOffer[]>([]);
+    const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
+    const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
+    const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
+    const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -22,6 +36,22 @@ export default function StudentDashboardContent() {
       loadCVStatus();
     }
   }, [navigate]);
+
+    const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
+        try {
+            setLoading(true);
+            const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
+            if (response.success && response.data) {
+                setOffers(response.data);
+            } else {
+                setError(response.error || t('dashboard.loadingError'));
+            }
+        } catch (err) {
+            setError(t('dashboard.serverError'));
+        } finally {
+            setLoading(false);
+        }
+    };
 
   // Charger le statut du CV depuis le backend
   const loadCVStatus = async () => {
@@ -223,7 +253,51 @@ export default function StudentDashboardContent() {
               </div>
             </div>
           </div>
+
         </div>
+          <div className="bg-white rounded-lg shadow-md mb-8 p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                      {t("im.internshipOffersSection")}
+                  </h2>
+                  <div className="flex items-center space-x-4">
+                      <div className="relative">
+                          <SortButton onClick={() => {
+                              setShowSortMenuOffers(!showSortMenuOffers)
+                              setShowFilterMenuOffers(false)
+                              setShowSortMenuResumes(false)
+                              setShowFilterMenuResumes(false)
+                          }} />
+                          {showSortMenuOffers &&
+                              <SortMenuOffers applySorting={(sortBy: string) => {
+                                  setShowSortMenuOffers(false);
+                                  loadOffers(sortBy, undefined);
+                              }}/>
+                          }
+                      </div>
+                      <div className="relative">
+                          <FilterButton onClick={() => {
+                              setShowSortMenuOffers(false)
+                              setShowFilterMenuOffers(!showFilterMenuOffers)
+                              setShowSortMenuResumes(false)
+                              setShowFilterMenuResumes(false)
+                          }}/>
+                          {showFilterMenuOffers &&
+                              <FilterMenuOffers applyFilters={(filterBy: string[]) => {
+                                  setShowFilterMenuOffers(false);
+                                  loadOffers(undefined, filterBy);
+                              }}/>
+                          }
+                      </div>
+                  </div>
+              </div>
+              <OfferList
+                  isEmployer={false}
+                  loading={loading}
+                  offers={offers}
+                  onOfferValidation={() => loadOffers()}
+              />
+          </div>
       </div>
     </main>
   );
