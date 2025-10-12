@@ -15,6 +15,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class EmployerService {
         return Optional.of(internshipOffer);
     }
 
-    public List<StudentDTO> findStudentsBy(long internshipId, DocumentStatus cvStatus, String program, String institution) {
+    public List<StudentDTO> findStudentsBy(long internshipId, DocumentStatus cvStatus, String program, String institution, String sortBy) {
         if (!internshipOfferDAO.existsById(internshipId)) {
             throw new ResourceNotFoundException(
                     String.format(ErrorMessages.INTERNSHIP_OFFER_NOT_FOUND.getMessage(), internshipId)
@@ -54,6 +55,14 @@ public class EmployerService {
         }
 
         List<Student> students = studentDAO.findStudentsBy(internshipId, cvStatus, program, institution);
+
+        Comparator<Student> comparator = switch (sortBy == null ? "" : sortBy) {
+            case "institution" -> Comparator.comparing(Student::getInstitution);
+            case "status" -> Comparator.comparing(Student::getCvStatus);
+            default -> Comparator.comparing(Student::getProgram);
+        };
+
+        students = students.stream().sorted(comparator).toList();
 
         return students.stream()
                 .map((s) -> StudentDTO.builder()
@@ -63,6 +72,7 @@ public class EmployerService {
                         .cvStatus(s.getCvStatus())
                         .program(s.getProgram())
                         .institution(s.getInstitution())
+                        .cvFileData(s.getCVFileData())
                         .build()).collect(Collectors.toList());
     }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 @SuperBuilder
 public class StudentDTO extends UserAppDTO {
     private DocumentStatus cvStatus;
+    private byte[] cvFileData;
     private String program;
     private String institution;
 
