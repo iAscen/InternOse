@@ -3,6 +3,7 @@ export interface InternshipOffer {
   id?: number;
   jobTitle: string;
   taskDescription: string;
+  program: string;
   qualifications: string;
   duration: number;
   startDate: string; // Format ISO: "2024-01-15"
@@ -12,7 +13,6 @@ export interface InternshipOffer {
   validee?: boolean;
   validationStatus?: string; // "approuvé", "rejeté", null
   rejectionReason?: string; // Raison du rejet si applicable
-  domain?: string; // Domaine de l'offre
 }
 
 export interface CreateInternshipOfferRequest {

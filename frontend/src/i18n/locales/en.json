@@ -171,6 +171,7 @@
   "internship": {
     "title": "Internship Title",
     "description": "Description",
+    "program": "Program",
     "requirements": "Requirements",
     "location": "Location",
     "duration": "Duration",

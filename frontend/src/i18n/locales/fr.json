@@ -168,6 +168,7 @@
   "internship": {
     "title": "Titre du stage",
     "description": "Description",
+    "program": "Programme",
     "requirements": "Exigences",
     "location": "Lieu",
     "duration": "Durée",

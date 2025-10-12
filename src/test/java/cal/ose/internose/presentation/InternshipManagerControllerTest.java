@@ -50,7 +50,7 @@ class InternshipManagerControllerTest {
         void findInternshipsBy() throws Exception {
                 when(internshipManagerService.findInternshipsBy(
                                 "Informatique", null, null, null)).thenReturn(
-                                                List.of(InternshipOfferDTO.builder().domain("Informatique").build()));
+                                                List.of(InternshipOfferDTO.builder().program("Informatique").build()));
 
                 MvcResult mvcResult = mockMvc.perform(
                                 get(Paths.SEARCH_INTERNSHIPS_PATH)
@@ -66,7 +66,7 @@ class InternshipManagerControllerTest {
                 assertThat(mvcResult.getResponse().getStatus())
                                 .isEqualTo(HttpStatus.OK.value());
 
-                assertThat(responseList.getFirst().getDomain()).isEqualTo("Informatique");
+                assertThat(responseList.getFirst().getProgram()).isEqualTo("Informatique");
         }
 
         @Test
@@ -75,12 +75,12 @@ class InternshipManagerControllerTest {
                 when(internshipManagerService.findInternshipsBy(
                                 "Informatique", true, "Développeur", "title")).thenReturn(
                                                 List.of(
-                                                                InternshipOfferDTO.builder().domain("Informatique")
+                                                                InternshipOfferDTO.builder().program("Informatique")
                                                                                 .jobTitle("Développeur Java")
                                                                                 .validationStatus(
                                                                                                 DocumentStatus.APPROVED)
                                                                                 .build(),
-                                                                InternshipOfferDTO.builder().domain("Informatique")
+                                                                InternshipOfferDTO.builder().program("Informatique")
                                                                                 .jobTitle("Développeur Python")
                                                                                 .validationStatus(
                                                                                                 DocumentStatus.APPROVED)
@@ -111,11 +111,11 @@ class InternshipManagerControllerTest {
                 when(internshipManagerService.findInternshipsBy(
                                 null, null, null, "status")).thenReturn(
                                                 List.of(
-                                                                InternshipOfferDTO.builder().domain("Informatique")
+                                                                InternshipOfferDTO.builder().program("Informatique")
                                                                                 .validationStatus(
                                                                                                 DocumentStatus.APPROVED)
                                                                                 .build(),
-                                                                InternshipOfferDTO.builder().domain("Biologie")
+                                                                InternshipOfferDTO.builder().program("Biologie")
                                                                                 .validationStatus(
                                                                                                 DocumentStatus.APPROVED)
                                                                                 .build()));

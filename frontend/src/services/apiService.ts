@@ -537,7 +537,7 @@ class ApiService {
       }
 
       const status = filterBy ? filterBy[0] : null;
-      const domain = filterBy ? filterBy[1] : null;
+      const program = filterBy ? filterBy[1] : null;
       const title = filterBy ? filterBy[2] : null;
 
       // Construire les paramètres de requête
@@ -547,7 +547,7 @@ class ApiService {
         const valid = status.toLowerCase() === 'true' || status.toLowerCase() === 'validated' || status.toLowerCase() === 'approuvé';
         params.append('valid', valid.toString());
       }
-      if (domain) params.append('domain', domain);
+      if (program) params.append('program', program);
       if (title) params.append('title', title);
 
       const response = await fetch(`${API_BASE_URL}/internship-manager/search?${params.toString()}`, {

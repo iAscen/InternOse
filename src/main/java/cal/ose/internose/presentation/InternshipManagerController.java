@@ -2,7 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Student;
-import cal.ose.internose.security.exception.ResourceNotFoundException;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -26,16 +26,16 @@ public class InternshipManagerController {
     private final StudentService studentService;
 
     public InternshipManagerController(InternshipManagerService internshipManagerService,
-            StudentService studentService) {
+                                       StudentService studentService) {
         this.internshipManagerService = internshipManagerService;
         this.studentService = studentService;
     }
 
     @GetMapping(Paths.SEARCH_INTERNSHIPS_PATH)
-    public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String domain,
-            @RequestParam(required = false) String valid,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String sortBy) {
+    public ResponseEntity<List<InternshipOfferDTO>> findInternshipsBy(@RequestParam(required = false) String program,
+                                                                      @RequestParam(required = false) String valid,
+                                                                      @RequestParam(required = false) String title,
+                                                                      @RequestParam(required = false) String sortBy) {
         // Convertir le paramètre valid de String vers Boolean
         Boolean validBoolean = null;
         if (valid != null && !valid.isEmpty() && !valid.equals("null")) {
@@ -43,13 +43,13 @@ public class InternshipManagerController {
         }
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(internshipManagerService.findInternshipsBy(domain, validBoolean, title, sortBy));
+            .body(internshipManagerService.findInternshipsBy(program, validBoolean, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)
     public ResponseEntity<Map<String, Object>> validateInternshipOffer(@RequestParam Long offerId,
-            @RequestParam Boolean approved,
-            @RequestParam(required = false) String commentaire) {
+                                                                       @RequestParam Boolean approved,
+                                                                       @RequestParam(required = false) String commentaire) {
         try {
             // Valider ou refuser l'offre de stage
             internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
@@ -57,7 +57,7 @@ public class InternshipManagerController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message",
-                    approved ? "Offre de stage validée avec succès" : "Offre de stage refusée avec succès");
+                approved ? "Offre de stage validée avec succès" : "Offre de stage refusée avec succès");
 
             Map<String, Object> data = new HashMap<>();
             data.put("offerId", offerId);
@@ -94,9 +94,9 @@ public class InternshipManagerController {
 
     @GetMapping(Paths.SEARCH_STUDENTS_PATH)
     public ResponseEntity<Map<String, Object>> getAllStudentCVs(
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortOrder,
-            @RequestParam(required = false) String status) {
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(required = false) String sortOrder,
+        @RequestParam(required = false) String status) {
         try {
             // Validation des paramètres de tri
             if (sortBy != null && sortBy.trim().isEmpty()) {
@@ -108,26 +108,26 @@ public class InternshipManagerController {
 
             List<Student> students = studentService.getAllStudentsWithCVs(sortBy, sortOrder, status);
             List<Map<String, Object>> response = students.stream()
-                    .map(student -> {
-                        Map<String, Object> studentData = new HashMap<>();
-                        studentData.put("studentId", student.getId());
-                        studentData.put("firstName", student.getFirstName());
-                        studentData.put("lastName", student.getLastName());
-                        studentData.put("email", student.getEmail());
-                        studentData.put("cvStatus", student.getCvStatus().name().toLowerCase());
-                        studentData.put("cvFileName", student.getCVFileName());
-                        studentData.put("uploadedAt",
-                                student.getCvUploadedAt() != null
-                                        ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                                        : "");
-                        studentData.put("validatedAt",
-                                student.getCvValidatedAt() != null
-                                        ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                                        : "");
-                        studentData.put("rejectionReason", student.getCvRejectionReason());
-                        return studentData;
-                    })
-                    .toList();
+                .map(student -> {
+                    Map<String, Object> studentData = new HashMap<>();
+                    studentData.put("studentId", student.getId());
+                    studentData.put("firstName", student.getFirstName());
+                    studentData.put("lastName", student.getLastName());
+                    studentData.put("email", student.getEmail());
+                    studentData.put("cvStatus", student.getCvStatus().name().toLowerCase());
+                    studentData.put("cvFileName", student.getCVFileName());
+                    studentData.put("uploadedAt",
+                        student.getCvUploadedAt() != null
+                            ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            : "");
+                    studentData.put("validatedAt",
+                        student.getCvValidatedAt() != null
+                            ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            : "");
+                    studentData.put("rejectionReason", student.getCvRejectionReason());
+                    return studentData;
+                })
+                .toList();
 
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
@@ -143,7 +143,7 @@ public class InternshipManagerController {
             errorResponse.put("totalCount", 0);
             errorResponse.put("error", "Erreur lors du chargement des CV. Veuillez réessayer.");
             errorResponse.put("message",
-                    "Une erreur technique s'est produite. Veuillez contacter l'administrateur si le problème persiste.");
+                "Une erreur technique s'est produite. Veuillez contacter l'administrateur si le problème persiste.");
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
@@ -182,13 +182,13 @@ public class InternshipManagerController {
             data.put("cvFileName", student.getCVFileName());
             data.put("cvFileType", student.getCVFileType());
             data.put("uploadedAt",
-                    student.getCvUploadedAt() != null
-                            ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : "");
+                student.getCvUploadedAt() != null
+                    ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             data.put("validatedAt",
-                    student.getCvValidatedAt() != null
-                            ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : "");
+                student.getCvValidatedAt() != null
+                    ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             data.put("rejectionReason", student.getCvRejectionReason());
 
             response.put("data", data);
@@ -223,8 +223,8 @@ public class InternshipManagerController {
             headers.setContentLength(student.getCVFileData().length);
 
             return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(student.getCVFileData());
+                .headers(headers)
+                .body(student.getCVFileData());
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new byte[0]);
@@ -233,9 +233,9 @@ public class InternshipManagerController {
 
     @PostMapping(Paths.INTERNSHIP_MANAGER_STUDENT_CV_VALIDATE_PATH)
     public ResponseEntity<Map<String, Object>> validateStudentCV(
-            @PathVariable Long studentId,
-            @RequestParam Boolean approved,
-            @RequestParam(required = false) String reason) {
+        @PathVariable Long studentId,
+        @RequestParam Boolean approved,
+        @RequestParam(required = false) String reason) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(studentId);
 

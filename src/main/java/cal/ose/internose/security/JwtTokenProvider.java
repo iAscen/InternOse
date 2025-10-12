@@ -1,6 +1,6 @@
 package cal.ose.internose.security;
 
-import cal.ose.internose.security.exception.InvalidJwtTokenException;
+import cal.ose.internose.security.exceptions.InvalidJwtTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
