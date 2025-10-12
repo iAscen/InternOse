@@ -18,6 +18,7 @@ export interface InternshipOffer {
 export interface CreateInternshipOfferRequest {
   jobTitle: string;
   taskDescription: string;
+  program: string;
   qualifications: string;
   duration: number;
   startDate: string;
@@ -28,6 +29,7 @@ export interface CreateInternshipOfferRequest {
 export interface CreateOfferFormData {
   jobTitle: string;
   taskDescription: string;
+  program: string;
   qualifications: string;
   duration: number;
   startDate: string;
