@@ -54,8 +54,7 @@ public class AuthServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userAppDAO.save(any(Employer.class))).thenReturn(
-            Employer.builder().firstName("testNom").lastName("testPrenom").build()
-        );
+                Employer.builder().firstName("testNom").lastName("testPrenom").build());
 
         authService.registerEmployer(dto);
 
@@ -70,16 +69,15 @@ public class AuthServiceTest {
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Employer mockEmployer = Employer.builder()
-            .firstName(dto.getFirstName())
-            .lastName(dto.getLastName())
-            .enterprise(dto.getEnterprise())
-            .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.EMPLOYER))
-            .build();
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .enterprise(dto.getEnterprise())
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.EMPLOYER))
+                .build();
         mockEmployer.setId(1L);
         when(userAppDAO.save(any(Employer.class))).thenReturn(mockEmployer);
         when(jwtTokenProvider.generateToken(
-            any(Authentication.class), anyLong(), anyString(), anyString()
-        )).thenReturn("mocked-jwt-token");
+                any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
 
         String token = authService.registerEmployer(dto);
 
@@ -88,10 +86,11 @@ public class AuthServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource({"weakPasswordProvider"})
+    @MethodSource({ "weakPasswordProvider" })
     void testEmployerPasswordTooWeak(String password, String errorMessage) {
         EmployerDTO employerDTO = createEmployerDTO(password);
-        WeakPasswordException exception = assertThrows(WeakPasswordException.class, () -> authService.registerEmployer(employerDTO));
+        WeakPasswordException exception = assertThrows(WeakPasswordException.class,
+                () -> authService.registerEmployer(employerDTO));
         assertEquals(errorMessage, exception.getMessage());
     }
 
@@ -100,9 +99,11 @@ public class AuthServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
         dto.setFirstName(null);
 
-        when(userAppDAO.save(any(Employer.class))).thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
+        when(userAppDAO.save(any(Employer.class)))
+                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
 
-        RequiredFieldException exception = assertThrows(RequiredFieldException.class, () -> authService.registerEmployer(dto));
+        RequiredFieldException exception = assertThrows(RequiredFieldException.class,
+                () -> authService.registerEmployer(dto));
 
         assertEquals(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage(), exception.getMessage());
     }
@@ -112,9 +113,11 @@ public class AuthServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> authService.registerEmployer(dto));
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+                () -> authService.registerEmployer(dto));
 
-        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()), exception.getMessage());
+        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),
+                exception.getMessage());
     }
 
     @Test
@@ -122,8 +125,7 @@ public class AuthServiceTest {
         StudentDTO dto = createStudentDTO(null);
 
         when(userAppDAO.save(any(Student.class))).thenReturn(
-            Student.builder().firstName("testNom").lastName("testPrenom").build()
-        );
+                Student.builder().firstName("testNom").lastName("testPrenom").build());
 
         authService.registerStudent(dto);
 
@@ -137,15 +139,14 @@ public class AuthServiceTest {
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Student mockStudent = Student.builder()
-            .firstName(dto.getFirstName())
-            .lastName(dto.getLastName())
-            .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.STUDENT))
-            .build();
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.STUDENT))
+                .build();
         mockStudent.setId(1L);
         when(userAppDAO.save(any(Student.class))).thenReturn(mockStudent);
         when(jwtTokenProvider.generateToken(
-            any(Authentication.class), anyLong(), anyString(), anyString()
-        )).thenReturn("mocked-jwt-token");
+                any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
 
         String token = authService.registerStudent(dto);
 
@@ -154,10 +155,11 @@ public class AuthServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource({"weakPasswordProvider"})
+    @MethodSource({ "weakPasswordProvider" })
     void testStudentPasswordTooWeak(String password, String errorMessage) {
         StudentDTO studentDTO = createStudentDTO(password);
-        WeakPasswordException exception = assertThrows(WeakPasswordException.class, () -> authService.registerStudent(studentDTO));
+        WeakPasswordException exception = assertThrows(WeakPasswordException.class,
+                () -> authService.registerStudent(studentDTO));
         assertEquals(errorMessage, exception.getMessage());
     }
 
@@ -166,9 +168,11 @@ public class AuthServiceTest {
         StudentDTO dto = createStudentDTO(null);
         dto.setFirstName(null);
 
-        when(userAppDAO.save(any(Student.class))).thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
+        when(userAppDAO.save(any(Student.class)))
+                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
 
-        RequiredFieldException exception = assertThrows(RequiredFieldException.class, () -> authService.registerStudent(dto));
+        RequiredFieldException exception = assertThrows(RequiredFieldException.class,
+                () -> authService.registerStudent(dto));
 
         assertEquals(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage(), exception.getMessage());
     }
@@ -178,9 +182,11 @@ public class AuthServiceTest {
         StudentDTO dto = createStudentDTO(null);
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> authService.registerStudent(dto));
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+                () -> authService.registerStudent(dto));
 
-        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()), exception.getMessage());
+        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),
+                exception.getMessage());
     }
 
     @Test
@@ -190,14 +196,12 @@ public class AuthServiceTest {
         UserApp mockUser = mock(UserApp.class);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenReturn(mockAuthentication);
+                .thenReturn(mockAuthentication);
         when(userAppDAO.findUserAppByEmail(loginDTO.getEmail()))
-            .thenReturn(Optional.of(mockUser));
+                .thenReturn(Optional.of(mockUser));
         when(mockUser.getId()).thenReturn(1L);
-        // TODO: Je ne comprends vraiment pas comment régler l'exception lancé par cette ligne
         when(jwtTokenProvider.generateToken(
-            mockAuthentication, anyLong(), anyString(), anyString()
-        )).thenReturn("jwt-token");
+                eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
 
         String token = authService.login(loginDTO);
 
@@ -213,11 +217,11 @@ public class AuthServiceTest {
         LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenThrow(new org.springframework.security.core.AuthenticationException("Invalid credentials") {
-            });
+                .thenThrow(new org.springframework.security.core.AuthenticationException("Invalid credentials") {
+                });
 
         assertThrows(org.springframework.security.core.AuthenticationException.class,
-            () -> authService.login(loginDTO));
+                () -> authService.login(loginDTO));
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, never()).generateToken(any());
@@ -225,29 +229,27 @@ public class AuthServiceTest {
 
     private StudentDTO createStudentDTO(String password) {
         return StudentDTO.builder()
-            .firstName("testNom")
-            .lastName("testPrenom")
-            .email("testEmail")
-            .password(password == null ? "TestPassword1@" : password)
-            .role(Role.STUDENT).build();
+                .firstName("testNom")
+                .lastName("testPrenom")
+                .email("testEmail")
+                .password(password == null ? "TestPassword1@" : password)
+                .role(Role.STUDENT).build();
     }
 
     private EmployerDTO createEmployerDTO(String password) {
         return new EmployerDTO(
-            "testNom",
-            "testPrenom",
-            "testEmail",
-            password != null ? password : "TestPassword1@", // default password if none provided
-            Role.EMPLOYER,
-            "testEntreprise"
-        );
+                "testNom",
+                "testPrenom",
+                "testEmail",
+                password != null ? password : "TestPassword1@", // default password if none provided
+                Role.EMPLOYER,
+                "testEntreprise");
     }
 
     private static Stream<Arguments> weakPasswordProvider() {
         return Stream.of(
-            arguments("J4ck!", ErrorMessages.PASSWORD_TOO_SHORT.getMessage()),
-            arguments("jacques4@", ErrorMessages.PASSWORD_MISSING_UPPER.getMessage()),
-            arguments("Jacques-", ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage())
-        );
+                arguments("J4ck!", ErrorMessages.PASSWORD_TOO_SHORT.getMessage()),
+                arguments("jacques4@", ErrorMessages.PASSWORD_MISSING_UPPER.getMessage()),
+                arguments("Jacques-", ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
     }
 }

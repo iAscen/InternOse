@@ -54,7 +54,6 @@ export default function FilterMenuOffers({applyFilters}: FilterMenuOffersProps) 
                   <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
                 </select>
               </div>
-              {/* TODO: Corriger le sélecteur de programme pour fonctionner avec le filtrage des offres de stage */}
               <ProgramSelector onChange={handleSelectChange}/>
               <FormInput
                 className={"mb-3"}

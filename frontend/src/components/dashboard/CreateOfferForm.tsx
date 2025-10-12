@@ -139,7 +139,6 @@ export default function CreateOfferForm({onSubmit, onCancel, loading}: CreateOff
           />
         </div>
         <div>
-          {/* TODO: Corriger le sélecteur de programme pour fonctionner avec le formulaire pour créer une offre de stage */}
           <ProgramSelector onChange={handleInputChange}/>
         </div>
         <div>
