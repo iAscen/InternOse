@@ -46,6 +46,8 @@ public class InternOSEApplication {
                 studentDTO.setLastName("W.");
                 studentDTO.setEmail("walid@gmail.com");
                 studentDTO.setPassword("Password123!");
+                studentDTO.setProgram("Informatique");
+                studentDTO.setInstitution("AL");
                 authService.registerStudent(studentDTO);
 
                 InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
@@ -97,7 +99,7 @@ public class InternOSEApplication {
 
                 studentService.applyToInternship(2L, 1L);
 
-                List<StudentDTO> students = employerService.findStudentsBy(1L, null);
+                List<StudentDTO> students = employerService.findStudentsBy(1L, null, null, "AL");
                 System.out.println(students);
             }
         };

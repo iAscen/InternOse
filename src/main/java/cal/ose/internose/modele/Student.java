@@ -21,6 +21,8 @@ import java.util.List;
 @Getter
 @Setter
 public class Student extends UserApp {
+    private String program;
+    private String institution;
     private String CVFileName;
     private String CVFileType;
     @JdbcTypeCode(SqlTypes.VARBINARY)

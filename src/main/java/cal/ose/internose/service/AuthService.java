@@ -59,6 +59,8 @@ public class AuthService {
                         passwordEncoder.encode(studentDTO.getPassword()), Role.STUDENT))
                 .firstName(studentDTO.getFirstName())
                 .lastName(studentDTO.getLastName())
+                .institution(studentDTO.getInstitution())
+                .program(studentDTO.getProgram())
                 .build();
 
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);

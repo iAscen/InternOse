@@ -46,14 +46,14 @@ public class EmployerService {
         return Optional.of(internshipOffer);
     }
 
-    public List<StudentDTO> findStudentsBy(long internshipId, DocumentStatus status) {
+    public List<StudentDTO> findStudentsBy(long internshipId, DocumentStatus cvStatus, String program, String institution) {
         if (!internshipOfferDAO.existsById(internshipId)) {
             throw new ResourceNotFoundException(
                     String.format(ErrorMessages.INTERNSHIP_OFFER_NOT_FOUND.getMessage(), internshipId)
             );
         }
 
-        List<Student> students = studentDAO.findStudentsBy(internshipId, status);
+        List<Student> students = studentDAO.findStudentsBy(internshipId, cvStatus, program, institution);
 
         return students.stream()
                 .map((s) -> StudentDTO.builder()
@@ -61,6 +61,8 @@ public class EmployerService {
                         .firstName(s.getFirstName())
                         .lastName(s.getLastName())
                         .cvStatus(s.getCvStatus())
+                        .program(s.getProgram())
+                        .institution(s.getInstitution())
                         .build()).collect(Collectors.toList());
     }
 }

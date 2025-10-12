@@ -15,6 +15,8 @@ import java.util.List;
 @SuperBuilder
 public class StudentDTO extends UserAppDTO {
     private DocumentStatus cvStatus;
+    private String program;
+    private String institution;
 
     public StudentDTO(Long id, String firstName, String lastName, String email, String password, Role role, DocumentStatus cvStatus) {
         super(id, firstName, lastName, email, password, role);
