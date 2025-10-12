@@ -2,9 +2,13 @@ package cal.ose.internose.service;
 
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +33,9 @@ public class EmployerServiceTests {
 
     @Mock
     private InternshipOfferDAO internshipOfferDAO;
+
+    @Mock
+    private StudentDAO studentDAO;
 
     @InjectMocks
     private EmployerService employerService;
@@ -60,6 +68,55 @@ public class EmployerServiceTests {
         // Assert
         assertThat(newInternshipOffer).isPresent();
         verify(internshipOfferDAO, times(1)).save(any(InternshipOffer.class));
+    }
+
+    @Test
+    public void testFindStudentsBy() {
+        List<Student> students = List.of(
+                Student.builder()
+                        .program("Z")
+                        .build(),
+                Student.builder()
+                        .program("A")
+                        .build()
+        );
+
+        when(internshipOfferDAO.existsById(1L))
+                .thenReturn(true);
+
+        when(studentDAO.findStudentsBy(1L, null, null, null))
+                .thenReturn(students);
+
+        List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
+
+        assertThat(studentDTOs.size()).isEqualTo(2);
+        assertThat(studentDTOs.get(0).getProgram()).isEqualTo("A");
+        assertThat(studentDTOs.get(1).getProgram()).isEqualTo("Z");
+    }
+
+    @Test
+    public void testFindStudentsBy_EmptyList() {
+        when(internshipOfferDAO.existsById(1L))
+                .thenReturn(true);
+
+        when(studentDAO.findStudentsBy(1L, null, null, null))
+                .thenReturn(new ArrayList<>());
+
+        List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
+
+        assertThat(studentDTOs.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testFindStudentsBy_ThrowsResourceNotFoundException() {
+        when(internshipOfferDAO.existsById(1L))
+                .thenReturn(false);
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> employerService.findStudentsBy(1L, null, null, null, null)
+        );
+
     }
 
     private Employer exampleEmployer() {
