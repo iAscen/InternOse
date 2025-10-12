@@ -1,7 +1,9 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +19,11 @@ import java.util.Optional;
 @Transactional
 public class StudentService {
     private final StudentDAO studentDAO;
+    private final InternshipOfferDAO internshipOfferDAO;
 
-    public StudentService(StudentDAO studentDAO) {
+    public StudentService(StudentDAO studentDAO, InternshipOfferDAO internshipOfferDAO) {
         this.studentDAO = studentDAO;
+        this.internshipOfferDAO = internshipOfferDAO;
     }
 
     public Optional<Student> uploadCV(Long studentID, MultipartFile CVFile) throws IOException {
@@ -145,4 +150,16 @@ public class StudentService {
         return students;
     }
 
+    // methode pour test dans le commandLineRunner
+    public void applyToInternship(long studentId, long internshipId) {
+        Student student = studentDAO.findById(studentId).orElse(null);
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipId).orElse(null);
+
+        if (internshipOffer.getStudents() == null) {
+            internshipOffer.setStudents(new ArrayList<>());
+        }
+
+        internshipOffer.getStudents().add(student);
+        internshipOfferDAO.save(internshipOffer);
+    }
 }

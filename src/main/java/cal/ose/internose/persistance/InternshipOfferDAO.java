@@ -22,4 +22,5 @@ public interface InternshipOfferDAO extends JpaRepository<InternshipOffer, Long>
                                             @Param("title") String title);
 
     InternshipOffer findInternshipOfferById(Long id);
+
 }

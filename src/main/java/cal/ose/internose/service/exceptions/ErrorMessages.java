@@ -9,7 +9,8 @@ public enum ErrorMessages {
     PASSWORD_MISSING_NUMBER("Le mot de passe doit contenir au moins un chiffre."),
     PASSWORD_MISSING_SPECIAL("Le mot de passe doit contenir au moins un caractère spécial."),
     EMAIL_ALREADY_EXISTS("L'utilisateur avec l'email %s existe deja."),
-    REQUIRED_FIELDS_MISSING("Il y a des champs manquants.");
+    REQUIRED_FIELDS_MISSING("Il y a des champs manquants."),
+    INTERNSHIP_OFFER_NOT_FOUND("L'offre de stage avec id %d n'a pas ete trouvee");
 
     private final String message;
 

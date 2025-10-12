@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -38,6 +39,14 @@ public class InternshipOffer {
 
     @Column(name = "offer_rejection_reason", length = 2000)
     private String rejectionReason;
+
+    @ManyToMany
+    @JoinTable(
+            name = "student_internship_offer",
+            joinColumns = @JoinColumn(name = "offer_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
 
     public boolean isValidee() {
         return validationStatus != DocumentStatus.PENDING;
