@@ -1,6 +1,6 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="InternOSEApplicationTests" type="JUnit" factoryName="JUnit">
-    <module name="InternOSE" />
+    <module name="internose" />
     <option name="PACKAGE_NAME" value="cal.ose.internose" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />

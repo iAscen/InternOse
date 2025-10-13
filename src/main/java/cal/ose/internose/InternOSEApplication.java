@@ -6,6 +6,7 @@ import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.StudentService;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -21,11 +23,14 @@ public class InternOSEApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(ObjectProvider<AuthService> authServiceProvider, ObjectProvider<EmployerService> employerServiceProvider) {
+    public CommandLineRunner commandLineRunner(ObjectProvider<AuthService> authServiceProvider,
+                                               ObjectProvider<EmployerService> employerServiceProvider,
+                                               ObjectProvider<StudentService> studentServiceProvider) {
         // NE PAS SUPPRIMER! Ces données sont nécessaires pour la démo.
         return _ -> {
             AuthService authService = authServiceProvider.getIfAvailable();
             EmployerService employerService = employerServiceProvider.getIfAvailable();
+            StudentService studentService = studentServiceProvider.getIfAvailable();
             if (authService != null && employerService != null) {
                 EmployerDTO employerDTO = new EmployerDTO();
                 employerDTO.setFirstName("Karim");
@@ -40,6 +45,8 @@ public class InternOSEApplication {
                 studentDTO.setLastName("W.");
                 studentDTO.setEmail("walid@gmail.com");
                 studentDTO.setPassword("Password123!");
+                studentDTO.setProgram("Informatique");
+                studentDTO.setInstitution("AL");
                 authService.registerStudent(studentDTO);
 
                 InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
@@ -114,6 +121,11 @@ public class InternOSEApplication {
                         .address("Paris, France")
                         .build()
                 );
+
+                studentService.applyToInternship(2L, 1L);
+
+                List<StudentDTO> students = employerService.findStudentsBy(1L, null, null, "AL", null);
+                System.out.println(students);
             }
         };
     }

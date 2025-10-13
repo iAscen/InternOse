@@ -1,6 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.exceptions.AuthenticationException;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
@@ -46,6 +47,12 @@ public class GlobalExceptionManager {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
         return ResponseEntity.status(e.getStatus())
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 }

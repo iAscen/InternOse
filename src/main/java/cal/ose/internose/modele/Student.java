@@ -1,10 +1,6 @@
 package cal.ose.internose.modele;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
@@ -15,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("S")
@@ -24,6 +21,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Student extends UserApp {
+    private String program;
+    private String institution;
     private String CVFileName;
     private String CVFileType;
     @JdbcTypeCode(SqlTypes.VARBINARY)
@@ -43,4 +42,7 @@ public class Student extends UserApp {
     
     @Column(name = "cv_validated_at")
     private LocalDateTime cvValidatedAt;
+
+    @ManyToMany(mappedBy = "students") // if InternshipOffer owns the relationship
+    private List<InternshipOffer> internshipOffers;
 }

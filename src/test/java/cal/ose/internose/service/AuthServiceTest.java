@@ -200,6 +200,8 @@ public class AuthServiceTest {
         when(userAppDAO.findUserAppByEmail(loginDTO.getEmail()))
                 .thenReturn(Optional.of(mockUser));
         when(mockUser.getId()).thenReturn(1L);
+        when(mockUser.getFirstName()).thenReturn("John");
+        when(mockUser.getLastName()).thenReturn("Doe");
         when(jwtTokenProvider.generateToken(
                 eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
 
@@ -209,7 +211,7 @@ public class AuthServiceTest {
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userAppDAO).findUserAppByEmail(loginDTO.getEmail());
-        verify(jwtTokenProvider).generateToken(mockAuthentication, anyLong(), anyString(), anyString());
+        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), eq(1L), anyString(), anyString());
     }
 
     @Test
