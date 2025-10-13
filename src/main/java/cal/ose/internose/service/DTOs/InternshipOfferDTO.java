@@ -15,9 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class InternshipOfferDTO {
     private Long id;
-    private String domain;
     private String jobTitle;
     private String taskDescription;
+    private String program;
     private String qualifications;
     private int duration;
     private LocalDate startDate;
@@ -33,19 +33,20 @@ public class InternshipOfferDTO {
 
     public static InternshipOfferDTO fromEntity(InternshipOffer internshipOffer) {
         return InternshipOfferDTO.builder()
-                .id(internshipOffer.getId())
-                .jobTitle(internshipOffer.getJobTitle())
-                .taskDescription(internshipOffer.getTaskDescription())
-                .qualifications(internshipOffer.getQualifications())
-                .duration(internshipOffer.getDuration())
-                .startDate(internshipOffer.getStartDate())
-                .endDate(internshipOffer.getEndDate())
-                .salary(internshipOffer.getSalary())
-                .address(internshipOffer.getAddress())
-                .domain(internshipOffer.getDomain())
-                .validationStatus(internshipOffer.getValidationStatus())
-                .rejectionReason(internshipOffer.getRejectionReason())
-                .build();
+            .id(internshipOffer.getId())
+            .jobTitle(internshipOffer.getJobTitle())
+            .taskDescription(internshipOffer.getTaskDescription())
+            .program(internshipOffer.getProgram())
+            .qualifications(internshipOffer.getQualifications())
+            .duration(internshipOffer.getDuration())
+            .startDate(internshipOffer.getStartDate())
+            .endDate(internshipOffer.getEndDate())
+            .salary(internshipOffer.getSalary())
+            .address(internshipOffer.getAddress())
+
+            .validationStatus(internshipOffer.getValidationStatus())
+            .rejectionReason(internshipOffer.getRejectionReason())
+            .build();
     }
 
     public static List<InternshipOfferDTO> fromEntityList(List<InternshipOffer> internshipOffers) {

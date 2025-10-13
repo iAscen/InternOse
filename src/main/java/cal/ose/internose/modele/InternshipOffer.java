@@ -25,7 +25,7 @@ public class InternshipOffer {
     private Employer employer;
     private String jobTitle;
     private String taskDescription;
-    private String domain;
+    private String program;
     private String qualifications;
     private int duration;
     private LocalDate startDate;
@@ -54,18 +54,19 @@ public class InternshipOffer {
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
-                .jobTitle(internshipOfferDTO.getJobTitle())
-                .taskDescription(internshipOfferDTO.getTaskDescription())
-                .domain(internshipOfferDTO.getDomain())
-                .qualifications(internshipOfferDTO.getQualifications())
-                .duration(internshipOfferDTO.getDuration())
-                .startDate(internshipOfferDTO.getStartDate())
-                .endDate(
-                        internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration()))
-                .salary(internshipOfferDTO.getSalary())
-                .address(internshipOfferDTO.getAddress())
-                .validationStatus(internshipOfferDTO.getValidationStatus())
-                .rejectionReason(internshipOfferDTO.getRejectionReason())
-                .build();
+            .jobTitle(internshipOfferDTO.getJobTitle())
+            .taskDescription(internshipOfferDTO.getTaskDescription())
+            .program(internshipOfferDTO.getProgram())
+            .qualifications(internshipOfferDTO.getQualifications())
+            .duration(internshipOfferDTO.getDuration())
+            .startDate(internshipOfferDTO.getStartDate())
+            .endDate(
+                internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration())
+            )
+            .salary(internshipOfferDTO.getSalary())
+            .address(internshipOfferDTO.getAddress())
+            .validationStatus(internshipOfferDTO.getValidationStatus())
+            .rejectionReason(internshipOfferDTO.getRejectionReason())
+            .build();
     }
 }

@@ -2,8 +2,8 @@ package cal.ose.internose.security;
 
 import cal.ose.internose.modele.UserApp;
 import cal.ose.internose.persistance.UserAppDAO;
-import cal.ose.internose.security.exception.AuthenticationException;
-import cal.ose.internose.security.exception.UserNotFoundException;
+import cal.ose.internose.security.exceptions.AuthenticationException;
+import cal.ose.internose.security.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;

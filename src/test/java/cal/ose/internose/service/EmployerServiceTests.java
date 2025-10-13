@@ -8,7 +8,7 @@ import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
-import cal.ose.internose.security.exception.ResourceNotFoundException;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -194,7 +194,7 @@ public class EmployerServiceTests {
             InternshipOffer.builder()
                 .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
                 .taskDescription("*description ici*")
-                .domain("Technique de l'informatique")
+                .program("Technique de l'informatique")
                 .qualifications("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))

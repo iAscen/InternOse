@@ -1,4 +1,4 @@
-package cal.ose.internose.security.exception;
+package cal.ose.internose.security.exceptions;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

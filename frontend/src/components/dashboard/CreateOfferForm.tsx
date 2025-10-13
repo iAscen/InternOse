@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import type { CreateOfferFormData } from '../../interfaces';
+import {useState} from "react";
+import {useTranslation} from "react-i18next";
+import type {CreateOfferFormData} from "~/interfaces";
+import ProgramSelector from "~/components/ProgramSelector";
 
 interface CreateOfferFormProps {
   onSubmit: (data: CreateOfferFormData) => Promise<void>;
@@ -8,11 +9,12 @@ interface CreateOfferFormProps {
   loading: boolean;
 }
 
-export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateOfferFormProps) {
-  const { t } = useTranslation();
+export default function CreateOfferForm({onSubmit, onCancel, loading}: CreateOfferFormProps) {
+  const {t} = useTranslation();
   const [formData, setFormData] = useState<CreateOfferFormData>({
     jobTitle: '',
     taskDescription: '',
+    program: '',
     qualifications: '',
     duration: 0,
     startDate: '',
@@ -21,7 +23,7 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: name === 'duration' || name === 'salary' ? Number(value) : value
@@ -136,7 +138,9 @@ export default function CreateOfferForm({ onSubmit, onCancel, loading }: CreateO
             placeholder={t('internship.descriptionPlaceholder')}
           />
         </div>
-
+        <div>
+          <ProgramSelector onChange={handleInputChange}/>
+        </div>
         <div>
           <label htmlFor="qualifications" className="block text-sm font-medium text-gray-700 mb-2">
             {t('internship.requiredSkills')} *

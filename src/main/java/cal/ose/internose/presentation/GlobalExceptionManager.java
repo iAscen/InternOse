@@ -1,7 +1,7 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.security.exception.AuthenticationException;
-import cal.ose.internose.security.exception.ResourceNotFoundException;
+import cal.ose.internose.security.exceptions.AuthenticationException;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.exceptions.RequiredFieldException;

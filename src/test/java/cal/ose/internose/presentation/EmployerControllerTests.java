@@ -2,7 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.security.exception.ResourceNotFoundException;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -170,7 +170,7 @@ public class EmployerControllerTests {
             InternshipOfferDTO.builder()
                 .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
                 .taskDescription("*description ici*")
-                .domain("Technique de l'informatique")
+                .program("Technique de l'informatique")
                 .qualifications("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))
