@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '../../services/apiService';
+import { apiService } from '~/services/apiService';
 import CVUploadSection from './CVUploadSection';
 import CVStatusCard from './CVStatusCard';
 import StatisticsCard from './StatisticsCard';
@@ -67,15 +67,14 @@ export default function StudentDashboardContent() {
     }
   };
 
-  // Calculer les statistiques pour l'étudiant
-  const getStudentStats = () => {
-    return {
-      cvStatus: cvStatus === 'approved' ? 1 : 0,
-      applications: 0, // À implémenter plus tard
-      pendingApplications: cvStatus === 'pending' ? 1 : 0, // Affiche 1 si CV en attente
-      approvedApplications: 0 // À implémenter plus tard
+    // Calculer les statistiques pour l'étudiant
+    const getStudentStats = () => {
+        return {
+            applications: 0, // À implémenter plus tard
+            pendingApplications: 0, // À implémenter plus tard
+            approvedApplications: 0 // À implémenter plus tard
+        };
     };
-  };
 
   const stats = getStudentStats();
 
@@ -163,36 +162,29 @@ export default function StudentDashboardContent() {
         </div>
 
         {/* Cartes de statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatisticsCard
-            title={t('student.cvValidated')}
-            value={stats.cvStatus}
-            icon={statsIcons.cvStatus}
-            bgColor="bg-blue-100"
-            iconColor="text-blue-600"
-          />
-          <StatisticsCard
-            title={t('student.applications')}
-            value={stats.applications}
-            icon={statsIcons.applications}
-            bgColor="bg-purple-100"
-            iconColor="text-purple-600"
-          />
-          <StatisticsCard
-            title={t('student.pending')}
-            value={stats.pendingApplications}
-            icon={statsIcons.pendingApplications}
-            bgColor="bg-yellow-100"
-            iconColor="text-yellow-600"
-          />
-          <StatisticsCard
-            title={t('student.accepted')}
-            value={stats.approvedApplications}
-            icon={statsIcons.approvedApplications}
-            bgColor="bg-green-100"
-            iconColor="text-green-600"
-          />
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <StatisticsCard
+                  title={t('student.applications')}
+                  value={stats.applications}
+                  icon={statsIcons.applications}
+                  bgColor="bg-purple-100"
+                  iconColor="text-purple-600"
+              />
+              <StatisticsCard
+                  title={t('student.interviewsPlanned')}
+                  value={stats.pendingApplications}
+                  icon={statsIcons.pendingApplications}
+                  bgColor="bg-yellow-100"
+                  iconColor="text-yellow-600"
+              />
+              <StatisticsCard
+                  title={t('student.accepted')}
+                  value={stats.approvedApplications}
+                  icon={statsIcons.approvedApplications}
+                  bgColor="bg-green-100"
+                  iconColor="text-green-600"
+              />
+          </div>
 
         {/* Section de statut du CV */}
         <div className="mb-8">
@@ -214,94 +206,93 @@ export default function StudentDashboardContent() {
         )}
 
         {/* Section d'information pour les étudiants */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('student.importantInfo')}</h2>
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0">
-                <svg className="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+          <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('student.importantInfo')}</h2>
+              <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                          <svg className="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                      </div>
+                      <div>
+                          <p className="text-sm text-gray-700">
+                              <strong>{t('student.cvRequired')}</strong> {t('student.cvRequiredDesc')}
+                          </p>
+                      </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                          <svg className="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                      </div>
+                      <div>
+                          <p className="text-sm text-gray-700">
+                              <strong>{t('student.acceptedFormat')}</strong> {t('student.acceptedFormatDesc')}
+                          </p>
+                      </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                          <svg className="w-5 h-5 text-yellow-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                      </div>
+                      <div>
+                          <p className="text-sm text-gray-700">
+                              <strong>{t('student.validation')}</strong> {t('student.validationDesc')}
+                          </p>
+                      </div>
+                  </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-700">
-                  <strong>{t('student.cvRequired')}</strong> {t('student.cvRequiredDesc')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0">
-                <svg className="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm text-gray-700">
-                  <strong>{t('student.acceptedFormat')}</strong> {t('student.acceptedFormatDesc')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0">
-                <svg className="w-5 h-5 text-yellow-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm text-gray-700">
-                  <strong>{t('student.validation')}</strong> {t('student.validationDesc')}
-                </p>
-              </div>
-            </div>
+              {(cvStatus === 'approved') && (
+                  <div className="bg-white rounded-lg shadow-md mb-8 p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                          <h2 className="text-xl font-semibold text-gray-900">
+                              {t("im.internshipOffersSection")}
+                          </h2>
+                          <div className="flex items-center space-x-4">
+                              <div className="relative">
+                                  <SortButton onClick={() => {
+                                      setShowSortMenuOffers(!showSortMenuOffers)
+                                      setShowFilterMenuOffers(false)
+                                      setShowSortMenuResumes(false)
+                                      setShowFilterMenuResumes(false)
+                                  }} />
+                                  {showSortMenuOffers &&
+                                      <SortMenuOffers applySorting={(sortBy: string) => {
+                                          setShowSortMenuOffers(false);
+                                          loadOffers(sortBy, undefined);
+                                      }}/>
+                                  }
+                              </div>
+                              <div className="relative">
+                                  <FilterButton onClick={() => {
+                                      setShowSortMenuOffers(false)
+                                      setShowFilterMenuOffers(!showFilterMenuOffers)
+                                      setShowSortMenuResumes(false)
+                                      setShowFilterMenuResumes(false)
+                                  }}/>
+                                  {showFilterMenuOffers &&
+                                      <FilterMenuOffers applyFilters={(filterBy: string[]) => {
+                                          setShowFilterMenuOffers(false);
+                                          loadOffers(undefined, filterBy);
+                                      }}/>
+                                  }
+                              </div>
+                          </div>
+                      </div>
+                      <OfferList
+                          isStudent={true}
+                          isEmployer={false}
+                          loading={loading}
+                          offers={offers}
+                          onOfferValidation={() => loadOffers()}
+                      />
+                  </div>
+              )}
           </div>
-            {(cvStatus === 'approved') && (
-                <div className="bg-white rounded-lg shadow-md mb-8 p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                        <h2 className="text-xl font-semibold text-gray-900">
-                            {t("im.internshipOffersSection")}
-                        </h2>
-                        <div className="flex items-center space-x-4">
-                            <div className="relative">
-                                <SortButton onClick={() => {
-                                    setShowSortMenuOffers(!showSortMenuOffers)
-                                    setShowFilterMenuOffers(false)
-                                    setShowSortMenuResumes(false)
-                                    setShowFilterMenuResumes(false)
-                                }} />
-                                {showSortMenuOffers &&
-                                    <SortMenuOffers applySorting={(sortBy: string) => {
-                                        setShowSortMenuOffers(false);
-                                        loadOffers(sortBy, undefined);
-                                    }}/>
-                                }
-                            </div>
-                            <div className="relative">
-                                <FilterButton onClick={() => {
-                                    setShowSortMenuOffers(false)
-                                    setShowFilterMenuOffers(!showFilterMenuOffers)
-                                    setShowSortMenuResumes(false)
-                                    setShowFilterMenuResumes(false)
-                                }}/>
-                                {showFilterMenuOffers &&
-                                    <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                        setShowFilterMenuOffers(false);
-                                        loadOffers(undefined, filterBy);
-                                    }}/>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <OfferList
-                        isStudent={true}
-                        isEmployer={false}
-                        loading={loading}
-                        offers={offers}
-                        onOfferValidation={() => loadOffers()}
-                    />
-                </div>
-            )}
-        </div>
-
       </div>
     </main>
   );

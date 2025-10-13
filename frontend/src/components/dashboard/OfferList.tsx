@@ -164,6 +164,10 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.taskDescription}</p>
               </div>
               <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.program')}</h4>
+                <p className="text-sm text-gray-700 leading-relaxed">{offer.program}</p>
+              </div>
+              <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
               </div>

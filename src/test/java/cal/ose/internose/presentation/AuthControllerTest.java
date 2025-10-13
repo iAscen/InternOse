@@ -8,7 +8,7 @@ import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import cal.ose.internose.security.exception.AuthenticationException;
+import cal.ose.internose.security.exceptions.AuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

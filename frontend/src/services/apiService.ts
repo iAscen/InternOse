@@ -1,7 +1,7 @@
 // Service API basé sur les vrais contrôleurs du backend
-import type { 
-  LoginRequest, 
-  StudentRegistrationRequest, 
+import type {
+  LoginRequest,
+  StudentRegistrationRequest,
   EmployerRegistrationRequest,
   InternshipOffer,
   CreateInternshipOfferRequest,
@@ -9,7 +9,7 @@ import type {
   ApiResponse,
   Cv
 } from '~/interfaces';
-import { ErrorService } from './errorService';
+import {ErrorService} from './errorService';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -173,12 +173,31 @@ class ApiService {
     return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null;
   }
 
+  // Récupérer le nom complet de l'utilisateur depuis le JWT (décodage simple)
+  getUserName(): string | null {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      const firstName = decoded.firstName;
+      const lastName = decoded.lastName;
+      return `${firstName} ${lastName}`;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT:', error);
+      return null;
+    }
+  }
+
   // Récupérer l'email depuis le JWT (décodage simple)
   getUserEmail(): string | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
-    
+
     try {
       // Décodage simple du JWT (partie payload)
       const payload = token.split('.')[1];
@@ -195,29 +214,29 @@ class ApiService {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
-    
+
     try {
       // Décodage simple du JWT (partie payload)
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
-      
+
       console.log('🔍 Contenu du JWT:', decoded);
-      
+
       // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
       const userId = decoded.userId || decoded.id || decoded.employerId || decoded.employer_id;
-      
+
       if (userId) {
         console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
         return Number(userId);
       }
-      
+
       // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
       const email = decoded.sub || decoded.email;
       if (email) {
         console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les employeurs (${email})`);
         return 1;
       }
-      
+
       console.error('❌ Aucun email trouvé dans le JWT');
       return null;
     } catch (error) {
@@ -231,29 +250,29 @@ class ApiService {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
-    
+
     try {
       // Décodage simple du JWT (partie payload)
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
-      
+
       console.log('🔍 Contenu du JWT pour étudiant:', decoded);
-      
+
       // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'étudiant)
       const userId = decoded.userId || decoded.id || decoded.studentId || decoded.student_id;
-      
+
       if (userId) {
         console.log(`✅ ID étudiant trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
         return Number(userId);
       }
-      
+
       // Fallback : utiliser l'ID 1 pour tous les étudiants (solution temporaire)
       const email = decoded.sub || decoded.email;
       if (email) {
         console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les étudiants (${email})`);
         return 1;
       }
-      
+
       console.error('❌ Aucun email trouvé dans le JWT');
       return null;
     } catch (error) {
@@ -262,29 +281,17 @@ class ApiService {
     }
   }
 
-  // Générer un ID unique basé sur l'email (solution temporaire)
-  private generateUniqueIdFromEmail(email: string): number {
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      const char = email.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    // Retourner un ID entre 1 et 9999 pour éviter les conflits
-    return Math.abs(hash) % 9999 + 1;
-  }
-
   // Récupérer le rôle utilisateur depuis le JWT
   getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) return null;
-    
+
     try {
       // Décodage simple du JWT (partie payload)
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
-      
+
       // Le backend stocke les autorités dans le claim "authorities"
       const authorities = decoded.authorities;
       if (authorities && Array.isArray(authorities) && authorities.length > 0) {
@@ -293,7 +300,7 @@ class ApiService {
           return role;
         }
       }
-      
+
       return null;
     } catch (error) {
       console.error('Erreur lors du décodage du JWT pour le rôle:', error);
@@ -312,42 +319,42 @@ class ApiService {
 
       // Si pas de JWT ou rôle non trouvé, utiliser la logique de fallback basée sur l'email
       const studentPatterns = [
-        '@student', '@etudiant', '@univ', '@college', '@edu', 
+        '@student', '@etudiant', '@univ', '@college', '@edu',
         '@university', '@school', '@campus', '@academic'
       ];
-      
+
       const employerPatterns = [
-        '@company', '@entreprise', '@corp', '@business', 
+        '@company', '@entreprise', '@corp', '@business',
         '@org', '@firm', '@agency'
       ];
 
       const managerPatterns = [
         '@manager', '@gestionnaire', '@admin', '@stage'
       ];
-      
+
       const emailLower = email.toLowerCase();
-      
+
       // Vérifier les patterns gestionnaires en premier (plus spécifiques)
       for (const pattern of managerPatterns) {
         if (emailLower.includes(pattern)) {
           return 'INTERNSHIP_MANAGER';
         }
       }
-      
+
       // Vérifier les patterns employeurs
       for (const pattern of employerPatterns) {
         if (emailLower.includes(pattern)) {
           return 'EMPLOYER';
         }
       }
-      
+
       // Vérifier les patterns étudiants
       for (const pattern of studentPatterns) {
         if (emailLower.includes(pattern)) {
           return 'STUDENT';
         }
       }
-      
+
       // Si aucun pattern trouvé, ne pas deviner - retourner null
       return null;
     } catch (error) {
@@ -409,7 +416,13 @@ class ApiService {
     }
   }
 
-  async getCVStatus(): Promise<ApiResponse<{ status: string; fileName: string; uploadedAt: string; validatedAt: string; rejectionReason: string }>> {
+  async getCVStatus(): Promise<ApiResponse<{
+    status: string;
+    fileName: string;
+    uploadedAt: string;
+    validatedAt: string;
+    rejectionReason: string
+  }>> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -524,9 +537,9 @@ class ApiService {
       }
 
       const status = filterBy ? filterBy[0] : null;
-      const domain = filterBy ? filterBy[1] : null;
+      const program = filterBy ? filterBy[1] : null;
       const title = filterBy ? filterBy[2] : null;
-      
+
       // Construire les paramètres de requête
       const params = new URLSearchParams();
       if (sortBy) params.append('sortBy', sortBy);
@@ -534,9 +547,9 @@ class ApiService {
         const valid = status.toLowerCase() === 'true' || status.toLowerCase() === 'validated' || status.toLowerCase() === 'approuvé';
         params.append('valid', valid.toString());
       }
-      if (domain) params.append('domain', domain);
+      if (program) params.append('program', program);
       if (title) params.append('title', title);
-      
+
       const response = await fetch(`${API_BASE_URL}/internship-manager/search?${params.toString()}`, {
         method: 'GET',
         headers: {
@@ -631,7 +644,7 @@ class ApiService {
       const status = filterBy ? filterBy[0] : null;
       const program = filterBy ? filterBy[1] : null;
       const institution = filterBy ? filterBy[2] : null;
-      
+
       // Construire les paramètres de requête
       const params = new URLSearchParams();
       if (sortBy) params.append('sortBy', sortBy);
@@ -639,7 +652,7 @@ class ApiService {
       if (status) params.append('status', status)
       if (program) params.append('program', program);
       if (institution) params.append('institution', institution);
-      
+
       const response = await fetch(`${API_BASE_URL}/internship-manager/students/cvs?${params.toString()}`, {
         method: 'GET',
         headers: {
@@ -734,15 +747,13 @@ class ApiService {
           success: true,
           data: bytes
         }
-      }
-      else {
+      } else {
         return {
           success: false,
           error: "Erreur lors de la recuperation du cv"
         }
       }
-    }
-    catch (error) {
+    } catch (error) {
       return {
         success: false,
         error: "Erreur de connexion au server"
@@ -771,7 +782,7 @@ class ApiService {
 
       const url = `${API_BASE_URL}/internship-manager/validation?${params.toString()}`;
       console.log('🔍 Validation URL:', url);
-      console.log('🔍 Params:', { offerId, approved, comment });
+      console.log('🔍 Params:', {offerId, approved, comment});
 
       const response = await fetch(url, {
         method: 'GET',
@@ -816,87 +827,69 @@ class ApiService {
     }
   }
 
-    async validateCv(studentId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
+  async validateCv(studentId: number, approved: boolean, comment?: string): Promise<ApiResponse<string>> {
 
-        try {
-            const token = this.getToken();
-            if (!token) {
-                return {
-                    success: false,
-                    error: 'Token d\'authentification manquant',
-                };
-            }
-
-            // Construire les paramètres de requête
-            const params = new URLSearchParams();
-            params.append('studentId', studentId.toString());
-            params.append('approved', approved.toString());
-            if (comment && comment.trim()) {
-                params.append('commentaire', comment.trim());
-            }
-            //             /api/internship-manager/students/{studentId}/cv/validate
-            const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
-            console.log('🔍 Validation URL:', url);
-            console.log('🔍 Params:', {cvId: studentId, approved, comment });
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log('🔍 Response status:', response.status);
-            console.log('🔍 Response ok:', response.ok);
-
-            if (response.ok) {
-                const responseText = await response.text();
-                console.log('🔍 Response body:', responseText);
-                return {
-                    success: true,
-                    data: approved ? 'CV approuvée avec succès' : 'CV refusée avec succès',
-                };
-            } else {
-                let errorMessage = 'Erreur lors de la validation du CV';
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message || errorData.error || errorMessage;
-                    console.log('🔍 Error data:', errorData);
-                } catch (parseError) {
-                    const errorText = await response.text();
-                    errorMessage = errorText || errorMessage;
-                    console.log('🔍 Error text:', errorText);
-                }
-                return {
-                    success: false,
-                    error: errorMessage,
-                };
-            }
-        } catch (error) {
-            console.error('🔍 Network error:', error);
-            return {
-                success: false,
-                error: 'Erreur de connexion au serveur',
-            };
-        }
-    }
-
-
-
-  // Vérification de la santé du serveur
-  async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      params.append('studentId', studentId.toString());
+      params.append('approved', approved.toString());
+      if (comment && comment.trim()) {
+        params.append('commentaire', comment.trim());
+      }
+      //             /api/internship-manager/students/{studentId}/cv/validate
+      const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
+      console.log('🔍 Validation URL:', url);
+      console.log('🔍 Params:', {cvId: studentId, approved, comment});
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: 'test', password: 'test' }),
       });
-      return true; // Si on arrive ici, le serveur répond
-    } catch {
-      return false;
+
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response ok:', response.ok);
+
+      if (response.ok) {
+        const responseText = await response.text();
+        console.log('🔍 Response body:', responseText);
+        return {
+          success: true,
+          data: approved ? 'CV approuvée avec succès' : 'CV refusée avec succès',
+        };
+      } else {
+        let errorMessage = 'Erreur lors de la validation du CV';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          console.log('🔍 Error data:', errorData);
+        } catch (parseError) {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+          console.log('🔍 Error text:', errorText);
+        }
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
     }
   }
 }
