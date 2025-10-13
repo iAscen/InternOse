@@ -3,9 +3,11 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -36,6 +38,9 @@ public class EmployerServiceTests {
 
     @Mock
     private StudentDAO studentDAO;
+
+    @Mock
+    private StudentApplicationDAO studentApplicationDAO;
 
     @InjectMocks
     private EmployerService employerService;
@@ -72,26 +77,35 @@ public class EmployerServiceTests {
 
     @Test
     public void testFindStudentsBy() {
-        List<Student> students = List.of(
-                Student.builder()
-                        .program("Z")
+        Student student1 = Student.builder().id(1L).program("Z").build();
+        Student student2 = Student.builder().id(2L).program("A").build();
+        
+        List<StudentApplication> applications = List.of(
+                StudentApplication.builder()
+                        .student(student1)
+                        .applicationDate(java.time.LocalDateTime.now())
+                        .status(StudentApplication.ApplicationStatus.PENDING)
                         .build(),
-                Student.builder()
-                        .program("A")
+                StudentApplication.builder()
+                        .student(student2)
+                        .applicationDate(java.time.LocalDateTime.now())
+                        .status(StudentApplication.ApplicationStatus.PENDING)
                         .build()
         );
 
         when(internshipOfferDAO.existsById(1L))
                 .thenReturn(true);
 
-        when(studentDAO.findStudentsBy(1L, null, null, null))
-                .thenReturn(students);
+        when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                .thenReturn(applications);
 
         List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
 
         assertThat(studentDTOs.size()).isEqualTo(2);
         assertThat(studentDTOs.get(0).getProgram()).isEqualTo("A");
         assertThat(studentDTOs.get(1).getProgram()).isEqualTo("Z");
+        assertThat(studentDTOs.get(0).getApplicationDate()).isNotNull();
+        assertThat(studentDTOs.get(0).getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.PENDING);
     }
 
     @Test
@@ -99,7 +113,7 @@ public class EmployerServiceTests {
         when(internshipOfferDAO.existsById(1L))
                 .thenReturn(true);
 
-        when(studentDAO.findStudentsBy(1L, null, null, null))
+        when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(new ArrayList<>());
 
         List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
@@ -117,6 +131,53 @@ public class EmployerServiceTests {
                 () -> employerService.findStudentsBy(1L, null, null, null, null)
         );
 
+    }
+
+    @Test
+    public void testGetStudentApplicationDetails() {
+        Student student = Student.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .program("Computer Science")
+                .institution("University")
+                .build();
+
+        StudentApplication application = StudentApplication.builder()
+                .id(1L)
+                .student(student)
+                .applicationDate(java.time.LocalDateTime.now())
+                .status(StudentApplication.ApplicationStatus.PENDING)
+                .coverLetter("I am very interested in this position...")
+                .build();
+
+        when(internshipOfferDAO.existsById(1L))
+                .thenReturn(true);
+
+        when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                .thenReturn(List.of(application));
+
+        StudentDTO result = employerService.getStudentApplicationDetails(1L, 1L);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getFirstName()).isEqualTo("John");
+        assertThat(result.getLastName()).isEqualTo("Doe");
+        assertThat(result.getCoverLetter()).isEqualTo("I am very interested in this position...");
+        assertThat(result.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.PENDING);
+    }
+
+    @Test
+    public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() {
+        when(internshipOfferDAO.existsById(1L))
+                .thenReturn(true);
+
+        when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                .thenReturn(List.of());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> employerService.getStudentApplicationDetails(1L, 1L)
+        );
     }
 
     private Employer exampleEmployer() {

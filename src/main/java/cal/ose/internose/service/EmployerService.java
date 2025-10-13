@@ -3,15 +3,14 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +24,12 @@ import java.util.stream.Collectors;
 public class EmployerService {
     private final EmployerDAO employerDAO;
     private final InternshipOfferDAO internshipOfferDAO;
-    private final StudentDAO studentDAO;
+    private final StudentApplicationDAO studentApplicationDAO;
 
-    public EmployerService(EmployerDAO employerDAO, InternshipOfferDAO internshipOfferDAO, StudentDAO studentDAO) {
+    public EmployerService(EmployerDAO employerDAO, InternshipOfferDAO internshipOfferDAO, StudentApplicationDAO studentApplicationDAO) {
         this.employerDAO = employerDAO;
         this.internshipOfferDAO = internshipOfferDAO;
-        this.studentDAO = studentDAO;
+        this.studentApplicationDAO = studentApplicationDAO;
     }
 
     public List<InternshipOfferDTO> listInternshipOffers(Long employerID) {
@@ -54,25 +53,56 @@ public class EmployerService {
             );
         }
 
-        List<Student> students = studentDAO.findStudentsBy(internshipId, cvStatus, program, institution);
+        List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(internshipId, cvStatus, program, institution);
 
-        Comparator<Student> comparator = switch (sortBy == null ? "" : sortBy) {
-            case "institution" -> Comparator.comparing(Student::getInstitution);
-            case "status" -> Comparator.comparing(Student::getCvStatus);
-            default -> Comparator.comparing(Student::getProgram);
+        Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
+            case "institution" -> Comparator.comparing(app -> app.getStudent().getInstitution());
+            case "status" -> Comparator.comparing(app -> app.getStudent().getCvStatus());
+            case "applicationDate" -> Comparator.comparing(StudentApplication::getApplicationDate);
+            case "applicationStatus" -> Comparator.comparing(StudentApplication::getStatus);
+            default -> Comparator.comparing(app -> app.getStudent().getProgram());
         };
 
-        students = students.stream().sorted(comparator).toList();
+        applications = applications.stream().sorted(comparator).toList();
 
-        return students.stream()
-                .map((s) -> StudentDTO.builder()
-                        .id(s.getId())
-                        .firstName(s.getFirstName())
-                        .lastName(s.getLastName())
-                        .cvStatus(s.getCvStatus())
-                        .program(s.getProgram())
-                        .institution(s.getInstitution())
-                        .cvFileData(s.getCVFileData())
+        return applications.stream()
+                .map((app) -> StudentDTO.builder()
+                        .id(app.getStudent().getId())
+                        .firstName(app.getStudent().getFirstName())
+                        .lastName(app.getStudent().getLastName())
+                        .cvStatus(app.getStudent().getCvStatus())
+                        .program(app.getStudent().getProgram())
+                        .institution(app.getStudent().getInstitution())
+                        .cvFileData(app.getStudent().getCVFileData())
+                        .applicationDate(app.getApplicationDate())
+                        .applicationStatus(app.getStatus())
+                        .coverLetter(app.getCoverLetter())
                         .build()).collect(Collectors.toList());
+    }
+
+    public StudentDTO getStudentApplicationDetails(long internshipId, long studentId) {
+        if (!internshipOfferDAO.existsById(internshipId)) {
+            throw new ResourceNotFoundException(
+                    String.format(ErrorMessages.INTERNSHIP_OFFER_NOT_FOUND.getMessage(), internshipId)
+            );
+        }
+
+        return studentApplicationDAO.findApplicationsBy(internshipId, null, null, null)
+                .stream()
+                .filter(app -> app.getStudent().getId().equals(studentId))
+                .findFirst()
+                .map(app -> StudentDTO.builder()
+                        .id(app.getStudent().getId())
+                        .firstName(app.getStudent().getFirstName())
+                        .lastName(app.getStudent().getLastName())
+                        .cvStatus(app.getStudent().getCvStatus())
+                        .program(app.getStudent().getProgram())
+                        .institution(app.getStudent().getInstitution())
+                        .cvFileData(app.getStudent().getCVFileData())
+                        .applicationDate(app.getApplicationDate())
+                        .applicationStatus(app.getStatus())
+                        .coverLetter(app.getCoverLetter())
+                        .build())
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found for student " + studentId));
     }
 }

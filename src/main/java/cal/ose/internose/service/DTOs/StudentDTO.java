@@ -2,12 +2,13 @@ package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.Role;
+import cal.ose.internose.modele.StudentApplication;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,6 +19,9 @@ public class StudentDTO extends UserAppDTO {
     private byte[] cvFileData;
     private String program;
     private String institution;
+    private LocalDateTime applicationDate;
+    private StudentApplication.ApplicationStatus applicationStatus;
+    private String coverLetter;
 
     public StudentDTO(Long id, String firstName, String lastName, String email, String password, Role role, DocumentStatus cvStatus) {
         super(id, firstName, lastName, email, password, role);

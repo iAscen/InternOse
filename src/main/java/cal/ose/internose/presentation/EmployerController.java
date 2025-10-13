@@ -46,16 +46,23 @@ public class EmployerController {
     }
 
     @GetMapping(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-    public ResponseEntity<List<StudentDTO>> findStudentsBy(@RequestParam() long employerId,
+    public ResponseEntity<List<StudentDTO>> findStudentsBy(@RequestParam() long internshipId,
                                                            @RequestParam(required = false) String cvStatus,
                                                            @RequestParam(required = false) String program,
                                                            @RequestParam(required = false) String institution,
                                                            @RequestParam(required = false) String sortBy) {
 
         DocumentStatus status = DocumentStatus.of(cvStatus);
-        List<StudentDTO> students = employerService.findStudentsBy(employerId, status, program, institution, sortBy);
+        List<StudentDTO> students = employerService.findStudentsBy(internshipId, status, program, institution, sortBy);
 
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping(Paths.STUDENT_APPLICATION_DETAILS_PATH)
+    public ResponseEntity<StudentDTO> getStudentApplicationDetails(@RequestParam() long internshipId,
+                                                                   @RequestParam() long studentId) {
+        StudentDTO application = employerService.getStudentApplicationDetails(internshipId, studentId);
+        return ResponseEntity.ok(application);
     }
 
     private <T> ResponseEntity<T> getResponseEntity(HttpStatus status, T body) {

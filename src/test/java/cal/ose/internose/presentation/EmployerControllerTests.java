@@ -1,6 +1,5 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.security.exception.ResourceNotFoundException;
@@ -91,7 +90,7 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-                        .param("employerId", "1")
+                        .param("internshipId", "1")
         ).andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -104,7 +103,7 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-                        .param("employerId", "1")
+                        .param("internshipId", "1")
         ).andReturn();
 
         String body = mvcResult.getResponse().getContentAsString();
@@ -113,6 +112,56 @@ public class EmployerControllerTests {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(errorResponseDTO.getMessage()).isEqualTo("error");
+    }
+
+    @Test
+    public void testGetStudentApplicationDetails() throws Exception {
+        StudentDTO application = StudentDTO.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .program("Computer Science")
+                .institution("University")
+                .applicationDate(java.time.LocalDateTime.now())
+                .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.PENDING)
+                .coverLetter("I am very interested in this position...")
+                .build();
+
+        when(employerService.getStudentApplicationDetails(1L, 1L))
+                .thenReturn(application);
+
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.STUDENT_APPLICATION_DETAILS_PATH)
+                        .param("internshipId", "1")
+                        .param("studentId", "1")
+        ).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        StudentDTO responseApplication = objectMapper.readValue(responseBody, StudentDTO.class);
+        
+        assertThat(responseApplication.getFirstName()).isEqualTo("John");
+        assertThat(responseApplication.getLastName()).isEqualTo("Doe");
+        assertThat(responseApplication.getCoverLetter()).isEqualTo("I am very interested in this position...");
+    }
+
+    @Test
+    public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() throws Exception {
+        when(employerService.getStudentApplicationDetails(1L, 1L))
+                .thenThrow(new ResourceNotFoundException("Application not found"));
+
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.STUDENT_APPLICATION_DETAILS_PATH)
+                        .param("internshipId", "1")
+                        .param("studentId", "1")
+        ).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        
+        String body = mvcResult.getResponse().getContentAsString();
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(body, ErrorResponseDTO.class);
+        assertThat(errorResponseDTO.getMessage()).isEqualTo("Application not found");
     }
 
     private List<InternshipOfferDTO> exampleInternshipOffers() {

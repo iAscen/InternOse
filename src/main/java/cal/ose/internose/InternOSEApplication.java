@@ -1,6 +1,5 @@
 package cal.ose.internose;
 
-import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.service.AuthService;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
