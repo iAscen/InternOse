@@ -18,14 +18,13 @@ export default function StudentDashboardContent() {
   const navigate = useNavigate();
   const [cvStatus, setCvStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [cvFileName, setCvFileName] = useState<string | null>(null);
-  const [showUploadForm, setShowUploadForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [offers, setOffers] = useState<InternshipOffer[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
-    const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
+    const [, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
-    const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [setShowFilterMenuResumes] = useState(false);
+    const [setError] = useState<string | null>(null);
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -141,113 +140,105 @@ export default function StudentDashboardContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* En-tête du dashboard étudiant */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{t('student.dashboard')}</h1>
-              <p className="text-gray-600 mt-2">{t('student.dashboardSubtitle')}</p>
-            </div>
-            <div>
-              <button
-                onClick={() => setShowUploadForm(!showUploadForm)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {showUploadForm ? t('common.cancel') : t('student.uploadMyCV')}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Cartes de statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <StatisticsCard
-                  title={t('student.applications')}
-                  value={stats.applications}
-                  icon={statsIcons.applications}
-                  bgColor="bg-purple-100"
-                  iconColor="text-purple-600"
-              />
-              <StatisticsCard
-                  title={t('student.interviewsPlanned')}
-                  value={stats.pendingApplications}
-                  icon={statsIcons.pendingApplications}
-                  bgColor="bg-yellow-100"
-                  iconColor="text-yellow-600"
-              />
-              <StatisticsCard
-                  title={t('student.accepted')}
-                  value={stats.approvedApplications}
-                  icon={statsIcons.approvedApplications}
-                  bgColor="bg-green-100"
-                  iconColor="text-green-600"
-              />
-          </div>
-
-        {/* Section de statut du CV */}
-        <div className="mb-8">
-          <CVStatusCard 
-            status={cvStatus} 
-            fileName={cvFileName}
-            onStatusChange={setCvStatus}
-          />
-        </div>
-
-        {/* Section de téléversement de CV */}
-        {showUploadForm && (
-          <div className="mb-8">
-            <CVUploadSection 
-              onCVUpload={handleCVUpload}
-              disabled={cvStatus === 'pending'}
-            />
-          </div>
-        )}
-
-        {/* Section d'information pour les étudiants */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('student.importantInfo')}</h2>
-              <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                      </div>
+      <main className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* En-tête du dashboard étudiant */}
+              <div className="mb-8">
+                  <div className="flex justify-between items-center">
                       <div>
-                          <p className="text-sm text-gray-700">
-                              <strong>{t('student.cvRequired')}</strong> {t('student.cvRequiredDesc')}
-                          </p>
-                      </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                      </div>
-                      <div>
-                          <p className="text-sm text-gray-700">
-                              <strong>{t('student.acceptedFormat')}</strong> {t('student.acceptedFormatDesc')}
-                          </p>
-                      </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-yellow-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                      </div>
-                      <div>
-                          <p className="text-sm text-gray-700">
-                              <strong>{t('student.validation')}</strong> {t('student.validationDesc')}
-                          </p>
+                          <h1 className="text-3xl font-bold text-gray-900">{t('student.dashboard')}</h1>
+                          <p className="text-gray-600 mt-2">{t('student.dashboardSubtitle')}</p>
                       </div>
                   </div>
               </div>
+
+              {/* Cartes de statistiques */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <StatisticsCard
+                      title={t('student.applications')}
+                      value={stats.applications}
+                      icon={statsIcons.applications}
+                      bgColor="bg-purple-100"
+                      iconColor="text-purple-600"
+                  />
+                  <StatisticsCard
+                      title={t('student.interviewsPlanned')}
+                      value={stats.pendingApplications}
+                      icon={statsIcons.pendingApplications}
+                      bgColor="bg-yellow-100"
+                      iconColor="text-yellow-600"
+                  />
+                  <StatisticsCard
+                      title={t('student.accepted')}
+                      value={stats.approvedApplications}
+                      icon={statsIcons.approvedApplications}
+                      bgColor="bg-green-100"
+                      iconColor="text-green-600"
+                  />
+              </div>
+
+              {/* Section de statut du CV */}
+              <div className="mb-8">
+                  <CVStatusCard
+                      status={cvStatus}
+                      fileName={cvFileName}
+                      onStatusChange={setCvStatus}
+                  />
+              </div>
+
+              {/* Section de téléversement de CV */}
+              <div className="mb-8">
+                  <CVUploadSection
+                      onCVUpload={handleCVUpload}
+                      disabled={cvStatus === 'pending'}
+                  />
+              </div>
+
+              {/* Section d'information pour les étudiants */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('student.importantInfo')}</h2>
+                  <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                              <svg className="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                          </div>
+                          <div>
+                              <p className="text-sm text-gray-700">
+                                  <strong>{t('student.cvRequired')}</strong> {t('student.cvRequiredDesc')}
+                              </p>
+                          </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                              <svg className="w-5 h-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                          </div>
+                          <div>
+                              <p className="text-sm text-gray-700">
+                                  <strong>{t('student.acceptedFormat')}</strong> {t('student.acceptedFormatDesc')}
+                              </p>
+                          </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                              <svg className="w-5 h-5 text-yellow-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                          </div>
+                          <div>
+                              <p className="text-sm text-gray-700">
+                                  <strong>{t('student.validation')}</strong> {t('student.validationDesc')}
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
               {(cvStatus === 'approved') && (
-                  <div className="bg-white rounded-lg shadow-md mb-8 p-6">
+                  <div className="bg-white rounded-lg shadow-md mb-8 p-6 mt-8">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                           <h2 className="text-xl font-semibold text-gray-900">
                               {t("im.internshipOffersSection")}
@@ -293,7 +284,6 @@ export default function StudentDashboardContent() {
                   </div>
               )}
           </div>
-      </div>
-    </main>
+      </main>
   );
 }
