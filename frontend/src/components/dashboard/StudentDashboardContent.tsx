@@ -18,13 +18,14 @@ export default function StudentDashboardContent() {
   const navigate = useNavigate();
   const [cvStatus, setCvStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [cvFileName, setCvFileName] = useState<string | null>(null);
+  const [showUploadForm, setShowUploadForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [offers, setOffers] = useState<InternshipOffer[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
-    const [, setShowSortMenuResumes] = useState(false);
+    const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
-    const [setShowFilterMenuResumes] = useState(false);
-    const [setError] = useState<string | null>(null);
+    const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
