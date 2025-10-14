@@ -1,6 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,22 @@ public class StudentController {
         } catch (IOException e) {
             return getResponseEntity(
                 HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }
+    }
+
+    // TODO PATHS
+    // @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
+    @PostMapping("/apply-internship")
+    public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
+        try {
+            studentService.applyToInternship(studentId, internshipId);
+            return getResponseEntity(
+                HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
+            );
+        } catch (Exception e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"Erreur lors de la postulation: " + e.getMessage() + "\" }"
             );
         }
     }

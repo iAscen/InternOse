@@ -177,5 +177,6 @@ public class StudentService {
             internshipOffer.getStudents().add(student);
             internshipOfferDAO.save(internshipOffer);
         }
+        System.out.println("wascalled");
     }
 }
