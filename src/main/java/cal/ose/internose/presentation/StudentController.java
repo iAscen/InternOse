@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/student")
 @CrossOrigin("http://localhost:5173")
 public class StudentController {
     private final StudentService studentService;
@@ -23,7 +22,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PostMapping("/cv")
+    @PostMapping(Paths.STUDENT_CV_PATH)
     public ResponseEntity<String> uploadCV(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile CVFile) {
         try {
             studentService.uploadCV(studentID, CVFile);
@@ -37,9 +36,7 @@ public class StudentController {
         }
     }
 
-    // TODO PATHS
-    // @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
-    @PostMapping("/apply-internship")
+    @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
     public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
         try {
             studentService.applyToInternship(studentId, internshipId);
@@ -53,7 +50,7 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/cv/status")
+    @GetMapping("/api/student/cv/status")
     public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
         try {
             Student student = studentService.getStudentById(studentID).orElse(null);
