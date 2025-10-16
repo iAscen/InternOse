@@ -348,7 +348,7 @@ public class StudentServiceTests {
     }
 
     @Test
-    public void testCvMissingValidation() {
+    public void testPostulerCvMissingValidation() {
         Long studentId = 1L;
         Student student = exampleStudentPendingCV();
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
