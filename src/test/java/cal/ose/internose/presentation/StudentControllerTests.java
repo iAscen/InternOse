@@ -58,7 +58,7 @@ public class StudentControllerTests {
         when(studentService.uploadCV(anyLong(), any(MultipartFile.class))).thenReturn(Optional.of(student));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            multipart(Paths.STUDENT_CV_PATH)
+            multipart(Paths.STUDENT_BASE_PATH + Paths.STUDENT_CV_PATH)
             .file(mockFile)
             .param("studentID", String.valueOf(studentID))
             .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
