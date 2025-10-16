@@ -5,7 +5,7 @@ import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ErrorMessages;
-import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import jakarta.transaction.Transactional;
@@ -91,7 +91,7 @@ public class AuthService {
             validatePassword(password);
 
             if (userAppDAO.findUserAppByEmail(email).isPresent()) {
-                throw new UserAlreadyExistsException(
+                throw new AlreadyExistsException(
                     String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), email)
                 );
             }

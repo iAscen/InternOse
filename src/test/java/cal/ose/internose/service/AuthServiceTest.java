@@ -8,7 +8,7 @@ import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
-import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,7 +113,7 @@ public class AuthServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
                 () -> authService.registerEmployer(dto));
 
         assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),
@@ -182,7 +182,7 @@ public class AuthServiceTest {
         StudentDTO dto = createStudentDTO(null);
 
         when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
                 () -> authService.registerStudent(dto));
 
         assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),

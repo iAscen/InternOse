@@ -7,6 +7,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -160,12 +161,19 @@ public class StudentService {
         Student student = studentDAO.findById(studentId).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipId).orElse(null);
 
+//        TODO DEAL WITH NULL POSSIBILITY
         if (student.getCvStatus() != DocumentStatus.APPROVED) {
             throw new DocumentNotValidatedException("Votre CV n'est pas approuvé");
         }
 
+//        TODO DEAL WITH NULL POSSIBILITY
         if (internshipOffer.getValidationStatus() != DocumentStatus.APPROVED) {
             throw new DocumentNotValidatedException("L'offre n'est pas validé");
+        }
+
+        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentId, internshipId);
+        if (hasAlreadyApplied) {
+            throw new AlreadyExistsException("Vous avez déjà postulé à cette offre");
         }
 
         if (student != null && internshipOffer != null) {

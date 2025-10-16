@@ -2,7 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
-import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
@@ -21,7 +21,7 @@ public class GlobalExceptionManager {
     }
 
     @ExceptionHandler({
-            UserAlreadyExistsException.class
+            AlreadyExistsException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

@@ -7,6 +7,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -187,24 +188,6 @@ public class StudentServiceTests {
                 .build();
     }
 
-    private Student exampleStudentApprovedCV() {
-        return Student.builder()
-            .firstName("Robert")
-            .lastName("Watson")
-            .cvStatus(DocumentStatus.APPROVED)
-            .cvUploadedAt(LocalDateTime.now().minusDays(2))
-            .build();
-    }
-
-    private Student exampleStudentPendingCV() {
-        return Student.builder()
-            .firstName("Robert")
-            .lastName("Watson")
-            .cvStatus(DocumentStatus.PENDING)
-            .cvUploadedAt(LocalDateTime.now().minusDays(2))
-            .build();
-    }
-
     private List<Student> createTestStudents() {
         Student student1 = Student.builder()
                 .firstName("Alice")
@@ -225,15 +208,8 @@ public class StudentServiceTests {
         return List.of(student1, student2);
     }
 
-    private InternshipOffer exampleInternshipOfferApproved() {
+    private InternshipOffer exampleInternshipOffer() {
         return InternshipOffer.builder()
-            .validationStatus(DocumentStatus.APPROVED)
-            .build();
-    }
-
-    private InternshipOffer exampleInternshipOfferPending() {
-        return InternshipOffer.builder()
-            .validationStatus(DocumentStatus.PENDING)
             .build();
     }
 //
@@ -355,11 +331,13 @@ public class StudentServiceTests {
     @Test
     public void testPostulerSuccess() {
         Long studentId = 1L;
-        Student student = exampleStudentApprovedCV();
+        Student student = exampleStudent();
+        student.setCvStatus(DocumentStatus.APPROVED);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
-        InternshipOffer offer = exampleInternshipOfferApproved();
+        InternshipOffer offer = exampleInternshipOffer();
+        offer.setValidationStatus(DocumentStatus.APPROVED);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
 
 
@@ -372,11 +350,13 @@ public class StudentServiceTests {
     @Test
     public void testPostulerCvMissingValidation() {
         Long studentId = 1L;
-        Student student = exampleStudentPendingCV();
+        Student student = exampleStudent();
+        student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
-        InternshipOffer offer = exampleInternshipOfferApproved();
+        InternshipOffer offer = exampleInternshipOffer();
+        offer.setValidationStatus(DocumentStatus.APPROVED);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
 
 
@@ -388,11 +368,13 @@ public class StudentServiceTests {
     @Test
     public void testOfferMissingValidation() {
         Long studentId = 1L;
-        Student student = exampleStudentApprovedCV();
+        Student student = exampleStudent();
+        student.setCvStatus(DocumentStatus.APPROVED);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
-        InternshipOffer offer = exampleInternshipOfferPending();
+        InternshipOffer offer = exampleInternshipOffer();
+        offer.setValidationStatus(DocumentStatus.PENDING);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
 
 
@@ -403,7 +385,22 @@ public class StudentServiceTests {
 
     @Test
     public void testAlreadyPostule() {
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setCvStatus(DocumentStatus.APPROVED);
 
+        Long internshipId = 1L;
+        InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setValidationStatus(DocumentStatus.APPROVED);
+
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipId)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentId, internshipId))
+            .thenReturn(true);
+
+        assertThatThrownBy(() -> studentService.applyToInternship(studentId, internshipId))
+            .isInstanceOf(AlreadyExistsException.class)
+            .hasMessage("Vous avez déjà postulé à cette offre");
     }
 
     @Test
