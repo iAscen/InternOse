@@ -1,7 +1,11 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.StudentApplication;
+import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,8 +30,21 @@ public class StudentServiceTests {
     @Mock
     private StudentDAO studentDAO;
 
+    @Mock
+    private InternshipOfferDAO internshipOfferDAO;
+
+    @Mock
+    private StudentApplicationDAO studentApplicationDAO;
+
     @InjectMocks
     private StudentService studentService;
+
+//    TODO REMOVE IF STILL UNNECESSARY
+//    @InjectMocks
+//    private EmployerService employerService;
+//
+//    @InjectMocks
+//    private InternshipManagerService internshipManagerService;
 
     @Test
     @DisplayName("Test de la méthode uploadCV()")
@@ -302,4 +319,35 @@ public class StudentServiceTests {
 //        assertThat(student.getCvRejectionReason()).isNull(); // Doit être null pour approbation
 //        verify(studentDAO, times(1)).save(student);
 //    }
+
+    @Test
+    public void testPostulerSuccess() {
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        Long internshipOfferId = 1L;
+        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(new InternshipOffer()));
+
+
+        studentService.applyToInternship(studentId, internshipOfferId);
+
+
+        verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+    }
+
+    @Test
+    public void testCvMissingValidation() {
+
+    }
+
+    @Test
+    public void testAlreadyPostule() {
+
+    }
+
+    @Test
+    public void testInvalidOfferId() {
+
+    }
 }
