@@ -224,6 +224,18 @@ public class StudentServiceTests {
 
         return List.of(student1, student2);
     }
+
+    private InternshipOffer exampleInternshipOfferApproved() {
+        return InternshipOffer.builder()
+            .validationStatus(DocumentStatus.APPROVED)
+            .build();
+    }
+
+    private InternshipOffer exampleInternshipOfferPending() {
+        return InternshipOffer.builder()
+            .validationStatus(DocumentStatus.PENDING)
+            .build();
+    }
 //
 //    @Test
 //    @DisplayName("Test de la méthode validateStudentCV() - Approbation")
@@ -347,7 +359,8 @@ public class StudentServiceTests {
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
-        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(new InternshipOffer()));
+        InternshipOffer offer = exampleInternshipOfferApproved();
+        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
 
 
         studentService.applyToInternship(studentId, internshipOfferId);
@@ -363,12 +376,29 @@ public class StudentServiceTests {
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
-        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(new InternshipOffer()));
+        InternshipOffer offer = exampleInternshipOfferApproved();
+        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
 
 
         assertThatThrownBy(() -> studentService.applyToInternship(studentId, internshipOfferId))
             .isInstanceOf(DocumentNotValidatedException.class)
             .hasMessage("Votre CV n'est pas approuvé");
+    }
+
+    @Test
+    public void testOfferMissingValidation() {
+        Long studentId = 1L;
+        Student student = exampleStudentApprovedCV();
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        Long internshipOfferId = 1L;
+        InternshipOffer offer = exampleInternshipOfferPending();
+        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
+
+
+        assertThatThrownBy(() -> studentService.applyToInternship(studentId, internshipOfferId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("L'offre n'est pas validé");
     }
 
     @Test

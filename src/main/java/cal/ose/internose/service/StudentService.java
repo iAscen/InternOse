@@ -164,6 +164,10 @@ public class StudentService {
             throw new DocumentNotValidatedException("Votre CV n'est pas approuvé");
         }
 
+        if (internshipOffer.getValidationStatus() != DocumentStatus.APPROVED) {
+            throw new DocumentNotValidatedException("L'offre n'est pas validé");
+        }
+
         if (student != null && internshipOffer != null) {
             // Create application record
             StudentApplication application = StudentApplication.builder()
