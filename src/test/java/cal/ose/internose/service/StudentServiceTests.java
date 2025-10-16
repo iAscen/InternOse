@@ -187,6 +187,15 @@ public class StudentServiceTests {
                 .build();
     }
 
+    private Student exampleStudentApprovedCV() {
+        return Student.builder()
+            .firstName("Robert")
+            .lastName("Watson")
+            .cvStatus(DocumentStatus.APPROVED)
+            .cvUploadedAt(LocalDateTime.now().minusDays(2))
+            .build();
+    }
+
     private Student exampleStudentPendingCV() {
         return Student.builder()
             .firstName("Robert")
@@ -334,7 +343,7 @@ public class StudentServiceTests {
     @Test
     public void testPostulerSuccess() {
         Long studentId = 1L;
-        Student student = exampleStudent();
+        Student student = exampleStudentApprovedCV();
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long internshipOfferId = 1L;
