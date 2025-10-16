@@ -7,6 +7,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -185,6 +187,15 @@ public class StudentServiceTests {
                 .build();
     }
 
+    private Student exampleStudentPendingCV() {
+        return Student.builder()
+            .firstName("Robert")
+            .lastName("Watson")
+            .cvStatus(DocumentStatus.PENDING)
+            .cvUploadedAt(LocalDateTime.now().minusDays(2))
+            .build();
+    }
+
     private List<Student> createTestStudents() {
         Student student1 = Student.builder()
                 .firstName("Alice")
@@ -338,7 +349,17 @@ public class StudentServiceTests {
 
     @Test
     public void testCvMissingValidation() {
+        Long studentId = 1L;
+        Student student = exampleStudentPendingCV();
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
+        Long internshipOfferId = 1L;
+        when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(new InternshipOffer()));
+
+
+        assertThatThrownBy(() -> studentService.applyToInternship(studentId, internshipOfferId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("Votre CV n'est pas approuvé");
     }
 
     @Test

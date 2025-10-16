@@ -7,6 +7,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -158,6 +159,10 @@ public class StudentService {
     public void applyToInternship(long studentId, long internshipId) {
         Student student = studentDAO.findById(studentId).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipId).orElse(null);
+
+        if (student.getCvStatus() != DocumentStatus.APPROVED) {
+            throw new DocumentNotValidatedException("Votre CV n'est pas approuvé");
+        }
 
         if (student != null && internshipOffer != null) {
             // Create application record
