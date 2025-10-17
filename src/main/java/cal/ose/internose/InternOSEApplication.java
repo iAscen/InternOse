@@ -122,8 +122,6 @@ public class InternOSEApplication {
                         .build()
                 );
 
-                studentService.applyToInternship(2L, 1L);
-
                 List<StudentDTO> students = employerService.findStudentsBy(1L, null, null, "AL", null);
                 System.out.println(students);
             }
