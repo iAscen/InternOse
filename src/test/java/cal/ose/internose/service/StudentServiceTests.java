@@ -404,7 +404,28 @@ public class StudentServiceTests {
     }
 
     @Test
-    public void testInvalidOfferId() {
+    public void testPostulerInvalidOfferId() {
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setCvStatus(DocumentStatus.APPROVED);
 
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+
+        assertThatThrownBy(() -> studentService.applyToInternship(studentId, 999L))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Offre de stage pas trouvé");
+    }
+
+    @Test
+    public void testPostulerInvalidStudentId() {
+
+        Long internshipId = 1L;
+        InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setValidationStatus(DocumentStatus.APPROVED);
+
+        assertThatThrownBy(() -> studentService.applyToInternship(999L, internshipId))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Étudiant pas trouvé");
     }
 }
