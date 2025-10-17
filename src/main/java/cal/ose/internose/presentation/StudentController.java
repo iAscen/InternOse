@@ -3,6 +3,8 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,15 +40,21 @@ public class StudentController {
 
     @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
     public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
+        String errorMessage = "Erreur lors de la postulation: ";
         try {
             studentService.applyToInternship(studentId, internshipId);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
             );
-        } catch (Exception e) {
-            return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"Erreur lors de la postulation: " + e.getMessage() + "\" }"
-            );
+        } catch (DocumentNotValidatedException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(errorMessage + e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(errorMessage + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(errorMessage + e.getMessage());
         }
     }
 
