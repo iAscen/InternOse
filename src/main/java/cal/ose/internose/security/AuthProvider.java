@@ -1,6 +1,6 @@
 package cal.ose.internose.security;
 
-import cal.ose.internose.modele.UserApp;
+import cal.ose.internose.modele.User;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.security.exceptions.UserNotFoundException;
@@ -21,12 +21,12 @@ public class AuthProvider implements AuthenticationProvider{
 
 	@Override
 	public Authentication authenticate(Authentication authentication) {
-		UserApp userApp = loadUserByEmail(authentication.getPrincipal().toString());
-		validateAuthentication(authentication, userApp);
+		User user = loadUserByEmail(authentication.getPrincipal().toString());
+		validateAuthentication(authentication, user);
 		return new UsernamePasswordAuthenticationToken(
-			userApp.getEmail(),
-			userApp.getPassword(),
-			userApp.getAuthorities()
+			user.getEmail(),
+			user.getPassword(),
+			user.getAuthorities()
 		);
 	}
 
@@ -35,14 +35,14 @@ public class AuthProvider implements AuthenticationProvider{
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private UserApp loadUserByEmail(String email) throws UsernameNotFoundException{
+	private User loadUserByEmail(String email) throws UsernameNotFoundException{
         System.out.println("loadUserByEmail: " + passwordEncoder.encode(email));
 		return userAppDAO.findUserAppByEmail(email)
 			.orElseThrow(UserNotFoundException::new);
 	}
 
-	private void validateAuthentication(Authentication authentication, UserApp userApp){
-		if(!passwordEncoder.matches(authentication.getCredentials().toString(), userApp.getPassword()))
+	private void validateAuthentication(Authentication authentication, User user){
+		if(!passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword()))
 			throw new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password");
 	}
 }

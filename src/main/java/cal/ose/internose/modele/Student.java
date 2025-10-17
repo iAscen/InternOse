@@ -1,17 +1,7 @@
 package cal.ose.internose.modele;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -23,24 +13,23 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @Getter
 @Setter
-public class Student extends UserApp {
-    private String CVFileName;
-    private String CVFileType;
-    @JdbcTypeCode(SqlTypes.VARBINARY)
+public class Student extends User {
+    private String resumeFileName;
+    private String resumeFileType;
     @Column(columnDefinition = "BYTEA")
-    private byte[] CVFileData;
-    
+    private byte[] resumeFileData;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "cv_status")
+    @Column(name = "resume_status")
     @Builder.Default
-    private DocumentStatus cvStatus = DocumentStatus.NONE;
-    
-    @Column(name = "cv_uploaded_at")
-    private LocalDateTime cvUploadedAt;
-    
-    @Column(name = "cv_rejection_reason", length = 1000)
-    private String cvRejectionReason;
-    
-    @Column(name = "cv_validated_at")
-    private LocalDateTime cvValidatedAt;
+    private VerificationStatus resumeStatus = VerificationStatus.NONE;
+
+    @Column(name = "resume_upload_date")
+    private LocalDateTime resumeUploadDate;
+
+    @Column(name = "resume_rejection_reason", length = 9000)
+    private String resumeRejectionReason;
+
+    @Column(name = "resume_verify_date")
+    private LocalDateTime resumeVerifyDate;
 }

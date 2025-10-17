@@ -22,40 +22,45 @@ public class InternOSEApplication {
 
     @Bean
     public CommandLineRunner commandLineRunner(ObjectProvider<AuthService> authServiceProvider, ObjectProvider<EmployerService> employerServiceProvider) {
-        // NE PAS SUPPRIMER! Ces données sont nécessaires pour la démo.
         return _ -> {
             AuthService authService = authServiceProvider.getIfAvailable();
             EmployerService employerService = employerServiceProvider.getIfAvailable();
             if (authService != null && employerService != null) {
-                EmployerDTO employerDTO = new EmployerDTO();
-                employerDTO.setFirstName("Karim");
-                employerDTO.setLastName("M.");
-                employerDTO.setEmail("karim@gmail.com");
-                employerDTO.setPassword("Password123!");
-                employerDTO.setEnterprise("SQL Tech.");
-                authService.registerEmployer(employerDTO);
+                // Créer quelques utilisateurs en avance
+                authService.registerEmployer(
+                    EmployerDTO.builder()
+                        .firstName("Karim")
+                        .lastName("M.")
+                        .email("karim@gmail.com")
+                        .password("Password123!")
+                        .enterprise("SQL Technologies")
+                        .build()
+                );
+                authService.registerStudent(
+                    StudentDTO.builder()
+                        .firstName("Alice")
+                        .lastName("A.")
+                        .email("alice@gmail.com")
+                        .password("Password123!")
+                        .build()
+                );
+                authService.registerInternshipManager(
+                    InternshipManagerDTO.builder()
+                        .firstName("Bob")
+                        .lastName("B.")
+                        .email("bob@gmail.com")
+                        .password("Password123!")
+                        .build()
+                );
 
-                StudentDTO studentDTO = new StudentDTO();
-                studentDTO.setFirstName("Walid");
-                studentDTO.setLastName("W.");
-                studentDTO.setEmail("walid@gmail.com");
-                studentDTO.setPassword("Password123!");
-                authService.registerStudent(studentDTO);
-
-                InternshipManagerDTO internshipManagerDTO = new InternshipManagerDTO();
-                internshipManagerDTO.setFirstName("Amine");
-                internshipManagerDTO.setLastName("A.");
-                internshipManagerDTO.setEmail("amine@gmail.com");
-                internshipManagerDTO.setPassword("Password123!");
-                authService.registerInternshipManager(internshipManagerDTO);
-
+                // Créer quelques offres de stage en avance
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
-                        .jobTitle("Développeur Kotlin")
-                        .taskDescription("Développer des applications mobiles pour Android")
+                        .title("Développeur Kotlin")
+                        .description("Développer des applications mobiles pour Android")
                         .program("420.B0 - Techniques de l'informatique")
-                        .qualifications("DEC en Technique de l'Informatique")
+                        .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 2, 19))
                         .duration(8)
                         .salary(29.0)
@@ -65,10 +70,10 @@ public class InternOSEApplication {
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
-                        .jobTitle("Développeur Swift")
-                        .taskDescription("Développer des applications mobiles pour iOS")
+                        .title("Développeur Swift")
+                        .description("Développer des applications mobiles pour iOS")
                         .program("420.B0 - Techniques de l'informatique")
-                        .qualifications("DEC en Technique de l'Informatique")
+                        .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 3, 1))
                         .duration(8)
                         .salary(20.0)
@@ -78,10 +83,10 @@ public class InternOSEApplication {
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
-                        .jobTitle("Concepteur UI/UX")
-                        .taskDescription("Concevoir des expériences utilisateur")
+                        .title("Concepteur UI/UX")
+                        .description("Concevoir des expériences utilisateur")
                         .program("420.B0 - Techniques de l'informatique")
-                        .qualifications("DEC en Technique de l'Informatique")
+                        .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 1, 29))
                         .duration(8)
                         .salary(25.0)
@@ -91,10 +96,10 @@ public class InternOSEApplication {
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
-                        .jobTitle("Ingénieur électrique")
-                        .taskDescription("Construire et travailler sur des mécanismes électriques")
+                        .title("Ingénieur électrique")
+                        .description("Construire et travailler sur des mécanismes électriques")
                         .program("243.D0 - Technologie du génie électrique: automatisation et contrôle")
-                        .qualifications("DEC en Technique du génie électrique: automatisation et contrôle")
+                        .requiredSkills("DEC en Technique du génie électrique: automatisation et contrôle")
                         .startDate(LocalDate.of(2026, 2, 26))
                         .duration(8)
                         .salary(30.0)
@@ -104,10 +109,10 @@ public class InternOSEApplication {
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
-                        .jobTitle("Architecte")
-                        .taskDescription("Planifier la construction des bâtiments")
+                        .title("Architecte")
+                        .description("Planifier la construction des bâtiments")
                         .program("221.A0 - Technologie de l'architecture")
-                        .qualifications("DEC en Technologie de l'architecture")
+                        .requiredSkills("DEC en Technologie de l'architecture")
                         .startDate(LocalDate.of(2027, 1, 27))
                         .duration(8)
                         .salary(27.0)

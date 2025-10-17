@@ -1,6 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
-import cal.ose.internose.modele.Role;
+import cal.ose.internose.modele.UserRole;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class InternshipManagerDTO extends UserAppDTO {
     public InternshipManagerDTO(Long id, String firstName, String lastName,
-                                String email, String password, Role role) {
-        super(id, firstName, lastName, email, password, role);
+                                String email, String password, UserRole userRole) {
+        super(id, firstName, lastName, email, password, userRole);
     }
 }

@@ -72,7 +72,7 @@ public class AuthServiceTest {
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
                 .enterprise(dto.getEnterprise())
-                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.EMPLOYER))
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.EMPLOYER))
                 .build();
         mockEmployer.setId(1L);
         when(userAppDAO.save(any(Employer.class))).thenReturn(mockEmployer);
@@ -112,7 +112,7 @@ public class AuthServiceTest {
     void testEmployerEmailExists() {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
+        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
                 () -> authService.registerEmployer(dto));
 
@@ -141,7 +141,7 @@ public class AuthServiceTest {
         Student mockStudent = Student.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .credentials(new Credentials(dto.getEmail(), "encodedPassword", Role.STUDENT))
+                .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.STUDENT))
                 .build();
         mockStudent.setId(1L);
         when(userAppDAO.save(any(Student.class))).thenReturn(mockStudent);
@@ -181,7 +181,7 @@ public class AuthServiceTest {
     void testStudentEmailExists() {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(UserApp.class)));
+        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
                 () -> authService.registerStudent(dto));
 
@@ -193,7 +193,7 @@ public class AuthServiceTest {
     void testLoginSuccess() {
         LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
         Authentication mockAuthentication = mock(Authentication.class);
-        UserApp mockUser = mock(UserApp.class);
+        User mockUser = mock(User.class);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mockAuthentication);
@@ -233,7 +233,7 @@ public class AuthServiceTest {
                 .lastName("testPrenom")
                 .email("testEmail")
                 .password(password == null ? "TestPassword1@" : password)
-                .role(Role.STUDENT).build();
+                .userRole(UserRole.STUDENT).build();
     }
 
     private EmployerDTO createEmployerDTO(String password) {
@@ -242,7 +242,7 @@ public class AuthServiceTest {
                 "testPrenom",
                 "testEmail",
                 password != null ? password : "TestPassword1@", // default password if none provided
-                Role.EMPLOYER,
+                UserRole.EMPLOYER,
                 "testEntreprise");
     }
 

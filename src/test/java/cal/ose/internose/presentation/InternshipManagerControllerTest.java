@@ -1,8 +1,8 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Credentials;
-import cal.ose.internose.modele.Role;
+import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
@@ -76,14 +76,14 @@ class InternshipManagerControllerTest {
             "Informatique", true, "Développeur", "title")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
-                    .jobTitle("Développeur Java")
-                    .validationStatus(
-                        DocumentStatus.APPROVED)
+                    .title("Développeur Java")
+                    .verificationStatus(
+                        VerificationStatus.APPROVED)
                     .build(),
                 InternshipOfferDTO.builder().program("Informatique")
-                    .jobTitle("Développeur Python")
-                    .validationStatus(
-                        DocumentStatus.APPROVED)
+                    .title("Développeur Python")
+                    .verificationStatus(
+                        VerificationStatus.APPROVED)
                     .build()));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -102,7 +102,7 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(responseList.size()).isEqualTo(2);
-        assertThat(responseList.get(0).getJobTitle()).isEqualTo("Développeur Java");
+        assertThat(responseList.get(0).getTitle()).isEqualTo("Développeur Java");
     }
 
     @Test
@@ -112,12 +112,12 @@ class InternshipManagerControllerTest {
             null, null, null, "status")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
-                    .validationStatus(
-                        DocumentStatus.APPROVED)
+                    .verificationStatus(
+                        VerificationStatus.APPROVED)
                     .build(),
                 InternshipOfferDTO.builder().program("Biologie")
-                    .validationStatus(
-                        DocumentStatus.APPROVED)
+                    .verificationStatus(
+                        VerificationStatus.APPROVED)
                     .build()));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -236,7 +236,7 @@ class InternshipManagerControllerTest {
         // Test avec filtrage par statut et tri
         when(studentService.getAllStudentsWithCVs("name", "asc", "PENDING"))
             .thenReturn(createTestStudents().stream()
-                .filter(s -> s.getCvStatus() == DocumentStatus.PENDING)
+                .filter(s -> s.getResumeStatus() == VerificationStatus.PENDING)
                 .toList());
 
         MvcResult mvcResult = mockMvc.perform(
@@ -275,8 +275,8 @@ class InternshipManagerControllerTest {
         Student student1 = Student.builder()
             .firstName("Alice")
             .lastName("Smith")
-            .credentials(new Credentials("alice@example.com", "password", Role.STUDENT))
-            .cvStatus(DocumentStatus.PENDING)
+            .credentials(new Credentials("alice@example.com", "password", UserRole.STUDENT))
+            .cvStatus(VerificationStatus.PENDING)
             .cvUploadedAt(LocalDateTime.now().minusDays(1))
             .build();
         student1.setId(1L);
@@ -284,8 +284,8 @@ class InternshipManagerControllerTest {
         Student student2 = Student.builder()
             .firstName("Bob")
             .lastName("Johnson")
-            .credentials(new Credentials("bob@example.com", "password", Role.STUDENT))
-            .cvStatus(DocumentStatus.APPROVED)
+            .credentials(new Credentials("bob@example.com", "password", UserRole.STUDENT))
+            .cvStatus(VerificationStatus.APPROVED)
             .cvUploadedAt(LocalDateTime.now().minusDays(2))
             .build();
         student2.setId(2L);
@@ -299,8 +299,8 @@ class InternshipManagerControllerTest {
     void getStudentCVDetails_Success() throws Exception {
         // Test de récupération des détails d'un CV d'étudiant
         Student student = createTestStudents().get(0);
-        student.setCVFileName("alice_cv.pdf");
-        student.setCVFileType("application/pdf");
+        student.setResumeFileName("alice_cv.pdf");
+        student.setResumeFileType("application/pdf");
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -333,8 +333,8 @@ class InternshipManagerControllerTest {
     void downloadStudentCV_Success() throws Exception {
         // Test de téléchargement d'un CV
         Student student = createTestStudents().get(0);
-        student.setCVFileData("test cv data".getBytes());
-        student.setCVFileName("test_cv.pdf");
+        student.setResumeFileData("test cv data".getBytes());
+        student.setResumeFileName("test_cv.pdf");
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -363,7 +363,7 @@ class InternshipManagerControllerTest {
         // Test d'approbation d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doNothing().when(internshipManagerService).validateStudentCV(1L, true, null);
+        doNothing().when(internshipManagerService).verifyResume(1L, true, null);
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -381,7 +381,7 @@ class InternshipManagerControllerTest {
         // Test de refus d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doNothing().when(internshipManagerService).validateStudentCV(1L, false, "CV incomplet");
+        doNothing().when(internshipManagerService).verifyResume(1L, false, "CV incomplet");
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -415,7 +415,7 @@ class InternshipManagerControllerTest {
     void validateStudentCV_AlreadyProcessed() throws Exception {
         // Test avec CV déjà traité
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeStatus(VerificationStatus.APPROVED);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -433,7 +433,7 @@ class InternshipManagerControllerTest {
     void validateStudentCV_NoCV() throws Exception {
         // Test avec étudiant sans CV
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.NONE);
+        student.setResumeStatus(VerificationStatus.NONE);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -452,7 +452,7 @@ class InternshipManagerControllerTest {
         // Test avec exception du service
         Student student = createTestStudents().get(0);
         when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-        doThrow(new RuntimeException("Erreur de service")).when(internshipManagerService).validateStudentCV(1L,
+        doThrow(new RuntimeException("Erreur de service")).when(internshipManagerService).verifyResume(1L,
             true, null);
 
         MvcResult mvcResult = mockMvc.perform(

@@ -1,6 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
@@ -42,17 +42,17 @@ class InternshipManagerServiceTest {
 
         assertEquals(3, internshipOfferDTOS.size());
         assertEquals("Informatique", internshipOfferDTOS.getFirst().getProgram());
-        assertFalse(internshipOfferDTOS.getFirst().isValidee());
+        assertFalse(internshipOfferDTOS.getFirst().isVerified());
     }
 
     @Test
     void sortByDomain() {
         when(internshipOfferDAO.findInternshipsBy(null, null, null))
             .thenReturn(List.of(
-                InternshipOffer.builder().program("Informatique").validationStatus(DocumentStatus.APPROVED)
+                InternshipOffer.builder().program("Informatique").validationStatus(VerificationStatus.APPROVED)
                     .build(),
-                InternshipOffer.builder().program("Biologie").validationStatus(DocumentStatus.APPROVED).build(),
-                InternshipOffer.builder().program("Architecture").validationStatus(DocumentStatus.APPROVED)
+                InternshipOffer.builder().program("Biologie").validationStatus(VerificationStatus.APPROVED).build(),
+                InternshipOffer.builder().program("Architecture").validationStatus(VerificationStatus.APPROVED)
                     .build()));
 
         List<InternshipOfferDTO> result = internshipManagerService
@@ -80,17 +80,17 @@ class InternshipManagerServiceTest {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
-            .validationStatus(DocumentStatus.PENDING)
+            .validationStatus(VerificationStatus.PENDING)
             .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
-        internshipManagerService.validateInternshipOffer(offerId, true, "any comment should be ignored on approve");
+        internshipManagerService.verifyInternshipOffer(offerId, true, "any comment should be ignored on approve");
 
         ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertEquals(DocumentStatus.APPROVED, saved.getValidationStatus(), "Status must be 'approuvé' on approval");
+        assertEquals(VerificationStatus.APPROVED, saved.getVerificationStatus(), "Status must be 'approuvé' on approval");
         assertNull(saved.getRejectionReason(), "Rejection reason must be cleared on approval");
     }
 
@@ -101,18 +101,18 @@ class InternshipManagerServiceTest {
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
             .rejectionReason(null)
-            .validationStatus(DocumentStatus.PENDING)
+            .validationStatus(VerificationStatus.PENDING)
             .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
-        internshipManagerService.validateInternshipOffer(offerId, false, rejectionComment);
+        internshipManagerService.verifyInternshipOffer(offerId, false, rejectionComment);
 
         ArgumentCaptor<InternshipOffer> captor = ArgumentCaptor.forClass(InternshipOffer.class);
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertTrue(saved.isValidee());
-        assertEquals(DocumentStatus.REJECTED, saved.getValidationStatus());
+        assertTrue(saved.isVerified());
+        assertEquals(VerificationStatus.REJECTED, saved.getVerificationStatus());
         assertEquals(rejectionComment, saved.getRejectionReason());
     }
 
@@ -122,7 +122,7 @@ class InternshipManagerServiceTest {
         when(internshipOfferDAO.findInternshipOfferById(missingId)).thenReturn(null);
 
         assertThrows(ResourceNotFoundException.class,
-            () -> internshipManagerService.validateInternshipOffer(missingId, true, null));
+            () -> internshipManagerService.verifyInternshipOffer(missingId, true, null));
 
         verify(internshipOfferDAO, never()).save(any());
     }
@@ -133,13 +133,13 @@ class InternshipManagerServiceTest {
         Long offerId = 3L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
-            .validationStatus(DocumentStatus.APPROVED) // Déjà traitée
+            .validationStatus(VerificationStatus.APPROVED) // Déjà traitée
             .build();
         when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
 
         // Act & Assert
         try {
-            internshipManagerService.validateInternshipOffer(offerId, true, null);
+            internshipManagerService.verifyInternshipOffer(offerId, true, null);
             assertThat(false).isTrue();
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("This offer has already been validated");
@@ -151,17 +151,17 @@ class InternshipManagerServiceTest {
     private List<InternshipOffer> getInformatiqueInternships() {
         return List.of(
             InternshipOffer.builder()
-                .validationStatus(DocumentStatus.APPROVED)
+                .validationStatus(VerificationStatus.APPROVED)
                 .jobTitle("Software Intern")
                 .program("Informatique")
                 .build(),
             InternshipOffer.builder()
-                .validationStatus(DocumentStatus.PENDING)
+                .validationStatus(VerificationStatus.PENDING)
                 .jobTitle("Software Senior")
                 .program("Informatique")
                 .build(),
             InternshipOffer.builder()
-                .validationStatus(DocumentStatus.APPROVED)
+                .validationStatus(VerificationStatus.APPROVED)
                 .jobTitle("Software Senior")
                 .program("Informatique")
                 .build());
@@ -171,7 +171,7 @@ class InternshipManagerServiceTest {
         Student student1 = Student.builder()
             .firstName("Alice")
             .lastName("Johnson")
-            .cvStatus(DocumentStatus.APPROVED)
+            .cvStatus(VerificationStatus.APPROVED)
             .cvUploadedAt(LocalDateTime.now().minusDays(2))
             .build();
         student1.setId(1L);
@@ -179,7 +179,7 @@ class InternshipManagerServiceTest {
         Student student2 = Student.builder()
             .firstName("Bob")
             .lastName("Smith")
-            .cvStatus(DocumentStatus.PENDING)
+            .cvStatus(VerificationStatus.PENDING)
             .cvUploadedAt(LocalDateTime.now().minusDays(1))
             .build();
         student2.setId(2L);
@@ -189,42 +189,42 @@ class InternshipManagerServiceTest {
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Approbation")
-    public void testValidateStudentCV_Approve() {
+    public void testVerifyResume_Approve() {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.PENDING);
+        student.setResumeStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
         // Act
-        internshipManagerService.validateStudentCV(studentId, true, null);
+        internshipManagerService.verifyResume(studentId, true, null);
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
-        assertThat(student.getCvValidatedAt()).isNotNull();
-        assertThat(student.getCvRejectionReason()).isNull();
+        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeRejectionReason()).isNull();
         verify(studentDAO, times(1)).save(student);
     }
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Refus")
-    public void testValidateStudentCV_Reject() {
+    public void testVerifyResume_Reject() {
         // Arrange
         Long studentId = 1L;
         String rejectionReason = "CV incomplet";
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.PENDING);
+        student.setResumeStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
         // Act
-        internshipManagerService.validateStudentCV(studentId, false, rejectionReason);
+        internshipManagerService.verifyResume(studentId, false, rejectionReason);
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
-        assertThat(student.getCvValidatedAt()).isNotNull();
-        assertThat(student.getCvRejectionReason()).isEqualTo(rejectionReason);
+        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.REJECTED);
+        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeRejectionReason()).isEqualTo(rejectionReason);
         verify(studentDAO, times(1)).save(student);
     }
 
@@ -237,7 +237,7 @@ class InternshipManagerServiceTest {
 
         // Act & Assert
         try {
-            internshipManagerService.validateStudentCV(studentId, true, null);
+            internshipManagerService.verifyResume(studentId, true, null);
             assertThat(false).isTrue(); // Ne devrait pas arriver ici
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Étudiant non trouvé");
@@ -246,16 +246,16 @@ class InternshipManagerServiceTest {
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - CV déjà traité")
-    public void testValidateStudentCV_AlreadyProcessed() {
+    public void testVerifyResume_AlreadyProcessed() {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.APPROVED); // Déjà traité
+        student.setResumeStatus(VerificationStatus.APPROVED); // Déjà traité
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         // Act & Assert
         try {
-            internshipManagerService.validateStudentCV(studentId, true, null);
+            internshipManagerService.verifyResume(studentId, true, null);
             assertThat(false).isTrue(); // Ne devrait pas arriver ici
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Ce CV a déjà été traité");
@@ -264,41 +264,41 @@ class InternshipManagerServiceTest {
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Refus avec raison vide")
-    public void testValidateStudentCV_RejectWithEmptyReason() {
+    public void testVerifyResume_RejectWithEmptyReason() {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.PENDING);
+        student.setResumeStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
         // Act
-        internshipManagerService.validateStudentCV(studentId, false, "");
+        internshipManagerService.verifyResume(studentId, false, "");
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.REJECTED);
-        assertThat(student.getCvValidatedAt()).isNotNull();
-        assertThat(student.getCvRejectionReason()).isEqualTo("");
+        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.REJECTED);
+        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeRejectionReason()).isEqualTo("");
         verify(studentDAO, times(1)).save(student);
     }
 
     @Test
     @DisplayName("Test de la méthode validateStudentCV() - Approbation avec raison")
-    public void testValidateStudentCV_ApproveWithReason() {
+    public void testVerifyResume_ApproveWithReason() {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.PENDING);
+        student.setResumeStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
         // Act
-        internshipManagerService.validateStudentCV(studentId, true, "CV excellent");
+        internshipManagerService.verifyResume(studentId, true, "CV excellent");
 
         // Assert
-        assertThat(student.getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
-        assertThat(student.getCvValidatedAt()).isNotNull();
-        assertThat(student.getCvRejectionReason()).isNull(); // Doit être null pour approbation
+        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeRejectionReason()).isNull(); // Doit être null pour approbation
         verify(studentDAO, times(1)).save(student);
     }
 }

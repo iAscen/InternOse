@@ -85,10 +85,10 @@ public class EmployerControllerTests {
         List<InternshipOfferDTO> offresStage = new ArrayList<>();
         offresStage.add(
             InternshipOfferDTO.builder()
-                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
-                .taskDescription("*description ici*")
+                .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
+                .description("*description ici*")
                 .program("Technique de l'informatique")
-                .qualifications("*compétences requises ici*")
+                .requiredSkills("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))
                 .salary(25.0)

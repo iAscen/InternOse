@@ -28,12 +28,12 @@ public final class Credentials implements UserDetails {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Role role;
+	private UserRole userRole;
 
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+		return Collections.singleton(new SimpleGrantedAuthority(userRole.name()));
 	}
 
 	@Override

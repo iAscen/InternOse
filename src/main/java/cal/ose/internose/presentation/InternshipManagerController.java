@@ -1,6 +1,6 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
@@ -52,7 +52,7 @@ public class InternshipManagerController {
                                                                        @RequestParam(required = false) String commentaire) {
         try {
             // Valider ou refuser l'offre de stage
-            internshipManagerService.validateInternshipOffer(offerId, approved, commentaire);
+            internshipManagerService.verifyInternshipOffer(offerId, approved, commentaire);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -114,17 +114,17 @@ public class InternshipManagerController {
                     studentData.put("firstName", student.getFirstName());
                     studentData.put("lastName", student.getLastName());
                     studentData.put("email", student.getEmail());
-                    studentData.put("cvStatus", student.getCvStatus().name().toLowerCase());
-                    studentData.put("cvFileName", student.getCVFileName());
+                    studentData.put("cvStatus", student.getResumeStatus().name().toLowerCase());
+                    studentData.put("cvFileName", student.getResumeFileName());
                     studentData.put("uploadedAt",
-                        student.getCvUploadedAt() != null
-                            ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        student.getResumeUploadDate() != null
+                            ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                             : "");
                     studentData.put("validatedAt",
-                        student.getCvValidatedAt() != null
-                            ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        student.getResumeVerifyDate() != null
+                            ? student.getResumeVerifyDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                             : "");
-                    studentData.put("rejectionReason", student.getCvRejectionReason());
+                    studentData.put("rejectionReason", student.getResumeRejectionReason());
                     return studentData;
                 })
                 .toList();
@@ -163,7 +163,7 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == DocumentStatus.NONE) {
+            if (student.getResumeStatus() == VerificationStatus.NONE) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
@@ -178,18 +178,18 @@ public class InternshipManagerController {
             data.put("firstName", student.getFirstName());
             data.put("lastName", student.getLastName());
             data.put("email", student.getEmail());
-            data.put("cvStatus", student.getCvStatus().name().toLowerCase());
-            data.put("cvFileName", student.getCVFileName());
-            data.put("cvFileType", student.getCVFileType());
+            data.put("cvStatus", student.getResumeStatus().name().toLowerCase());
+            data.put("cvFileName", student.getResumeFileName());
+            data.put("cvFileType", student.getResumeFileType());
             data.put("uploadedAt",
-                student.getCvUploadedAt() != null
-                    ? student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                student.getResumeUploadDate() != null
+                    ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     : "");
             data.put("validatedAt",
-                student.getCvValidatedAt() != null
-                    ? student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                student.getResumeVerifyDate() != null
+                    ? student.getResumeVerifyDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     : "");
-            data.put("rejectionReason", student.getCvRejectionReason());
+            data.put("rejectionReason", student.getResumeRejectionReason());
 
             response.put("data", data);
 
@@ -213,18 +213,18 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == DocumentStatus.NONE || student.getCVFileData() == null) {
+            if (student.getResumeStatus() == VerificationStatus.NONE || student.getResumeFileData() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
             }
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", student.getCVFileName());
-            headers.setContentLength(student.getCVFileData().length);
+            headers.setContentDispositionFormData("attachment", student.getResumeFileName());
+            headers.setContentLength(student.getResumeFileData().length);
 
             return ResponseEntity.ok()
                 .headers(headers)
-                .body(student.getCVFileData());
+                .body(student.getResumeFileData());
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new byte[0]);
@@ -248,14 +248,14 @@ public class InternshipManagerController {
 
             Student student = studentOpt.get();
 
-            if (student.getCvStatus() == DocumentStatus.NONE) {
+            if (student.getResumeStatus() == VerificationStatus.NONE) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Aucun CV trouvé pour cet étudiant");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
 
-            if (student.getCvStatus() != DocumentStatus.PENDING) {
+            if (student.getResumeStatus() != VerificationStatus.PENDING) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("error", "Ce CV a déjà été traité");
@@ -263,7 +263,7 @@ public class InternshipManagerController {
             }
 
             // Valider ou refuser le CV
-            internshipManagerService.validateStudentCV(studentId, approved, reason);
+            internshipManagerService.verifyResume(studentId, approved, reason);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

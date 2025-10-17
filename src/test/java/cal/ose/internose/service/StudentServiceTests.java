@@ -1,6 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.StudentDAO;
 import org.junit.jupiter.api.DisplayName;
@@ -37,18 +37,18 @@ public class StudentServiceTests {
         Student student = exampleStudent();
         MockMultipartFile mockFile = new MockMultipartFile(
                 "file", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes());
-        student.setCVFileName(mockFile.getOriginalFilename());
-        student.setCVFileType(mockFile.getContentType());
-        student.setCVFileData(mockFile.getBytes());
+        student.setResumeFileName(mockFile.getOriginalFilename());
+        student.setResumeFileType(mockFile.getContentType());
+        student.setResumeFileData(mockFile.getBytes());
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
         // Act
         Optional<Student> studentWithCV = studentService.uploadCV(studentID, mockFile);
         // Assert
         assertThat(studentWithCV).isPresent();
-        assertThat(studentWithCV.get().getCVFileName()).isEqualTo(mockFile.getOriginalFilename());
-        assertThat(studentWithCV.get().getCVFileType()).isEqualTo(mockFile.getContentType());
-        assertThat(studentWithCV.get().getCVFileData()).isEqualTo(mockFile.getBytes());
+        assertThat(studentWithCV.get().getResumeFileName()).isEqualTo(mockFile.getOriginalFilename());
+        assertThat(studentWithCV.get().getResumeFileType()).isEqualTo(mockFile.getContentType());
+        assertThat(studentWithCV.get().getResumeFileData()).isEqualTo(mockFile.getBytes());
         verify(studentDAO, times(1)).save(any(Student.class));
     }
 
@@ -96,7 +96,7 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
+        assertThat(result.get(0).getResumeStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
@@ -140,8 +140,8 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
-        assertThat(result.get(1).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
+        assertThat(result.get(0).getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(result.get(1).getResumeStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class StudentServiceTests {
         Student student1 = Student.builder()
                 .firstName("Alice")
                 .lastName("Johnson")
-                .cvStatus(DocumentStatus.APPROVED)
+                .cvStatus(VerificationStatus.APPROVED)
                 .cvUploadedAt(LocalDateTime.now().minusDays(2))
                 .build();
         student1.setId(1L);
@@ -180,7 +180,7 @@ public class StudentServiceTests {
         Student student2 = Student.builder()
                 .firstName("Bob")
                 .lastName("Smith")
-                .cvStatus(DocumentStatus.PENDING)
+                .cvStatus(VerificationStatus.PENDING)
                 .cvUploadedAt(LocalDateTime.now().minusDays(1))
                 .build();
         student2.setId(2L);

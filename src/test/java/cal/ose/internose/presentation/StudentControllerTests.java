@@ -1,6 +1,6 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.StudentService;
@@ -53,8 +53,8 @@ public class StudentControllerTests {
         MockMultipartFile mockFile = new MockMultipartFile(
             "file", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes()
         );
-        student.setCVFileName(mockFile.getOriginalFilename());
-        student.setCVFileData(mockFile.getBytes());
+        student.setResumeFileName(mockFile.getOriginalFilename());
+        student.setResumeFileData(mockFile.getBytes());
         when(studentService.uploadCV(anyLong(), any(MultipartFile.class))).thenReturn(Optional.of(student));
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -73,9 +73,9 @@ public class StudentControllerTests {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
-        student.setCvStatus(DocumentStatus.PENDING);
-        student.setCVFileName("test.pdf");
-        student.setCvUploadedAt(LocalDateTime.now());
+        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeFileName("test.pdf");
+        student.setResumeUploadDate(LocalDateTime.now());
         when(studentService.getStudentById(studentID)).thenReturn(Optional.of(student));
 
         // Act

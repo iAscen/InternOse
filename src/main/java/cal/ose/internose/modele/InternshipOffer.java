@@ -2,11 +2,7 @@ package cal.ose.internose.modele;
 
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -22,41 +18,36 @@ public class InternshipOffer {
     private Long id;
     @ManyToOne
     private Employer employer;
-    private String jobTitle;
-    private String taskDescription;
+    private String title;
+    private String description;
     private String program;
-    private String qualifications;
+    private String requiredSkills;
     private int duration;
     private LocalDate startDate;
     private LocalDate endDate;
     private double salary;
     private String address;
     @Enumerated(EnumType.STRING)
-    @Column(name = "validation_status")
     @Builder.Default
-    private DocumentStatus validationStatus = DocumentStatus.NONE;
-
-    @Column(name = "offer_rejection_reason", length = 2000)
+    private VerificationStatus verificationStatus = VerificationStatus.NONE;
     private String rejectionReason;
 
-    public boolean isValidee() {
-        return validationStatus != DocumentStatus.PENDING;
+    public boolean isVerified() {
+        return verificationStatus != VerificationStatus.PENDING;
     }
 
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
-            .jobTitle(internshipOfferDTO.getJobTitle())
-            .taskDescription(internshipOfferDTO.getTaskDescription())
+            .title(internshipOfferDTO.getTitle())
+            .description(internshipOfferDTO.getDescription())
             .program(internshipOfferDTO.getProgram())
-            .qualifications(internshipOfferDTO.getQualifications())
+            .requiredSkills(internshipOfferDTO.getRequiredSkills())
             .duration(internshipOfferDTO.getDuration())
             .startDate(internshipOfferDTO.getStartDate())
-            .endDate(
-                internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration())
-            )
+            .endDate(internshipOfferDTO.getStartDate().plusWeeks(internshipOfferDTO.getDuration()))
             .salary(internshipOfferDTO.getSalary())
             .address(internshipOfferDTO.getAddress())
-            .validationStatus(internshipOfferDTO.getValidationStatus())
+            .verificationStatus(internshipOfferDTO.getVerificationStatus())
             .rejectionReason(internshipOfferDTO.getRejectionReason())
             .build();
     }

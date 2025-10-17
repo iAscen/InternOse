@@ -1,12 +1,8 @@
 package cal.ose.internose.service.DTOs;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.InternshipOffer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,36 +14,35 @@ import java.util.List;
 @AllArgsConstructor
 public class InternshipOfferDTO {
     private Long id;
-    private String jobTitle;
-    private String taskDescription;
+    private String title;
+    private String description;
     private String program;
-    private String qualifications;
+    private String requiredSkills;
     private int duration;
     private LocalDate startDate;
     private LocalDate endDate;
     private double salary;
     private String address;
-    private DocumentStatus validationStatus;
+    private VerificationStatus verificationStatus;
     private String rejectionReason;
 
-    public boolean isValidee() {
-        return validationStatus != DocumentStatus.PENDING;
+    public boolean isVerified() {
+        return verificationStatus != VerificationStatus.PENDING;
     }
 
     public static InternshipOfferDTO fromEntity(InternshipOffer internshipOffer) {
         return InternshipOfferDTO.builder()
             .id(internshipOffer.getId())
-            .jobTitle(internshipOffer.getJobTitle())
-            .taskDescription(internshipOffer.getTaskDescription())
+            .title(internshipOffer.getTitle())
+            .description(internshipOffer.getDescription())
             .program(internshipOffer.getProgram())
-            .qualifications(internshipOffer.getQualifications())
+            .requiredSkills(internshipOffer.getRequiredSkills())
             .duration(internshipOffer.getDuration())
             .startDate(internshipOffer.getStartDate())
             .endDate(internshipOffer.getEndDate())
             .salary(internshipOffer.getSalary())
             .address(internshipOffer.getAddress())
-
-            .validationStatus(internshipOffer.getValidationStatus())
+            .verificationStatus(internshipOffer.getVerificationStatus())
             .rejectionReason(internshipOffer.getRejectionReason())
             .build();
     }

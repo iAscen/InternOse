@@ -1,6 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
-import cal.ose.internose.modele.Role;
+import cal.ose.internose.modele.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,14 +18,14 @@ public class UserAppDTO {
     private String lastName;
     private String email;
     private String password;
-    private Role role;
+    private UserRole userRole;
 
-    public UserAppDTO(String firstName, String lastName, String email, String password, Role role) {
+    public UserAppDTO(String firstName, String lastName, String email, String password, UserRole userRole) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.userRole = userRole;
     }
 }

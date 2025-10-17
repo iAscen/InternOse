@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Employer extends UserApp {
+public class Employer extends User {
     @Column(nullable = false)
     private String enterprise;
 

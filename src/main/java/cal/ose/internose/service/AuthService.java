@@ -3,13 +3,13 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.UserAppDAO;
 import cal.ose.internose.security.JwtTokenProvider;
+import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
-import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
-import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
+import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class AuthService {
     public String registerInternshipManager(InternshipManagerDTO internshipManagerDTO) {
         InternshipManager internshipManager = InternshipManager.builder()
             .credentials(
-                new Credentials(internshipManagerDTO.getEmail(), passwordEncoder.encode(internshipManagerDTO.getPassword()), Role.INTERNSHIP_MANAGER)
+                new Credentials(internshipManagerDTO.getEmail(), passwordEncoder.encode(internshipManagerDTO.getPassword()), UserRole.INTERNSHIP_MANAGER)
             )
             .firstName(internshipManagerDTO.getFirstName())
             .lastName(internshipManagerDTO.getLastName())
@@ -47,7 +47,7 @@ public class AuthService {
     public String registerEmployer(EmployerDTO employerDTO) {
         Employer employer = Employer.builder()
             .credentials(
-                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), Role.EMPLOYER)
+                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
             )
             .firstName(employerDTO.getFirstName())
             .lastName(employerDTO.getLastName())
@@ -61,7 +61,7 @@ public class AuthService {
     public String registerStudent(StudentDTO studentDTO) {
         Student student = Student.builder()
             .credentials(
-                new Credentials(studentDTO.getEmail(), passwordEncoder.encode(studentDTO.getPassword()), Role.STUDENT)
+                new Credentials(studentDTO.getEmail(), passwordEncoder.encode(studentDTO.getPassword()), UserRole.STUDENT)
             )
             .firstName(studentDTO.getFirstName())
             .lastName(studentDTO.getLastName())
@@ -79,7 +79,7 @@ public class AuthService {
         );
 
         // Récupérer l'ID de l'utilisateur depuis la base de données
-        UserApp user = userAppDAO.findUserAppByEmail(loginDTO.getEmail())
+        User user = userAppDAO.findUserAppByEmail(loginDTO.getEmail())
             .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         return jwtTokenProvider.generateToken(
@@ -87,7 +87,7 @@ public class AuthService {
         );
     }
 
-    private String registerUser(String email, String password, UserApp user) {
+    private String registerUser(String email, String password, User user) {
         try {
             validatePassword(password);
 
@@ -97,7 +97,7 @@ public class AuthService {
                 );
             }
 
-            UserApp savedUser = userAppDAO.save(user);
+            User savedUser = userAppDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 

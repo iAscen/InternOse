@@ -11,5 +11,5 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @SuperBuilder
-public class InternshipManager extends UserApp{
+public class InternshipManager extends User {
 }

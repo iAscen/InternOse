@@ -49,14 +49,14 @@ public class StudentController {
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("status", student.getCvStatus().name().toLowerCase());
-            response.put("fileName", student.getCVFileName() != null ? student.getCVFileName() : "");
-            response.put("uploadedAt", student.getCvUploadedAt() != null ? 
-                student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
-            response.put("validatedAt", student.getCvValidatedAt() != null ? 
-                student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
-            response.put("rejectionReason", student.getCvRejectionReason() != null ? 
-                student.getCvRejectionReason() : "");
+            response.put("status", student.getResumeStatus().name().toLowerCase());
+            response.put("fileName", student.getResumeFileName() != null ? student.getResumeFileName() : "");
+            response.put("uploadedAt", student.getResumeUploadDate() != null ?
+                student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
+            response.put("validatedAt", student.getResumeVerifyDate() != null ?
+                student.getResumeVerifyDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
+            response.put("rejectionReason", student.getResumeRejectionReason() != null ?
+                student.getResumeRejectionReason() : "");
 
             return getResponseEntity(HttpStatus.OK, response);
         } catch (Exception e) {
