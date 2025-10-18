@@ -9,6 +9,7 @@ import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -210,6 +212,12 @@ public class StudentServiceTests {
     @Test
     @DisplayName("Test de la méthode searchInternshipOffers() avec critères de base")
     public void testSearchInternshipOffers_WithBasicCriteria() {
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.APPROVED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
         // Arrange
         InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
                 .program("Informatique")
@@ -237,7 +245,7 @@ public class StudentServiceTests {
         )).thenReturn(mockPage);
 
         // Act
-        Page<InternshipOfferDTO> result = studentService.searchInternshipOffers(criteria);
+        Page<InternshipOfferDTO> result = studentService.searchInternshipOffers(criteria, studentId);
 
         // Assert
         assertThat(result).isNotNull();
@@ -261,13 +269,19 @@ public class StudentServiceTests {
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre trouvée")
     public void testGetInternshipOfferById_OfferFound() {
         // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.APPROVED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
         Long offerId = 1L;
         InternshipOffer mockOffer = createTestOffer();
         when(internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED))
                 .thenReturn(mockOffer);
 
         // Act
-        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId);
+        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId, studentId );
 
         // Assert
         assertThat(result).isPresent();
@@ -280,12 +294,18 @@ public class StudentServiceTests {
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre non trouvée")
     public void testGetInternshipOfferById_OfferNotFound() {
         // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.APPROVED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
         Long offerId = 999L;
         when(internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED))
                 .thenReturn(null);
 
         // Act
-        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId);
+        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId, studentId);
 
         // Assert
         assertThat(result).isEmpty();
@@ -296,11 +316,17 @@ public class StudentServiceTests {
     @DisplayName("Test de la méthode getAllApprovedInternshipOffers()")
     public void testGetAllApprovedInternshipOffers() {
         // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.APPROVED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
         List<InternshipOffer> mockOffers = createTestOffers();
         when(internshipOfferDAO.findAll()).thenReturn(mockOffers);
 
         // Act
-        List<InternshipOfferDTO> result = studentService.getAllApprovedInternshipOffers();
+        List<InternshipOfferDTO> result = studentService.getAllApprovedInternshipOffers(studentId);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -313,6 +339,12 @@ public class StudentServiceTests {
     @DisplayName("Test de la méthode countInternshipOffers()")
     public void testCountInternshipOffers() {
         // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.APPROVED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
         InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
                 .program("Informatique")
                 .build();
@@ -330,7 +362,7 @@ public class StudentServiceTests {
         )).thenReturn(5L);
 
         // Act
-        long result = studentService.countInternshipOffers(criteria);
+        long result = studentService.countInternshipOffers(criteria, studentId);
 
         // Assert
         assertThat(result).isEqualTo(5L);
@@ -346,6 +378,93 @@ public class StudentServiceTests {
                 isNull()
         );
     }
+
+    @Test
+    @DisplayName("Test de la méthode getAllApprovedInternshipOffers() avec CV non validé")
+    public void testViewInternshipOffersCvNotValidated() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        // Act & Assert
+        assertThatThrownBy(() -> studentService.getAllApprovedInternshipOffers(studentId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("Le CV n'est pas valide");
+
+        verify(internshipOfferDAO, never()).findAll();
+    }
+
+    @Test
+    @DisplayName("Test de la méthode countInternshipOffers() avec CV non validé")
+    public void testCountInternshipOffersCvNotValidated() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.REJECTED);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
+            .program("Informatique")
+            .build();
+
+        // Act & Assert
+        assertThatThrownBy(() -> studentService.countInternshipOffers(criteria, studentId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("Le CV n'est pas valide");
+
+        verify(internshipOfferDAO, never()).countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Test de la méthode getInternshipOfferById() avec CV non validé")
+    public void testGetInternshipOfferByIdCvNotValidated() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.PENDING);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        Long offerId = 1L;
+
+        // Act & Assert
+        assertThatThrownBy(() -> studentService.getInternshipOfferById(offerId, studentId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("Le CV n'est pas valide");
+
+        verify(internshipOfferDAO, never()).findByIdAndStatus(any(), any());
+    }
+
+    @Test
+    @DisplayName("Test de la méthode searchInternshipOffers() avec CV non validé")
+    public void testSearchInternshipOffersCvNotValidated() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = exampleStudent();
+        student.setId(studentId);
+        student.setCvStatus(DocumentStatus.NONE);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
+            .program("Informatique")
+            .location("Montréal")
+            .build();
+
+        // Act & Assert
+        assertThatThrownBy(() -> studentService.searchInternshipOffers(criteria, studentId))
+            .isInstanceOf(DocumentNotValidatedException.class)
+            .hasMessage("Le CV n'est pas valide");
+
+        // Verify that the DAO method was not called since validation failed
+        verify(internshipOfferDAO, never()).findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+
+
 
     // ========== MÉTHODES UTILITAIRES POUR LES OFFRES DE STAGE ==========
 
