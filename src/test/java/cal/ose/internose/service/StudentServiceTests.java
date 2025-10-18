@@ -42,9 +42,6 @@ public class StudentServiceTests {
     @Mock
     private InternshipOfferDAO internshipOfferDAO;
 
-    @Mock
-    private StudentApplicationDAO studentApplicationDAO;
-
     @InjectMocks
     private StudentService studentService;
 
