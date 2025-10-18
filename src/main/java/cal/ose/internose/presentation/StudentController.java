@@ -5,6 +5,7 @@ import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,12 +79,22 @@ public class StudentController {
      * @return Liste de toutes les offres approuvées
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_PATH)
-    public ResponseEntity<List<InternshipOfferDTO>> getAllInternshipOffers(@RequestParam Long studentId) {
+    public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentId) {
+        Map<String, Object> errorResponse = new HashMap<>();
+
         try {
             List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentId);
-            return getResponseEntity(HttpStatus.OK, offers);
+            Map<String, Object> response = new HashMap<>();
+            response.put("offers", offers);
+            return getResponseEntity(HttpStatus.OK, response);
+        } catch (DocumentNotValidatedException e) {
+            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
+            errorResponse.put("message", e.getMessage());
+            return getResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, errorResponse);
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, List.of());
+            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
+            errorResponse.put("message", e.getMessage());
+            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
         }
     }
 
@@ -122,7 +133,8 @@ public class StudentController {
             @RequestParam(required = false) String sortOrder,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size) {
-        
+
+        Map<String, Object> errorResponse = new HashMap<>();
         try {
             // Construction des critères de recherche
             InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
@@ -157,8 +169,11 @@ public class StudentController {
             response.put("hasPrevious", offersPage.hasPrevious());
 
             return getResponseEntity(HttpStatus.OK, response);
+        } catch (DocumentNotValidatedException e) {
+            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
+            errorResponse.put("message", e.getMessage());
+            return getResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, errorResponse);
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
             errorResponse.put("message", e.getMessage());
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
@@ -172,6 +187,8 @@ public class StudentController {
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/{offerId}")
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(@PathVariable Long offerId, @RequestParam Long studentId) {
+        Map<String, Object> errorResponse = new HashMap<>();
+
         try {
             return studentService.getInternshipOfferById(offerId, studentId)
                     .map(offer -> {
@@ -180,13 +197,15 @@ public class StudentController {
                         return getResponseEntity(HttpStatus.OK, response);
                     })
                     .orElseGet(() -> {
-                        Map<String, Object> errorResponse = new HashMap<>();
                         errorResponse.put("error", "Offre de stage non trouvée");
                         errorResponse.put("message", "L'offre de stage demandée n'existe pas ou n'est pas disponible");
                         return getResponseEntity(HttpStatus.NOT_FOUND, errorResponse);
                     });
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
+        } catch (DocumentNotValidatedException e) {
+            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
+            errorResponse.put("message", e.getMessage());
+            return getResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, errorResponse);
+        }catch (Exception e) {
             errorResponse.put("error", "Erreur lors de la récupération de l'offre de stage");
             errorResponse.put("message", e.getMessage());
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);

@@ -9,6 +9,7 @@ import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -340,14 +341,9 @@ public class StudentService {
     private void validationCv(Long studentId) {
         Student student = studentDAO.findById(studentId).orElseThrow();
 
-        System.out.println("gonna call cvIsValidee for student " + studentId + "");
-
         if (!student.cvIsValidee()) {
             System.out.println("error for student " + studentId + "");
-            throw new IllegalArgumentException("Le CV du stagiaire n'est pas valide");
-        }
-        else {
-            System.out.println("cvIsValidee for student " + studentId + " is OK");
+            throw new DocumentNotValidatedException("Le CV n'est pas valide");
         }
     }
 }
