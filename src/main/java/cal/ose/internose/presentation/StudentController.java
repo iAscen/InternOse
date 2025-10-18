@@ -4,7 +4,6 @@ import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
-import cal.ose.internose.service.InternshipOfferService;
 import cal.ose.internose.service.StudentService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -24,11 +23,9 @@ import java.util.Map;
 @CrossOrigin("http://localhost:5173")
 public class StudentController {
     private final StudentService studentService;
-    private final InternshipOfferService internshipOfferService;
 
-    public StudentController(StudentService studentService, InternshipOfferService internshipOfferService) {
+    public StudentController(StudentService studentService) {
         this.studentService = studentService;
-        this.internshipOfferService = internshipOfferService;
     }
 
     @PostMapping("/cv")
@@ -83,7 +80,7 @@ public class StudentController {
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> getAllInternshipOffers() {
         try {
-            List<InternshipOfferDTO> offers = internshipOfferService.getAllApprovedInternshipOffers();
+            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers();
             return getResponseEntity(HttpStatus.OK, offers);
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, List.of());
@@ -145,8 +142,8 @@ public class StudentController {
                     .build();
 
             // Recherche des offres
-            Page<InternshipOfferDTO> offersPage = internshipOfferService.searchInternshipOffers(criteria);
-            long totalCount = internshipOfferService.countInternshipOffers(criteria);
+            Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria);
+            long totalCount = studentService.countInternshipOffers(criteria);
 
             // Construction de la réponse
             Map<String, Object> response = new HashMap<>();
@@ -175,7 +172,7 @@ public class StudentController {
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/{offerId}")
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(@PathVariable Long offerId) {
         try {
-            return internshipOfferService.getInternshipOfferById(offerId)
+            return studentService.getInternshipOfferById(offerId)
                     .map(offer -> {
                         Map<String, Object> response = new HashMap<>();
                         response.put("offer", offer);

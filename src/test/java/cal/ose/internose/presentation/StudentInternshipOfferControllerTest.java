@@ -3,7 +3,6 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.InternshipOfferService;
 import cal.ose.internose.service.StudentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,9 +35,6 @@ public class StudentInternshipOfferControllerTest {
     @Mock
     private StudentService studentService;
 
-    @Mock
-    private InternshipOfferService internshipOfferService;
-
     @InjectMocks
     private StudentController studentController;
 
@@ -54,7 +50,7 @@ public class StudentInternshipOfferControllerTest {
     public void testGetAllInternshipOffers() throws Exception {
         // Arrange
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
-        when(internshipOfferService.getAllApprovedInternshipOffers()).thenReturn(mockOffers);
+        when(studentService.getAllApprovedInternshipOffers()).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -76,8 +72,8 @@ public class StudentInternshipOfferControllerTest {
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
         
-        when(internshipOfferService.searchInternshipOffers(any())).thenReturn(mockPage);
-        when(internshipOfferService.countInternshipOffers(any())).thenReturn(2L);
+        when(studentService.searchInternshipOffers(any())).thenReturn(mockPage);
+        when(studentService.countInternshipOffers(any())).thenReturn(2L);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -106,8 +102,8 @@ public class StudentInternshipOfferControllerTest {
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
         
-        when(internshipOfferService.searchInternshipOffers(any())).thenReturn(mockPage);
-        when(internshipOfferService.countInternshipOffers(any())).thenReturn(2L);
+        when(studentService.searchInternshipOffers(any())).thenReturn(mockPage);
+        when(studentService.countInternshipOffers(any())).thenReturn(2L);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -133,8 +129,8 @@ public class StudentInternshipOfferControllerTest {
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
         
-        when(internshipOfferService.searchInternshipOffers(any())).thenReturn(mockPage);
-        when(internshipOfferService.countInternshipOffers(any())).thenReturn(2L);
+        when(studentService.searchInternshipOffers(any())).thenReturn(mockPage);
+        when(studentService.countInternshipOffers(any())).thenReturn(2L);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -160,8 +156,8 @@ public class StudentInternshipOfferControllerTest {
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
         
-        when(internshipOfferService.searchInternshipOffers(any())).thenReturn(mockPage);
-        when(internshipOfferService.countInternshipOffers(any())).thenReturn(2L);
+        when(studentService.searchInternshipOffers(any())).thenReturn(mockPage);
+        when(studentService.countInternshipOffers(any())).thenReturn(2L);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -182,7 +178,7 @@ public class StudentInternshipOfferControllerTest {
         // Arrange
         Long offerId = 1L;
         InternshipOfferDTO mockOffer = createTestOfferDTO();
-        when(internshipOfferService.getInternshipOfferById(offerId)).thenReturn(Optional.of(mockOffer));
+        when(studentService.getInternshipOfferById(offerId)).thenReturn(Optional.of(mockOffer));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -202,7 +198,7 @@ public class StudentInternshipOfferControllerTest {
     public void testGetInternshipOfferDetails_OfferNotFound() throws Exception {
         // Arrange
         Long offerId = 999L;
-        when(internshipOfferService.getInternshipOfferById(offerId)).thenReturn(Optional.empty());
+        when(studentService.getInternshipOfferById(offerId)).thenReturn(Optional.empty());
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -221,7 +217,7 @@ public class StudentInternshipOfferControllerTest {
     @DisplayName("Test de la méthode searchInternshipOffers() avec erreur de service")
     public void testSearchInternshipOffers_ServiceError() throws Exception {
         // Arrange
-        when(internshipOfferService.searchInternshipOffers(any())).thenThrow(new RuntimeException("Erreur de base de données"));
+        when(studentService.searchInternshipOffers(any())).thenThrow(new RuntimeException("Erreur de base de données"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -240,7 +236,7 @@ public class StudentInternshipOfferControllerTest {
     @DisplayName("Test de la méthode getAllInternshipOffers() avec erreur de service")
     public void testGetAllInternshipOffers_ServiceError() throws Exception {
         // Arrange
-        when(internshipOfferService.getAllApprovedInternshipOffers()).thenThrow(new RuntimeException("Erreur de base de données"));
+        when(studentService.getAllApprovedInternshipOffers()).thenThrow(new RuntimeException("Erreur de base de données"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
