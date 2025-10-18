@@ -223,12 +223,10 @@ public class StudentServiceTests {
         List<InternshipOffer> mockOffers = createTestOffers();
         Page<InternshipOffer> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
         
-        when(internshipOfferDAO.findInternshipOffersWithFilters(
+        when(internshipOfferDAO.findInternshipOffersWithoutDates(
                 eq(DocumentStatus.APPROVED),
-                eq("Informatique"),
-                eq("Montréal"),
-                isNull(),
-                isNull(),
+                eq("%Informatique%"),
+                eq("%Montréal%"),
                 isNull(),
                 isNull(),
                 isNull(),
@@ -245,12 +243,10 @@ public class StudentServiceTests {
         assertThat(result).isNotNull();
         assertThat(result.getContent().size()).isEqualTo(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        verify(internshipOfferDAO, times(1)).findInternshipOffersWithFilters(
+        verify(internshipOfferDAO, times(1)).findInternshipOffersWithoutDates(
                 eq(DocumentStatus.APPROVED),
-                eq("Informatique"),
-                eq("Montréal"),
-                isNull(),
-                isNull(),
+                eq("%Informatique%"),
+                eq("%Montréal%"),
                 isNull(),
                 isNull(),
                 isNull(),
@@ -321,11 +317,9 @@ public class StudentServiceTests {
                 .program("Informatique")
                 .build();
 
-        when(internshipOfferDAO.countInternshipOffersWithFilters(
+        when(internshipOfferDAO.countInternshipOffersWithoutDates(
                 eq(DocumentStatus.APPROVED),
-                eq("Informatique"),
-                isNull(),
-                isNull(),
+                eq("%Informatique%"),
                 isNull(),
                 isNull(),
                 isNull(),
@@ -340,11 +334,9 @@ public class StudentServiceTests {
 
         // Assert
         assertThat(result).isEqualTo(5L);
-        verify(internshipOfferDAO, times(1)).countInternshipOffersWithFilters(
+        verify(internshipOfferDAO, times(1)).countInternshipOffersWithoutDates(
                 eq(DocumentStatus.APPROVED),
-                eq("Informatique"),
-                isNull(),
-                isNull(),
+                eq("%Informatique%"),
                 isNull(),
                 isNull(),
                 isNull(),
