@@ -23,14 +23,31 @@ public class InternshipOffer {
     private Long id;
     @ManyToOne
     private Employer employer;
+    @Column(name = "job_title", columnDefinition = "VARCHAR(255)")
     private String jobTitle;
+    
+    @Column(name = "task_description", columnDefinition = "TEXT")
     private String taskDescription;
+    
+    @Column(name = "program", columnDefinition = "VARCHAR(255)")
     private String program;
+    
+    @Column(name = "qualifications", columnDefinition = "TEXT")
     private String qualifications;
+    
+    @Column(name = "duration", columnDefinition = "INTEGER")
     private int duration;
+    
+    @Column(name = "start_date", columnDefinition = "DATE")
     private LocalDate startDate;
+    
+    @Column(name = "end_date", columnDefinition = "DATE")
     private LocalDate endDate;
+    
+    @Column(name = "salary", columnDefinition = "DECIMAL(10,2)")
     private double salary;
+    
+    @Column(name = "address", columnDefinition = "VARCHAR(255)")
     private String address;
     @Enumerated(EnumType.STRING)
     @Column(name = "validation_status")

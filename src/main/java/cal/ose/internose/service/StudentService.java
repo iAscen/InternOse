@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -201,19 +202,46 @@ public class StudentService {
         Sort sort = createSort(criteria.getSortBy(), criteria.getSortOrder());
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        // Préparation des paramètres de recherche avec wildcards
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
+        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
+        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+
+        // Conversion des dates si elles sont des strings
+        LocalDate startDateFrom = criteria.getStartDateFrom();
+        LocalDate startDateTo = criteria.getStartDateTo();
+
+        // Si les dates sont des strings, les parser
+        if (startDateFrom == null && criteria.getStartDateFrom() != null) {
+            try {
+                startDateFrom = LocalDate.parse(criteria.getStartDateFrom().toString());
+            } catch (Exception e) {
+                startDateFrom = null;
+            }
+        }
+        if (startDateTo == null && criteria.getStartDateTo() != null) {
+            try {
+                startDateTo = LocalDate.parse(criteria.getStartDateTo().toString());
+            } catch (Exception e) {
+                startDateTo = null;
+            }
+        }
+
         // Recherche avec filtres
-        Page<InternshipOffer> offers = internshipOfferDAO.findInternshipOffersWithFilters(
+        Page<InternshipOffer> offers;
+        
+        // Utiliser la requête sans dates pour éviter les problèmes de type
+        offers = internshipOfferDAO.findInternshipOffersWithoutDates(
                 DocumentStatus.APPROVED, // Seules les offres approuvées
-                criteria.getProgram(),
-                criteria.getLocation(),
-                criteria.getJobTitle(),
-                criteria.getCompany(),
+                program,
+                location,
+                jobTitle,
+                company,
                 criteria.getMinSalary(),
                 criteria.getMaxSalary(),
                 criteria.getMinDuration(),
                 criteria.getMaxDuration(),
-                criteria.getStartDateFrom(),
-                criteria.getStartDateTo(),
                 pageable
         );
 
@@ -250,18 +278,22 @@ public class StudentService {
      * @return Nombre d'offres correspondantes
      */
     public long countInternshipOffers(InternshipOfferSearchCriteria criteria) {
-        return internshipOfferDAO.countInternshipOffersWithFilters(
+        // Préparation des paramètres de recherche avec wildcards
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
+        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
+        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+
+        return internshipOfferDAO.countInternshipOffersWithoutDates(
                 DocumentStatus.APPROVED,
-                criteria.getProgram(),
-                criteria.getLocation(),
-                criteria.getJobTitle(),
-                criteria.getCompany(),
+                program,
+                location,
+                jobTitle,
+                company,
                 criteria.getMinSalary(),
                 criteria.getMaxSalary(),
                 criteria.getMinDuration(),
-                criteria.getMaxDuration(),
-                criteria.getStartDateFrom(),
-                criteria.getStartDateTo()
+                criteria.getMaxDuration()
         );
     }
 
