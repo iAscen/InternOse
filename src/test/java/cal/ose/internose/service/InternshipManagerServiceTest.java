@@ -245,6 +245,24 @@ class InternshipManagerServiceTest {
     }
 
     @Test
+    @DisplayName("Test de la méthode validateStudentCV() - L'etudiant n'a pas de CV")
+    public void testValidateStudentCV_NoCV() {
+        // Arrange
+        Long studentId = 1L;
+        Student student = createTestStudents().get(0);
+        student.setCvStatus(DocumentStatus.NONE);
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+
+        // Act & Assert
+        try {
+            internshipManagerService.validateStudentCV(studentId, true, null);
+            assertThat(false).isTrue();
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage()).isEqualTo("Cet etudiant n'a pas de CV");
+        }
+    }
+
+    @Test
     @DisplayName("Test de la méthode validateStudentCV() - CV déjà traité")
     public void testValidateStudentCV_AlreadyProcessed() {
         // Arrange

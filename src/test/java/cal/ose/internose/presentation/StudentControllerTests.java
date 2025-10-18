@@ -154,7 +154,7 @@ public class StudentControllerTests {
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Erreur lors de la postulation");
         assertThat(responseContent).contains(errorMessage);

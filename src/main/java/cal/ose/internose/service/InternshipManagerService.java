@@ -77,6 +77,10 @@ public class InternshipManagerService {
         Student student = studentDAO.findById(studentId)
             .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
 
+        if (student.getCvStatus() == DocumentStatus.NONE) {
+            throw new RuntimeException("Cet etudiant n'a pas de CV");
+        }
+
         if (student.getCvStatus() != DocumentStatus.PENDING) {
             throw new RuntimeException("Ce CV a déjà été traité");
         }

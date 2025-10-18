@@ -330,12 +330,12 @@ public class StudentServiceTests {
 
     @Test
     public void testPostulerSuccess() {
-        Long studentId = 1L;
+        long studentId = 1L;
         Student student = exampleStudent();
         student.setCvStatus(DocumentStatus.APPROVED);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
-        Long internshipOfferId = 1L;
+        long internshipOfferId = 1L;
         InternshipOffer offer = exampleInternshipOffer();
         offer.setValidationStatus(DocumentStatus.APPROVED);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
@@ -349,12 +349,12 @@ public class StudentServiceTests {
 
     @Test
     public void testPostulerCvMissingValidation() {
-        Long studentId = 1L;
+        long studentId = 1L;
         Student student = exampleStudent();
         student.setCvStatus(DocumentStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
-        Long internshipOfferId = 1L;
+        long internshipOfferId = 1L;
         InternshipOffer offer = exampleInternshipOffer();
         offer.setValidationStatus(DocumentStatus.APPROVED);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
@@ -367,12 +367,12 @@ public class StudentServiceTests {
 
     @Test
     public void testOfferMissingValidation() {
-        Long studentId = 1L;
+        long studentId = 1L;
         Student student = exampleStudent();
         student.setCvStatus(DocumentStatus.APPROVED);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
-        Long internshipOfferId = 1L;
+        long internshipOfferId = 1L;
         InternshipOffer offer = exampleInternshipOffer();
         offer.setValidationStatus(DocumentStatus.PENDING);
         when(internshipOfferDAO.findById(internshipOfferId)).thenReturn(Optional.of(offer));
@@ -385,11 +385,11 @@ public class StudentServiceTests {
 
     @Test
     public void testAlreadyPostule() {
-        Long studentId = 1L;
+        long studentId = 1L;
         Student student = exampleStudent();
         student.setCvStatus(DocumentStatus.APPROVED);
 
-        Long internshipId = 1L;
+        long internshipId = 1L;
         InternshipOffer internshipOffer = new InternshipOffer();
         internshipOffer.setValidationStatus(DocumentStatus.APPROVED);
 
@@ -405,7 +405,7 @@ public class StudentServiceTests {
 
     @Test
     public void testPostulerInvalidOfferId() {
-        Long studentId = 1L;
+        long studentId = 1L;
         Student student = exampleStudent();
         student.setCvStatus(DocumentStatus.APPROVED);
 
@@ -420,7 +420,7 @@ public class StudentServiceTests {
     @Test
     public void testPostulerInvalidStudentId() {
 
-        Long internshipId = 1L;
+        long internshipId = 1L;
         InternshipOffer internshipOffer = new InternshipOffer();
         internshipOffer.setValidationStatus(DocumentStatus.APPROVED);
 
