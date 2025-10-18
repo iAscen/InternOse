@@ -21,7 +21,6 @@ public class StudentDTO extends UserAppDTO {
     private String institution;
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
-    private String coverLetter;
 
     public StudentDTO(Long id, String firstName, String lastName, String email, String password, Role role, DocumentStatus cvStatus) {
         super(id, firstName, lastName, email, password, role);

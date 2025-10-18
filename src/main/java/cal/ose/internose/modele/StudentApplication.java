@@ -37,8 +37,6 @@ public class StudentApplication {
     @Builder.Default
     private ApplicationStatus status = ApplicationStatus.PENDING;
     
-    @Column(name = "cover_letter", length = 2000)
-    private String coverLetter;
     
     public enum ApplicationStatus {
         PENDING,    // En attente
