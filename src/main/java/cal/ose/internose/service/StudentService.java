@@ -195,8 +195,7 @@ public class StudentService {
      */
     public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
 
-        cvIsValidee(studentId);
-
+        validationCv(studentId);
 
         // Configuration de la pagination
         int page = criteria.getPage() != null ? criteria.getPage() : 0;
@@ -253,20 +252,16 @@ public class StudentService {
         return offers.map(InternshipOfferDTO::fromEntity);
     }
 
-    private void cvIsValidee(Long studentId) {
-        Student student = studentDAO.findById(studentId).orElseThrow();
-
-        if (!student.cvIsValidee()) {
-            throw new IllegalArgumentException("Le CV du stagiaire n'est pas valide");
-        }
-    }
 
     /**
      * Récupère une offre de stage par son ID
      * @param offerId ID de l'offre
      * @return Offre de stage si trouvée et approuvée
      */
-    public Optional<InternshipOfferDTO> getInternshipOfferById(Long offerId) {
+    public Optional<InternshipOfferDTO> getInternshipOfferById(Long offerId, Long studentId) {
+
+        validationCv(studentId);
+
         Optional<InternshipOffer> offer = Optional.ofNullable(
                 internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED)
         );
@@ -277,7 +272,10 @@ public class StudentService {
      * Récupère toutes les offres de stage approuvées (sans filtres)
      * @return Liste de toutes les offres approuvées
      */
-    public List<InternshipOfferDTO> getAllApprovedInternshipOffers() {
+    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentId) {
+
+        validationCv(studentId);
+
         List<InternshipOffer> offers = internshipOfferDAO.findAll().stream()
                 .filter(offer -> offer.getValidationStatus() == DocumentStatus.APPROVED)
                 .toList();
@@ -289,7 +287,10 @@ public class StudentService {
      * @param criteria Critères de recherche
      * @return Nombre d'offres correspondantes
      */
-    public long countInternshipOffers(InternshipOfferSearchCriteria criteria) {
+    public long countInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+
+        validationCv(studentId);
+
         // Préparation des paramètres de recherche avec wildcards
         String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
         String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
@@ -334,5 +335,19 @@ public class StudentService {
             case "address", "lieu" -> Sort.by(direction, "address");
             default -> Sort.by(Sort.Direction.DESC, "startDate");
         };
+    }
+
+    private void validationCv(Long studentId) {
+        Student student = studentDAO.findById(studentId).orElseThrow();
+
+        System.out.println("gonna call cvIsValidee for student " + studentId + "");
+
+        if (!student.cvIsValidee()) {
+            System.out.println("error for student " + studentId + "");
+            throw new IllegalArgumentException("Le CV du stagiaire n'est pas valide");
+        }
+        else {
+            System.out.println("cvIsValidee for student " + studentId + " is OK");
+        }
     }
 }

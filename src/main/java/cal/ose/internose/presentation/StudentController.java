@@ -78,9 +78,9 @@ public class StudentController {
      * @return Liste de toutes les offres approuvées
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_PATH)
-    public ResponseEntity<List<InternshipOfferDTO>> getAllInternshipOffers() {
+    public ResponseEntity<List<InternshipOfferDTO>> getAllInternshipOffers(@RequestParam Long studentId) {
         try {
-            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers();
+            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentId);
             return getResponseEntity(HttpStatus.OK, offers);
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, List.of());
@@ -107,7 +107,7 @@ public class StudentController {
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
-            @RequestParam(required = true) Long studentId,
+            @RequestParam() Long studentId,
             @RequestParam(required = false) String program,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String jobTitle,
@@ -144,7 +144,7 @@ public class StudentController {
 
             // Recherche des offres
             Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria, studentId);
-            long totalCount = studentService.countInternshipOffers(criteria);
+            long totalCount = studentService.countInternshipOffers(criteria , studentId);
 
             // Construction de la réponse
             Map<String, Object> response = new HashMap<>();
@@ -171,9 +171,9 @@ public class StudentController {
      * @return Détails de l'offre de stage
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/{offerId}")
-    public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(@PathVariable Long offerId) {
+    public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(@PathVariable Long offerId, @RequestParam Long studentId) {
         try {
-            return studentService.getInternshipOfferById(offerId)
+            return studentService.getInternshipOfferById(offerId, studentId)
                     .map(offer -> {
                         Map<String, Object> response = new HashMap<>();
                         response.put("offer", offer);
