@@ -107,6 +107,7 @@ public class StudentController {
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
+            @RequestParam(required = true) Long studentId,
             @RequestParam(required = false) String program,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String jobTitle,
@@ -142,7 +143,7 @@ public class StudentController {
                     .build();
 
             // Recherche des offres
-            Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria);
+            Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria, studentId);
             long totalCount = studentService.countInternshipOffers(criteria);
 
             // Construction de la réponse

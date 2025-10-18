@@ -193,11 +193,15 @@ public class StudentService {
      * @param criteria Critères de recherche et filtrage
      * @return Page d'offres de stage correspondant aux critères
      */
-    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria) {
+    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+
+        cvIsValidee(studentId);
+
+
         // Configuration de la pagination
         int page = criteria.getPage() != null ? criteria.getPage() : 0;
         int size = criteria.getSize() != null ? criteria.getSize() : 10;
-        
+
         // Configuration du tri
         Sort sort = createSort(criteria.getSortBy(), criteria.getSortOrder());
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -230,7 +234,7 @@ public class StudentService {
 
         // Recherche avec filtres
         Page<InternshipOffer> offers;
-        
+
         // Utiliser la requête sans dates pour éviter les problèmes de type
         offers = internshipOfferDAO.findInternshipOffersWithoutDates(
                 DocumentStatus.APPROVED, // Seules les offres approuvées
@@ -247,6 +251,14 @@ public class StudentService {
 
         // Conversion en DTOs
         return offers.map(InternshipOfferDTO::fromEntity);
+    }
+
+    private void cvIsValidee(Long studentId) {
+        Student student = studentDAO.findById(studentId).orElseThrow();
+
+        if (!student.cvIsValidee()) {
+            throw new IllegalArgumentException("Le CV du stagiaire n'est pas valide");
+        }
     }
 
     /**
