@@ -544,8 +544,7 @@ class ApiService {
       const params = new URLSearchParams();
       if (sortBy) params.append('sortBy', sortBy);
       if (status) {
-        const valid = status.toLowerCase() === 'true' || status.toLowerCase() === 'validated' || status.toLowerCase() === 'approuvé';
-        params.append('valid', valid.toString());
+        params.append('valid', status);
       }
       if (program) params.append('program', program);
       if (title) params.append('title', title);

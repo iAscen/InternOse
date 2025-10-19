@@ -74,6 +74,7 @@ export default function IMDashboardContent() {
         try {
             setLoading(true);
             const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
+            console.log(response)
             if (response.success && response.data) {
                 setOffers(response.data);
             } else {

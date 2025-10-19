@@ -46,9 +46,10 @@ public class StudentApplication {
         public static ApplicationStatus of(String status) {
             if (status == null) return null;
             return switch (status.toUpperCase()) {
+                case "PENDING" -> PENDING;
                 case "ACCEPTED", "APPROVED" -> ACCEPTED;
                 case "REJECTED" -> REJECTED;
-                default -> PENDING;
+                default -> null;
             };
         }
     }

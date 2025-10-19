@@ -20,7 +20,7 @@ public class InternshipManagerService {
     private InternshipOfferDAO internshipOfferDAO;
     private final StudentDAO studentDAO;
 
-    public List<InternshipOfferDTO> findInternshipsBy(String program, Boolean valid, String title, String sortBy) {
+    public List<InternshipOfferDTO> findInternshipsBy(String program, DocumentStatus valid, String title, String sortBy) {
         // Ajouter les wildcards pour la recherche LIKE
         String programPattern = program != null ? "%" + program + "%" : null;
         String titlePattern = title != null ? "%" + title + "%" : null;

@@ -36,14 +36,10 @@ public class InternshipManagerController {
                                                                       @RequestParam(required = false) String valid,
                                                                       @RequestParam(required = false) String title,
                                                                       @RequestParam(required = false) String sortBy) {
-        // Convertir le paramètre valid de String vers Boolean
-        Boolean validBoolean = null;
-        if (valid != null && !valid.isEmpty() && !valid.equals("null")) {
-            validBoolean = Boolean.parseBoolean(valid);
-        }
 
+        DocumentStatus status = DocumentStatus.of(valid);
         return ResponseEntity.status(HttpStatus.OK)
-            .body(internshipManagerService.findInternshipsBy(program, validBoolean, title, sortBy));
+            .body(internshipManagerService.findInternshipsBy(program, status, title, sortBy));
     }
 
     @GetMapping(Paths.INTERNSHIP_VALIDATION_PATH)

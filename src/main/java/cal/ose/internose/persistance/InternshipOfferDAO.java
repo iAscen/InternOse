@@ -22,7 +22,7 @@ public interface InternshipOfferDAO extends JpaRepository<InternshipOffer, Long>
             "AND (:title IS NULL OR io.jobTitle LIKE :title)"
     )
     List<InternshipOffer> findInternshipsBy(@Param("domain") String domain,
-                                            @Param("valid") Boolean valid,
+                                            @Param("valid") DocumentStatus valid,
                                             @Param("title") String title);
 
     InternshipOffer findInternshipOfferById(Long id);

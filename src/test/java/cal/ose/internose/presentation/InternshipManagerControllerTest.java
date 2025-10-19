@@ -73,7 +73,7 @@ class InternshipManagerControllerTest {
     void findInternshipsByWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
-            "Informatique", true, "Développeur", "title")).thenReturn(
+            "Informatique", DocumentStatus.APPROVED, "Développeur", "title")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .jobTitle("Développeur Java")
@@ -89,7 +89,7 @@ class InternshipManagerControllerTest {
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.SEARCH_INTERNSHIPS_PATH)
                     .param("program", "Informatique")
-                    .param("valid", "true")
+                    .param("valid", "approved")
                     .param("title", "Développeur")
                     .param("sortBy", "title")
                     .contentType(MediaType.APPLICATION_JSON))
