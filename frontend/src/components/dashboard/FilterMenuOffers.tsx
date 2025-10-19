@@ -179,14 +179,12 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
             </div>
           </div>
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('student.durationRange')}
-            </label>
             <div className="flex gap-2">
               <FormInput
                 id={"minDuration"}
                 name={"minDuration"}
                 type={"number"}
+                label={t('student.minWeeks')}
                 placeholder={t('student.minWeeks')}
                 value={formData.minDuration || ""}
                 onChange={handleChange}
@@ -196,6 +194,7 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
                 id={"maxDuration"}
                 name={"maxDuration"}
                 type={"number"}
+                label={t('student.maxWeeks')}
                 placeholder={t('student.maxWeeks')}
                 value={formData.maxDuration || ""}
                 onChange={handleChange}
@@ -204,15 +203,13 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
             </div>
           </div>
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('student.startDateRange')}
-            </label>
             <div className="flex gap-2">
               <FormInput
                 id={"startDateFrom"}
                 name={"startDateFrom"}
                 type={"date"}
-                placeholder={t('student.from')}
+                label={t('student.dateFrom')}
+                placeholder={t('student.dateFrom')}
                 value={formData.startDateFrom || ""}
                 onChange={handleChange}
                 required={false}
@@ -221,7 +218,8 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
                 id={"startDateTo"}
                 name={"startDateTo"}
                 type={"date"}
-                placeholder={t('student.to')}
+                label={t('student.dateTo')}
+                placeholder={t('student.dateTo')}
                 value={formData.startDateTo || ""}
                 onChange={handleChange}
                 required={false}
