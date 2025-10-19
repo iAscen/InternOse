@@ -76,7 +76,6 @@ public class EmployerService {
                         .cvFileData(app.getStudent().getCVFileData())
                         .applicationDate(app.getApplicationDate())
                         .applicationStatus(app.getStatus())
-                        .coverLetter(app.getCoverLetter())
                         .build()).collect(Collectors.toList());
     }
 
@@ -101,7 +100,6 @@ public class EmployerService {
                         .cvFileData(app.getStudent().getCVFileData())
                         .applicationDate(app.getApplicationDate())
                         .applicationStatus(app.getStatus())
-                        .coverLetter(app.getCoverLetter())
                         .build())
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found for student " + studentId));
     }

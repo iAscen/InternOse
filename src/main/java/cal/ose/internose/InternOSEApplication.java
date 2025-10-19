@@ -56,7 +56,7 @@ public class InternOSEApplication {
                 internshipManagerDTO.setPassword("Password123!");
                 authService.registerInternshipManager(internshipManagerDTO);
 
-                employerService.createInternshipOffer(
+                var offer1 = employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
                         .jobTitle("Développeur Kotlin")
@@ -69,6 +69,10 @@ public class InternOSEApplication {
                         .address("Laval, Québec")
                         .build()
                 );
+                // Approuver l'offre
+                if (offer1.isPresent()) {
+                    offer1.get().setValidationStatus(cal.ose.internose.modele.DocumentStatus.APPROVED);
+                }
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()

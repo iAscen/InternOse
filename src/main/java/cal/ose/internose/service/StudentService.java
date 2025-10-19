@@ -7,11 +7,19 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,6 +184,166 @@ public class StudentService {
             }
             internshipOffer.getStudents().add(student);
             internshipOfferDAO.save(internshipOffer);
+        }
+    }
+
+    // ========== MÉTHODES POUR LA GESTION DES OFFRES DE STAGE ==========
+
+    /**
+     * Recherche les offres de stage avec filtres et tri
+     * @param criteria Critères de recherche et filtrage
+     * @return Page d'offres de stage correspondant aux critères
+     */
+    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+
+        validationCv(studentId);
+
+        // Configuration de la pagination
+        int page = criteria.getPage() != null ? criteria.getPage() : 0;
+        int size = criteria.getSize() != null ? criteria.getSize() : 10;
+
+        // Configuration du tri
+        Sort sort = createSort(criteria.getSortBy(), criteria.getSortOrder());
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Préparation des paramètres de recherche avec wildcards
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
+        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
+        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+
+        // Conversion des dates si elles sont des strings
+        LocalDate startDateFrom = criteria.getStartDateFrom();
+        LocalDate startDateTo = criteria.getStartDateTo();
+
+        // Si les dates sont des strings, les parser
+        if (startDateFrom == null && criteria.getStartDateFrom() != null) {
+            try {
+                startDateFrom = LocalDate.parse(criteria.getStartDateFrom().toString());
+            } catch (Exception e) {
+                startDateFrom = null;
+            }
+        }
+        if (startDateTo == null && criteria.getStartDateTo() != null) {
+            try {
+                startDateTo = LocalDate.parse(criteria.getStartDateTo().toString());
+            } catch (Exception e) {
+                startDateTo = null;
+            }
+        }
+
+        // Recherche avec filtres
+        Page<InternshipOffer> offers;
+
+        // Utiliser la requête sans dates pour éviter les problèmes de type
+        offers = internshipOfferDAO.findInternshipOffersWithoutDates(
+                DocumentStatus.APPROVED, // Seules les offres approuvées
+                program,
+                location,
+                jobTitle,
+                company,
+                criteria.getMinSalary(),
+                criteria.getMaxSalary(),
+                criteria.getMinDuration(),
+                criteria.getMaxDuration(),
+                pageable
+        );
+
+        // Conversion en DTOs
+        return offers.map(InternshipOfferDTO::fromEntity);
+    }
+
+
+    /**
+     * Récupère une offre de stage par son ID
+     * @param offerId ID de l'offre
+     * @return Offre de stage si trouvée et approuvée
+     */
+    public Optional<InternshipOfferDTO> getInternshipOfferById(Long offerId, Long studentId) {
+
+        validationCv(studentId);
+
+        Optional<InternshipOffer> offer = Optional.ofNullable(
+                internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED)
+        );
+        return offer.map(InternshipOfferDTO::fromEntity);
+    }
+
+    /**
+     * Récupère toutes les offres de stage approuvées (sans filtres)
+     * @return Liste de toutes les offres approuvées
+     */
+    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentId) {
+
+        validationCv(studentId);
+
+        List<InternshipOffer> offers = internshipOfferDAO.findAll().stream()
+                .filter(offer -> offer.getValidationStatus() == DocumentStatus.APPROVED)
+                .toList();
+        return InternshipOfferDTO.fromEntityList(offers);
+    }
+
+    /**
+     * Compte le nombre d'offres correspondant aux critères
+     * @param criteria Critères de recherche
+     * @return Nombre d'offres correspondantes
+     */
+    public long countInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+
+        validationCv(studentId);
+
+        // Préparation des paramètres de recherche avec wildcards
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
+        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
+        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+
+        return internshipOfferDAO.countInternshipOffersWithoutDates(
+                DocumentStatus.APPROVED,
+                program,
+                location,
+                jobTitle,
+                company,
+                criteria.getMinSalary(),
+                criteria.getMaxSalary(),
+                criteria.getMinDuration(),
+                criteria.getMaxDuration()
+        );
+    }
+
+    /**
+     * Crée un objet Sort basé sur les critères de tri
+     * @param sortBy Critère de tri
+     * @param sortOrder Ordre de tri (asc/desc)
+     * @return Objet Sort configuré
+     */
+    private Sort createSort(String sortBy, String sortOrder) {
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            // Tri par défaut par date de début (plus récent en premier)
+            return Sort.by(Sort.Direction.DESC, "startDate");
+        }
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? 
+                Sort.Direction.DESC : Sort.Direction.ASC;
+
+        return switch (sortBy.toLowerCase()) {
+            case "jobtitle", "titre" -> Sort.by(direction, "jobTitle");
+            case "company", "entreprise" -> Sort.by(direction, "employer.enterprise");
+            case "startdate", "datedebut" -> Sort.by(direction, "startDate");
+            case "salary", "salaire" -> Sort.by(direction, "salary");
+            case "duration", "duree" -> Sort.by(direction, "duration");
+            case "program", "discipline" -> Sort.by(direction, "program");
+            case "address", "lieu" -> Sort.by(direction, "address");
+            default -> Sort.by(Sort.Direction.DESC, "startDate");
+        };
+    }
+
+    private void validationCv(Long studentId) {
+        Student student = studentDAO.findById(studentId).orElseThrow();
+
+        if (!student.cvIsValidee()) {
+            System.out.println("error for student " + studentId + "");
+            throw new DocumentNotValidatedException("Le CV n'est pas valide");
         }
     }
 }

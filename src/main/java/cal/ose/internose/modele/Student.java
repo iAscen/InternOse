@@ -45,4 +45,8 @@ public class Student extends UserApp {
 
     @ManyToMany(mappedBy = "students") // if InternshipOffer owns the relationship
     private List<InternshipOffer> internshipOffers;
+
+    public boolean cvIsValidee() {
+        return cvStatus == DocumentStatus.APPROVED;
+    }
 }

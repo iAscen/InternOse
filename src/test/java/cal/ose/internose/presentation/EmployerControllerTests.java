@@ -124,7 +124,6 @@ public class EmployerControllerTests {
                 .institution("University")
                 .applicationDate(java.time.LocalDateTime.now())
                 .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.PENDING)
-                .coverLetter("I am very interested in this position...")
                 .build();
 
         when(employerService.getStudentApplicationDetails(1L, 1L))
@@ -143,7 +142,6 @@ public class EmployerControllerTests {
         
         assertThat(responseApplication.getFirstName()).isEqualTo("John");
         assertThat(responseApplication.getLastName()).isEqualTo("Doe");
-        assertThat(responseApplication.getCoverLetter()).isEqualTo("I am very interested in this position...");
     }
 
     @Test

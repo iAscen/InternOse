@@ -148,7 +148,6 @@ public class EmployerServiceTests {
                 .student(student)
                 .applicationDate(java.time.LocalDateTime.now())
                 .status(StudentApplication.ApplicationStatus.PENDING)
-                .coverLetter("I am very interested in this position...")
                 .build();
 
         when(internshipOfferDAO.existsById(1L))
@@ -162,7 +161,6 @@ public class EmployerServiceTests {
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getFirstName()).isEqualTo("John");
         assertThat(result.getLastName()).isEqualTo("Doe");
-        assertThat(result.getCoverLetter()).isEqualTo("I am very interested in this position...");
         assertThat(result.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.PENDING);
     }
 

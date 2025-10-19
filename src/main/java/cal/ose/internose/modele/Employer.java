@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class Employer extends UserApp {
-    @Column(nullable = false)
+    @Column(name = "enterprise", nullable = false, columnDefinition = "VARCHAR(255)")
     private String enterprise;
 
     public Employer(Long id, String firstName, String lastName, Credentials credentials, String enterprise) {
