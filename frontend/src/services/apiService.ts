@@ -892,6 +892,59 @@ class ApiService {
       };
     }
   }
+
+  async getStudentApplicationsBy(internshipId: number, applicationStatus: string | null, 
+                                  program: string | null, institution: string | null, sortBy: string | null): Promise<ApiResponse<Cv[]>> {
+      try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const params = new URLSearchParams()
+      params.set("internshipId", internshipId.toString())
+      if (applicationStatus)
+        params.set("cvStatus", applicationStatus)
+      if (program)
+        params.set("program", program)
+      if (institution)
+        params.set("institution", institution)
+      if (sortBy)
+        params.set("sortBy", sortBy)
+      
+      const url = `${API_BASE_URL}/employer/internship-offer/students?${params.toString()}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const applications = await response.json();
+        return {
+          success: true,
+          data: applications
+        };
+      } else {
+        let errorMessage = "Erreur lors de l'obtention des candidatures.";
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
 }
 
 export const apiService = new ApiService();
