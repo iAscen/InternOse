@@ -216,7 +216,13 @@
     "serverError": "Erreur de connexion au serveur",
     "student": "Étudiant",
     "rejectionReason": "Raison de rejet",
-    "uploadedAt": "Téléversé le"
+    "uploadedAt": "Téléversé le",
+    "internshipApplications" : {
+      "sortAndFilter": "Trier / Filtrer",
+      "goBack": "Retourner",
+      "noCandidaturesFound": "Aucune candidature reçue pour cette offre.",
+      "applications": "Candidatures"
+    }
   },
   "errors": {
     "required": "Ce champ est requis",

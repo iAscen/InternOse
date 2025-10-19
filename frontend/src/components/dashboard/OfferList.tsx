@@ -1,20 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 
 interface OfferListProps {
+  changeCursorIfApproved: boolean;
+  selectOffer?: (offer: InternshipOffer) => void;
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
   onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
 }
 
-export default function OfferList({ isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
+export default function OfferList({changeCursorIfApproved, selectOffer, isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
   const { t } = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
   const handleValidateOffer = (offer: InternshipOffer) => {
     setSelectedOffer(offer);
     setIsModalOpen(true);
@@ -87,7 +89,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
 
       <div className="divide-y divide-gray-200">
         {offers.map((offer, index) => (
-          <div key={offer.id || index} className="p-6 hover:bg-gray-50 transition-colors">
+          <div key={offer.id || index} onClick={() => selectOffer ? selectOffer(offer) : ""} className={`p-6 hover:bg-gray-50 transition-colors ${(offer.validationStatus == "APPROVED" && changeCursorIfApproved) ? "cursor-pointer" : ""}`}>
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-start justify-between">

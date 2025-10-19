@@ -219,7 +219,13 @@
     "serverError": "Server connection error",
     "student": "Student",
     "rejectionReason": "Reason of rejection",
-    "uploadedAt": "Uploaded at"
+    "uploadedAt": "Uploaded at",
+    "internshipApplications" : {
+      "sortAndFilter": "Sort / Filter",
+      "goBack": "Go back",
+      "noCandidaturesFound": "No applications received for this offer.",
+      "applications": "Applications"
+    }
   },
   "errors": {
     "required": "This field is required",

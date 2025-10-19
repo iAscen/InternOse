@@ -49,6 +49,10 @@ export interface Cv {
   firstName: string;
   lastName: string;
   email: string;
+  program: string;
+  institution: string;
+  applicationDate?: string;
+  applicationStatus?: string;
   cvStatus: string;
   cvFileName: string;
   cvFileType: string;

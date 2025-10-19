@@ -7,6 +7,7 @@ import StatisticsCard from './StatisticsCard';
 import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
 import type { InternshipOffer, CreateOfferFormData } from '../../interfaces';
+import InternshipApplications from './InternshipApplications';
 
 export default function EmployerDashboardContent() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function EmployerDashboardContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null)
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -23,6 +25,11 @@ export default function EmployerDashboardContent() {
       navigate('/login');
     }
   }, [navigate]);
+
+  const selectOffer = (offer: InternshipOffer) => {
+    if (offer && offer.validationStatus === "APPROVED")
+      setSelectedOffer(offer)
+  }
 
   // Charger les offres existantes
   const loadOffers = async () => {
@@ -123,12 +130,14 @@ export default function EmployerDashboardContent() {
               <p className="text-gray-600 mt-2">{t('dashboard.subtitle')}</p>
             </div>
             <div>
-              <button
-                onClick={() => setShowCreateForm(!showCreateForm)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
-              </button>
+              {selectedOffer == null && 
+                <button
+                  onClick={() => setShowCreateForm(!showCreateForm)}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -146,48 +155,57 @@ export default function EmployerDashboardContent() {
         )}
 
         {/* Cartes de statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatisticsCard
-            title={t('dashboard.totalOffers')}
-            value={stats.total}
-            icon={statsIcons.total}
-            bgColor="bg-blue-100"
-            iconColor="text-blue-600"
-          />
-          <StatisticsCard
-            title={t('dashboard.pending')}
-            value={stats.pending}
-            icon={statsIcons.pending}
-            bgColor="bg-yellow-100"
-            iconColor="text-yellow-600"
-          />
-          <StatisticsCard
-            title={t('dashboard.validated')}
-            value={stats.approved}
-            icon={statsIcons.approved}
-            bgColor="bg-green-100"
-            iconColor="text-green-600"
-          />
-          <StatisticsCard
-            title={t('dashboard.expired')}
-            value={stats.expired}
-            icon={statsIcons.expired}
-            bgColor="bg-red-100"
-            iconColor="text-red-600"
-          />
-        </div>
+        {selectedOffer == null &&
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatisticsCard
+              title={t('dashboard.totalOffers')}
+              value={stats.total}
+              icon={statsIcons.total}
+              bgColor="bg-blue-100"
+              iconColor="text-blue-600"
+            />
+            <StatisticsCard
+              title={t('dashboard.pending')}
+              value={stats.pending}
+              icon={statsIcons.pending}
+              bgColor="bg-yellow-100"
+              iconColor="text-yellow-600"
+            />
+            <StatisticsCard
+              title={t('dashboard.validated')}
+              value={stats.approved}
+              icon={statsIcons.approved}
+              bgColor="bg-green-100"
+              iconColor="text-green-600"
+            />
+            <StatisticsCard
+              title={t('dashboard.expired')}
+              value={stats.expired}
+              icon={statsIcons.expired}
+              bgColor="bg-red-100"
+              iconColor="text-red-600"
+            />
+          </div>
 
-        {/* Formulaire de création d'offre */}
-        {showCreateForm && (
-          <CreateOfferForm
-            onSubmit={handleCreateOffer}
-            onCancel={() => setShowCreateForm(false)}
-            loading={loading}
-          />
-        )}
+          {/* Formulaire de création d'offre */}
+          {showCreateForm && (
+            <CreateOfferForm
+              onSubmit={handleCreateOffer}
+              onCancel={() => setShowCreateForm(false)}
+              loading={loading}
+            />
+          )}
 
-        {/* Liste des offres existantes */}
-        <OfferList isEmployer={true} loading={loading} offers={offers} />
+          {/* Liste des offres existantes */}
+          <OfferList changeCursorIfApproved={true} selectOffer={selectOffer} isEmployer={true} loading={loading} offers={offers} />
+        </>
+        }
+
+        {
+          selectedOffer && 
+          <InternshipApplications setSelectedOffer={setSelectedOffer} internship={selectedOffer}></InternshipApplications>
+        }
       </div>
     </main>
   );

@@ -207,7 +207,8 @@ export default function IMDashboardContent() {
                                 </div>
                             </div>
                         </div>
-                        <OfferList 
+                        <OfferList
+                          changeCursorIfApproved={false}
                           isEmployer={false} 
                           loading={loading} 
                           offers={offers}
