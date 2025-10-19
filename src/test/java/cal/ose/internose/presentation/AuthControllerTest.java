@@ -1,7 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.service.AuthService;
+import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
@@ -36,14 +36,14 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private AuthService authService;
+    private UserService userService;
 
     @Test
     void testRegisterEmployerSuccess() throws Exception {
         // arrange
         EmployerDTO employerDTO = new EmployerDTO();
 
-        when(authService.registerEmployer(any())).thenReturn("jwt");
+        when(userService.registerEmployer(any())).thenReturn("jwt");
 
         String requestJson = objectMapper.writeValueAsString(employerDTO);
 
@@ -60,7 +60,7 @@ class AuthControllerTest {
         // arrange
         EmployerDTO employerDTO = new EmployerDTO();
 
-        when(authService.registerEmployer(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
+        when(userService.registerEmployer(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
 
         String requestJson = objectMapper.writeValueAsString(employerDTO);
 
@@ -77,7 +77,7 @@ class AuthControllerTest {
         // arrange
         StudentDTO studentDTO = new StudentDTO();
 
-        when(authService.registerStudent(any())).thenReturn("jwt");
+        when(userService.registerStudent(any())).thenReturn("jwt");
 
         String requestJson = objectMapper.writeValueAsString(studentDTO);
 
@@ -94,7 +94,7 @@ class AuthControllerTest {
         // arrange
         StudentDTO studentDTO = new StudentDTO();
 
-        when(authService.registerStudent(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
+        when(userService.registerStudent(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
 
         String requestJson = objectMapper.writeValueAsString(studentDTO);
 
@@ -111,7 +111,7 @@ class AuthControllerTest {
         // arrange
         LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
 
-        when(authService.login(any())).thenReturn("jwt-token");
+        when(userService.login(any())).thenReturn("jwt-token");
 
         String requestJson = objectMapper.writeValueAsString(loginDTO);
 
@@ -128,7 +128,7 @@ class AuthControllerTest {
         // arrange
         LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
 
-        when(authService.login(any())).thenThrow(new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password"));
+        when(userService.login(any())).thenThrow(new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password"));
 
         String requestJson = objectMapper.writeValueAsString(loginDTO);
 

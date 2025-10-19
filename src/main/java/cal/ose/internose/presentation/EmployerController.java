@@ -1,9 +1,11 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.EmployerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,16 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/employer")
+@RequestMapping(Paths.EMPLOYER_BASE_PATH)
 @CrossOrigin(origins = "http://localhost:5173")
+@AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
     private final ObjectMapper objectMapper;
-
-    public EmployerController(EmployerService employerService, ObjectMapper objectMapper) {
-        this.employerService = employerService;
-        this.objectMapper = objectMapper;
-    }
 
     @GetMapping("/internship-offers")
     public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers(@RequestParam Long employerID) {

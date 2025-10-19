@@ -1,17 +1,17 @@
 package cal.ose.internose.service.DTOs;
 
-import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.VerificationStatus;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public class InternshipOfferDTO {
     private Long id;
     private String title;

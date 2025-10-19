@@ -1,7 +1,7 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.UserAppDAO;
+import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
@@ -12,7 +12,7 @@ import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,17 +21,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class AuthService {
+@Transactional
+@AllArgsConstructor
+@Slf4j
+public class UserService {
+    private final UserDAO userDAO;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserAppDAO userAppDAO;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    @Transactional
-    public String registerInternshipManager(InternshipManagerDTO internshipManagerDTO) {
+    public void registerInternshipManager(InternshipManagerDTO internshipManagerDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         InternshipManager internshipManager = InternshipManager.builder()
             .credentials(
                 new Credentials(internshipManagerDTO.getEmail(), passwordEncoder.encode(internshipManagerDTO.getPassword()), UserRole.INTERNSHIP_MANAGER)
@@ -40,11 +41,11 @@ public class AuthService {
             .lastName(internshipManagerDTO.getLastName())
             .build();
 
-        return registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
+        registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
     }
 
-    @Transactional
-    public String registerEmployer(EmployerDTO employerDTO) {
+    public String registerEmployer(EmployerDTO employerDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         Employer employer = Employer.builder()
             .credentials(
                 new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
@@ -57,8 +58,8 @@ public class AuthService {
         return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
     }
 
-    @Transactional
-    public String registerStudent(StudentDTO studentDTO) {
+    public String registerStudent(StudentDTO studentDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         Student student = Student.builder()
             .credentials(
                 new Credentials(studentDTO.getEmail(), passwordEncoder.encode(studentDTO.getPassword()), UserRole.STUDENT)
@@ -78,26 +79,25 @@ public class AuthService {
             )
         );
 
-        // Récupérer l'ID de l'utilisateur depuis la base de données
-        User user = userAppDAO.findUserAppByEmail(loginDTO.getEmail())
-            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User user = userDAO.findUserByEmail(loginDTO.getEmail()).orElseThrow();
 
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName()
         );
     }
 
-    private String registerUser(String email, String password, User user) {
+    private String registerUser(String email, String password, User user)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         try {
-            validatePassword(password);
+            verifyPasswordCriteria(password);
 
-            if (userAppDAO.findUserAppByEmail(email).isPresent()) {
+            if (userDAO.findUserByEmail(email).isPresent()) {
                 throw new UserAlreadyExistsException(
-                    String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), email)
+                    String.format(ErrorMessages.EMAIL_ALREADY_USED.getMessage(), email)
                 );
             }
 
-            User savedUser = userAppDAO.save(user);
+            User savedUser = userDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 
@@ -109,18 +109,18 @@ public class AuthService {
         }
     }
 
-    public void validatePassword(String password) {
+    public void verifyPasswordCriteria(String password) throws WeakPasswordException {
         if (password.length() < 8) {
             throw new WeakPasswordException(ErrorMessages.PASSWORD_TOO_SHORT.getMessage());
         }
         if (!password.matches(".*[A-Z].*")) {
-            throw new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_UPPER.getMessage());
+            throw new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_UPPER_CASE_LETTER.getMessage());
         }
         if (!password.matches(".*[0-9].*")) {
             throw new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage());
         }
         if (!password.matches(".*[!@#$%^&()_+\\-=\\[\\]{};':|,.<>/?].*")) {
-            throw new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_SPECIAL.getMessage());
+            throw new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_SPECIAL_CHARACTER.getMessage());
         }
     }
 }

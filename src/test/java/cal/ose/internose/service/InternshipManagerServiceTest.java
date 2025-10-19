@@ -193,7 +193,7 @@ class InternshipManagerServiceTest {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -201,8 +201,8 @@ class InternshipManagerServiceTest {
         internshipManagerService.verifyResume(studentId, true, null);
 
         // Assert
-        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
-        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeVerificationStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(student.getResumeVerifiedDate()).isNotNull();
         assertThat(student.getResumeRejectionReason()).isNull();
         verify(studentDAO, times(1)).save(student);
     }
@@ -214,7 +214,7 @@ class InternshipManagerServiceTest {
         Long studentId = 1L;
         String rejectionReason = "CV incomplet";
         Student student = createTestStudents().get(0);
-        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -222,8 +222,8 @@ class InternshipManagerServiceTest {
         internshipManagerService.verifyResume(studentId, false, rejectionReason);
 
         // Assert
-        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.REJECTED);
-        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeVerificationStatus()).isEqualTo(VerificationStatus.REJECTED);
+        assertThat(student.getResumeVerifiedDate()).isNotNull();
         assertThat(student.getResumeRejectionReason()).isEqualTo(rejectionReason);
         verify(studentDAO, times(1)).save(student);
     }
@@ -250,7 +250,7 @@ class InternshipManagerServiceTest {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setResumeStatus(VerificationStatus.APPROVED); // Déjà traité
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED); // Déjà traité
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         // Act & Assert
@@ -268,7 +268,7 @@ class InternshipManagerServiceTest {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -276,8 +276,8 @@ class InternshipManagerServiceTest {
         internshipManagerService.verifyResume(studentId, false, "");
 
         // Assert
-        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.REJECTED);
-        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeVerificationStatus()).isEqualTo(VerificationStatus.REJECTED);
+        assertThat(student.getResumeVerifiedDate()).isNotNull();
         assertThat(student.getResumeRejectionReason()).isEqualTo("");
         verify(studentDAO, times(1)).save(student);
     }
@@ -288,7 +288,7 @@ class InternshipManagerServiceTest {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
 
@@ -296,8 +296,8 @@ class InternshipManagerServiceTest {
         internshipManagerService.verifyResume(studentId, true, "CV excellent");
 
         // Assert
-        assertThat(student.getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
-        assertThat(student.getResumeVerifyDate()).isNotNull();
+        assertThat(student.getResumeVerificationStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(student.getResumeVerifiedDate()).isNotNull();
         assertThat(student.getResumeRejectionReason()).isNull(); // Doit être null pour approbation
         verify(studentDAO, times(1)).save(student);
     }

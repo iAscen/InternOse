@@ -50,7 +50,7 @@ public class EmployerControllerTests {
         when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            get(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -73,7 +73,7 @@ public class EmployerControllerTests {
         when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOffer));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            post(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();

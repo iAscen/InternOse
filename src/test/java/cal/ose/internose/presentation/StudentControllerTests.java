@@ -55,10 +55,10 @@ public class StudentControllerTests {
         );
         student.setResumeFileName(mockFile.getOriginalFilename());
         student.setResumeFileData(mockFile.getBytes());
-        when(studentService.uploadCV(anyLong(), any(MultipartFile.class))).thenReturn(Optional.of(student));
+        when(studentService.uploadResume(anyLong(), any(MultipartFile.class))).thenReturn(Optional.of(student));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            multipart(Paths.STUDENT_CV_PATH)
+            multipart(Paths.STUDENT_RESUME_PATH)
             .file(mockFile)
             .param("studentID", String.valueOf(studentID))
             .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -73,10 +73,10 @@ public class StudentControllerTests {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
-        student.setResumeStatus(VerificationStatus.PENDING);
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
         student.setResumeFileName("test.pdf");
         student.setResumeUploadDate(LocalDateTime.now());
-        when(studentService.getStudentById(studentID)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(studentID)).thenReturn(Optional.of(student));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -97,7 +97,7 @@ public class StudentControllerTests {
     public void testGetCVStatus_StudentNotFound() throws Exception {
         // Arrange
         Long studentID = 999L;
-        when(studentService.getStudentById(studentID)).thenReturn(Optional.empty());
+        when(studentService.getStudentByID(studentID)).thenReturn(Optional.empty());
 
         // Act
         MvcResult mvcResult = mockMvc.perform(

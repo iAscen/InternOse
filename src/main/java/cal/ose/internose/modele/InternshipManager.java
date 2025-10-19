@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@DiscriminatorValue("G")
-@Getter
+@DiscriminatorValue("I")
 @NoArgsConstructor
 @SuperBuilder
+@Getter
 public class InternshipManager extends User {
 }

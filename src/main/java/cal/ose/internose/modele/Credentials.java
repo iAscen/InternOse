@@ -13,56 +13,54 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Embeddable
-@Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Getter
 @ToString
 public final class Credentials implements UserDetails {
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	@Column(unique = true, nullable = false)
-	private String email;
+    @Column(nullable = false)
+    private String password;
 
-	@Column(nullable = false)
-	private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole userRole;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private UserRole userRole;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(userRole.name()));
+    }
 
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority(userRole.name()));
-	}
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
-	@Override
-	public String getPassword() {
-		return password;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	@Override
-	public String getUsername() {
-		return email;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

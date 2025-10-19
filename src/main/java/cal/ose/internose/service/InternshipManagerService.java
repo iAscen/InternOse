@@ -64,12 +64,12 @@ public class InternshipManagerService {
         Student student = studentDAO.findById(id).orElseThrow();
 
         if (approved) {
-            student.setResumeStatus(VerificationStatus.APPROVED);
-            student.setResumeVerifyDate(LocalDateTime.now());
+            student.setResumeVerificationStatus(VerificationStatus.APPROVED);
+            student.setResumeVerifiedDate(LocalDateTime.now());
             student.setResumeRejectionReason(null);
         } else {
-            student.setResumeStatus(VerificationStatus.REJECTED);
-            student.setResumeVerifyDate(LocalDateTime.now());
+            student.setResumeVerificationStatus(VerificationStatus.REJECTED);
+            student.setResumeVerifiedDate(LocalDateTime.now());
             student.setResumeRejectionReason(reason);
         }
 

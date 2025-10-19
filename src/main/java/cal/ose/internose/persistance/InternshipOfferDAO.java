@@ -13,11 +13,11 @@ public interface InternshipOfferDAO extends JpaRepository<InternshipOffer, Long>
 
     @Query(
         "SELECT io FROM InternshipOffer io " +
-            "WHERE (:program IS NULL OR io.program LIKE :program) " +
-            "AND (:verified IS NULL OR io.verificationStatus = :verified) " +
-            "AND (:title IS NULL OR io.title LIKE :title)"
+        "WHERE (:program IS NULL OR io.program LIKE :program) " +
+        "AND (:verified IS NULL OR io.verificationStatus = :verified) " +
+        "AND (:title IS NULL OR io.title LIKE :title)"
     )
     List<InternshipOffer> findInternshipsBy(
-        @Param("verified") Boolean validated, @Param("program") String program, @Param("title") String title
+        @Param("verified") Boolean verified, @Param("program") String program, @Param("title") String title
     );
 }

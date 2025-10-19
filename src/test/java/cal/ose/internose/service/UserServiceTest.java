@@ -1,7 +1,7 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.UserAppDAO;
+import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
@@ -31,18 +31,18 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class AuthServiceTest {
+public class UserServiceTest {
     @Mock
     private JwtTokenProvider jwtTokenProvider;
     @Mock
-    private UserAppDAO userAppDAO;
+    private UserDAO userDAO;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
-    private AuthService authService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -53,12 +53,12 @@ public class AuthServiceTest {
     void testRegisterEmployer() {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userAppDAO.save(any(Employer.class))).thenReturn(
+        when(userDAO.save(any(Employer.class))).thenReturn(
                 Employer.builder().firstName("testNom").lastName("testPrenom").build());
 
-        authService.registerEmployer(dto);
+        userService.registerEmployer(dto);
 
-        verify(userAppDAO).save(any(Employer.class));
+        verify(userDAO).save(any(Employer.class));
 
     }
 
@@ -66,7 +66,7 @@ public class AuthServiceTest {
     void testRegisterEmployerToken() {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
+        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Employer mockEmployer = Employer.builder()
                 .firstName(dto.getFirstName())
@@ -75,11 +75,11 @@ public class AuthServiceTest {
                 .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.EMPLOYER))
                 .build();
         mockEmployer.setId(1L);
-        when(userAppDAO.save(any(Employer.class))).thenReturn(mockEmployer);
+        when(userDAO.save(any(Employer.class))).thenReturn(mockEmployer);
         when(jwtTokenProvider.generateToken(
                 any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
 
-        String token = authService.registerEmployer(dto);
+        String token = userService.registerEmployer(dto);
 
         assertNotNull(token);
         assertEquals("mocked-jwt-token", token);
@@ -90,7 +90,7 @@ public class AuthServiceTest {
     void testEmployerPasswordTooWeak(String password, String errorMessage) {
         EmployerDTO employerDTO = createEmployerDTO(password);
         WeakPasswordException exception = assertThrows(WeakPasswordException.class,
-                () -> authService.registerEmployer(employerDTO));
+                () -> userService.registerEmployer(employerDTO));
         assertEquals(errorMessage, exception.getMessage());
     }
 
@@ -99,11 +99,11 @@ public class AuthServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
         dto.setFirstName(null);
 
-        when(userAppDAO.save(any(Employer.class)))
+        when(userDAO.save(any(Employer.class)))
                 .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
 
         RequiredFieldException exception = assertThrows(RequiredFieldException.class,
-                () -> authService.registerEmployer(dto));
+                () -> userService.registerEmployer(dto));
 
         assertEquals(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage(), exception.getMessage());
     }
@@ -112,11 +112,11 @@ public class AuthServiceTest {
     void testEmployerEmailExists() {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
+        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
-                () -> authService.registerEmployer(dto));
+                () -> userService.registerEmployer(dto));
 
-        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),
+        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_USED.getMessage(), dto.getEmail()),
                 exception.getMessage());
     }
 
@@ -124,19 +124,19 @@ public class AuthServiceTest {
     void testRegisterStudent() {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userAppDAO.save(any(Student.class))).thenReturn(
+        when(userDAO.save(any(Student.class))).thenReturn(
                 Student.builder().firstName("testNom").lastName("testPrenom").build());
 
-        authService.registerStudent(dto);
+        userService.registerStudent(dto);
 
-        verify(userAppDAO).save(any(Student.class));
+        verify(userDAO).save(any(Student.class));
     }
 
     @Test
     void testRegisterStudentToken() {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.empty());
+        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Student mockStudent = Student.builder()
                 .firstName(dto.getFirstName())
@@ -144,11 +144,11 @@ public class AuthServiceTest {
                 .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.STUDENT))
                 .build();
         mockStudent.setId(1L);
-        when(userAppDAO.save(any(Student.class))).thenReturn(mockStudent);
+        when(userDAO.save(any(Student.class))).thenReturn(mockStudent);
         when(jwtTokenProvider.generateToken(
                 any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
 
-        String token = authService.registerStudent(dto);
+        String token = userService.registerStudent(dto);
 
         assertNotNull(token);
         assertEquals("mocked-jwt-token", token);
@@ -159,7 +159,7 @@ public class AuthServiceTest {
     void testStudentPasswordTooWeak(String password, String errorMessage) {
         StudentDTO studentDTO = createStudentDTO(password);
         WeakPasswordException exception = assertThrows(WeakPasswordException.class,
-                () -> authService.registerStudent(studentDTO));
+                () -> userService.registerStudent(studentDTO));
         assertEquals(errorMessage, exception.getMessage());
     }
 
@@ -168,11 +168,11 @@ public class AuthServiceTest {
         StudentDTO dto = createStudentDTO(null);
         dto.setFirstName(null);
 
-        when(userAppDAO.save(any(Student.class)))
+        when(userDAO.save(any(Student.class)))
                 .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
 
         RequiredFieldException exception = assertThrows(RequiredFieldException.class,
-                () -> authService.registerStudent(dto));
+                () -> userService.registerStudent(dto));
 
         assertEquals(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage(), exception.getMessage());
     }
@@ -181,11 +181,11 @@ public class AuthServiceTest {
     void testStudentEmailExists() {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userAppDAO.findUserAppByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
+        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
-                () -> authService.registerStudent(dto));
+                () -> userService.registerStudent(dto));
 
-        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_EXISTS.getMessage(), dto.getEmail()),
+        assertEquals(String.format(ErrorMessages.EMAIL_ALREADY_USED.getMessage(), dto.getEmail()),
                 exception.getMessage());
     }
 
@@ -197,18 +197,18 @@ public class AuthServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mockAuthentication);
-        when(userAppDAO.findUserAppByEmail(loginDTO.getEmail()))
+        when(userDAO.findUserByEmail(loginDTO.getEmail()))
                 .thenReturn(Optional.of(mockUser));
         when(mockUser.getId()).thenReturn(1L);
         when(jwtTokenProvider.generateToken(
                 eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
 
-        String token = authService.login(loginDTO);
+        String token = userService.login(loginDTO);
 
         assertNotNull(token);
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userAppDAO).findUserAppByEmail(loginDTO.getEmail());
+        verify(userDAO).findUserByEmail(loginDTO.getEmail());
         verify(jwtTokenProvider).generateToken(mockAuthentication, anyLong(), anyString(), anyString());
     }
 
@@ -221,7 +221,7 @@ public class AuthServiceTest {
                 });
 
         assertThrows(org.springframework.security.core.AuthenticationException.class,
-                () -> authService.login(loginDTO));
+                () -> userService.login(loginDTO));
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, never()).generateToken(any());
@@ -249,7 +249,7 @@ public class AuthServiceTest {
     private static Stream<Arguments> weakPasswordProvider() {
         return Stream.of(
                 arguments("J4ck!", ErrorMessages.PASSWORD_TOO_SHORT.getMessage()),
-                arguments("jacques4@", ErrorMessages.PASSWORD_MISSING_UPPER.getMessage()),
+                arguments("jacques4@", ErrorMessages.PASSWORD_MISSING_UPPER_CASE_LETTER.getMessage()),
                 arguments("Jacques-", ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
     }
 }

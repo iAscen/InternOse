@@ -31,7 +31,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode uploadCV()")
-    public void testUploadCV() throws IOException {
+    public void testUploadResume() throws IOException {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
@@ -43,7 +43,7 @@ public class StudentServiceTests {
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
         // Act
-        Optional<Student> studentWithCV = studentService.uploadCV(studentID, mockFile);
+        Optional<Student> studentWithCV = studentService.uploadResume(studentID, mockFile);
         // Assert
         assertThat(studentWithCV).isPresent();
         assertThat(studentWithCV.get().getResumeFileName()).isEqualTo(mockFile.getOriginalFilename());
@@ -54,13 +54,13 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par nom")
-    public void testGetAllStudentsWithCVs_SortByName() {
+    public void testGetAllStudentsWithResumes_SortByName() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("name", "asc", null);
+        List<Student> result = studentService.getAllStudentsWithResumes("name", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -70,13 +70,13 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par date")
-    public void testGetAllStudentsWithCVs_SortByDate() {
+    public void testGetAllStudentsWithResumes_SortByDate() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("date", "desc", null);
+        List<Student> result = studentService.getAllStudentsWithResumes("date", "desc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -86,28 +86,28 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par statut")
-    public void testGetAllStudentsWithCVs_FilterByStatus() {
+    public void testGetAllStudentsWithResumes_FilterByStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "PENDING");
+        List<Student> result = studentService.getAllStudentsWithResumes(null, null, "PENDING");
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getResumeStatus()).isEqualTo(VerificationStatus.PENDING);
+        assertThat(result.get(0).getResumeVerificationStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par statut invalide")
-    public void testGetAllStudentsWithCVs_FilterByInvalidStatus() {
+    public void testGetAllStudentsWithResumes_FilterByInvalidStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "INVALID_STATUS");
+        List<Student> result = studentService.getAllStudentsWithResumes(null, null, "INVALID_STATUS");
 
         // Assert - Devrait retourner tous les CV car le statut invalide est ignoré
         assertThat(result.size()).isEqualTo(2);
@@ -115,13 +115,13 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec paramètres vides")
-    public void testGetAllStudentsWithCVs_EmptyParameters() {
+    public void testGetAllStudentsWithResumes_EmptyParameters() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("", "", "");
+        List<Student> result = studentService.getAllStudentsWithResumes("", "", "");
 
         // Assert - Devrait retourner tous les CV triés par nom par défaut
         assertThat(result.size()).isEqualTo(2);
@@ -130,29 +130,29 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par statut")
-    public void testGetAllStudentsWithCVs_SortByStatus() {
+    public void testGetAllStudentsWithResumes_SortByStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("status", "asc", null);
+        List<Student> result = studentService.getAllStudentsWithResumes("status", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getResumeStatus()).isEqualTo(VerificationStatus.APPROVED);
-        assertThat(result.get(1).getResumeStatus()).isEqualTo(VerificationStatus.PENDING);
+        assertThat(result.get(0).getResumeVerificationStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(result.get(1).getResumeVerificationStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par email")
-    public void testGetAllStudentsWithCVs_SortByEmail() {
+    public void testGetAllStudentsWithResumes_SortByEmail() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("email", "asc", null);
+        List<Student> result = studentService.getAllStudentsWithResumes("email", "asc", null);
 
         // Assert - Le tri par email devrait fonctionner même avec des emails null
         assertThat(result.size()).isEqualTo(2);

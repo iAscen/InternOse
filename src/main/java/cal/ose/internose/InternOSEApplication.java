@@ -1,6 +1,6 @@
 package cal.ose.internose;
 
-import cal.ose.internose.service.AuthService;
+import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
@@ -21,13 +21,13 @@ public class InternOSEApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(ObjectProvider<AuthService> authServiceProvider, ObjectProvider<EmployerService> employerServiceProvider) {
+    public CommandLineRunner commandLineRunner(ObjectProvider<UserService> authServiceProvider, ObjectProvider<EmployerService> employerServiceProvider) {
         return _ -> {
-            AuthService authService = authServiceProvider.getIfAvailable();
+            UserService userService = authServiceProvider.getIfAvailable();
             EmployerService employerService = employerServiceProvider.getIfAvailable();
-            if (authService != null && employerService != null) {
+            if (userService != null && employerService != null) {
                 // Créer quelques utilisateurs en avance
-                authService.registerEmployer(
+                userService.registerEmployer(
                     EmployerDTO.builder()
                         .firstName("Karim")
                         .lastName("M.")
@@ -36,7 +36,7 @@ public class InternOSEApplication {
                         .enterprise("SQL Technologies")
                         .build()
                 );
-                authService.registerStudent(
+                userService.registerStudent(
                     StudentDTO.builder()
                         .firstName("Alice")
                         .lastName("A.")
@@ -44,7 +44,7 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-                authService.registerInternshipManager(
+                userService.registerInternshipManager(
                     InternshipManagerDTO.builder()
                         .firstName("Bob")
                         .lastName("B.")
