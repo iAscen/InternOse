@@ -907,7 +907,7 @@ class ApiService {
       const params = new URLSearchParams()
       params.set("internshipId", internshipId.toString())
       if (applicationStatus)
-        params.set("cvStatus", applicationStatus)
+        params.set("applicationStatus", applicationStatus)
       if (program)
         params.set("program", program)
       if (institution)

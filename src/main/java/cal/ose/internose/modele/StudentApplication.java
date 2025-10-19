@@ -41,6 +41,15 @@ public class StudentApplication {
     public enum ApplicationStatus {
         PENDING,    // En attente
         ACCEPTED,   // Acceptée
-        REJECTED    // Refusée
+        REJECTED;
+
+        public static ApplicationStatus of(String status) {
+            if (status == null) return null;
+            return switch (status.toUpperCase()) {
+                case "ACCEPTED", "APPROVED" -> ACCEPTED;
+                case "REJECTED" -> REJECTED;
+                default -> PENDING;
+            };
+        }
     }
 }

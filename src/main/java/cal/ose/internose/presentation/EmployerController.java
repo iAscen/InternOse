@@ -1,6 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -47,12 +48,12 @@ public class EmployerController {
 
     @GetMapping(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
     public ResponseEntity<List<StudentDTO>> findStudentsBy(@RequestParam() long internshipId,
-                                                           @RequestParam(required = false) String cvStatus,
+                                                           @RequestParam(required = false) String applicationStatus,
                                                            @RequestParam(required = false) String program,
                                                            @RequestParam(required = false) String institution,
                                                            @RequestParam(required = false) String sortBy) {
 
-        DocumentStatus status = DocumentStatus.of(cvStatus);
+        StudentApplication.ApplicationStatus status = StudentApplication.ApplicationStatus.of(applicationStatus);
         List<StudentDTO> students = employerService.findStudentsBy(internshipId, status, program, institution, sortBy);
 
         return ResponseEntity.ok(students);

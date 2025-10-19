@@ -46,14 +46,14 @@ public class EmployerService {
         return Optional.of(internshipOffer);
     }
 
-    public List<StudentDTO> findStudentsBy(long internshipId, DocumentStatus cvStatus, String program, String institution, String sortBy) {
+    public List<StudentDTO> findStudentsBy(long internshipId, StudentApplication.ApplicationStatus status, String program, String institution, String sortBy) {
         if (!internshipOfferDAO.existsById(internshipId)) {
             throw new ResourceNotFoundException(
                     String.format(ErrorMessages.INTERNSHIP_OFFER_NOT_FOUND.getMessage(), internshipId)
             );
         }
 
-        List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(internshipId, cvStatus, program, institution);
+        List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(internshipId, status, program, institution);
 
         Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
             case "institution" -> Comparator.comparing(app -> app.getStudent().getInstitution());

@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { Cv, InternshipOffer } from "~/interfaces";
 import { apiService } from "~/services/apiService";
 import ApplicationValidationModal from "./ApplicationValidationModal";
+import SortButton from "./SortButton";
+import SortMenuCvs from "./SortMenuCvs";
+import FilterButton from "./FilterButton";
+import FilterMenuCvs from "./FilterMenuCvs";
+import SortMenuApplications from "./SortMenuApplications";
 
 
 interface InternshipCandidatesProps {
@@ -14,16 +19,18 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [selectedApplication, setSelectedApplication] = useState<Cv | null>(null)
+	const [showSortMenuApplications, setShowSortMenuApplications] = useState(false);
+    const [showFilterMenuApplications, setShowFilterMenuApplications] = useState(false);
 	const {t} = useTranslation()
 
 	useEffect(() => {
-		fetchStudentApplications()
+		fetchStudentApplications(null, null, null, null)
 	}, [])
 
-	const fetchStudentApplications = async () => {
+	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
 		const errorMes = "Erreur lors de l'obtention des candidatures."
 		try {
-			let response = await apiService.getStudentApplicationsBy(internship.id!, null, null, null, null)
+			let response = await apiService.getStudentApplicationsBy(internship.id!, applicationStatus, program, institution, sortBy)
 			if (response.success) {
 				setApplications(response.data!)
 			}
@@ -81,7 +88,37 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 					<div className="bg-white rounded-lg shadow-md text-gray-900">
 						<div className="flex px-6 py-4 border-b border-gray-200">
 							<h2 className="text-xl font-semibold text-gray-900">{internship.jobTitle + ": "}{t('dashboard.internshipApplications.applications')}</h2>
-							<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>
+							{/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
+							<div className="flex ml-auto items-center space-x-4 text-gray-900">
+								<div className="relative">
+									<SortButton onClick={() => {
+										setShowSortMenuApplications(true)
+										setShowFilterMenuApplications(false)
+									}} />
+									{showSortMenuApplications &&
+										<SortMenuApplications applySorting={(sortBy: string) => {
+											setShowSortMenuApplications(false);
+											fetchStudentApplications(null, null, null, sortBy)
+										}}/>
+									}
+								</div>
+								<div className="relative">
+									<FilterButton onClick={() => {
+										setShowSortMenuApplications(false)
+										setShowFilterMenuApplications(true)
+									}}/>
+									{showFilterMenuApplications &&
+										<FilterMenuCvs applyFilters={(filterBy: string[]) => {
+											setShowFilterMenuApplications(false);
+											const status = filterBy[0] ? filterBy[0].toUpperCase() : null
+											const program = filterBy[1]
+											const institution = filterBy[2]
+
+											fetchStudentApplications(status, program, institution, null)
+										}}/>
+									}
+								</div>
+							</div>
 						</div>
 					</div>
 
