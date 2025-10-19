@@ -85,9 +85,9 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
   return (
     <div className="bg-white rounded-lg shadow-md">
       {isEmployer &&
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
-        </div>
+          <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+          </div>
       }
 
       <div className="divide-y divide-gray-200">

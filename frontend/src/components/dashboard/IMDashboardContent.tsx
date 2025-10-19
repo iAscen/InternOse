@@ -185,10 +185,12 @@ export default function IMDashboardContent() {
                                         setShowFilterMenuResumes(false)
                                     }} />
                                     {showSortMenuOffers &&
-                                        <SortMenuOffers applySorting={(sortBy: string) => {
-                                            setShowSortMenuOffers(false);
-                                            loadOffers(sortBy, undefined);
-                                        }}/>
+                                        <SortMenuOffers
+                                            userRole="INTERNSHIP_MANAGER"
+                                            applySorting={(sortBy: string) => {
+                                                setShowSortMenuOffers(false);
+                                                loadOffers(sortBy, undefined);
+                                            }}/>
                                     }
                                 </div>
                                 <div className="relative">
@@ -199,10 +201,12 @@ export default function IMDashboardContent() {
                                         setShowFilterMenuResumes(false)
                                     }}/>
                                     {showFilterMenuOffers &&
-                                        <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                            setShowFilterMenuOffers(false);
-                                            loadOffers(undefined, filterBy);
-                                        }}/>
+                                        <FilterMenuOffers
+                                            userRole="INTERNSHIP_MANAGER"
+                                            applyFilters={(filterBy: string[]) => {
+                                                setShowFilterMenuOffers(false);
+                                                loadOffers(undefined, filterBy);
+                                            }}/>
                                     }
                                 </div>
                             </div>

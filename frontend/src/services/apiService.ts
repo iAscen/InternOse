@@ -477,6 +477,127 @@ class ApiService {
     }
   }
 
+  async StudentGetInternshipOffers(studentId: number | null, sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/internship-offers?studentId=${studentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+        }
+      }
+    }
+    catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async StudentGetAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // Récupérer l'ID de l'étudiant depuis le JWT
+      const studentId = await this.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant',
+        };
+      }
+
+      // Extraire les paramètres de recherche du tableau filterBy
+      const program = filterBy ? filterBy[0] : null;
+      const location = filterBy ? filterBy[1] : null;
+      const jobTitle = filterBy ? filterBy[2] : null;
+      const company = filterBy ? filterBy[3] : null;
+      const minSalary = filterBy ? filterBy[4] : null;
+      const maxSalary = filterBy ? filterBy[5] : null;
+      const minDuration = filterBy ? filterBy[6] : null;
+      const maxDuration = filterBy ? filterBy[7] : null;
+      const startDateFrom = filterBy ? filterBy[8] : null;
+      const startDateTo = filterBy ? filterBy[9] : null;
+      const sortOrder = filterBy ? filterBy[10] : null;
+      const page = filterBy ? filterBy[11] : null;
+      const size = filterBy ? filterBy[12] : null;
+
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      params.append('studentId', studentId.toString());
+      if (sortBy) params.append('sortBy', sortBy);
+      if (program) params.append('program', program);
+      if (location) params.append('location', location);
+      if (jobTitle) params.append('jobTitle', jobTitle);
+      if (company) params.append('company', company);
+      if (minSalary && !isNaN(Number(minSalary))) params.append('minSalary', minSalary);
+      if (maxSalary && !isNaN(Number(maxSalary))) params.append('maxSalary', maxSalary);
+      if (minDuration && !isNaN(Number(minDuration))) params.append('minDuration', minDuration);
+      if (maxDuration && !isNaN(Number(maxDuration))) params.append('maxDuration', maxDuration);
+      if (startDateFrom) params.append('startDateFrom', startDateFrom);
+      if (startDateTo) params.append('startDateTo', startDateTo);
+      if (sortOrder) params.append('sortOrder', sortOrder);
+      if (page && !isNaN(Number(page))) params.append('page', page);
+      if (size && !isNaN(Number(size))) params.append('size', size);
+
+      const response = await fetch(`${API_BASE_URL}/student/internship-offers/search?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 Search response received from backend:', data);
+        return {
+          success: true,
+          data: data.offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erreur lors de la recherche des offres',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   // Méthodes pour les CV
   async getInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
     try {

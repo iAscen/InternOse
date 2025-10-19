@@ -32,7 +32,6 @@ export default function StudentDashboardContent() {
     if (!apiService.isAuthenticated()) {
       navigate('/login');
     } else {
-      // Charger le statut du CV au chargement
       loadCVStatus();
       loadOffers();
     }
@@ -41,7 +40,9 @@ export default function StudentDashboardContent() {
     const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
         try {
             setLoading(true);
-            const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
+
+          const response = await dashboardService.StudentGetAllInternshipOffers(sortBy, filterBy);
+            console.log(response.data);
             if (response.success && response.data) {
                 setOffers(response.data);
             } else {
@@ -81,35 +82,35 @@ export default function StudentDashboardContent() {
   const handleCVUpload = async (file: File) => {
     try {
       console.log('Téléversement du CV:', file.name);
-      
+
       // Vérifier le type de fichier
       if (file.type !== 'application/pdf') {
         alert('Seuls les fichiers PDF sont acceptés');
         return;
       }
-      
+
       // Vérifier la taille du fichier (max 10MB)
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         alert('Le fichier est trop volumineux. Taille maximale : 10MB');
         return;
       }
-      
+
       // Appel API réel
       const response = await apiService.uploadCV(file);
-      
+
       if (response.success) {
         setCvFileName(file.name);
         setCvStatus('pending');
         console.log('✅ CV téléversé avec succès:', response.data);
-        
+
         // Recharger le statut depuis le backend pour s'assurer de la cohérence
         await loadCVStatus();
       } else {
         console.error('❌ Erreur lors du téléversement:', response.error);
         alert(`Erreur lors du téléversement: ${response.error}`);
       }
-      
+
     } catch (error) {
       console.error('Erreur lors du téléversement du CV:', error);
       alert('Erreur de connexion au serveur');
@@ -238,12 +239,17 @@ export default function StudentDashboardContent() {
                   </div>
 
               </div>
+            {(cvStatus === 'pending') && (
+              <div className="bg-white rounded-lg shadow-md mb-8 p-6 mt-8"></div>
+            )}
+
               {(cvStatus === 'approved') && (
                   <div className="bg-white rounded-lg shadow-md mb-8 p-6 mt-8">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                           <h2 className="text-xl font-semibold text-gray-900">
                               {t("im.internshipOffersSection")}
                           </h2>
+                        <p>amogus</p>
                           <div className="flex items-center space-x-4">
                               <div className="relative">
                                   <SortButton onClick={() => {
@@ -253,10 +259,12 @@ export default function StudentDashboardContent() {
                                       setShowFilterMenuResumes(false)
                                   }} />
                                   {showSortMenuOffers &&
-                                      <SortMenuOffers applySorting={(sortBy: string) => {
-                                          setShowSortMenuOffers(false);
-                                          loadOffers(sortBy, undefined);
-                                      }}/>
+                                      <SortMenuOffers
+                                          userRole="STUDENT"
+                                          applySorting={(sortBy: string) => {
+                                              setShowSortMenuOffers(false);
+                                              loadOffers(sortBy, undefined);
+                                          }}/>
                                   }
                               </div>
                               <div className="relative">
@@ -267,10 +275,12 @@ export default function StudentDashboardContent() {
                                       setShowFilterMenuResumes(false)
                                   }}/>
                                   {showFilterMenuOffers &&
-                                      <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                          setShowFilterMenuOffers(false);
-                                          loadOffers(undefined, filterBy);
-                                      }}/>
+                                      <FilterMenuOffers
+                                          userRole="STUDENT"
+                                          applyFilters={(filterBy: string[]) => {
+                                              setShowFilterMenuOffers(false);
+                                              loadOffers(undefined, filterBy);
+                                          }}/>
                                   }
                               </div>
                           </div>
@@ -284,6 +294,7 @@ export default function StudentDashboardContent() {
                       />
                   </div>
               )}
+
           </div>
       </main>
   );

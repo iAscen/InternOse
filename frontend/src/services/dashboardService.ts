@@ -1,9 +1,9 @@
 import { apiService } from './apiService';
-import type { 
-  InternshipOffer, 
-  CreateInternshipOfferRequest, 
-  DashboardStats, 
-  ApiResponse, 
+import type {
+  InternshipOffer,
+  CreateInternshipOfferRequest,
+  DashboardStats,
+  ApiResponse,
   Cv
 } from '../interfaces';
 
@@ -16,6 +16,14 @@ class DashboardService {
   // Récupérer toutes les offres de stages de tous les employeurs (pour le gestionnaire de stages)
   async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
     return await apiService.getAllInternshipOffers(sortBy, filterBy);
+  }
+
+  async StudentGetInternships(StudentId: number | null, sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetInternshipOffers(StudentId, sortBy, filterBy);
+  }
+
+  async StudentGetAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetAllInternshipOffers(sortBy, filterBy);
   }
 
   // Créer une nouvelle offre de stage
@@ -34,14 +42,14 @@ class DashboardService {
     const pending = offers.filter(offer => !offer.validee).length;
     const approved = offers.filter(offer => offer.validee).length;
     const expired = offers.filter(offer => new Date(offer.endDate) < now).length;
-    
+
     return { total, pending, approved, expired };
   }
 
   // Valider les données du formulaire
   validateOfferData(data: CreateInternshipOfferRequest): string | null {
-    if (!data.jobTitle || !data.taskDescription || !data.qualifications || 
-        !data.duration || !data.startDate || !data.address) {
+    if (!data.jobTitle || !data.taskDescription || !data.qualifications ||
+      !data.duration || !data.startDate || !data.address) {
       return 'Veuillez remplir tous les champs obligatoires';
     }
 
