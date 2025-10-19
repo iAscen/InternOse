@@ -2,6 +2,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import type { Cv, InternshipOffer } from "~/interfaces";
 import { apiService } from "~/services/apiService";
+import ApplicationValidationModal from "./ApplicationValidationModal";
 
 
 interface InternshipCandidatesProps {
@@ -12,6 +13,7 @@ interface InternshipCandidatesProps {
 export default function InternshipApplications({setSelectedOffer, internship}: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const [selectedApplication, setSelectedApplication] = useState<Cv | null>(null)
 	const {t} = useTranslation()
 
 	useEffect(() => {
@@ -22,9 +24,9 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 		const errorMes = "Erreur lors de l'obtention des candidatures."
 		try {
 			let response = await apiService.getStudentApplicationsBy(internship.id!, null, null, null, null)
-			
-			if (response.success)
+			if (response.success) {
 				setApplications(response.data!)
+			}
 			else
 				setErrorMessage(response.error || errorMes)
 		}
@@ -82,10 +84,22 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 							<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>
 						</div>
 					</div>
+
+					{selectedApplication && (
+							
+								<ApplicationValidationModal
+									cv={selectedApplication}
+									isOpen={true}
+									onClose={() => {
+										setSelectedApplication(null);
+									}}
+									onValidationSuccess={() => {console.log("dasdasd")}}
+								/>
+							)}
 					
 					<div className="mt-1">
 						{applications.map((application, index) => {
-							return <div key={application.studentId || index} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1">
+							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 cursor-pointer hover:bg-gray-100">
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
 										{application.firstName + " " + application.lastName}
@@ -97,12 +111,13 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 								<div className="mb-2">
 									<h4 className="text-md font-medium text-gray-900 mb-1">Institution</h4>
 									<p className="text-sm text-gray-700 leading-relaxed">{application.institution + " - " + application.program}</p>
-              	</div>
+              					</div>
 								<div>
-									<h4 className="text-md font-medium text-gray-900 mb-1">Date de candidature</h4>
+									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>
 									<p className="text-sm text-gray-700 leading-relaxed">{getDateWithoutTime(application.applicationDate!)}</p>
-              	</div>
+              					</div>
 							</div>
+						
 						})}
 					</div>
 

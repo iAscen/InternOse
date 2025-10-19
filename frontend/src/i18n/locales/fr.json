@@ -221,7 +221,9 @@
       "sortAndFilter": "Trier / Filtrer",
       "goBack": "Retourner",
       "noCandidaturesFound": "Aucune candidature reçue pour cette offre.",
-      "applications": "Candidatures"
+      "applications": "Candidatures",
+      "applicationDate": "Date de candidature",
+      "validateApplication": "Valider la candidature"
     }
   },
   "errors": {

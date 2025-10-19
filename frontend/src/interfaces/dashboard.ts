@@ -45,7 +45,7 @@ export interface DashboardStats {
 }
 
 export interface Cv {
-  studentId?: number;
+  id?: number;
   firstName: string;
   lastName: string;
   email: string;

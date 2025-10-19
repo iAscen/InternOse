@@ -224,7 +224,9 @@
       "sortAndFilter": "Sort / Filter",
       "goBack": "Go back",
       "noCandidaturesFound": "No applications received for this offer.",
-      "applications": "Applications"
+      "applications": "Applications",
+      "applicationDate": "Application date",
+      "validateApplication": "Validate application"
     }
   },
   "errors": {

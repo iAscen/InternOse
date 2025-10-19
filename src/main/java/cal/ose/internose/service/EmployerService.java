@@ -71,11 +71,13 @@ public class EmployerService {
                         .firstName(app.getStudent().getFirstName())
                         .lastName(app.getStudent().getLastName())
                         .cvStatus(app.getStudent().getCvStatus())
+                        .cvFileName(app.getStudent().getCVFileName())
                         .program(app.getStudent().getProgram())
                         .institution(app.getStudent().getInstitution())
                         .cvFileData(app.getStudent().getCVFileData())
                         .applicationDate(app.getApplicationDate())
                         .applicationStatus(app.getStatus())
+                        .email(app.getStudent().getEmail())
                         .build()).collect(Collectors.toList());
     }
 
@@ -94,6 +96,7 @@ public class EmployerService {
                         .id(app.getStudent().getId())
                         .firstName(app.getStudent().getFirstName())
                         .lastName(app.getStudent().getLastName())
+                        .cvFileName(app.getStudent().getCVFileName())
                         .cvStatus(app.getStudent().getCvStatus())
                         .program(app.getStudent().getProgram())
                         .institution(app.getStudent().getInstitution())

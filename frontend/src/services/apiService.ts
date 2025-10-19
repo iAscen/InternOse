@@ -932,10 +932,11 @@ class ApiService {
           data: applications
         };
       } else {
+        const error: {message: string} = await response.json()
         let errorMessage = "Erreur lors de l'obtention des candidatures.";
         return {
           success: false,
-          error: errorMessage,
+          error: error.message || errorMessage,
         };
       }
     } catch (error) {

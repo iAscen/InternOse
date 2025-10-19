@@ -4,22 +4,23 @@ import { apiService } from '~/services/apiService';
 import type { Cv } from '~/interfaces';
 import PdfViewer from './PdfViewer.client';
 
-interface CvValidationModalProps {
+interface ApplicationValidationModalProps {
   cv: Cv;
   isOpen: boolean;
   onClose: () => void;
   onValidationSuccess: () => void;
 }
 
-export default function CvValidationModal({
+export default function ApplicationValidationModalProps({
   cv,
   isOpen,
   onClose,
   onValidationSuccess
-}: CvValidationModalProps) {
+}: ApplicationValidationModalProps) {
   const { t } = useTranslation();
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationType, setValidationType] = useState<'approve' | 'reject' | null>(null);
+  //Peut etre utile pour la story EQ6-14, mais effacer si pas necessaire
+  //const [isValidating, setIsValidating] = useState(false);
+  //const [validationType, setValidationType] = useState<'approve' | 'reject' | null>(null);
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [cvUrl, setCvUrl] = useState<string>('/CVtest.pdf');
@@ -79,47 +80,7 @@ export default function CvValidationModal({
   }, [isOpen, isLoadingCv]);
 
   const handleValidation = async (type: 'approve' | 'reject') => {
-    if (!cv.id) {
-      setError('ID de l\'étudiant manquant');
-      return;
-    }
-
-    setIsValidating(true);
-    setError(null);
-
-    console.log('🚀 Starting CV validation:', {
-      studentId: cv.id,
-      type,
-      approved: type === 'approve',
-      comment: type === 'reject' ? comment : undefined
-    });
-
-    try {
-      const response = await apiService.validateCv(
-        cv.id,
-        type === 'approve',
-        type === 'reject' ? comment : undefined
-      );
-
-      console.log('🚀 Validation response:', response);
-
-      if (response.success) {
-        console.log('✅ Validation successful');
-        onValidationSuccess();
-        onClose();
-        // Reset form
-        setComment('');
-        setValidationType(null);
-      } else {
-        console.error('❌ CV Validation failed:', response.error);
-        setError(response.error || 'Erreur lors de la validation du CV');
-      }
-    } catch (err) {
-      console.error('❌ CV Validation error:', err);
-      setError('Erreur de connexion au serveur');
-    } finally {
-      setIsValidating(false);
-    }
+    // methode pour la validation de l'application, effacer si vous voulez
   };
 
   const handleDownload = async () => {
@@ -155,7 +116,7 @@ export default function CvValidationModal({
     setShowPdfViewer(false);
 
     setComment('');
-    setValidationType(null);
+    //setValidationType(null);
     setError(null);
 
     if (cvUrl && cvUrl.startsWith('blob:')) {
@@ -182,7 +143,7 @@ export default function CvValidationModal({
         <div className="px-6 py-4 border-b border-gray-300 bg-gray-100 rounded-t-lg">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
-              {t('im.validateCv')}
+              {t('dashboard.internshipApplications.validateApplication')}
             </h3>
             <button
               onClick={handleClose}
@@ -250,7 +211,7 @@ export default function CvValidationModal({
                     <p className="text-sm font-medium text-gray-900">{cv.cvFileType || 'PDF'}</p>
                   </div>
                 </div>
-                {cv.uploadedAt && (
+                {cv.applicationDate && (
                   <div className="flex items-center">
                     <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
                       <svg className="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +219,7 @@ export default function CvValidationModal({
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{new Date(cv.uploadedAt).toLocaleDateString()}</p>
+                      <p className="text-sm font-medium text-gray-900">{new Date(cv.applicationDate).toLocaleDateString()}</p>
                     </div>
                   </div>
                 )}
@@ -271,23 +232,23 @@ export default function CvValidationModal({
               <div className="bg-gray-50 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${cv.cvStatus === 'approved' ? 'bg-green-100' :
-                      cv.cvStatus === 'rejected' ? 'bg-red-100' :
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${cv.applicationStatus === 'ACCEPTED' ? 'bg-green-100' :
+                      cv.applicationStatus === 'REJECTED' ? 'bg-red-100' :
                         'bg-yellow-100'
                       }`}>
-                      <svg className={`w-3 h-3 ${cv.cvStatus === 'approved' ? 'text-green-600' :
-                        cv.cvStatus === 'rejected' ? 'text-red-600' :
+                      <svg className={`w-3 h-3 ${cv.applicationStatus === 'ACCEPTED' ? 'text-green-600' :
+                        cv.applicationStatus === 'REJECTED' ? 'text-red-600' :
                           'text-yellow-600'
                         }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${cv.cvStatus === 'approved' ? 'bg-green-100 text-green-800' :
-                      cv.cvStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${cv.applicationStatus === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
+                      cv.applicationStatus === 'REJECTED' ? 'bg-red-100 text-red-800' :
                         'bg-yellow-100 text-yellow-800'
                       }`}>
-                      {cv.cvStatus === 'approved' ? t('im.approved') : 
-                       cv.cvStatus === 'rejected' ? t('im.rejected') : 
+                      {cv.applicationStatus === 'ACCEPTED' ? t('im.approved') : 
+                       cv.applicationStatus === 'REJECTED' ? t('im.rejected') : 
                        t('im.pending')}
                     </span>
                   </div>
@@ -319,102 +280,15 @@ export default function CvValidationModal({
               </div>
             )}
 
-            {/* Validation Actions - Only show for pending CVs */}
-            {cv.cvStatus === 'pending' ? (
-              <div className="space-y-3">
-                {/* Approve Button */}
-                <button
-                  onClick={() => setValidationType('approve')}
-                  disabled={isValidating}
-                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'approve'
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
-                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {t('im.approveCv')}
-                </button>
+            {/*Les boutons pour la validation vont la*/}
+            
+            {
+            /*
+             
 
-                {/* Reject Button */}
-                <button
-                  onClick={() => setValidationType('reject')}
-                  disabled={isValidating}
-                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'reject'
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
-                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  {t('im.rejectCv')}
-                </button>
-
-                {/* Comment for Rejection */}
-                {validationType === 'reject' && (
-                  <div className="mt-4">
-                    <label htmlFor="rejection-comment" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('im.rejectionReason')} <span className="text-gray-500">({t('common.optional')})</span>
-                    </label>
-                    <textarea
-                      id="rejection-comment"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                      placeholder={t('im.rejectionReasonPlaceholder')}
-                    />
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {validationType && (
-                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => setValidationType(null)}
-                      disabled={isValidating}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                    <button
-                      onClick={() => handleValidation(validationType)}
-                      disabled={isValidating}
-                      className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : 'bg-red-600 hover:bg-red-700'
-                        } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isValidating ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {t('common.processing')}
-                        </div>
-                      ) : (
-                        validationType === 'approve' ? t('im.confirmApprove') : t('im.confirmReject')
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Message for already processed CVs */
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-                <div className="flex items-center justify-center mb-1">
-                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600">
-                    {cv.cvStatus === 'approved' ? t('im.cvAlreadyApproved') : t('im.cvAlreadyProcessed')}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {t('im.cvAlreadyProcessedMessage', { status: cv.cvStatus === 'approved' ? t('im.approved').toLowerCase() : t('im.rejected').toLowerCase() })}
-                </p>
-              </div>
-            )}
+            */
+            }
+            
           </div>
 
           {/* Right Panel - PDF Viewer */}

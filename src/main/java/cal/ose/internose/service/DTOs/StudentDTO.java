@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class StudentDTO extends UserAppDTO {
     private DocumentStatus cvStatus;
     private byte[] cvFileData;
+    private String cvFileName;
     private String program;
     private String institution;
     private LocalDateTime applicationDate;
