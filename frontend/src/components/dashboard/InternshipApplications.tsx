@@ -122,7 +122,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 						</div>
 					</div>
 
-					{selectedApplication && (
+					{selectedApplication && errorMessage == null && (
 							
 								<ApplicationValidationModal
 									cv={selectedApplication}
@@ -160,7 +160,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 
 				</div>
 
-				{applications.length == 0 &&
+				{applications.length == 0 && errorMessage == null &&
 					<div className="text-center text-gray-900 mt-2">
 						{t('dashboard.internshipApplications.noCandidaturesFound')}
 					</div>
