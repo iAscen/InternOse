@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 @Entity
+@Table(name = "USERS")
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor

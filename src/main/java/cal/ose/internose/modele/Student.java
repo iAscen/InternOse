@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "STUDENTS")
 @DiscriminatorValue("S")
 @NoArgsConstructor
 @AllArgsConstructor
