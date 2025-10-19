@@ -1,9 +1,6 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.Employer;
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
-import cal.ose.internose.modele.StudentApplication;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
@@ -77,8 +74,8 @@ public class EmployerServiceTests {
 
     @Test
     public void testFindStudentsBy() {
-        Student student1 = Student.builder().id(1L).program("Z").build();
-        Student student2 = Student.builder().id(2L).program("A").build();
+        Student student1 = Student.builder().id(1L).program("Z").credentials(new Credentials("email", "password", Role.STUDENT)).build();
+        Student student2 = Student.builder().id(2L).program("A").credentials(new Credentials("email", "password", Role.STUDENT)).build();
         
         List<StudentApplication> applications = List.of(
                 StudentApplication.builder()
