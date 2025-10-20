@@ -1,14 +1,14 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.service.UserService;
+import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import cal.ose.internose.security.exceptions.AuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +20,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AuthControllerTest {
+class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -40,128 +39,143 @@ class AuthControllerTest {
 
     @Test
     void testRegisterEmployerSuccess() throws Exception {
-        // arrange
+        // Arrange
         EmployerDTO employerDTO = EmployerDTO.builder().build();
-
-        when(userService.registerEmployer(any())).thenReturn("jwt");
-
+        when(userService.registerEmployer(any(EmployerDTO.class))).thenReturn("jwt");
         String requestJson = objectMapper.writeValueAsString(employerDTO);
 
-        // act
+        // Act
         MvcResult mvcResult = performRequest(Paths.EMPLOYER_REGISTER_PATH, requestJson);
 
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.CREATED,
-                null, "jwt");
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.CREATED,
+            null,
+            "jwt"
+        );
     }
 
     @Test
     void testRegisterEmployerFail() throws Exception {
-        // arrange
+        // Arrange
         EmployerDTO employerDTO = EmployerDTO.builder().build();
-
-        when(userService.registerEmployer(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
-
+        when(userService.registerEmployer(any())).thenThrow(
+            new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage())
+        );
         String requestJson = objectMapper.writeValueAsString(employerDTO);
 
-        // act
+        // Act
         MvcResult mvcResult = performRequest(Paths.EMPLOYER_REGISTER_PATH, requestJson);
 
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.BAD_REQUEST,
-                ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(), null);
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.BAD_REQUEST,
+            ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(),
+            null
+        );
     }
 
     @Test
     void testRegisterStudentSuccess() throws Exception {
-        // arrange
+        // Arrange
         StudentDTO studentDTO = StudentDTO.builder().build();
-
         when(userService.registerStudent(any())).thenReturn("jwt");
-
         String requestJson = objectMapper.writeValueAsString(studentDTO);
 
-        // act
+        // Act
         MvcResult mvcResult = performRequest(Paths.STUDENT_REGISTER_PATH, requestJson);
 
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.CREATED,
-                null, "jwt");
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.CREATED,
+            null,
+            "jwt"
+        );
     }
 
     @Test
     void testRegisterStudentFail() throws Exception {
-        // arrange
+        // Arrange
         StudentDTO studentDTO = StudentDTO.builder().build();
+        when(userService.registerStudent(any())).thenThrow(
+            new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage())
+        );
+        String requestBody = objectMapper.writeValueAsString(studentDTO);
 
-        when(userService.registerStudent(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
+        // Act
+        MvcResult mvcResult = performRequest(Paths.STUDENT_REGISTER_PATH, requestBody);
 
-        String requestJson = objectMapper.writeValueAsString(studentDTO);
-
-        // act
-        MvcResult mvcResult = performRequest(Paths.STUDENT_REGISTER_PATH, requestJson);
-
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.BAD_REQUEST,
-                ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(), null);
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.BAD_REQUEST,
+            ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(),
+            null
+        );
     }
 
     @Test
     void testLoginSuccess() throws Exception {
-        // arrange
+        // Arrange
         LoginDTO loginDTO = new LoginDTO("test@example.com", "Password123!");
-
         when(userService.login(any())).thenReturn("jwt-token");
+        String requestBody = objectMapper.writeValueAsString(loginDTO);
 
-        String requestJson = objectMapper.writeValueAsString(loginDTO);
+        // Act
+        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestBody);
 
-        // act
-        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestJson);
-
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.OK,
-                null, "jwt-token");
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.OK,
+            null,
+            "jwt-token"
+        );
     }
 
     @Test
     void testLoginFail() throws Exception {
-        // arrange
+        // Arrange
         LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
-
         when(userService.login(any())).thenThrow(new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password"));
+        String requestBody = objectMapper.writeValueAsString(loginDTO);
 
-        String requestJson = objectMapper.writeValueAsString(loginDTO);
+        // Act
+        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestBody);
 
-        // act
-        MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestJson);
-
-        // assert
-        assertMvcResult(mvcResult, HttpStatus.FORBIDDEN,
-                "Incorrect username or password", null);
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.FORBIDDEN,
+            "Incorrect username or password",
+            null
+        );
     }
 
     private MvcResult performRequest(String path, String body) throws Exception {
         return mockMvc.perform(
-                post(path)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
+            post(path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
         ).andReturn();
     }
 
-    private void assertMvcResult(MvcResult mvcResult, HttpStatus expectedHttpStatus,
-                         String expectedErrorMessage, String expectedSuccessMessage) throws Exception {
-
-        assertThat(mvcResult.getResponse().getStatus())
-                .isEqualTo(expectedHttpStatus.value());
-
-        String body = mvcResult.getResponse().getContentAsString();
+    private void assertMvcResult(
+        MvcResult mvcResult,
+        HttpStatus expectedHttpStatus,
+        String expectedErrorMessage,
+        String expectedSuccessMessage
+    ) throws Exception {
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(expectedHttpStatus.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
 
         if (expectedSuccessMessage == null) {
-            ErrorResponseDTO errorResponse = objectMapper.readValue(body, ErrorResponseDTO.class);
-
+            ErrorResponseDTO errorResponse = objectMapper.readValue(responseContent, ErrorResponseDTO.class);
             assertThat(errorResponse.getMessage()).isEqualTo(expectedErrorMessage);
-        }
-        else {
+        } else {
             String jwt = mvcResult.getResponse().getContentAsString();
             assertThat(jwt).isEqualTo(expectedSuccessMessage);
         }

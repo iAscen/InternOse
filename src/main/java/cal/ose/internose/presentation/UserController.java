@@ -14,9 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+@CrossOrigin(origins = "http://localhost:5173")
 @AllArgsConstructor
-public class AuthController {
+public class UserController {
     private UserService userService;
 
     @PostMapping(Paths.EMPLOYER_REGISTER_PATH)
