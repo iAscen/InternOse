@@ -34,11 +34,11 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findInternshipsBy("%Informatique%", null, null))
+        when(internshipOfferDAO.findInternshipsBy(null, "%Informatique%", null))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy("Informatique", null, null, "status");
+            .findInternshipsBy(null, "Informatique", null, "status");
 
         assertEquals(3, internshipOfferDTOS.size());
         assertEquals("Informatique", internshipOfferDTOS.getFirst().getProgram());
@@ -49,10 +49,10 @@ class InternshipManagerServiceTest {
     void sortByDomain() {
         when(internshipOfferDAO.findInternshipsBy(null, null, null))
             .thenReturn(List.of(
-                InternshipOffer.builder().program("Informatique").validationStatus(VerificationStatus.APPROVED)
+                InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
-                InternshipOffer.builder().program("Biologie").validationStatus(VerificationStatus.APPROVED).build(),
-                InternshipOffer.builder().program("Architecture").validationStatus(VerificationStatus.APPROVED)
+                InternshipOffer.builder().program("Biologie").verificationStatus(VerificationStatus.APPROVED).build(),
+                InternshipOffer.builder().program("Architecture").verificationStatus(VerificationStatus.APPROVED)
                     .build()));
 
         List<InternshipOfferDTO> result = internshipManagerService
@@ -66,11 +66,11 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findInternshipsBy("%non%", null, null))
+        when(internshipOfferDAO.findInternshipsBy(null, "%non%", null))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy("non", null, null, null);
+            .findInternshipsBy(null, "non", null, null);
 
         assertEquals(0, internshipOfferDTOS.size());
     }
@@ -80,9 +80,9 @@ class InternshipManagerServiceTest {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
-            .validationStatus(VerificationStatus.PENDING)
+            .verificationStatus(VerificationStatus.PENDING)
             .build();
-        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
 
         internshipManagerService.verifyInternshipOffer(offerId, true, "any comment should be ignored on approve");
 
@@ -101,9 +101,9 @@ class InternshipManagerServiceTest {
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
             .rejectionReason(null)
-            .validationStatus(VerificationStatus.PENDING)
+            .verificationStatus(VerificationStatus.PENDING)
             .build();
-        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
 
         internshipManagerService.verifyInternshipOffer(offerId, false, rejectionComment);
 
@@ -119,7 +119,7 @@ class InternshipManagerServiceTest {
     @Test
     void validationInternshipOfferNotFound() {
         Long missingId = 999L;
-        when(internshipOfferDAO.findInternshipOfferById(missingId)).thenReturn(null);
+        when(internshipOfferDAO.findById(missingId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
             () -> internshipManagerService.verifyInternshipOffer(missingId, true, null));
@@ -133,9 +133,9 @@ class InternshipManagerServiceTest {
         Long offerId = 3L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
-            .validationStatus(VerificationStatus.APPROVED) // Déjà traitée
+            .verificationStatus(VerificationStatus.APPROVED) // Déjà traitée
             .build();
-        when(internshipOfferDAO.findInternshipOfferById(offerId)).thenReturn(existing);
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
 
         // Act & Assert
         try {
@@ -151,18 +151,18 @@ class InternshipManagerServiceTest {
     private List<InternshipOffer> getInformatiqueInternships() {
         return List.of(
             InternshipOffer.builder()
-                .validationStatus(VerificationStatus.APPROVED)
-                .jobTitle("Software Intern")
+                .verificationStatus(VerificationStatus.APPROVED)
+                .title("Software Intern")
                 .program("Informatique")
                 .build(),
             InternshipOffer.builder()
-                .validationStatus(VerificationStatus.PENDING)
-                .jobTitle("Software Senior")
+                .verificationStatus(VerificationStatus.PENDING)
+                .title("Software Senior")
                 .program("Informatique")
                 .build(),
             InternshipOffer.builder()
-                .validationStatus(VerificationStatus.APPROVED)
-                .jobTitle("Software Senior")
+                .verificationStatus(VerificationStatus.APPROVED)
+                .title("Software Senior")
                 .program("Informatique")
                 .build());
     }
@@ -171,16 +171,16 @@ class InternshipManagerServiceTest {
         Student student1 = Student.builder()
             .firstName("Alice")
             .lastName("Johnson")
-            .cvStatus(VerificationStatus.APPROVED)
-            .cvUploadedAt(LocalDateTime.now().minusDays(2))
+            .resumeVerificationStatus(VerificationStatus.APPROVED)
+            .resumeUploadDate(LocalDateTime.now().minusDays(2))
             .build();
         student1.setId(1L);
 
         Student student2 = Student.builder()
             .firstName("Bob")
             .lastName("Smith")
-            .cvStatus(VerificationStatus.PENDING)
-            .cvUploadedAt(LocalDateTime.now().minusDays(1))
+            .resumeVerificationStatus(VerificationStatus.PENDING)
+            .resumeUploadDate(LocalDateTime.now().minusDays(1))
             .build();
         student2.setId(2L);
 

@@ -3,6 +3,7 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +61,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes("name", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("name", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -76,7 +77,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes("date", "desc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("date", "desc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -92,7 +93,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes(null, null, "PENDING");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes(null, null, "PENDING");
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
@@ -107,7 +108,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes(null, null, "INVALID_STATUS");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes(null, null, "INVALID_STATUS");
 
         // Assert - Devrait retourner tous les CV car le statut invalide est ignoré
         assertThat(result.size()).isEqualTo(2);
@@ -121,7 +122,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes("", "", "");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("", "", "");
 
         // Assert - Devrait retourner tous les CV triés par nom par défaut
         assertThat(result.size()).isEqualTo(2);
@@ -136,7 +137,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes("status", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("status", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -152,7 +153,7 @@ public class StudentServiceTests {
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithResumes("email", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("email", "asc", null);
 
         // Assert - Le tri par email devrait fonctionner même avec des emails null
         assertThat(result.size()).isEqualTo(2);
@@ -172,16 +173,16 @@ public class StudentServiceTests {
         Student student1 = Student.builder()
                 .firstName("Alice")
                 .lastName("Johnson")
-                .cvStatus(VerificationStatus.APPROVED)
-                .cvUploadedAt(LocalDateTime.now().minusDays(2))
+                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                .resumeUploadDate(LocalDateTime.now().minusDays(2))
                 .build();
         student1.setId(1L);
 
         Student student2 = Student.builder()
                 .firstName("Bob")
                 .lastName("Smith")
-                .cvStatus(VerificationStatus.PENDING)
-                .cvUploadedAt(LocalDateTime.now().minusDays(1))
+                .resumeVerificationStatus(VerificationStatus.PENDING)
+                .resumeUploadDate(LocalDateTime.now().minusDays(1))
                 .build();
         student2.setId(2L);
 

@@ -7,6 +7,7 @@ import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
@@ -49,7 +49,7 @@ class InternshipManagerControllerTest {
     @Test
     void findInternshipsBy() throws Exception {
         when(internshipManagerService.findInternshipsBy(
-            "Informatique", null, null, null)).thenReturn(
+            null, "Informatique", null, null)).thenReturn(
             List.of(InternshipOfferDTO.builder().program("Informatique").build()));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -73,7 +73,7 @@ class InternshipManagerControllerTest {
     void findInternshipsByWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
-            "Informatique", true, "Développeur", "title")).thenReturn(
+            true, "Informatique", "Développeur", "title")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .title("Développeur Java")
@@ -139,7 +139,7 @@ class InternshipManagerControllerTest {
     void findInternshipsByEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
-            "NonExistent", null, null, null)).thenReturn(List.of());
+            null, "NonExistent", null, null)).thenReturn(List.of());
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_MANAGER_OFFERS_PATH)
@@ -217,7 +217,7 @@ class InternshipManagerControllerTest {
     void getAllStudentsResumes() throws Exception {
         // Test de base pour récupérer tous les CVs des étudiants
         when(studentService.getAllStudentsWithResumes(null, null, null))
-            .thenReturn(createTestStudents());
+            .thenReturn(createTestStudentDTOs());
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/cvs")
@@ -235,7 +235,7 @@ class InternshipManagerControllerTest {
     void getAllStudentsResumesWithFilters() throws Exception {
         // Test avec filtrage par statut et tri
         when(studentService.getAllStudentsWithResumes("name", "asc", "PENDING"))
-            .thenReturn(createTestStudents().stream()
+            .thenReturn(createTestStudentDTOs().stream()
                 .filter(s -> s.getResumeVerificationStatus() == VerificationStatus.PENDING)
                 .toList());
 
@@ -257,7 +257,7 @@ class InternshipManagerControllerTest {
     void getAllStudentsResumesWithSorting() throws Exception {
         // Test avec tri par date
         when(studentService.getAllStudentsWithResumes("date", "desc", null))
-            .thenReturn(createTestStudents());
+            .thenReturn(createTestStudentDTOs());
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/cvs")
@@ -276,8 +276,8 @@ class InternshipManagerControllerTest {
             .firstName("Alice")
             .lastName("Smith")
             .credentials(new Credentials("alice@example.com", "password", UserRole.STUDENT))
-            .cvStatus(VerificationStatus.PENDING)
-            .cvUploadedAt(LocalDateTime.now().minusDays(1))
+            .resumeVerificationStatus(VerificationStatus.PENDING)
+            .resumeUploadDate(LocalDateTime.now().minusDays(1))
             .build();
         student1.setId(1L);
 
@@ -285,12 +285,18 @@ class InternshipManagerControllerTest {
             .firstName("Bob")
             .lastName("Johnson")
             .credentials(new Credentials("bob@example.com", "password", UserRole.STUDENT))
-            .cvStatus(VerificationStatus.APPROVED)
-            .cvUploadedAt(LocalDateTime.now().minusDays(2))
+            .resumeVerificationStatus(VerificationStatus.APPROVED)
+            .resumeUploadDate(LocalDateTime.now().minusDays(2))
             .build();
         student2.setId(2L);
 
         return List.of(student1, student2);
+    }
+
+    private List<StudentDTO> createTestStudentDTOs() {
+        return createTestStudents().stream()
+            .map(StudentDTO::fromEntity)
+            .toList();
     }
 
     // ===== MES NOUVELLES MÉTHODES DE TEST POUR LA VALIDATION DES CVs =====
@@ -301,7 +307,7 @@ class InternshipManagerControllerTest {
         Student student = createTestStudents().get(0);
         student.setResumeFileName("alice_cv.pdf");
         student.setResumeFileType("application/pdf");
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/1/cv")
@@ -317,7 +323,7 @@ class InternshipManagerControllerTest {
     @Test
     void getStudentCVDetails_StudentNotFound() throws Exception {
         // Test avec étudiant non trouvé
-        when(studentService.getStudentByID(999L)).thenReturn(Optional.empty());
+        when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/999/cv")
@@ -335,7 +341,7 @@ class InternshipManagerControllerTest {
         Student student = createTestStudents().get(0);
         student.setResumeFileData("test cv data".getBytes());
         student.setResumeFileName("test_cv.pdf");
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/1/cv/download")
@@ -348,7 +354,7 @@ class InternshipManagerControllerTest {
     @Test
     void downloadStudentCV_StudentNotFound() throws Exception {
         // Test de téléchargement avec étudiant non trouvé
-        when(studentService.getStudentByID(999L)).thenReturn(Optional.empty());
+        when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
                 get("/api/internship-manager/students/999/cv/download")
@@ -362,7 +368,7 @@ class InternshipManagerControllerTest {
     void verifyStudentCV_Approve() throws Exception {
         // Test d'approbation d'un CV
         Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
         doNothing().when(internshipManagerService).verifyResume(1L, true, null);
 
         MvcResult mvcResult = mockMvc.perform(
@@ -380,7 +386,7 @@ class InternshipManagerControllerTest {
     void verifyStudentCV_Reject() throws Exception {
         // Test de refus d'un CV
         Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
         doNothing().when(internshipManagerService).verifyResume(1L, false, "CV incomplet");
 
         MvcResult mvcResult = mockMvc.perform(
@@ -398,7 +404,7 @@ class InternshipManagerControllerTest {
     @Test
     void verifyStudentCV_StudentNotFound() throws Exception {
         // Test avec étudiant non trouvé
-        when(studentService.getStudentByID(999L)).thenReturn(Optional.empty());
+        when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/999/cv/validate")
@@ -416,7 +422,7 @@ class InternshipManagerControllerTest {
         // Test avec CV déjà traité
         Student student = createTestStudents().get(0);
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -434,7 +440,7 @@ class InternshipManagerControllerTest {
         // Test avec étudiant sans CV
         Student student = createTestStudents().get(0);
         student.setResumeVerificationStatus(VerificationStatus.NONE);
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
                 post("/api/internship-manager/students/1/cv/validate")
@@ -451,7 +457,7 @@ class InternshipManagerControllerTest {
     void verifyStudentCV_ServiceException() throws Exception {
         // Test avec exception du service
         Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
         doThrow(new RuntimeException("Erreur de service")).when(internshipManagerService).verifyResume(1L,
             true, null);
 

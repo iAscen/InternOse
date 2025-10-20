@@ -4,6 +4,7 @@ import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,7 +77,7 @@ public class StudentControllerTests {
         student.setResumeVerificationStatus(VerificationStatus.PENDING);
         student.setResumeFileName("test.pdf");
         student.setResumeUploadDate(LocalDateTime.now());
-        when(studentService.getStudentByID(studentID)).thenReturn(Optional.of(student));
+        when(studentService.getStudentByID(studentID)).thenReturn(StudentDTO.fromEntity(student));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -97,7 +98,7 @@ public class StudentControllerTests {
     public void testGetCVStatus_StudentNotFound() throws Exception {
         // Arrange
         Long studentID = 999L;
-        when(studentService.getStudentByID(studentID)).thenReturn(Optional.empty());
+        when(studentService.getStudentByID(studentID)).thenThrow(new RuntimeException("Student not found"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(

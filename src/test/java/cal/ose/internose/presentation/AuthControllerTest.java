@@ -41,7 +41,7 @@ class AuthControllerTest {
     @Test
     void testRegisterEmployerSuccess() throws Exception {
         // arrange
-        EmployerDTO employerDTO = new EmployerDTO();
+        EmployerDTO employerDTO = EmployerDTO.builder().build();
 
         when(userService.registerEmployer(any())).thenReturn("jwt");
 
@@ -58,7 +58,7 @@ class AuthControllerTest {
     @Test
     void testRegisterEmployerFail() throws Exception {
         // arrange
-        EmployerDTO employerDTO = new EmployerDTO();
+        EmployerDTO employerDTO = EmployerDTO.builder().build();
 
         when(userService.registerEmployer(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
 
@@ -75,7 +75,7 @@ class AuthControllerTest {
     @Test
     void testRegisterStudentSuccess() throws Exception {
         // arrange
-        StudentDTO studentDTO = new StudentDTO();
+        StudentDTO studentDTO = StudentDTO.builder().build();
 
         when(userService.registerStudent(any())).thenReturn("jwt");
 
@@ -92,7 +92,7 @@ class AuthControllerTest {
     @Test
     void testRegisterStudentFail() throws Exception {
         // arrange
-        StudentDTO studentDTO = new StudentDTO();
+        StudentDTO studentDTO = StudentDTO.builder().build();
 
         when(userService.registerStudent(any())).thenThrow(new WeakPasswordException(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage()));
 

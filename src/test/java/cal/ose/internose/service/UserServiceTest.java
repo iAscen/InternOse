@@ -50,7 +50,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRegisterEmployer() {
+    void testRegisterEmployer() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userDAO.save(any(Employer.class))).thenReturn(
@@ -63,7 +63,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRegisterEmployerToken() {
+    void testRegisterEmployerToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
@@ -121,7 +121,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRegisterStudent() {
+    void testRegisterStudent() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         StudentDTO dto = createStudentDTO(null);
 
         when(userDAO.save(any(Student.class))).thenReturn(
@@ -133,7 +133,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRegisterStudentToken() {
+    void testRegisterStudentToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         StudentDTO dto = createStudentDTO(null);
 
         when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
@@ -237,13 +237,14 @@ public class UserServiceTest {
     }
 
     private EmployerDTO createEmployerDTO(String password) {
-        return new EmployerDTO(
-                "testNom",
-                "testPrenom",
-                "testEmail",
-                password != null ? password : "TestPassword1@", // default password if none provided
-                UserRole.EMPLOYER,
-                "testEntreprise");
+        return EmployerDTO.builder()
+                .firstName("testNom")
+                .lastName("testPrenom")
+                .email("testEmail")
+                .password(password != null ? password : "TestPassword1@")
+                .userRole(UserRole.EMPLOYER)
+                .enterprise("testEntreprise")
+                .build();
     }
 
     private static Stream<Arguments> weakPasswordProvider() {
