@@ -1,12 +1,13 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.DocumentStatus;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,22 +15,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(Paths.EMPLOYER_BASE_PATH)
 @CrossOrigin(origins = "http://localhost:5173")
+@AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
     private final ObjectMapper objectMapper;
 
-    public EmployerController(EmployerService employerService, ObjectMapper objectMapper) {
-        this.employerService = employerService;
-        this.objectMapper = objectMapper;
-    }
-
-    @GetMapping(Paths.INTERNSHIP_OFFERS_PATH)
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers(@RequestParam Long employerID) {
         return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers(employerID));
     }
 
-    @PostMapping(Paths.INTERNSHIP_OFFERS_PATH)
+    @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
         InternshipOfferDTO internshipOfferDTO;
         try {
@@ -45,23 +43,26 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-    public ResponseEntity<List<StudentDTO>> findStudentsBy(@RequestParam() long internshipId,
-                                                           @RequestParam(required = false) String cvStatus,
-                                                           @RequestParam(required = false) String program,
-                                                           @RequestParam(required = false) String institution,
-                                                           @RequestParam(required = false) String sortBy) {
-
-        DocumentStatus status = DocumentStatus.of(cvStatus);
-        List<StudentDTO> students = employerService.findStudentsBy(internshipId, status, program, institution, sortBy);
-
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_PATH)
+    public ResponseEntity<List<StudentDTO>> getStudentApplications(
+        @RequestParam("internshipOfferID") Long internshipOfferID,
+        @RequestParam(required = false) String resumeVerificationStatus,
+        @RequestParam(required = false) String institution,
+        @RequestParam(required = false) String program,
+        @RequestParam(required = false) String sortBy
+    ) {
+        List<StudentDTO> students = employerService.findApplicationsBy(
+            internshipOfferID, VerificationStatus.valueOf(resumeVerificationStatus), institution, program, sortBy
+        );
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping(Paths.STUDENT_APPLICATION_DETAILS_PATH)
-    public ResponseEntity<StudentDTO> getStudentApplicationDetails(@RequestParam() long internshipId,
-                                                                   @RequestParam() long studentId) {
-        StudentDTO application = employerService.getStudentApplicationDetails(internshipId, studentId);
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_PATH)
+    public ResponseEntity<StudentDTO> getStudentApplicationDetails(
+        @RequestParam("internshipOfferID") Long internshipOfferID,
+        @PathVariable Long studentID
+    ) {
+        StudentDTO application = employerService.getApplicationDetails(internshipOfferID, studentID);
         return ResponseEntity.ok(application);
     }
 

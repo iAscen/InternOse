@@ -52,7 +52,7 @@ public class EmployerControllerTests {
         when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            get(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -75,7 +75,7 @@ public class EmployerControllerTests {
         when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOffer));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            post(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();
@@ -84,8 +84,8 @@ public class EmployerControllerTests {
     }
 
     @Test
-    public void testFindStudentsBy() throws Exception {
-        when(employerService.findStudentsBy(1L, null, null, null, null))
+    public void testGetStudentApplications() throws Exception {
+        when(employerService.findApplicationsBy(1L, null, null, null, null))
                 .thenReturn(new ArrayList<>());
 
         MvcResult mvcResult = mockMvc.perform(
@@ -97,8 +97,8 @@ public class EmployerControllerTests {
     }
 
     @Test
-    public void testFindStudentsBy_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.findStudentsBy(1L, null, null, null, null))
+    public void testGetStudentApplications_ThrowsResourceNotFoundException() throws Exception {
+        when(employerService.findApplicationsBy(1L, null, null, null, null))
                 .thenThrow(new ResourceNotFoundException("error"));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -124,10 +124,9 @@ public class EmployerControllerTests {
                 .institution("University")
                 .applicationDate(java.time.LocalDateTime.now())
                 .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.PENDING)
-                .coverLetter("I am very interested in this position...")
                 .build();
 
-        when(employerService.getStudentApplicationDetails(1L, 1L))
+        when(employerService.getApplicationDetails(1L, 1L))
                 .thenReturn(application);
 
         MvcResult mvcResult = mockMvc.perform(
@@ -143,12 +142,11 @@ public class EmployerControllerTests {
         
         assertThat(responseApplication.getFirstName()).isEqualTo("John");
         assertThat(responseApplication.getLastName()).isEqualTo("Doe");
-        assertThat(responseApplication.getCoverLetter()).isEqualTo("I am very interested in this position...");
     }
 
     @Test
     public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.getStudentApplicationDetails(1L, 1L))
+        when(employerService.getApplicationDetails(1L, 1L))
                 .thenThrow(new ResourceNotFoundException("Application not found"));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -168,10 +166,10 @@ public class EmployerControllerTests {
         List<InternshipOfferDTO> offresStage = new ArrayList<>();
         offresStage.add(
             InternshipOfferDTO.builder()
-                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
-                .taskDescription("*description ici*")
+                .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
+                .description("*description ici*")
                 .program("Technique de l'informatique")
-                .qualifications("*compétences requises ici*")
+                .requiredSkills("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))
                 .salary(25.0)

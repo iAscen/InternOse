@@ -1,10 +1,11 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.Student;
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
-import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
+import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
+import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,18 +17,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping(Paths.STUDENT_BASE_PATH)
 @CrossOrigin("http://localhost:5173")
+@AllArgsConstructor
 public class StudentController {
     private final StudentService studentService;
 
-    public StudentController(StudentService studentService) {
-        this.studentService = studentService;
+    @GetMapping(Paths.STUDENT_RESUME_STATUS_PATH)
+    public ResponseEntity<Map<String, Object>> getResumeStatus(@RequestParam("studentID") Long studentID) {
+        try {
+            StudentDTO student = studentService.getStudentByID(studentID);
+
+            if (student == null)
+                return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("resumeFileName", student.getResumeFileName() != null
+                ? student.getResumeFileName()
+                : "");
+            response.put("upload_date", student.getResumeUploadDate() != null
+                ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                : "");
+            response.put("verificationStatus", student.getResumeVerificationStatus().name().toLowerCase());
+            response.put("verifyDate", student.getResumeVerifiedDate() != null
+                ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                : "");
+            response.put("rejectionReason", student.getResumeRejectionReason() != null
+                ? student.getResumeRejectionReason()
+                : "");
+
+            return getResponseEntity(HttpStatus.OK, response);
+        } catch (Exception e) {
+            return getResponseEntity(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                Map.of("error", "Erreur lors de la récupération du statut du CV")
+            );
+        }
     }
 
-    @PostMapping(Paths.STUDENT_CV_PATH)
-    public ResponseEntity<String> uploadCV(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile CVFile) {
+    @PostMapping(Paths.STUDENT_RESUME_PATH)
+    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile resumeFile) {
         try {
-            studentService.uploadCV(studentID, CVFile);
+            studentService.uploadResume(studentID, resumeFile);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }"
             );
@@ -46,46 +77,15 @@ public class StudentController {
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
             );
-        } catch (DocumentNotValidatedException e) {
+        } catch (ResumeNotApprovedException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(errorMessage + e.getMessage());
-        } catch (AlreadyExistsException e) {
+        } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorMessage + e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                 .body(errorMessage + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/student/cv/status")
-    public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
-        try {
-            Student student = studentService.getStudentById(studentID).orElse(null);
-            
-            if (student == null) {
-                return getResponseEntity(
-                    HttpStatus.NOT_FOUND, 
-                    Map.of("error", "Étudiant non trouvé")
-                );
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("status", student.getCvStatus().name().toLowerCase());
-            response.put("fileName", student.getCVFileName() != null ? student.getCVFileName() : "");
-            response.put("uploadedAt", student.getCvUploadedAt() != null ? 
-                student.getCvUploadedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
-            response.put("validatedAt", student.getCvValidatedAt() != null ? 
-                student.getCvValidatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "");
-            response.put("rejectionReason", student.getCvRejectionReason() != null ? 
-                student.getCvRejectionReason() : "");
-
-            return getResponseEntity(HttpStatus.OK, response);
-        } catch (Exception e) {
-            return getResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
-                Map.of("error", "Erreur lors de la récupération du statut du CV")
-            );
         }
     }
 
