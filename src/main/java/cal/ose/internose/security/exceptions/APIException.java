@@ -1,20 +1,17 @@
 package cal.ose.internose.security.exceptions;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public abstract class APIException extends RuntimeException{
-	@Getter
-	protected final HttpStatus status;
-	protected final String message;
+@Getter
+@AllArgsConstructor
+public abstract class APIException extends Exception {
+    protected final HttpStatus status;
+    protected final String message;
 
-	public APIException(HttpStatus status, String message){
-		this.status = status;
-		this.message = message;
-	}
-
-	@Override
-	public String getMessage(){
-		return message;
-	}
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

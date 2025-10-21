@@ -1,14 +1,11 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.DocumentStatus;
-import cal.ose.internose.modele.Employer;
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,36 +44,36 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode uploadCV()")
-    public void testUploadCV() throws IOException {
+    public void testUploadResume() throws IOException {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
         MockMultipartFile mockFile = new MockMultipartFile(
-                "file", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes());
-        student.setCVFileName(mockFile.getOriginalFilename());
-        student.setCVFileType(mockFile.getContentType());
-        student.setCVFileData(mockFile.getBytes());
+            "file", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes());
+        student.setResumeFileName(mockFile.getOriginalFilename());
+        student.setResumeFileType(mockFile.getContentType());
+        student.setResumeFileData(mockFile.getBytes());
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
         when(studentDAO.save(any(Student.class))).thenReturn(student);
         // Act
-        Optional<Student> studentWithCV = studentService.uploadCV(studentID, mockFile);
+        Optional<Student> studentWithCV = studentService.uploadResume(studentID, mockFile);
         // Assert
         assertThat(studentWithCV).isPresent();
-        assertThat(studentWithCV.get().getCVFileName()).isEqualTo(mockFile.getOriginalFilename());
-        assertThat(studentWithCV.get().getCVFileType()).isEqualTo(mockFile.getContentType());
-        assertThat(studentWithCV.get().getCVFileData()).isEqualTo(mockFile.getBytes());
+        assertThat(studentWithCV.get().getResumeFileName()).isEqualTo(mockFile.getOriginalFilename());
+        assertThat(studentWithCV.get().getResumeFileType()).isEqualTo(mockFile.getContentType());
+        assertThat(studentWithCV.get().getResumeFileData()).isEqualTo(mockFile.getBytes());
         verify(studentDAO, times(1)).save(any(Student.class));
     }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par nom")
-    public void testGetAllStudentsWithCVs_SortByName() {
+    public void testGetAllStudentsWithResumes_SortByName() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("name", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("name", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -86,13 +83,13 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par date")
-    public void testGetAllStudentsWithCVs_SortByDate() {
+    public void testGetAllStudentsWithResumes_SortByDate() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("date", "desc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("date", "desc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
@@ -102,28 +99,28 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par statut")
-    public void testGetAllStudentsWithCVs_FilterByStatus() {
+    public void testGetAllStudentsWithResumes_FilterByStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "PENDING");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes(null, null, "PENDING");
 
         // Assert
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
+        assertThat(result.get(0).getResumeVerificationStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec filtrage par statut invalide")
-    public void testGetAllStudentsWithCVs_FilterByInvalidStatus() {
+    public void testGetAllStudentsWithResumes_FilterByInvalidStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs(null, null, "INVALID_STATUS");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes(null, null, "INVALID_STATUS");
 
         // Assert - Devrait retourner tous les CV car le statut invalide est ignoré
         assertThat(result.size()).isEqualTo(2);
@@ -131,13 +128,13 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec paramètres vides")
-    public void testGetAllStudentsWithCVs_EmptyParameters() {
+    public void testGetAllStudentsWithResumes_EmptyParameters() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("", "", "");
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("", "", "");
 
         // Assert - Devrait retourner tous les CV triés par nom par défaut
         assertThat(result.size()).isEqualTo(2);
@@ -146,29 +143,29 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par statut")
-    public void testGetAllStudentsWithCVs_SortByStatus() {
+    public void testGetAllStudentsWithResumes_SortByStatus() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("status", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("status", "asc", null);
 
         // Assert
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).getCvStatus()).isEqualTo(DocumentStatus.APPROVED);
-        assertThat(result.get(1).getCvStatus()).isEqualTo(DocumentStatus.PENDING);
+        assertThat(result.get(0).getResumeVerificationStatus()).isEqualTo(VerificationStatus.APPROVED);
+        assertThat(result.get(1).getResumeVerificationStatus()).isEqualTo(VerificationStatus.PENDING);
     }
 
     @Test
     @DisplayName("Test de la méthode getAllStudentsWithCVs() avec tri par email")
-    public void testGetAllStudentsWithCVs_SortByEmail() {
+    public void testGetAllStudentsWithResumes_SortByEmail() {
         // Arrange
         List<Student> students = createTestStudents();
         when(studentDAO.findAll()).thenReturn(students);
 
         // Act
-        List<Student> result = studentService.getAllStudentsWithCVs("email", "asc", null);
+        List<StudentDTO> result = studentService.getAllStudentsWithResumes("email", "asc", null);
 
         // Assert - Le tri par email devrait fonctionner même avec des emails null
         assertThat(result.size()).isEqualTo(2);
@@ -179,26 +176,26 @@ public class StudentServiceTests {
 
     private Student exampleStudent() {
         return Student.builder()
-                .firstName("Artyom")
-                .lastName("M.")
-                .build();
+            .firstName("Artyom")
+            .lastName("M.")
+            .build();
     }
 
     private List<Student> createTestStudents() {
         Student student1 = Student.builder()
-                .firstName("Alice")
-                .lastName("Johnson")
-                .cvStatus(DocumentStatus.APPROVED)
-                .cvUploadedAt(LocalDateTime.now().minusDays(2))
-                .build();
+            .firstName("Alice")
+            .lastName("Johnson")
+            .resumeVerificationStatus(VerificationStatus.APPROVED)
+            .resumeUploadDate(LocalDateTime.now().minusDays(2))
+            .build();
         student1.setId(1L);
 
         Student student2 = Student.builder()
-                .firstName("Bob")
-                .lastName("Smith")
-                .cvStatus(DocumentStatus.PENDING)
-                .cvUploadedAt(LocalDateTime.now().minusDays(1))
-                .build();
+            .firstName("Bob")
+            .lastName("Smith")
+            .resumeVerificationStatus(VerificationStatus.PENDING)
+            .resumeUploadDate(LocalDateTime.now().minusDays(1))
+            .build();
         student2.setId(2L);
 
         return List.of(student1, student2);
@@ -217,28 +214,28 @@ public class StudentServiceTests {
 
         // Arrange
         InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-                .program("Informatique")
-                .location("Montréal")
-                .sortBy("startDate")
-                .sortOrder("asc")
-                .page(0)
-                .size(10)
-                .build();
+            .program("Informatique")
+            .location("Montréal")
+            .sortBy("startDate")
+            .sortOrder("asc")
+            .page(0)
+            .size(10)
+            .build();
 
         List<InternshipOffer> mockOffers = createTestOffers();
         Page<InternshipOffer> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
-        
+
         when(internshipOfferDAO.findInternshipOffersWithoutDates(
-                eq(DocumentStatus.APPROVED),
-                eq("%Informatique%"),
-                eq("%Montréal%"),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                any(Pageable.class)
+            eq(DocumentStatus.APPROVED),
+            eq("%Informatique%"),
+            eq("%Montréal%"),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            any(Pageable.class)
         )).thenReturn(mockPage);
 
         // Act
@@ -249,16 +246,16 @@ public class StudentServiceTests {
         assertThat(result.getContent().size()).isEqualTo(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
         verify(internshipOfferDAO, times(1)).findInternshipOffersWithoutDates(
-                eq(DocumentStatus.APPROVED),
-                eq("%Informatique%"),
-                eq("%Montréal%"),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                any(Pageable.class)
+            eq(DocumentStatus.APPROVED),
+            eq("%Informatique%"),
+            eq("%Montréal%"),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            any(Pageable.class)
         );
     }
 
@@ -275,10 +272,10 @@ public class StudentServiceTests {
         Long offerId = 1L;
         InternshipOffer mockOffer = createTestOffer();
         when(internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED))
-                .thenReturn(mockOffer);
+            .thenReturn(mockOffer);
 
         // Act
-        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId, studentId );
+        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId, studentId);
 
         // Assert
         assertThat(result).isPresent();
@@ -299,7 +296,7 @@ public class StudentServiceTests {
 
         Long offerId = 999L;
         when(internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED))
-                .thenReturn(null);
+            .thenReturn(null);
 
         // Act
         Optional<InternshipOfferDTO> result = studentService.getInternshipOfferById(offerId, studentId);
@@ -343,19 +340,19 @@ public class StudentServiceTests {
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-                .program("Informatique")
-                .build();
+            .program("Informatique")
+            .build();
 
         when(internshipOfferDAO.countInternshipOffersWithoutDates(
-                eq(DocumentStatus.APPROVED),
-                eq("%Informatique%"),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull()
+            eq(DocumentStatus.APPROVED),
+            eq("%Informatique%"),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull()
         )).thenReturn(5L);
 
         // Act
@@ -364,15 +361,15 @@ public class StudentServiceTests {
         // Assert
         assertThat(result).isEqualTo(5L);
         verify(internshipOfferDAO, times(1)).countInternshipOffersWithoutDates(
-                eq(DocumentStatus.APPROVED),
-                eq("%Informatique%"),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull()
+            eq(DocumentStatus.APPROVED),
+            eq("%Informatique%"),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull(),
+            isNull()
         );
     }
 
@@ -461,64 +458,62 @@ public class StudentServiceTests {
     }
 
 
-
-
     // ========== MÉTHODES UTILITAIRES POUR LES OFFRES DE STAGE ==========
 
     private List<InternshipOffer> createTestOffers() {
         Employer employer1 = Employer.builder()
-                .enterprise("TechCorp")
-                .build();
+            .enterprise("TechCorp")
+            .build();
         employer1.setId(1L);
 
         Employer employer2 = Employer.builder()
-                .enterprise("DataSoft")
-                .build();
+            .enterprise("DataSoft")
+            .build();
         employer2.setId(2L);
 
         InternshipOffer offer1 = InternshipOffer.builder()
-                .id(1L)
-                .employer(employer1)
-                .jobTitle("Développeur Java")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(750.0)
-                .duration(12)
-                .startDate(LocalDate.of(2024, 6, 1))
-                .validationStatus(DocumentStatus.APPROVED)
-                .build();
+            .id(1L)
+            .employer(employer1)
+            .jobTitle("Développeur Java")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(750.0)
+            .duration(12)
+            .startDate(LocalDate.of(2024, 6, 1))
+            .validationStatus(DocumentStatus.APPROVED)
+            .build();
 
         InternshipOffer offer2 = InternshipOffer.builder()
-                .id(2L)
-                .employer(employer2)
-                .jobTitle("Analyste de données")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(650.0)
-                .duration(16)
-                .startDate(LocalDate.of(2024, 7, 1))
-                .validationStatus(DocumentStatus.APPROVED)
-                .build();
+            .id(2L)
+            .employer(employer2)
+            .jobTitle("Analyste de données")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(650.0)
+            .duration(16)
+            .startDate(LocalDate.of(2024, 7, 1))
+            .validationStatus(DocumentStatus.APPROVED)
+            .build();
 
         return List.of(offer1, offer2);
     }
 
     private InternshipOffer createTestOffer() {
         Employer employer = Employer.builder()
-                .enterprise("TechCorp")
-                .build();
+            .enterprise("TechCorp")
+            .build();
         employer.setId(1L);
 
         return InternshipOffer.builder()
-                .id(1L)
-                .employer(employer)
-                .jobTitle("Développeur Java")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(750.0)
-                .duration(12)
-                .startDate(LocalDate.of(2024, 6, 1))
-                .validationStatus(DocumentStatus.APPROVED)
-                .build();
+            .id(1L)
+            .employer(employer)
+            .jobTitle("Développeur Java")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(750.0)
+            .duration(12)
+            .startDate(LocalDate.of(2024, 6, 1))
+            .validationStatus(DocumentStatus.APPROVED)
+            .build();
     }
 }

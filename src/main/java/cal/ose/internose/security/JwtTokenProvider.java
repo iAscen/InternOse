@@ -15,19 +15,19 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     @Value("${application.security.jwt.expiration}")
-    private int expirationInMs;
+    private int jwtExpirationMillis;
     @Value("${application.security.jwt.secret-key}")
     private String jwtSecret = "2B7E151628AED2A6ABF7158809CF4F3C2B7E151628AED2A6ABF7158809CF4F3C";
 
-    public String generateToken(Authentication authentication) {
+    public void generateToken(Authentication authentication) {
         long nowMillis = System.currentTimeMillis();
         JwtBuilder builder = Jwts.builder()
             .setSubject(authentication.getName())
             .setIssuedAt(new Date(nowMillis))
-            .setExpiration(new Date(nowMillis + expirationInMs))
+            .setExpiration(new Date(nowMillis + jwtExpirationMillis))
             .claim("authorities", authentication.getAuthorities())
             .signWith(key());
-        return builder.compact();
+        builder.compact();
     }
 
     public String generateToken(Authentication authentication, Long id, String firstName, String lastName) {
@@ -35,7 +35,7 @@ public class JwtTokenProvider {
         JwtBuilder builder = Jwts.builder()
             .setSubject(authentication.getName())
             .setIssuedAt(new Date(nowMillis))
-            .setExpiration(new Date(nowMillis + expirationInMs))
+            .setExpiration(new Date(nowMillis + jwtExpirationMillis))
             .claim("authorities", authentication.getAuthorities())
             .claim("id", id)
             .claim("firstName", firstName)
@@ -57,7 +57,7 @@ public class JwtTokenProvider {
             .getSubject();
     }
 
-    public void validateToken(String token) {
+    public void verifyToken(String token) throws InvalidJwtTokenException {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token);
         } catch (SecurityException ex) {
