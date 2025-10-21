@@ -1,7 +1,7 @@
 package cal.ose.internose.security;
 
-import cal.ose.internose.persistance.UserAppDAO;
-import lombok.RequiredArgsConstructor;
+import cal.ose.internose.persistance.UserDAO;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -33,31 +33,38 @@ import static org.springframework.http.HttpMethod.POST;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Enables @PreAuthorize, @PostAuthorize, etc.
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class SecurityConfiguration {
-
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserAppDAO userAppDAO;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDAO userDAO;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(POST, Paths.LOGIN_PATH).permitAll()
-                        .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
-                        .requestMatchers(POST, Paths.STUDENT_REGISTER_PATH).permitAll()
-                        .requestMatchers(POST, Paths.INTERNSHIP_OFFERS_PATH).authenticated()
-                        .requestMatchers(GET, Paths.INTERNSHIP_OFFERS_PATH).authenticated()
-                        .anyRequest().authenticated())
-                .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()) // for h2-console
-                .sessionManagement((secuManagement) -> {
-                    secuManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(configurer -> configurer.authenticationEntryPoint(authenticationEntryPoint));
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(POST, Paths.EMPLOYER_REGISTER_PATH).permitAll()
+                .requestMatchers(POST, Paths.STUDENT_REGISTER_PATH).permitAll()
+                .requestMatchers(POST, Paths.LOGIN_PATH).permitAll()
+                .requestMatchers(POST, Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH).authenticated()
+                .requestMatchers(GET, Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH).authenticated()
+                .anyRequest().authenticated()
+            )
+            .headers(
+                headers
+                    -> headers.frameOptions(Customizer.withDefaults()).disable()
+            )
+            .sessionManagement(
+                secuManagement
+                    -> secuManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(
+                configurer
+                    -> configurer.authenticationEntryPoint(authenticationEntryPoint)
+            );
 
         return http.build();
     }
@@ -73,38 +80,34 @@ public class SecurityConfiguration {
 
         // 2. Specify allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
-                HttpMethod.GET.name(),
-                HttpMethod.POST.name(),
-                HttpMethod.PUT.name(),
-                HttpMethod.DELETE.name(),
-                HttpMethod.OPTIONS.name() // Crucial for preflight requests
+            HttpMethod.GET.name(),
+            HttpMethod.POST.name(),
+            HttpMethod.PUT.name(),
+            HttpMethod.DELETE.name(),
+            HttpMethod.OPTIONS.name() // Crucial for preflight requests
         ));
 
         // 3. Specify allowed headers
         // Include standard headers and importantly "Authorization" for JWT,
         // and "Content-Type". Add any other custom headers your frontend sends.
         configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Cache-Control",
-                "Content-Type",
-                "Accept",
-                "X-Requested-With",
-                "*"
-        // Add any other headers needed by your frontend
+            "Authorization",
+            "Cache-Control",
+            "Content-Type",
+            "Accept",
+            "X-Requested-With",
+            "*"
+            // Add any other headers needed by your frontend
         ));
 
         // 4. Allow credentials (cookies, Authorization headers)
         // Required if your frontend sends credentials.
         configuration.setAllowCredentials(true);
 
-        // 5. (Optional) Specify exposed headers
-        // If your frontend needs to read headers from the response (e.g., a custom
-        // header)
-        // configuration.setExposedHeaders(List.of("Custom-Header"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Apply this configuration to all paths /**
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
@@ -115,18 +118,18 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userAppDAO);
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDAO);
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+        throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

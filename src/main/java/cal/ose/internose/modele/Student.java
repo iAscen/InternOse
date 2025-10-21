@@ -1,52 +1,38 @@
 package cal.ose.internose.modele;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
+@Table(name = "STUDENTS")
 @DiscriminatorValue("S")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Getter
 @Setter
-public class Student extends UserApp {
-    private String program;
+public class Student extends User {
     private String institution;
-    private String CVFileName;
-    private String CVFileType;
-    @JdbcTypeCode(SqlTypes.VARBINARY)
+    private String program;
+    private String resumeFileName;
+    private String resumeFileType;
     @Column(columnDefinition = "BYTEA")
-    private byte[] CVFileData;
-    
+    private byte[] resumeFileData;
+
+    @Column(name = "resume_upload_date")
+    private LocalDateTime resumeUploadDate;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "cv_status")
+    @Column(name = "resume_status")
     @Builder.Default
-    private DocumentStatus cvStatus = DocumentStatus.NONE;
-    
-    @Column(name = "cv_uploaded_at")
-    private LocalDateTime cvUploadedAt;
-    
-    @Column(name = "cv_rejection_reason", length = 1000)
-    private String cvRejectionReason;
-    
-    @Column(name = "cv_validated_at")
-    private LocalDateTime cvValidatedAt;
+    private VerificationStatus resumeVerificationStatus = VerificationStatus.NONE;
 
-    @ManyToMany(mappedBy = "students") // if InternshipOffer owns the relationship
-    private List<InternshipOffer> internshipOffers;
+    @Column(name = "resume_verified_date")
+    private LocalDateTime resumeVerifiedDate;
 
-    public boolean cvIsValidee() {
-        return cvStatus == DocumentStatus.APPROVED;
-    }
+    @Column(name = "resume_rejection_reason", length = 9000)
+    private String resumeRejectionReason;
 }
