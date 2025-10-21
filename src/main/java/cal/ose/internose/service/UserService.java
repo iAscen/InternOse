@@ -52,7 +52,7 @@ public class UserService {
             )
             .firstName(employerDTO.getFirstName())
             .lastName(employerDTO.getLastName())
-            .enterprise(employerDTO.getCompany())
+            .company(employerDTO.getCompany())
             .build();
 
         return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);

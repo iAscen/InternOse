@@ -79,9 +79,9 @@ public class StudentController {
      * @return Liste de toutes les offres de stage approuvées
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH)
-    public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentId) {
+    public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentID) {
         try {
-            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentId);
+            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentID);
             Map<String, Object> response = new HashMap<>();
             response.put("internshipOffers", offers);
             return getResponseEntity(HttpStatus.OK, response);
@@ -185,7 +185,7 @@ public class StudentController {
      * @param offerID ID de l'offre de stage
      * @return Détails de l'offre de stage
      */
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/{offerID}")
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH)
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
         @PathVariable Long offerID,
         @RequestParam Long studentID

@@ -84,7 +84,7 @@ public class EmployerControllerTests {
     }
 
     @Test
-    public void testFindStudentsBy() throws Exception {
+    public void testGetStudentApplications() throws Exception {
         when(employerService.findApplicationsBy(1L, null, null, null, null))
                 .thenReturn(new ArrayList<>());
 
@@ -97,7 +97,7 @@ public class EmployerControllerTests {
     }
 
     @Test
-    public void testFindStudentsBy_ThrowsResourceNotFoundException() throws Exception {
+    public void testGetStudentApplications_ThrowsResourceNotFoundException() throws Exception {
         when(employerService.findApplicationsBy(1L, null, null, null, null))
                 .thenThrow(new ResourceNotFoundException("error"));
 

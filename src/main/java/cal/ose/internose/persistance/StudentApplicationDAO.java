@@ -12,8 +12,8 @@ public interface StudentApplicationDAO extends JpaRepository<StudentApplication,
     @Query(
         "SELECT sa FROM StudentApplication sa " +
             "JOIN sa.student s " +
-            "WHERE sa.internshipOffer.id = :internshipId " +
-            "AND (:cvStatus IS NULL OR s.cvStatus = :cvStatus) " +
+            "WHERE sa.internshipOffer.id = :internshipOfferID " +
+            "AND (:verificationStatus IS NULL OR s.resumeVerificationStatus = :verificationStatus) " +
             "AND (:program IS NULL OR s.program = :program) " +
             "AND (:institution IS NULL OR s.institution = :institution)"
     )

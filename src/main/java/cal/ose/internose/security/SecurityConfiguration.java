@@ -1,9 +1,9 @@
 package cal.ose.internose.security;
 
 import cal.ose.internose.persistance.UserDAO;
-import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -33,11 +33,20 @@ import static org.springframework.http.HttpMethod.POST;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Enables @PreAuthorize, @PostAuthorize, etc.
-@AllArgsConstructor
 public class SecurityConfiguration {
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDAO userDAO;
+
+    public SecurityConfiguration(
+        JwtAuthenticationEntryPoint authenticationEntryPoint,
+        JwtTokenProvider jwtTokenProvider,
+        @Lazy UserDAO userDAO
+    ) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userDAO = userDAO;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

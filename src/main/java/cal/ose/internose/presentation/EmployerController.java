@@ -43,8 +43,8 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_PATH)
-    public ResponseEntity<List<StudentDTO>> findStudentsBy(
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_PATH)
+    public ResponseEntity<List<StudentDTO>> getStudentApplications(
         @RequestParam("internshipOfferID") Long internshipOfferID,
         @RequestParam(required = false) String resumeVerificationStatus,
         @RequestParam(required = false) String institution,
@@ -57,10 +57,10 @@ public class EmployerController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_PATH)
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_PATH)
     public ResponseEntity<StudentDTO> getStudentApplicationDetails(
         @RequestParam("internshipOfferID") Long internshipOfferID,
-        @RequestParam("studentID") Long studentID
+        @PathVariable Long studentID
     ) {
         StudentDTO application = employerService.getApplicationDetails(internshipOfferID, studentID);
         return ResponseEntity.ok(application);

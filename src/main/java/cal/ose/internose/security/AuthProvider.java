@@ -4,7 +4,7 @@ import cal.ose.internose.modele.User;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.security.exceptions.UserNotFoundException;
-import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,10 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 public class AuthProvider implements AuthenticationProvider {
     private final PasswordEncoder passwordEncoder;
     private final UserDAO userDAO;
+
+    public AuthProvider(PasswordEncoder passwordEncoder, @Lazy UserDAO userDAO) {
+        this.passwordEncoder = passwordEncoder;
+        this.userDAO = userDAO;
+    }
 
     @Override
     public Authentication authenticate(Authentication authentication) {
