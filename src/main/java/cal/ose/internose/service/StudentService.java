@@ -1,16 +1,18 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.DocumentStatus;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.StudentApplication;
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
-import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
+import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,303 +21,248 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class StudentService {
     private final StudentDAO studentDAO;
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentApplicationDAO studentApplicationDAO;
 
-    public StudentService(StudentDAO studentDAO, InternshipOfferDAO internshipOfferDAO, StudentApplicationDAO studentApplicationDAO) {
-        this.studentDAO = studentDAO;
-        this.internshipOfferDAO = internshipOfferDAO;
-        this.studentApplicationDAO = studentApplicationDAO;
-    }
-
-    public Optional<Student> uploadCV(Long studentID, MultipartFile CVFile) throws IOException {
+    public Optional<Student> uploadResume(Long studentID, MultipartFile resumeFile) throws IOException {
         Student student = studentDAO.findById(studentID).orElseThrow();
-        student.setCVFileName(CVFile.getOriginalFilename());
-        student.setCVFileType(CVFile.getContentType());
-        student.setCVFileData(CVFile.getBytes());
-        student.setCvStatus(DocumentStatus.PENDING);
-        student.setCvUploadedAt(LocalDateTime.now());
-        student.setCvRejectionReason(null); // Reset rejection reason when uploading new CV
+        student.setResumeFileName(resumeFile.getOriginalFilename());
+        student.setResumeFileType(resumeFile.getContentType());
+        student.setResumeFileData(resumeFile.getBytes());
+        student.setResumeVerificationStatus(VerificationStatus.PENDING);
+        student.setResumeUploadDate(LocalDateTime.now());
+        student.setResumeRejectionReason(null);
         student = studentDAO.save(student);
         return Optional.of(student);
     }
 
-    public Optional<Student> getStudentById(Long studentId) {
-        return studentDAO.findById(studentId);
+    public StudentDTO getStudentByID(Long studentID) {
+        Student student = studentDAO.findById(studentID).orElseThrow();
+        return StudentDTO.fromEntity(student);
     }
 
-    public List<Student> getAllStudentsWithCVs() {
-        return studentDAO.findAll().stream()
-                .filter(student -> student.getCvStatus() != DocumentStatus.NONE)
-                .toList();
-    }
-
-    public List<Student> getAllStudentsWithCVs(String sortBy, String sortOrder, String status) {
+    public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String status) {
         List<Student> students = studentDAO.findAll().stream()
-                .filter(student -> student.getCvStatus() != DocumentStatus.NONE)
-                .toList();
+            .filter(student -> student.getResumeVerificationStatus() != VerificationStatus.NONE)
+            .toList();
 
-        // Filtrage par statut
         if (status != null && !status.trim().isEmpty()) {
             try {
-                DocumentStatus statusFilter = DocumentStatus.valueOf(status.toUpperCase());
+                VerificationStatus statusFilter = VerificationStatus.valueOf(status.toUpperCase());
                 students = students.stream()
-                        .filter(student -> student.getCvStatus() == statusFilter)
-                        .toList();
+                    .filter(student -> student.getResumeVerificationStatus() == statusFilter)
+                    .toList();
             } catch (IllegalArgumentException e) {
-                // Si le statut n'est pas valide, on ignore le filtre et on continue avec tous
-                // les CV
+                // Si le statut n'est pas valide, le filtre est ignoré
             }
         }
 
         // Tri
         if (sortBy != null && !sortBy.trim().isEmpty()) {
-            boolean ascending = sortOrder == null || !sortOrder.toLowerCase().equals("desc");
+            boolean ascending = sortOrder == null || !sortOrder.equalsIgnoreCase("desc");
 
             switch (sortBy.toLowerCase()) {
-                case "name":
-                case "nom":
-                    students = students.stream()
-                            .sorted((s1, s2) -> {
-                                String name1 = s1.getFirstName() + " " + s1.getLastName();
-                                String name2 = s2.getFirstName() + " " + s2.getLastName();
-                                return ascending ? name1.compareToIgnoreCase(name2) : name2.compareToIgnoreCase(name1);
-                            })
-                            .toList();
-                    break;
-                case "date":
-                case "uploadedat":
-                    students = students.stream()
-                            .sorted((s1, s2) -> {
-                                if (s1.getCvUploadedAt() == null && s2.getCvUploadedAt() == null)
-                                    return 0;
-                                if (s1.getCvUploadedAt() == null)
-                                    return ascending ? 1 : -1;
-                                if (s2.getCvUploadedAt() == null)
-                                    return ascending ? -1 : 1;
-                                return ascending ? s1.getCvUploadedAt().compareTo(s2.getCvUploadedAt())
-                                        : s2.getCvUploadedAt().compareTo(s1.getCvUploadedAt());
-                            })
-                            .toList();
-                    break;
                 case "status":
-                case "statut":
                     students = students.stream()
-                            .sorted((s1, s2) -> {
-                                return ascending ? s1.getCvStatus().name().compareTo(s2.getCvStatus().name())
-                                        : s2.getCvStatus().name().compareTo(s1.getCvStatus().name());
-                            })
-                            .toList();
+                        .sorted((s1, s2) -> ascending
+                            ? s1.getResumeVerificationStatus().name().compareTo(s2.getResumeVerificationStatus().name())
+                            : s2.getResumeVerificationStatus().name().compareTo(s1.getResumeVerificationStatus().name()))
+                        .toList();
+                    break;
+                case "name":
+                    students = students.stream()
+                        .sorted((firstStudent, secondStudent) -> {
+                            String firstStudentName = firstStudent.getFirstName() + " " + firstStudent.getLastName();
+                            String secondStudentName = secondStudent.getFirstName() + " " + secondStudent.getLastName();
+                            return ascending
+                                ? firstStudentName.compareToIgnoreCase(secondStudentName)
+                                : secondStudentName.compareToIgnoreCase(firstStudentName);
+                        })
+                        .toList();
                     break;
                 case "email":
                     students = students.stream()
-                            .sorted((s1, s2) -> {
-                                String email1 = "";
-                                String email2 = "";
-                                try {
-                                    email1 = (s1.getEmail() != null) ? s1.getEmail() : "";
-                                } catch (Exception e) {
-                                    email1 = "";
-                                }
-                                try {
-                                    email2 = (s2.getEmail() != null) ? s2.getEmail() : "";
-                                } catch (Exception e) {
-                                    email2 = "";
-                                }
-                                return ascending ? email1.compareToIgnoreCase(email2)
-                                        : email2.compareToIgnoreCase(email1);
-                            })
-                            .toList();
+                        .sorted((firstStudent, secondStudent) -> {
+                            String firstStudentEmail;
+                            String secondStudentEmail;
+                            try {
+                                firstStudentEmail = (firstStudent.getEmail() != null) ? firstStudent.getEmail() : "";
+                            } catch (Exception e) {
+                                firstStudentEmail = "";
+                            }
+                            try {
+                                secondStudentEmail = (secondStudent.getEmail() != null) ? secondStudent.getEmail() : "";
+                            } catch (Exception e) {
+                                secondStudentEmail = "";
+                            }
+                            return ascending
+                                ? firstStudentEmail.compareToIgnoreCase(secondStudentEmail)
+                                : secondStudentEmail.compareToIgnoreCase(firstStudentEmail);
+                        })
+                        .toList();
+                    break;
+                case "upload_date":
+                    students = students.stream()
+                        .sorted((firstStudent, secondStudent) -> {
+                            if (firstStudent.getResumeUploadDate() == null && secondStudent.getResumeUploadDate() == null)
+                                return 0;
+                            else if (firstStudent.getResumeUploadDate() == null)
+                                return ascending ? 1 : -1;
+                            else if (secondStudent.getResumeUploadDate() == null)
+                                return ascending ? -1 : 1;
+                            return ascending
+                                ? firstStudent.getResumeUploadDate().compareTo(secondStudent.getResumeUploadDate())
+                                : secondStudent.getResumeUploadDate().compareTo(firstStudent.getResumeUploadDate());
+                        })
+                        .toList();
                     break;
                 default:
-                    // Tri par défaut par nom si le critère n'est pas reconnu
+                    // Trier par le nom si le critère n'est pas reconnu
                     students = students.stream()
-                            .sorted((s1, s2) -> {
-                                String name1 = s1.getFirstName() + " " + s1.getLastName();
-                                String name2 = s2.getFirstName() + " " + s2.getLastName();
-                                return name1.compareToIgnoreCase(name2);
-                            })
-                            .toList();
+                        .sorted((firstStudent, secondStudent) -> {
+                            String firstStudentName = firstStudent.getFirstName() + " " + firstStudent.getLastName();
+                            String secondStudentName = secondStudent.getFirstName() + " " + secondStudent.getLastName();
+                            return firstStudentName.compareToIgnoreCase(secondStudentName);
+                        })
+                        .toList();
                     break;
             }
         } else {
-            // Tri par défaut par nom si aucun critère de tri n'est spécifié
+            // Trier par nom si aucun critère de tri n'est spécifié
             students = students.stream()
-                    .sorted((s1, s2) -> {
-                        String name1 = s1.getFirstName() + " " + s1.getLastName();
-                        String name2 = s2.getFirstName() + " " + s2.getLastName();
-                        return name1.compareToIgnoreCase(name2);
-                    })
-                    .toList();
+                .sorted((firstStudent, secondStudent) -> {
+                    String firstStudentName = firstStudent.getFirstName() + " " + firstStudent.getLastName();
+                    String secondStudentName = secondStudent.getFirstName() + " " + secondStudent.getLastName();
+                    return firstStudentName.compareToIgnoreCase(secondStudentName);
+                })
+                .toList();
         }
 
-        return students;
+        return StudentDTO.fromEntityList(students);
     }
 
-    // methode pour test dans le commandLineRunner
-    public void applyToInternship(long studentId, long internshipId) {
-        Student student = studentDAO.findById(studentId).orElse(null);
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipId).orElse(null);
+    public void applyToInternshipOffer(long studentID, long internshipOfferID) {
+        Student student = studentDAO.findById(studentID).orElse(null);
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
 
         if (student != null && internshipOffer != null) {
-            // Create application record
             StudentApplication application = StudentApplication.builder()
-                    .student(student)
-                    .internshipOffer(internshipOffer)
-                    .applicationDate(LocalDateTime.now())
-                    .status(StudentApplication.ApplicationStatus.PENDING)
-                    .build();
-            
+                .student(student)
+                .internshipOffer(internshipOffer)
+                .applicationDate(LocalDateTime.now())
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
+                .build();
             studentApplicationDAO.save(application);
 
-            // Also maintain the many-to-many relationship for backward compatibility
-            if (internshipOffer.getStudents() == null) {
-                internshipOffer.setStudents(new ArrayList<>());
+            if (internshipOffer.getApplications().isEmpty()) {
+                internshipOffer.setApplications(new ArrayList<>());
             }
-            internshipOffer.getStudents().add(student);
+            internshipOffer.getApplications().add(student);
             internshipOfferDAO.save(internshipOffer);
         }
     }
 
-    // ========== MÉTHODES POUR LA GESTION DES OFFRES DE STAGE ==========
-
     /**
      * Recherche les offres de stage avec filtres et tri
-     * @param criteria Critères de recherche et filtrage
-     * @return Page d'offres de stage correspondant aux critères
+     *
+     * @param criteria Critères de recherche et de filtrage
+     * @return Une page avec des offres de stage correspondant aux critères
      */
-    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentID) throws ResumeNotApprovedException {
+        isResumeVerified(studentID);
 
-        validationCv(studentId);
-
-        // Configuration de la pagination
         int page = criteria.getPage() != null ? criteria.getPage() : 0;
         int size = criteria.getSize() != null ? criteria.getSize() : 10;
-
-        // Configuration du tri
         Sort sort = createSort(criteria.getSortBy(), criteria.getSortOrder());
         Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Préparation des paramètres de recherche avec wildcards
-        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
-        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
-        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
-        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
-
-        // Conversion des dates si elles sont des strings
-        LocalDate startDateFrom = criteria.getStartDateFrom();
-        LocalDate startDateTo = criteria.getStartDateTo();
-
-        // Si les dates sont des strings, les parser
-        if (startDateFrom == null && criteria.getStartDateFrom() != null) {
-            try {
-                startDateFrom = LocalDate.parse(criteria.getStartDateFrom().toString());
-            } catch (Exception e) {
-                startDateFrom = null;
-            }
-        }
-        if (startDateTo == null && criteria.getStartDateTo() != null) {
-            try {
-                startDateTo = LocalDate.parse(criteria.getStartDateTo().toString());
-            } catch (Exception e) {
-                startDateTo = null;
-            }
-        }
-
-        // Recherche avec filtres
-        Page<InternshipOffer> offers;
+        Map<String, String> searchParameters = getSearchParameters(criteria);
+        Page<InternshipOffer> internshipOffersPage;
 
         // Utiliser la requête sans dates pour éviter les problèmes de type
-        offers = internshipOfferDAO.findInternshipOffersWithoutDates(
-                DocumentStatus.APPROVED, // Seules les offres approuvées
-                program,
-                location,
-                jobTitle,
-                company,
-                criteria.getMinSalary(),
-                criteria.getMaxSalary(),
-                criteria.getMinDuration(),
-                criteria.getMaxDuration(),
-                pageable
+        internshipOffersPage = internshipOfferDAO.findInternshipOffersWithoutDates(
+            VerificationStatus.APPROVED,
+            searchParameters.get("title"),
+            searchParameters.get("company"),
+            searchParameters.get("program"),
+            criteria.getMinDuration(),
+            criteria.getMaxDuration(),
+            criteria.getMinSalary(),
+            criteria.getMaxSalary(),
+            searchParameters.get("adresse"),
+            pageable
         );
 
         // Conversion en DTOs
-        return offers.map(InternshipOfferDTO::fromEntity);
+        return internshipOffersPage.map(InternshipOfferDTO::fromEntity);
     }
-
 
     /**
      * Récupère une offre de stage par son ID
-     * @param offerId ID de l'offre
-     * @return Offre de stage si trouvée et approuvée
+     *
+     * @param studentID ID de l'étudiant
+     * @param internshipOfferID ID de l'offre de stage
+     * @return L'offre de stage si elle est trouvée et approuvée
      */
-    public Optional<InternshipOfferDTO> getInternshipOfferById(Long offerId, Long studentId) {
+    public Optional<InternshipOfferDTO> getInternshipOfferByID(Long studentID, Long internshipOfferID)
+        throws ResumeNotApprovedException {
+        isResumeVerified(studentID);
 
-        validationCv(studentId);
-
-        Optional<InternshipOffer> offer = Optional.ofNullable(
-                internshipOfferDAO.findByIdAndStatus(offerId, DocumentStatus.APPROVED)
-        );
-        return offer.map(InternshipOfferDTO::fromEntity);
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+        return Optional.of(InternshipOfferDTO.fromEntity(internshipOffer));
     }
 
     /**
      * Récupère toutes les offres de stage approuvées (sans filtres)
+     *
      * @return Liste de toutes les offres approuvées
      */
-    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentId) {
-
-        validationCv(studentId);
+    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentID) throws ResumeNotApprovedException {
+        isResumeVerified(studentID);
 
         List<InternshipOffer> offers = internshipOfferDAO.findAll().stream()
-                .filter(offer -> offer.getValidationStatus() == DocumentStatus.APPROVED)
-                .toList();
+            .filter(offer -> offer.getVerificationStatus() == VerificationStatus.APPROVED)
+            .toList();
         return InternshipOfferDTO.fromEntityList(offers);
     }
 
     /**
-     * Compte le nombre d'offres correspondant aux critères
+     * Compte le nombre d'offres de stage correspondant aux critères
+     *
      * @param criteria Critères de recherche
-     * @return Nombre d'offres correspondantes
+     * @return Nombre d'offres de stage correspondantes
      */
-    public long countInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentId) {
+    public Long countInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentID) throws ResumeNotApprovedException {
+        isResumeVerified(studentID);
 
-        validationCv(studentId);
-
-        // Préparation des paramètres de recherche avec wildcards
-        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
-        String location = criteria.getLocation() != null ? "%" + criteria.getLocation() + "%" : null;
-        String jobTitle = criteria.getJobTitle() != null ? "%" + criteria.getJobTitle() + "%" : null;
-        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+        Map<String, String> searchParameters = getSearchParameters(criteria);
 
         return internshipOfferDAO.countInternshipOffersWithoutDates(
-                DocumentStatus.APPROVED,
-                program,
-                location,
-                jobTitle,
-                company,
-                criteria.getMinSalary(),
-                criteria.getMaxSalary(),
-                criteria.getMinDuration(),
-                criteria.getMaxDuration()
+            VerificationStatus.APPROVED,
+            searchParameters.get("title"),
+            searchParameters.get("company"),
+            searchParameters.get("program"),
+            criteria.getMinDuration(),
+            criteria.getMaxDuration(),
+            criteria.getMinSalary(),
+            criteria.getMaxSalary(),
+            searchParameters.get("adresse")
         );
     }
 
     /**
-     * Crée un objet Sort basé sur les critères de tri
-     * @param sortBy Critère de tri
+     * Crée un objet Sort selon les critères de tri
+     *
+     * @param sortBy    Critère de tri
      * @param sortOrder Ordre de tri (asc/desc)
-     * @return Objet Sort configuré
+     * @return Un objet Sort correspondant
      */
     private Sort createSort(String sortBy, String sortOrder) {
         if (sortBy == null || sortBy.trim().isEmpty()) {
@@ -323,27 +270,41 @@ public class StudentService {
             return Sort.by(Sort.Direction.DESC, "startDate");
         }
 
-        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? 
-                Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder)
+            ? Sort.Direction.DESC
+            : Sort.Direction.ASC;
 
         return switch (sortBy.toLowerCase()) {
-            case "jobtitle", "titre" -> Sort.by(direction, "jobTitle");
-            case "company", "entreprise" -> Sort.by(direction, "employer.enterprise");
+            case "title", "titre" -> Sort.by(direction, "title");
+            case "company", "entreprise" -> Sort.by(direction, "employer.company");
+            case "program", "programme" -> Sort.by(direction, "program");
+            case "duration", "duree" -> Sort.by(direction, "duration");
             case "startdate", "datedebut" -> Sort.by(direction, "startDate");
             case "salary", "salaire" -> Sort.by(direction, "salary");
-            case "duration", "duree" -> Sort.by(direction, "duration");
-            case "program", "discipline" -> Sort.by(direction, "program");
             case "address", "lieu" -> Sort.by(direction, "address");
             default -> Sort.by(Sort.Direction.DESC, "startDate");
         };
     }
 
-    private void validationCv(Long studentId) {
+    private void isResumeVerified(Long studentId) throws ResumeNotApprovedException {
         Student student = studentDAO.findById(studentId).orElseThrow();
 
-        if (!student.cvIsValidee()) {
-            System.out.println("error for student " + studentId + "");
-            throw new DocumentNotValidatedException("Le CV n'est pas valide");
-        }
+        if (!student.getResumeVerificationStatus().equals(VerificationStatus.APPROVED))
+            throw new ResumeNotApprovedException("Votre CV n'est pas approuvé");
+    }
+
+    private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
+        String location = criteria.getAddress() != null ? "%" + criteria.getAddress() + "%" : null;
+        String jobTitle = criteria.getTitle() != null ? "%" + criteria.getTitle() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+
+        Map<String, String> searchParameters = new HashMap<>();
+        searchParameters.put("program", program);
+        searchParameters.put("location", location);
+        searchParameters.put("jobTitle", jobTitle);
+        searchParameters.put("company", company);
+
+        return searchParameters;
     }
 }
