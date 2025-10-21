@@ -134,7 +134,7 @@ public class InternOSEApplication {
                 );
 
                 // Ajouter une candidature en avance
-                studentService.applyToInternshipOffer(2L, 1L);
+//                studentService.applyToInternshipOffer(2L, 1L);
                 List<StudentDTO> applications = employerService.findApplicationsBy(1L, null, "AL", null, null);
                 System.out.println(applications);
             }

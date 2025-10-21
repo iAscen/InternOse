@@ -10,6 +10,8 @@ import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -149,9 +151,25 @@ public class StudentService {
         return StudentDTO.fromEntityList(students);
     }
 
-    public void applyToInternshipOffer(long studentID, long internshipOfferID) {
+    public void applyToInternshipOffer(long studentID, long internshipOfferID) throws ResumeNotApprovedException {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
+
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
+
+        if (student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new ResumeNotApprovedException("Votre CV n'est pas approuvé");
+        }
+
+        if (internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new DocumentNotValidatedException("L'offre n'est pas validé");
+        }
+
+        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentID,
+            internshipOfferID);
+        if (hasAlreadyApplied) {
+            throw new AlreadyExistsException("Vous avez déjà postulé à cette offre");
+        }
 
         if (student != null && internshipOffer != null) {
             StudentApplication application = StudentApplication.builder()

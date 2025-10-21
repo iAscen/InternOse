@@ -3,6 +3,7 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import lombok.AllArgsConstructor;
@@ -73,14 +74,14 @@ public class StudentController {
     public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
         String errorMessage = "Erreur lors de la postulation: ";
         try {
-            studentService.applyToInternship(studentId, internshipId);
+            studentService.applyToInternshipOffer(studentId, internshipId);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
             );
         } catch (ResumeNotApprovedException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(errorMessage + e.getMessage());
-        } catch (UserAlreadyExistsException e) {
+        } catch (AlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorMessage + e.getMessage());
         } catch (IllegalArgumentException e) {
