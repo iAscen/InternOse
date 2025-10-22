@@ -6,14 +6,18 @@ import cal.ose.internose.service.DTOs.InternshipManagerDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.UserService;
+import cal.ose.internose.util.DummyMultipartFile;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -27,12 +31,14 @@ public class InternOSEApplication {
     public CommandLineRunner commandLineRunner(
         ObjectProvider<UserService> authServiceProvider,
         ObjectProvider<EmployerService> employerServiceProvider,
-        ObjectProvider<StudentService> studentServiceProvider
+        ObjectProvider<StudentService> studentServiceProvider,
+        ObjectProvider<InternshipManagerService> internshipManagerServiceProvider
     ) {
         return _ -> {
             UserService userService = authServiceProvider.getIfAvailable();
             EmployerService employerService = employerServiceProvider.getIfAvailable();
             StudentService studentService = studentServiceProvider.getIfAvailable();
+            InternshipManagerService internshipManagerService = internshipManagerServiceProvider.getIfAvailable();
             if (userService != null && employerService != null && studentService != null) {
                 // Créer quelques utilisateurs en avance
                 userService.registerEmployer(
@@ -52,6 +58,13 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
+
+                // Upload cvDummy.pdf
+                MultipartFile cvDummy = DummyMultipartFile.createDummyPdf("util/cv/cvDummy.pdf");
+                studentService.uploadResume(2L, cvDummy);
+
+                internshipManagerService.verifyResume(2L, true, "");
+
                 userService.registerInternshipManager(
                     InternshipManagerDTO.builder()
                         .firstName("Bob")
