@@ -39,18 +39,18 @@ public class StudentController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("resumeFileName", student.getResumeFileName() != null
-                ? student.getResumeFileName()
-                : "");
+                    ? student.getResumeFileName()
+                    : "");
             response.put("upload_date", student.getResumeUploadDate() != null
-                ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                : "");
+                    ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             response.put("verificationStatus", student.getResumeVerificationStatus().name().toLowerCase());
             response.put("verifyDate", student.getResumeVerifiedDate() != null
-                ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                : "");
+                    ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             response.put("rejectionReason", student.getResumeRejectionReason() != null
-                ? student.getResumeRejectionReason()
-                : "");
+                    ? student.getResumeRejectionReason()
+                    : "");
 
             return getResponseEntity(HttpStatus.OK, response);
         } catch (RuntimeException e) {
@@ -58,48 +58,45 @@ public class StudentController {
                 return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
             }
             return getResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                Map.of("error", "Erreur lors de la récupération du statut du CV")
-            );
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
         } catch (Exception e) {
             return getResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                Map.of("error", "Erreur lors de la récupération du statut du CV")
-            );
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
         }
     }
 
     @PostMapping(Paths.STUDENT_RESUME_RELATIVE)
-    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile resumeFile) {
+    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID,
+            @RequestParam("file") MultipartFile resumeFile) {
         try {
             studentService.uploadResume(studentID, resumeFile);
             return getResponseEntity(
-                HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }"
-            );
+                    HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }");
         } catch (IOException e) {
             return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
-            );
+                    HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
-    @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
-    public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
+    @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_RELATIVE)
+    public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId,
+            @RequestParam("internshipId") Long internshipId) {
         String errorMessage = "Erreur lors de la postulation: ";
         try {
             studentService.applyToInternshipOffer(studentId, internshipId);
             return getResponseEntity(
-                HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
-            );
+                    HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }");
         } catch (ResumeNotApprovedException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(errorMessage + e.getMessage());
+                    .body(errorMessage + e.getMessage());
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(errorMessage + e.getMessage());
+                    .body(errorMessage + e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                .body(errorMessage + e.getMessage());
+                    .body(errorMessage + e.getMessage());
         }
     }
 
@@ -141,7 +138,8 @@ public class StudentController {
      * @param minSalary     Salaire minimum
      * @param maxSalary     Salaire maximum
      * @param address       Lieu (adresse)
-     * @param sortBy        Critère de tri (jobTitle, company, startDate, salary, duration, program, address)
+     * @param sortBy        Critère de tri (jobTitle, company, startDate, salary,
+     *                      duration, program, address)
      * @param sortOrder     Ordre de tri (asc, desc)
      * @param page          Numéro de page (défaut: 0)
      * @param size          Taille de page (défaut: 10)
@@ -149,39 +147,39 @@ public class StudentController {
      */
     @GetMapping(Paths.STUDENT_SEARCH_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
-        @RequestParam() Long studentID,
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) String company,
-        @RequestParam(required = false) String program,
-        @RequestParam(required = false) Integer minDuration,
-        @RequestParam(required = false) Integer maxDuration,
-        @RequestParam(required = false) String startDateFrom,
-        @RequestParam(required = false) String startDateTo,
-        @RequestParam(required = false) Double minSalary,
-        @RequestParam(required = false) Double maxSalary,
-        @RequestParam(required = false) String address,
-        @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) String sortOrder,
-        @RequestParam(required = false, defaultValue = "0") Integer page,
-        @RequestParam(required = false, defaultValue = "10") Integer size) {
+            @RequestParam() Long studentID,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String program,
+            @RequestParam(required = false) Integer minDuration,
+            @RequestParam(required = false) Integer maxDuration,
+            @RequestParam(required = false) String startDateFrom,
+            @RequestParam(required = false) String startDateTo,
+            @RequestParam(required = false) Double minSalary,
+            @RequestParam(required = false) Double maxSalary,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
 
         try {
             InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-                .title(title)
-                .company(company)
-                .program(program)
-                .minDuration(minDuration)
-                .maxDuration(maxDuration)
-                .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
-                .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
-                .minSalary(minSalary)
-                .maxSalary(maxSalary)
-                .address(address)
-                .sortBy(sortBy)
-                .sortOrder(sortOrder)
-                .page(page)
-                .size(size)
-                .build();
+                    .title(title)
+                    .company(company)
+                    .program(program)
+                    .minDuration(minDuration)
+                    .maxDuration(maxDuration)
+                    .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
+                    .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
+                    .minSalary(minSalary)
+                    .maxSalary(maxSalary)
+                    .address(address)
+                    .sortBy(sortBy)
+                    .sortOrder(sortOrder)
+                    .page(page)
+                    .size(size)
+                    .build();
 
             Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria, studentID);
             Long totalCount = studentService.countInternshipOffers(criteria, studentID);
@@ -220,9 +218,8 @@ public class StudentController {
      */
     @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
-        @PathVariable Long offerID,
-        @RequestParam Long studentID
-    ) {
+            @PathVariable Long offerID,
+            @RequestParam Long studentID) {
         try {
             Optional<InternshipOfferDTO> offer = studentService.getInternshipOfferByID(studentID, offerID);
             if (offer.isEmpty()) {
@@ -230,7 +227,7 @@ public class StudentController {
                 errorResponse.put("error", "Offre de stage non trouvée");
                 return getResponseEntity(HttpStatus.NOT_FOUND, errorResponse);
             }
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("internshipOffer", offer.get());
             response.put("offer", offer.get());

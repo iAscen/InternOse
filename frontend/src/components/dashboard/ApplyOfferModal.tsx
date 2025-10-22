@@ -1,22 +1,19 @@
-import { useState } from "react";
 import type { InternshipOffer } from "~/interfaces";
 
 interface ApplyOfferModalProps {
   offer: InternshipOffer | null;
   isOpen: boolean;
   onClose: () => void;
-  onApply: (coverLetter: string) => void;
+  onApply: () => void;
   error?: string;
 }
 
 export default function ApplyOfferModal({ offer, isOpen, onClose, onApply, error }: ApplyOfferModalProps) {
-  const [coverLetter, setCoverLetter] = useState("");
-
   if (!isOpen || !offer) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onApply(coverLetter);
+    onApply();
   };
 
   return (
@@ -56,21 +53,11 @@ export default function ApplyOfferModal({ offer, isOpen, onClose, onApply, error
               ✓ Votre CV sera automatiquement joint à votre candidature.
             </div>
 
-            {/* Lettre de motivation (optionnelle) */}
-            <div className="mb-6">
-              <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
-                Lettre de motivation (optionnelle)
-              </label>
-              <textarea
-                id="coverLetter"
-                rows={6}
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 bg-white"
-                placeholder="Expliquez pourquoi vous êtes intéressé par cette offre..."
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Ajoutez une lettre de motivation pour vous démarquer (recommandé mais non obligatoire)
+            {/* Information importante */}
+            <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-700">
+                En cliquant sur "Confirmer ma candidature", vous soumettez votre candidature pour cette offre de stage. 
+                L'employeur pourra consulter votre profil et votre CV.
               </p>
             </div>
 

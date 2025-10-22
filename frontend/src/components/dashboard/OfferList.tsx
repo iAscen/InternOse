@@ -40,7 +40,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
     setApplyError('');
   };
 
-  const handleApplySubmit = async (coverLetter: string) => {
+  const handleApplySubmit = async () => {
     if (!selectedOfferToApply || !selectedOfferToApply.id) {
       setApplyError('Erreur: Informations manquantes');
       return;
@@ -53,7 +53,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
         return;
       }
 
-      const response = await apiService.applyToOffer(studentId, selectedOfferToApply.id, coverLetter);
+      const response = await apiService.applyToOffer(studentId, selectedOfferToApply.id);
 
       if (response.success) {
         setSuccessMessage('Votre candidature a été soumise avec succès !');

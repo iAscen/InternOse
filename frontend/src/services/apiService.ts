@@ -1030,7 +1030,7 @@ class ApiService {
   // ========================================
 
   // Postuler à une offre de stage
-  async applyToOffer(studentId: number, offerId: number, coverLetter?: string): Promise<ApiResponse<any>> {
+  async applyToOffer(studentId: number, offerId: number): Promise<ApiResponse<any>> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -1040,17 +1040,14 @@ class ApiService {
         };
       }
 
-      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.APPLY_INTERNSHIP), {
+      // Construire l'URL avec les paramètres de requête (query params)
+      const url = `${buildFullApiUrl(API_PATHS.STUDENT.APPLY_INTERNSHIP)}?studentId=${studentId}&internshipId=${offerId}`;
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          studentId,
-          internshipOfferId: offerId,
-          coverLetter: coverLetter || ''
-        })
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (response.ok) {
@@ -1061,14 +1058,24 @@ class ApiService {
         };
       } else {
         // Gérer les erreurs spécifiques
-        try {
-          const errorData = await response.json();
+        const errorText = await response.text();
+        
+        // Le backend renvoie parfois du texte brut avec "Erreur lors de la postulation: "
+        if (errorText.includes('Erreur lors de la postulation:')) {
           return {
             success: false,
-            error: errorData.error || errorData.message || 'Erreur lors de la candidature'
+            error: errorText.replace('Erreur lors de la postulation: ', '')
+          };
+        }
+        
+        // Essayer de parser en JSON si possible
+        try {
+          const errorData = JSON.parse(errorText);
+          return {
+            success: false,
+            error: errorData.message || errorData.error || 'Erreur lors de la candidature'
           };
         } catch {
-          const errorText = await response.text();
           return {
             success: false,
             error: errorText || 'Erreur lors de la candidature'
