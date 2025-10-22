@@ -1,6 +1,8 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.modele.Credentials;
 import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
@@ -54,6 +56,7 @@ public class StudentControllerTests {
         return Student.builder()
             .firstName("Artyom")
             .lastName("M.")
+            .credentials(new Credentials("artyom@example.com", "password", UserRole.STUDENT))
             .build();
     }
 
@@ -130,15 +133,15 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         when(studentService.getAllApprovedInternshipOffers(studentId)).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH)
-                        .param("studentId", studentId.toString())
+                get("/api/student/internship-offers")
+                        .param("studentID", studentId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -156,7 +159,7 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
@@ -166,8 +169,8 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
-                        .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/search")
+                        .param("studentID", studentId.toString())
                         .param("program", "Informatique")
                         .param("location", "Montréal")
                         .param("sortBy", "startDate")
@@ -192,7 +195,7 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
@@ -203,8 +206,8 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/search")
+                    .param("studentID", studentId.toString())
                     .param("minSalary", "500")
                     .param("maxSalary", "1000")
                     .param("sortBy", "salary")
@@ -226,7 +229,7 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
@@ -236,8 +239,8 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/search")
+                    .param("studentID", studentId.toString())
                     .param("startDateFrom", "2024-06-01")
                     .param("startDateTo", "2024-08-31")
                     .param("sortBy", "startDate")
@@ -259,7 +262,7 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
         Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
@@ -269,8 +272,8 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/search")
+                    .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -288,16 +291,16 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         Long offerId = 1L;
         InternshipOfferDTO mockOffer = createTestOfferDTO();
-        when(studentService.getInternshipOfferById(offerId, studentId)).thenReturn(Optional.of(mockOffer));
+        when(studentService.getInternshipOfferByID(studentId, offerId)).thenReturn(Optional.of(mockOffer));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/" + offerId)
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/" + offerId)
+                    .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -314,16 +317,16 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         // Arrange
         Long offerId = 999L;
-        when(studentService.getInternshipOfferById(offerId, studentId)).thenReturn(Optional.empty());
+        when(studentService.getInternshipOfferByID(studentId, offerId)).thenReturn(Optional.empty());
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/" + offerId)
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/" + offerId)
+                    .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -341,14 +344,14 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         when(studentService.searchInternshipOffers(any(), eq(studentId))).thenThrow(new RuntimeException("Erreur de base de données"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH + "/search")
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers/search")
+                    .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -366,14 +369,14 @@ public class StudentControllerTests {
         Long studentId = 1L;
         Student student = exampleStudent();
         student.setId(studentId);
-        student.setCvStatus(DocumentStatus.APPROVED);
+        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         when(studentService.getAllApprovedInternshipOffers(studentId)).thenThrow(new RuntimeException("Erreur de base de données"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_BASE_PATH + Paths.STUDENT_INTERNSHIP_OFFERS_PATH)
-                    .param("studentId", studentId.toString())
+                get("/api/student/internship-offers")
+                    .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -387,24 +390,24 @@ public class StudentControllerTests {
     private List<InternshipOfferDTO> createTestOfferDTOs() {
         InternshipOfferDTO offer1 = InternshipOfferDTO.builder()
                 .id(1L)
-                .jobTitle("Développeur Java")
+                .title("Développeur Java")
                 .program("Informatique")
                 .address("Montréal, QC")
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))
-                .validationStatus(DocumentStatus.APPROVED)
+                .verificationStatus(VerificationStatus.APPROVED)
                 .build();
 
         InternshipOfferDTO offer2 = InternshipOfferDTO.builder()
                 .id(2L)
-                .jobTitle("Analyste de données")
+                .title("Analyste de données")
                 .program("Informatique")
                 .address("Montréal, QC")
                 .salary(650.0)
                 .duration(16)
                 .startDate(LocalDate.of(2024, 7, 1))
-                .validationStatus(DocumentStatus.APPROVED)
+                .verificationStatus(VerificationStatus.APPROVED)
                 .build();
 
         return List.of(offer1, offer2);
@@ -413,13 +416,13 @@ public class StudentControllerTests {
     private InternshipOfferDTO createTestOfferDTO() {
         return InternshipOfferDTO.builder()
                 .id(1L)
-                .jobTitle("Développeur Java")
+                .title("Développeur Java")
                 .program("Informatique")
                 .address("Montréal, QC")
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))
-                .validationStatus(DocumentStatus.APPROVED)
+                .verificationStatus(VerificationStatus.APPROVED)
                 .build();
     }
 }

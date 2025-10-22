@@ -2,6 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
+import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
@@ -34,8 +35,13 @@ public class UserController {
     }
 
     @PostMapping(Paths.LOGIN_PATH)
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
-        String jwt = userService.login(loginDTO);
-        return ResponseEntity.ok(jwt);
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+        try {
+            String jwt = userService.login(loginDTO);
+            return ResponseEntity.ok(jwt);
+        } catch (RuntimeException e) {
+            ErrorResponseDTO errorResponse = new ErrorResponseDTO(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+        }
     }
 }

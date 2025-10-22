@@ -211,7 +211,7 @@ public class UserServiceTest {
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userDAO).findUserByEmail(loginDTO.getEmail());
-        verify(jwtTokenProvider).generateToken(mockAuthentication, anyLong(), anyString(), anyString());
+        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString());
     }
 
     @Test

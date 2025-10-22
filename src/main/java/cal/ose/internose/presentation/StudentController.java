@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(Paths.STUDENT_BASE_PATH)
@@ -27,10 +28,21 @@ import java.util.Map;
 public class StudentController {
     private final StudentService studentService;
 
-    @GetMapping(Paths.STUDENT_RESUME_STATUS_PATH)
+    @GetMapping("/resume/status")
     public ResponseEntity<Map<String, Object>> getResumeStatus(@RequestParam("studentID") Long studentID) {
+        System.out.println("🔍 /resume/status called with studentID: " + studentID);
+        return getCVStatus(studentID);
+    }
+
+    @GetMapping("/cv/status")
+    public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
         try {
+            System.out.println("🔍 /cv/status called with studentID: " + studentID);
             StudentDTO student = studentService.getStudentByID(studentID);
+            System.out.println("🔍 Student found: " + (student != null ? "Yes" : "No"));
+            if (student != null) {
+                System.out.println("🔍 Student resume status: " + student.getResumeVerificationStatus());
+            }
 
             if (student == null)
                 return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
@@ -51,6 +63,14 @@ public class StudentController {
                 : "");
 
             return getResponseEntity(HttpStatus.OK, response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Student not found")) {
+                return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
+            }
+            return getResponseEntity(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                Map.of("error", "Erreur lors de la récupération du statut du CV")
+            );
         } catch (Exception e) {
             return getResponseEntity(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -59,7 +79,7 @@ public class StudentController {
         }
     }
 
-    @PostMapping(Paths.STUDENT_RESUME_PATH)
+    @PostMapping("/resume")
     public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile CVFile) {
         try {
             studentService.uploadResume(studentID, CVFile);
@@ -78,7 +98,7 @@ public class StudentController {
      *
      * @return Liste de toutes les offres de stage approuvées
      */
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH)
+    @GetMapping("/internship-offers")
     public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentID) {
         try {
             List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentID);
@@ -92,7 +112,7 @@ public class StudentController {
             return getResponseEntity(HttpStatus.FORBIDDEN, errorResponse);
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Une erreur est survenue lors de la recherche des offres de stage");
+            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
             errorResponse.put("message", e.getMessage());
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
         }
@@ -116,7 +136,7 @@ public class StudentController {
      * @param size          Taille de page (défaut: 10)
      * @return Une page avec des offres de stage correspondant aux critères
      */
-    @GetMapping(Paths.STUDENT_SEARCH_INTERNSHIP_OFFERS_LIST_PATH)
+    @GetMapping("/internship-offers/search")
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
         @RequestParam() Long studentID,
         @RequestParam(required = false) String title,
@@ -133,6 +153,7 @@ public class StudentController {
         @RequestParam(required = false) String sortOrder,
         @RequestParam(required = false, defaultValue = "0") Integer page,
         @RequestParam(required = false, defaultValue = "10") Integer size) {
+        System.out.println("🔍 /internship-offers/search called with studentID: " + studentID);
 
         try {
             InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
@@ -141,8 +162,8 @@ public class StudentController {
                 .program(program)
                 .minDuration(minDuration)
                 .maxDuration(maxDuration)
-                .startDateFrom(LocalDate.parse(startDateFrom))
-                .startDateTo(LocalDate.parse(startDateTo))
+                .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
+                .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
                 .minSalary(minSalary)
                 .maxSalary(maxSalary)
                 .address(address)
@@ -159,7 +180,9 @@ public class StudentController {
             Map<String, Object> response = new HashMap<>();
             response.put("offers", offersPage.getContent());
             response.put("count", totalCount);
+            response.put("totalElements", totalCount);
             response.put("pages", offersPage.getTotalPages());
+            response.put("totalPages", offersPage.getTotalPages());
             response.put("currentPage", offersPage.getNumber());
             response.put("size", offersPage.getSize());
             response.put("hasNext", offersPage.hasNext());
@@ -185,16 +208,22 @@ public class StudentController {
      * @param offerID ID de l'offre de stage
      * @return Détails de l'offre de stage
      */
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH)
+    @GetMapping("/internship-offers/{offerID}")
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
         @PathVariable Long offerID,
         @RequestParam Long studentID
     ) {
         try {
+            Optional<InternshipOfferDTO> offer = studentService.getInternshipOfferByID(studentID, offerID);
+            if (offer.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Offre de stage non trouvée");
+                return getResponseEntity(HttpStatus.NOT_FOUND, errorResponse);
+            }
+            
             Map<String, Object> response = new HashMap<>();
-            response.put("internshipOffer", studentService.getInternshipOfferByID(
-                studentID, offerID
-            ));
+            response.put("internshipOffer", offer.get());
+            response.put("offer", offer.get());
             return getResponseEntity(HttpStatus.OK, response);
         } catch (ResumeNotApprovedException e) {
             Map<String, Object> errorResponse = new HashMap<>();

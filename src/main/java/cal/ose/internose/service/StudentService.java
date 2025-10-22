@@ -50,9 +50,16 @@ public class StudentService {
     }
 
     public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String status) {
+        System.out.println("🔍 getAllStudentsWithResumes called with status: " + status);
+        
         List<Student> students = studentDAO.findAll().stream()
             .filter(student -> student.getResumeVerificationStatus() != VerificationStatus.NONE)
             .toList();
+            
+        System.out.println("🔍 Found " + students.size() + " students with resumes");
+        for (Student student : students) {
+            System.out.println("🔍 Student ID: " + student.getId() + ", Status: " + student.getResumeVerificationStatus());
+        }
 
         if (status != null && !status.trim().isEmpty()) {
             try {
@@ -149,9 +156,14 @@ public class StudentService {
         return StudentDTO.fromEntityList(students);
     }
 
-    public void applyToInternshipOffer(long studentID, long internshipOfferID) {
+    public void applyToInternshipOffer(long studentID, long internshipOfferID) throws ResumeNotApprovedException {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
+
+        // Vérifier que l'étudiant a un CV approuvé pour pouvoir postuler
+        if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new ResumeNotApprovedException("Vous devez avoir un CV approuvé pour postuler aux offres de stage");
+        }
 
         if (student != null && internshipOffer != null) {
             StudentApplication application = StudentApplication.builder()
@@ -215,8 +227,8 @@ public class StudentService {
         throws ResumeNotApprovedException {
         isResumeVerified(studentID);
 
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        return Optional.of(InternshipOfferDTO.fromEntity(internshipOffer));
+        Optional<InternshipOffer> internshipOffer = internshipOfferDAO.findById(internshipOfferID);
+        return internshipOffer.map(InternshipOfferDTO::fromEntity);
     }
 
     /**
@@ -288,9 +300,11 @@ public class StudentService {
 
     private void isResumeVerified(Long studentId) throws ResumeNotApprovedException {
         Student student = studentDAO.findById(studentId).orElseThrow();
+        System.out.println("🔍 isResumeVerified - Student ID: " + studentId + ", CV Status: " + student.getResumeVerificationStatus());
 
-        if (!student.getResumeVerificationStatus().equals(VerificationStatus.APPROVED))
-            throw new ResumeNotApprovedException("Votre CV n'est pas approuvé");
+        // Permettre aux étudiants de voir les offres même sans CV
+        // Ils ne pourront postuler que si leur CV est approuvé
+        System.out.println("🔍 Allowing access - Students can view offers even without CV");
     }
 
     private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {

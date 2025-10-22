@@ -47,7 +47,7 @@ public class EmployerServiceTests {
 
     @Test
     @DisplayName("Test de la méthode listInternshipOffers()")
-    public void testListInternshipOffers() {
+    public void testListInternshipOffers() throws ResourceNotFoundException {
         // Arrange
         Long employerID = 1L;
         when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
@@ -61,7 +61,7 @@ public class EmployerServiceTests {
 
     @Test
     @DisplayName("Test de la méthode createInternshipOffer()")
-    public void testCreateInternshipOffer() {
+    public void testCreateInternshipOffer() throws ResourceNotFoundException {
         // Arrange
         Long employerID = 1L;
         InternshipOffer internshipOffer = exampleInternshipOffers().getFirst();
@@ -69,14 +69,14 @@ public class EmployerServiceTests {
         when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
         when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(internshipOffer);
         // Act
-        Optional<InternshipOffer> newInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
+        Optional<InternshipOfferDTO> newInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
         // Assert
         assertThat(newInternshipOffer).isPresent();
         verify(internshipOfferDAO, times(1)).save(any(InternshipOffer.class));
     }
 
     @Test
-    public void testFindApplicationsBy() {
+    public void testFindApplicationsBy() throws ResourceNotFoundException {
         Student student1 = Student.builder().id(1L).program("Z").build();
         Student student2 = Student.builder().id(2L).program("A").build();
         
@@ -84,17 +84,17 @@ public class EmployerServiceTests {
                 StudentApplication.builder()
                         .student(student1)
                         .applicationDate(java.time.LocalDateTime.now())
-                        .status(StudentApplication.ApplicationStatus.PENDING)
+                        .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                         .build(),
                 StudentApplication.builder()
                         .student(student2)
                         .applicationDate(java.time.LocalDateTime.now())
-                        .status(StudentApplication.ApplicationStatus.PENDING)
+                        .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                         .build()
         );
 
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(applications);
@@ -109,9 +109,9 @@ public class EmployerServiceTests {
     }
 
     @Test
-    public void testFindApplicationsBy_EmptyList() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+    public void testFindApplicationsBy_EmptyList() throws ResourceNotFoundException {
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(new ArrayList<>());
@@ -123,8 +123,8 @@ public class EmployerServiceTests {
 
     @Test
     public void testFindApplicationsBy_ThrowsResourceNotFoundException() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(false);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.empty());
 
         assertThrows(
                 ResourceNotFoundException.class,
@@ -134,7 +134,7 @@ public class EmployerServiceTests {
     }
 
     @Test
-    public void testGetApplicationDetails() {
+    public void testGetApplicationDetails() throws ResourceNotFoundException {
         Student student = Student.builder()
                 .id(1L)
                 .firstName("John")
@@ -147,11 +147,11 @@ public class EmployerServiceTests {
                 .id(1L)
                 .student(student)
                 .applicationDate(java.time.LocalDateTime.now())
-                .status(StudentApplication.ApplicationStatus.PENDING)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                 .build();
 
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(List.of(application));
@@ -166,8 +166,8 @@ public class EmployerServiceTests {
 
     @Test
     public void testGetApplicationDetails_ThrowsResourceNotFoundException() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(List.of());
@@ -182,7 +182,7 @@ public class EmployerServiceTests {
         return Employer.builder()
             .firstName("Artyom")
             .lastName("M.")
-            .enterprise("Artyom Tech Inc.")
+            .company("Artyom Tech Inc.")
             .build();
     }
 

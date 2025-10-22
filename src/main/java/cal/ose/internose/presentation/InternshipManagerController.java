@@ -1,6 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,17 +27,17 @@ public class InternshipManagerController {
     private final InternshipManagerService internshipManagerService;
     private final StudentService studentService;
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_OFFERS_PATH)
+    @GetMapping("/employers/internship-offers")
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipOffersBy(
         @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) String verified,
+        @RequestParam(required = false) String valid,
         @RequestParam(required = false) String program,
         @RequestParam(required = false) String title
     ) {
-        // Convertir le paramètre verified en Boolean
+        // Convertir le paramètre valid en Boolean
         Boolean booleanVerified = null;
-        if (verified != null && !verified.equals("null") && !verified.isEmpty()) {
-            booleanVerified = Boolean.parseBoolean(verified);
+        if (valid != null && !valid.equals("null") && !valid.isEmpty()) {
+            booleanVerified = Boolean.parseBoolean(valid);
         }
 
         return getResponseEntity(
@@ -45,16 +47,57 @@ public class InternshipManagerController {
         );
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH)
+
+    @GetMapping("/validation")
+    public ResponseEntity<Map<String, Object>> getValidationStatus() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Validation endpoint available");
+            response.put("endpoints", Map.of(
+                "verifyOffers", "/api/internship-manager/verify",
+                "verifyCVs", "/api/internship-manager/students/{studentID}/cv/validate"
+            ));
+            return getResponseEntity(HttpStatus.OK, null, response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Erreur lors de la récupération du statut de validation"));
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<InternshipOfferDTO>> searchInternshipOffers(
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(required = false) String valid,
+        @RequestParam(required = false) String program,
+        @RequestParam(required = false) String title
+    ) {
+        try {
+            System.out.println("🔍 /search endpoint called with valid: " + valid + ", program: " + program + ", title: " + title);
+            
+            Boolean verified = null;
+            if (valid != null) {
+                verified = Boolean.parseBoolean(valid);
+            }
+            
+            List<InternshipOfferDTO> offers = internshipManagerService.findInternshipsBy(verified, program, title, sortBy);
+            System.out.println("🔍 Returning " + offers.size() + " offers from /search");
+            return ResponseEntity.ok(offers);
+        } catch (Exception e) {
+            System.out.println("🔍 Error in /search: " + e.getMessage());
+            return ResponseEntity.status(500).body(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/verify")
     public ResponseEntity<Map<String, Object>> verifyInternshipOffer(
-        @RequestParam Long internshipOfferID,
+        @RequestParam("offerId") Long internshipOfferID,
         @RequestParam Boolean approved,
         @RequestParam(required = false) String comment
-    ) {
+    ) throws ResourceNotFoundException {
         internshipManagerService.verifyInternshipOffer(internshipOfferID, approved, comment);
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
+        response.put("message", approved ? "Offre de stage validée avec succès" : "Offre de stage refusée avec succès");
 
         Map<String, Object> internshipOfferData = new HashMap<>();
         internshipOfferData.put("internshipOfferID", internshipOfferID);
@@ -66,7 +109,7 @@ public class InternshipManagerController {
         return getResponseEntity(HttpStatus.OK, null, response);
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUMES_PATH)
+    @GetMapping("/students/cvs")
     public ResponseEntity<Map<String, Object>> getAllStudentsResumes(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String sortOrder,
@@ -85,49 +128,80 @@ public class InternshipManagerController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
+        response.put("data", studentsData);
         response.put("studentsData", studentsData);
-        response.put("resumeCount", studentsData.size());
+        response.put("totalCount", studentsData.size());
 
         return getResponseEntity(HttpStatus.OK, null, response);
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUME_PATH)
+    @GetMapping("/students/{studentID}/cv")
     public ResponseEntity<Map<String, Object>> getStudentResumeDetails(@PathVariable Long studentID) {
-        StudentDTO studentDTO = studentService.getStudentByID(studentID);
+        try {
+            StudentDTO studentDTO = studentService.getStudentByID(studentID);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("studentData", getStudentData(studentDTO));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("studentData", getStudentData(studentDTO));
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Map.of("message", "Étudiant non trouvé"));
+        }
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH)
+    @GetMapping("/students/{studentID}/cv/download")
     public ResponseEntity<byte[]> downloadStudentCV(@PathVariable Long studentID) {
-        StudentDTO studentDTO = studentService.getStudentByID(studentID);
+        try {
+            StudentDTO studentDTO = studentService.getStudentByID(studentID);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", studentDTO.getResumeFileName());
-        headers.setContentLength(studentDTO.getResumeFileData().length);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", studentDTO.getResumeFileName());
+            headers.setContentLength(studentDTO.getResumeFileData().length);
 
-        return getResponseEntity(HttpStatus.OK, headers, studentDTO.getResumeFileData());
+            return getResponseEntity(HttpStatus.OK, headers, studentDTO.getResumeFileData());
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Étudiant non trouvé".getBytes());
+        }
     }
 
-    @PostMapping(Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_PATH)
+    @PostMapping("/students/{studentID}/cv/validate")
     public ResponseEntity<Map<String, Object>> verifyStudentCV(
         @PathVariable Long studentID,
         @RequestParam Boolean approved,
         @RequestParam(required = false) String reason
     ) {
-        StudentDTO student = studentService.getStudentByID(studentID);
-        internshipManagerService.verifyResume(studentID, approved, reason);
+        try {
+            StudentDTO student = studentService.getStudentByID(studentID);
+            
+            // Check if student has a CV
+            if (student.getResumeVerificationStatus() == cal.ose.internose.modele.VerificationStatus.NONE) {
+                return ResponseEntity.status(404).body(Map.of("message", "Aucun CV trouvé pour cet étudiant"));
+            }
+            
+            // Check if CV has already been processed
+            if (student.getResumeVerificationStatus() != null && 
+                student.getResumeVerificationStatus() != cal.ose.internose.modele.VerificationStatus.PENDING) {
+                return ResponseEntity.status(400).body(Map.of("message", "Ce CV a déjà été traité"));
+            }
+            
+            internshipManagerService.verifyResume(studentID, approved, reason);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("studentData", getStudentData(student));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", approved ? "CV validé avec succès" : "CV refusé avec succès");
+            response.put("studentData", getStudentData(student));
 
-        return getResponseEntity(HttpStatus.OK, null, response);
+            return getResponseEntity(HttpStatus.OK, null, response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Erreur de service")) {
+                return ResponseEntity.status(500).body(Map.of("message", "Erreur lors de la validation du CV"));
+            }
+            return ResponseEntity.status(404).body(Map.of("message", "Étudiant non trouvé"));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Map.of("message", "Étudiant non trouvé"));
+        }
     }
 
     private Map<String, Object> getStudentData(StudentDTO student) {

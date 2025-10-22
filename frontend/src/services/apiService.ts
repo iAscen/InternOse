@@ -386,7 +386,7 @@ class ApiService {
       formData.append('file', file);
       formData.append('studentID', studentId.toString());
 
-      const response = await fetch(`${API_BASE_URL}/student/cv`, {
+      const response = await fetch(`${API_BASE_URL}/student/resume`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -441,7 +441,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/cv/status?studentID=${studentId}`, {
+      const response = await fetch(`${API_BASE_URL}/student/resume/status?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -451,13 +451,14 @@ class ApiService {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('🔍 CV status response:', result);
         return {
           success: true,
           data: {
-            status: result.status || 'none',
-            fileName: result.fileName || '',
-            uploadedAt: result.uploadedAt || '',
-            validatedAt: result.validatedAt || '',
+            status: result.verificationStatus || 'none',
+            fileName: result.resumeFileName || '',
+            uploadedAt: result.upload_date || '',
+            validatedAt: result.verifyDate || '',
             rejectionReason: result.rejectionReason || ''
           },
         };
@@ -487,7 +488,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/internship-offers?studentId=${studentId}`, {
+      const response = await fetch(`${API_BASE_URL}/student/internship-offers?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -552,7 +553,7 @@ class ApiService {
 
       // Construire les paramètres de requête
       const params = new URLSearchParams();
-      params.append('studentId', studentId.toString());
+      params.append('studentID', studentId.toString());
       if (sortBy) params.append('sortBy', sortBy);
       if (program) params.append('program', program);
       if (location) params.append('location', location);
@@ -784,7 +785,18 @@ class ApiService {
 
       if (response.ok) {
         const body = await response.json();
-        const cvs = body.data
+        const cvs = body.data.map((cv: any) => ({
+          studentId: cv.studentID,
+          firstName: cv.firstName,
+          lastName: cv.lastName,
+          email: cv.email,
+          cvStatus: cv.resumeVerificationStatus || 'pending', // Map resumeVerificationStatus to cvStatus
+          cvFileName: cv.resumeFileName || '',
+          cvFileType: 'pdf', // Default to PDF
+          uploadedAt: cv.resumeUploadDate || '',
+          validatedAt: cv.resumeVerifiedDate || '',
+          rejectionReason: cv.resumeRejectionReason || ''
+        }));
         return {
           success: true,
           data: cvs,
@@ -898,10 +910,10 @@ class ApiService {
       params.append('offerId', offerId.toString());
       params.append('approved', approved.toString());
       if (comment && comment.trim()) {
-        params.append('commentaire', comment.trim());
+        params.append('comment', comment.trim());
       }
 
-      const url = `${API_BASE_URL}/internship-manager/validation?${params.toString()}`;
+      const url = `${API_BASE_URL}/internship-manager/verify?${params.toString()}`;
       console.log('🔍 Validation URL:', url);
       console.log('🔍 Params:', {offerId, approved, comment});
 
@@ -961,10 +973,10 @@ class ApiService {
 
       // Construire les paramètres de requête
       const params = new URLSearchParams();
-      params.append('studentId', studentId.toString());
+      params.append('studentID', studentId.toString());
       params.append('approved', approved.toString());
       if (comment && comment.trim()) {
-        params.append('commentaire', comment.trim());
+        params.append('reason', comment.trim());
       }
       //             /api/internship-manager/students/{studentId}/cv/validate
       const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;

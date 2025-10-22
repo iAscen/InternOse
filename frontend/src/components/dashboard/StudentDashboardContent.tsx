@@ -291,6 +291,7 @@ export default function StudentDashboardContent() {
                           loading={loading}
                           offers={offers}
                           onOfferValidation={() => loadOffers()}
+                          cvStatus={cvStatus}
                       />
                   </div>
               )}

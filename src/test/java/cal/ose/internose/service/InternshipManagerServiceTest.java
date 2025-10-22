@@ -76,7 +76,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void approveInternshipOffer() {
+    void approveInternshipOffer() throws ResourceNotFoundException {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
@@ -95,7 +95,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void rejectInternshipOffer() {
+    void rejectInternshipOffer() throws ResourceNotFoundException {
         Long offerId = 2L;
         String rejectionComment = "Détails insufficient dans la description";
         InternshipOffer existing = InternshipOffer.builder()
@@ -111,7 +111,7 @@ class InternshipManagerServiceTest {
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertTrue(saved.isVerified());
+        assertTrue(saved.getVerificationStatus() != VerificationStatus.PENDING);
         assertEquals(VerificationStatus.REJECTED, saved.getVerificationStatus());
         assertEquals(rejectionComment, saved.getRejectionReason());
     }
@@ -128,7 +128,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    public void validationInternshipOfferAlreadyValidated() {
+    public void validationInternshipOfferAlreadyValidated() throws ResourceNotFoundException {
         // Arrange
         Long offerId = 3L;
         InternshipOffer existing = InternshipOffer.builder()
