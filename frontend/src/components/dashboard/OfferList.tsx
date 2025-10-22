@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
+import ApplyOfferModal from './ApplyOfferModal';
+import { apiService } from '~/services/apiService';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -16,6 +18,10 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
   const { t } = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOfferToApply, setSelectedOfferToApply] = useState<InternshipOffer | null>(null);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [applyError, setApplyError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
 
   const handleValidateOffer = (offer: InternshipOffer) => {
     setSelectedOffer(offer);
@@ -26,6 +32,47 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
     if (onOfferValidation) {
       onOfferValidation();
     }
+  };
+
+  const handleApplyClick = (offer: InternshipOffer) => {
+    setSelectedOfferToApply(offer);
+    setIsApplyModalOpen(true);
+    setApplyError('');
+  };
+
+  const handleApplySubmit = async (coverLetter: string) => {
+    if (!selectedOfferToApply || !selectedOfferToApply.id) {
+      setApplyError('Erreur: Informations manquantes');
+      return;
+    }
+
+    try {
+      const studentId = await apiService.getStudentIdFromJWT();
+      if (!studentId) {
+        setApplyError('Impossible de récupérer votre identifiant');
+        return;
+      }
+
+      const response = await apiService.applyToOffer(studentId, selectedOfferToApply.id, coverLetter);
+
+      if (response.success) {
+        setSuccessMessage('Votre candidature a été soumise avec succès !');
+        setIsApplyModalOpen(false);
+        setSelectedOfferToApply(null);
+        // Afficher le message pendant 5 secondes
+        setTimeout(() => setSuccessMessage(''), 5000);
+      } else {
+        setApplyError(response.error || 'Une erreur est survenue lors de la candidature');
+      }
+    } catch (error) {
+      setApplyError('Problème technique lors de la soumission. Veuillez réessayer.');
+    }
+  };
+
+  const handleApplyClose = () => {
+    setIsApplyModalOpen(false);
+    setSelectedOfferToApply(null);
+    setApplyError('');
   };
 
   const getStatusBadge = (offer: InternshipOffer) => {
@@ -147,7 +194,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                       {isStudent && offer.verificationStatus === 'APPROVED' && (
                           cvStatus === 'approved' ? (
                               <button
-                                  onClick={() => console.log('Postuler TODO')}
+                                  onClick={() => handleApplyClick(offer)}
                                   className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
                               >
                                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,6 +244,13 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
         ))}
       </div>
 
+      {/* Message de succès */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg shadow-lg max-w-md">
+          ✓ {successMessage}
+        </div>
+      )}
+
       {/* Validation Modal */}
       {selectedOffer && (
         <OfferValidationModal
@@ -209,6 +263,15 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
           onValidationSuccess={handleValidationSuccess}
         />
       )}
+
+      {/* Apply Modal */}
+      <ApplyOfferModal
+        offer={selectedOfferToApply}
+        isOpen={isApplyModalOpen}
+        onClose={handleApplyClose}
+        onApply={handleApplySubmit}
+        error={applyError}
+      />
     </div>
   );
 }

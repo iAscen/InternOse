@@ -1,12 +1,15 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,18 +46,18 @@ public class StudentController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("resumeFileName", student.getResumeFileName() != null
-                ? student.getResumeFileName()
-                : "");
+                    ? student.getResumeFileName()
+                    : "");
             response.put("upload_date", student.getResumeUploadDate() != null
-                ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                : "");
+                    ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             response.put("verificationStatus", student.getResumeVerificationStatus().name().toLowerCase());
             response.put("verifyDate", student.getResumeVerifiedDate() != null
-                ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                : "");
+                    ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : "");
             response.put("rejectionReason", student.getResumeRejectionReason() != null
-                ? student.getResumeRejectionReason()
-                : "");
+                    ? student.getResumeRejectionReason()
+                    : "");
 
             return getResponseEntity(HttpStatus.OK, response);
         } catch (RuntimeException e) {
@@ -62,28 +65,25 @@ public class StudentController {
                 return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
             }
             return getResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                Map.of("error", "Erreur lors de la récupération du statut du CV")
-            );
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
         } catch (Exception e) {
             return getResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                Map.of("error", "Erreur lors de la récupération du statut du CV")
-            );
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
         }
     }
 
     @PostMapping("/resume")
-    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile CVFile) {
+    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID,
+            @RequestParam("file") MultipartFile CVFile) {
         try {
             studentService.uploadResume(studentID, CVFile);
             return getResponseEntity(
-                HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }"
-            );
+                    HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }");
         } catch (IOException e) {
             return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
-            );
+                    HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
@@ -124,7 +124,8 @@ public class StudentController {
      * @param minSalary     Salaire minimum
      * @param maxSalary     Salaire maximum
      * @param address       Lieu (adresse)
-     * @param sortBy        Critère de tri (jobTitle, company, startDate, salary, duration, program, address)
+     * @param sortBy        Critère de tri (jobTitle, company, startDate, salary,
+     *                      duration, program, address)
      * @param sortOrder     Ordre de tri (asc, desc)
      * @param page          Numéro de page (défaut: 0)
      * @param size          Taille de page (défaut: 10)
@@ -132,39 +133,39 @@ public class StudentController {
      */
     @GetMapping("/internship-offers/search")
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
-        @RequestParam() Long studentID,
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) String company,
-        @RequestParam(required = false) String program,
-        @RequestParam(required = false) Integer minDuration,
-        @RequestParam(required = false) Integer maxDuration,
-        @RequestParam(required = false) String startDateFrom,
-        @RequestParam(required = false) String startDateTo,
-        @RequestParam(required = false) Double minSalary,
-        @RequestParam(required = false) Double maxSalary,
-        @RequestParam(required = false) String address,
-        @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) String sortOrder,
-        @RequestParam(required = false, defaultValue = "0") Integer page,
-        @RequestParam(required = false, defaultValue = "10") Integer size) {
+            @RequestParam() Long studentID,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String program,
+            @RequestParam(required = false) Integer minDuration,
+            @RequestParam(required = false) Integer maxDuration,
+            @RequestParam(required = false) String startDateFrom,
+            @RequestParam(required = false) String startDateTo,
+            @RequestParam(required = false) Double minSalary,
+            @RequestParam(required = false) Double maxSalary,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
 
         try {
             InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-                .title(title)
-                .company(company)
-                .program(program)
-                .minDuration(minDuration)
-                .maxDuration(maxDuration)
-                .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
-                .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
-                .minSalary(minSalary)
-                .maxSalary(maxSalary)
-                .address(address)
-                .sortBy(sortBy)
-                .sortOrder(sortOrder)
-                .page(page)
-                .size(size)
-                .build();
+                    .title(title)
+                    .company(company)
+                    .program(program)
+                    .minDuration(minDuration)
+                    .maxDuration(maxDuration)
+                    .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
+                    .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
+                    .minSalary(minSalary)
+                    .maxSalary(maxSalary)
+                    .address(address)
+                    .sortBy(sortBy)
+                    .sortOrder(sortOrder)
+                    .page(page)
+                    .size(size)
+                    .build();
 
             Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria, studentID);
             Long totalCount = studentService.countInternshipOffers(criteria, studentID);
@@ -203,9 +204,8 @@ public class StudentController {
      */
     @GetMapping("/internship-offers/{offerID}")
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
-        @PathVariable Long offerID,
-        @RequestParam Long studentID
-    ) {
+            @PathVariable Long offerID,
+            @RequestParam Long studentID) {
         try {
             Optional<InternshipOfferDTO> offer = studentService.getInternshipOfferByID(studentID, offerID);
             if (offer.isEmpty()) {
@@ -213,7 +213,7 @@ public class StudentController {
                 errorResponse.put("error", "Offre de stage non trouvée");
                 return getResponseEntity(HttpStatus.NOT_FOUND, errorResponse);
             }
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("internshipOffer", offer.get());
             response.put("offer", offer.get());
@@ -229,6 +229,70 @@ public class StudentController {
             errorResponse.put("message", e.getMessage());
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
         }
+    }
+
+    /**
+     * Endpoint pour postuler à une offre de stage
+     */
+    @PostMapping("/internship-offer/apply")
+    public ResponseEntity<Map<String, String>> applyToInternshipOffer(@RequestBody ApplyToOfferRequest request) {
+        try {
+            // Vérifier que l'étudiant existe
+            StudentDTO student = studentService.getStudentByID(request.getStudentId());
+
+            if (student == null) {
+                return getResponseEntity(
+                        HttpStatus.NOT_FOUND,
+                        Map.of("error", "Étudiant non trouvé"));
+            }
+
+            // Scénario 1: Vérifier que le CV est approuvé
+            if (student.getResumeVerificationStatus() == VerificationStatus.NONE) {
+                return getResponseEntity(
+                        HttpStatus.BAD_REQUEST,
+                        Map.of("error", "Veuillez téléverser votre CV avant de postuler."));
+            }
+
+            if (student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
+                return getResponseEntity(
+                        HttpStatus.BAD_REQUEST,
+                        Map.of("error", "Votre CV doit être approuvé avant de postuler"));
+            }
+
+            // Scénario 2: Vérifier si l'étudiant a déjà postulé à cette offre
+            boolean alreadyApplied = studentService.hasAlreadyApplied(request.getStudentId(),
+                    request.getInternshipOfferId());
+            if (alreadyApplied) {
+                return getResponseEntity(
+                        HttpStatus.CONFLICT,
+                        Map.of("error", "Vous avez déjà soumis une candidature pour cette offre."));
+            }
+
+            // Appliquer à l'offre
+            studentService.applyToInternship(request.getStudentId(), request.getInternshipOfferId());
+
+            return getResponseEntity(
+                    HttpStatus.CREATED,
+                    Map.of("message", "Votre candidature a été soumise avec succès"));
+        } catch (Exception e) {
+            // Scénario 3: Problème technique
+            return getResponseEntity(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    Map.of("error", "Problème technique lors de la soumission. Veuillez réessayer."));
+        }
+    }
+
+    // Classe pour la requête de candidature
+    @Data
+    public static class ApplyToOfferRequest {
+        @JsonProperty("studentId")
+        private Long studentId;
+
+        @JsonProperty("internshipOfferId")
+        private Long internshipOfferId;
+
+        @JsonProperty("coverLetter")
+        private String coverLetter;
     }
 
     private <T> ResponseEntity<T> getResponseEntity(HttpStatus status, T body) {

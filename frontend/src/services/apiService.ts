@@ -1025,6 +1025,64 @@ class ApiService {
       };
     }
   }
+
+  // ========================================
+  // MÉTHODES POUR LES CANDIDATURES D'ÉTUDIANTS
+  // ========================================
+
+  // Postuler à une offre de stage
+  async applyToOffer(studentId: number, offerId: number, coverLetter?: string): Promise<ApiResponse<any>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Non authentifié'
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/internship-offer/apply`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          studentId,
+          internshipOfferId: offerId,
+          coverLetter: coverLetter || ''
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: result
+        };
+      } else {
+        // Gérer les erreurs spécifiques
+        try {
+          const errorData = await response.json();
+          return {
+            success: false,
+            error: errorData.error || errorData.message || 'Erreur lors de la candidature'
+          };
+        } catch {
+          const errorText = await response.text();
+          return {
+            success: false,
+            error: errorText || 'Erreur lors de la candidature'
+          };
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
 }
 
 export const apiService = new ApiService();
