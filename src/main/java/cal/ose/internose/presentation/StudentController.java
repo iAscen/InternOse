@@ -5,9 +5,9 @@ import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping(Paths.STUDENT_BASE_PATH)
@@ -28,12 +29,7 @@ import java.util.Optional;
 public class StudentController {
     private final StudentService studentService;
 
-    @GetMapping("/resume/status")
-    public ResponseEntity<Map<String, Object>> getResumeStatus(@RequestParam("studentID") Long studentID) {
-        return getCVStatus(studentID);
-    }
-
-    @GetMapping("/cv/status")
+    @GetMapping(Paths.STUDENT_RESUME_STATUS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
         try {
             StudentDTO student = studentService.getStudentByID(studentID);
@@ -73,10 +69,10 @@ public class StudentController {
         }
     }
 
-    @PostMapping("/resume")
-    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile CVFile) {
+    @PostMapping(Paths.STUDENT_RESUME_RELATIVE)
+    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile resumeFile) {
         try {
-            studentService.uploadResume(studentID, CVFile);
+            studentService.uploadResume(studentID, resumeFile);
             return getResponseEntity(
                 HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }"
             );
@@ -87,17 +83,38 @@ public class StudentController {
         }
     }
 
+    @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_PATH)
+    public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId, @RequestParam("internshipId") Long internshipId) {
+        String errorMessage = "Erreur lors de la postulation: ";
+        try {
+            studentService.applyToInternshipOffer(studentId, internshipId);
+            return getResponseEntity(
+                HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }"
+            );
+        } catch (ResumeNotApprovedException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(errorMessage + e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(errorMessage + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(errorMessage + e.getMessage());
+        }
+    }
+
     /**
      * Récupère toutes les offres de stage disponibles pour les étudiants
      *
      * @return Liste de toutes les offres de stage approuvées
      */
-    @GetMapping("/internship-offers")
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentID) {
         try {
             List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentID);
             Map<String, Object> response = new HashMap<>();
-            response.put("internshipOffers", offers);
+            response.put("offers", offers);
+            response.put("count", offers.size());
             return getResponseEntity(HttpStatus.OK, response);
         } catch (ResumeNotApprovedException e) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -130,7 +147,7 @@ public class StudentController {
      * @param size          Taille de page (défaut: 10)
      * @return Une page avec des offres de stage correspondant aux critères
      */
-    @GetMapping("/internship-offers/search")
+    @GetMapping(Paths.STUDENT_SEARCH_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
         @RequestParam() Long studentID,
         @RequestParam(required = false) String title,
@@ -201,7 +218,7 @@ public class StudentController {
      * @param offerID ID de l'offre de stage
      * @return Détails de l'offre de stage
      */
-    @GetMapping("/internship-offers/{offerID}")
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
         @PathVariable Long offerID,
         @RequestParam Long studentID

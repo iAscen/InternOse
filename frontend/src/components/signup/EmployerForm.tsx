@@ -55,7 +55,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
         email: formData.email,
         password: formData.password,
         role: 'EMPLOYER',
-        enterprise: formData.companyName,
+        company: formData.companyName,
       };
 
       const response = await apiService.registerEmployer(registrationData);

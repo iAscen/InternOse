@@ -10,6 +10,8 @@ import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -156,6 +158,16 @@ public class StudentService {
         // Vérifier que l'étudiant a un CV approuvé pour pouvoir postuler
         if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
             throw new ResumeNotApprovedException("Vous devez avoir un CV approuvé pour postuler aux offres de stage");
+        }
+
+        if (internshipOffer != null && internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new DocumentNotValidatedException("L'offre n'est pas validée");
+        }
+
+        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentID,
+            internshipOfferID);
+        if (hasAlreadyApplied) {
+            throw new AlreadyExistsException("Vous avez déjà postulé à cette offre");
         }
 
         if (student != null && internshipOffer != null) {
