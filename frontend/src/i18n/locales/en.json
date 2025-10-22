@@ -94,7 +94,9 @@
     "createOffer": "Create Offer",
     "company": "Company",
     "companyName": "Company Name",
-    "applications": "Received Applications"
+    "applications": "Received Applications",
+    "date": "Date",
+    "status": "Status"
   },
   "student": {
     "dashboard": "Student Dashboard",
@@ -115,7 +117,24 @@
     "acceptedFormat": "Accepted format:",
     "acceptedFormatDesc": "Only PDF files are accepted, maximum size 10MB.",
     "validation": "Validation:",
-    "validationDesc": "Your resume will be validated by the internship manager as soon as possible."
+    "validationDesc": "Your resume will be validated by the internship manager as soon as possible.",
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "Ex: Software Developer",
+    "company": "Company",
+    "companyPlaceholder": "Ex: Tech Inc.",
+    "location": "Location",
+    "locationPlaceholder": "Ex: Montreal, QC",
+    "salary": "Salary",
+    "salaryRange": "Salary Range",
+    "min": "Min",
+    "max": "Max",
+    "duration": "Duration",
+    "minWeeks": "Min Weeks",
+    "maxWeeks": "Max Weeks",
+    "startDate": "Start Date",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "apply": "Apply"
   },
   "im": {
     "dashboard": "Internship Manager Dashboard",

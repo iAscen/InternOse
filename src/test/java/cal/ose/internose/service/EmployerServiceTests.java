@@ -1,6 +1,9 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.*;
+import cal.ose.internose.modele.Employer;
+import cal.ose.internose.modele.InternshipOffer;
+import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
@@ -44,7 +47,7 @@ public class EmployerServiceTests {
 
     @Test
     @DisplayName("Test de la méthode listInternshipOffers()")
-    public void testListInternshipOffers() {
+    public void testListInternshipOffers() throws ResourceNotFoundException {
         // Arrange
         Long employerID = 1L;
         when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
@@ -58,7 +61,7 @@ public class EmployerServiceTests {
 
     @Test
     @DisplayName("Test de la méthode createInternshipOffer()")
-    public void testCreateInternshipOffer() {
+    public void testCreateInternshipOffer() throws ResourceNotFoundException {
         // Arrange
         Long employerID = 1L;
         InternshipOffer internshipOffer = exampleInternshipOffers().getFirst();
@@ -66,37 +69,37 @@ public class EmployerServiceTests {
         when(employerDAO.findById(anyLong())).thenReturn(Optional.of(exampleEmployer()));
         when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(internshipOffer);
         // Act
-        Optional<InternshipOffer> newInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
+        Optional<InternshipOfferDTO> newInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
         // Assert
         assertThat(newInternshipOffer).isPresent();
         verify(internshipOfferDAO, times(1)).save(any(InternshipOffer.class));
     }
 
     @Test
-    public void testFindStudentsBy() {
-        Student student1 = Student.builder().id(1L).program("Z").credentials(new Credentials("email", "password", Role.STUDENT)).build();
-        Student student2 = Student.builder().id(2L).program("A").credentials(new Credentials("email", "password", Role.STUDENT)).build();
+    public void testFindApplicationsBy() throws ResourceNotFoundException {
+        Student student1 = Student.builder().id(1L).program("Z").build();
+        Student student2 = Student.builder().id(2L).program("A").build();
         
         List<StudentApplication> applications = List.of(
                 StudentApplication.builder()
                         .student(student1)
                         .applicationDate(java.time.LocalDateTime.now())
-                        .status(StudentApplication.ApplicationStatus.PENDING)
+                        .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                         .build(),
                 StudentApplication.builder()
                         .student(student2)
                         .applicationDate(java.time.LocalDateTime.now())
-                        .status(StudentApplication.ApplicationStatus.PENDING)
+                        .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                         .build()
         );
 
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(applications);
 
-        List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
+        List<StudentDTO> studentDTOs = employerService.findApplicationsBy(1L, null, null, null, "program");
 
         assertThat(studentDTOs.size()).isEqualTo(2);
         assertThat(studentDTOs.get(0).getProgram()).isEqualTo("A");
@@ -106,32 +109,32 @@ public class EmployerServiceTests {
     }
 
     @Test
-    public void testFindStudentsBy_EmptyList() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+    public void testFindApplicationsBy_EmptyList() throws ResourceNotFoundException {
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(new ArrayList<>());
 
-        List<StudentDTO> studentDTOs = employerService.findStudentsBy(1L, null, null, null, "program");
+        List<StudentDTO> studentDTOs = employerService.findApplicationsBy(1L, null, null, null, "program");
 
         assertThat(studentDTOs.size()).isEqualTo(0);
     }
 
     @Test
-    public void testFindStudentsBy_ThrowsResourceNotFoundException() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(false);
+    public void testFindApplicationsBy_ThrowsResourceNotFoundException() {
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.empty());
 
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> employerService.findStudentsBy(1L, null, null, null, null)
+                () -> employerService.findApplicationsBy(1L, null, null, null, null)
         );
 
     }
 
     @Test
-    public void testGetStudentApplicationDetails() {
+    public void testGetApplicationDetails() throws ResourceNotFoundException {
         Student student = Student.builder()
                 .id(1L)
                 .firstName("John")
@@ -144,16 +147,16 @@ public class EmployerServiceTests {
                 .id(1L)
                 .student(student)
                 .applicationDate(java.time.LocalDateTime.now())
-                .status(StudentApplication.ApplicationStatus.PENDING)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
                 .build();
 
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(List.of(application));
 
-        StudentDTO result = employerService.getStudentApplicationDetails(1L, 1L);
+        StudentDTO result = employerService.getApplicationDetails(1L, 1L);
 
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getFirstName()).isEqualTo("John");
@@ -162,16 +165,16 @@ public class EmployerServiceTests {
     }
 
     @Test
-    public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() {
-        when(internshipOfferDAO.existsById(1L))
-                .thenReturn(true);
+    public void testGetApplicationDetails_ThrowsResourceNotFoundException() {
+        when(internshipOfferDAO.findById(1L))
+                .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
         when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
                 .thenReturn(List.of());
 
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> employerService.getStudentApplicationDetails(1L, 1L)
+                () -> employerService.getApplicationDetails(1L, 1L)
         );
     }
 
@@ -179,7 +182,7 @@ public class EmployerServiceTests {
         return Employer.builder()
             .firstName("Artyom")
             .lastName("M.")
-            .enterprise("Artyom Tech Inc.")
+            .company("Artyom Tech Inc.")
             .build();
     }
 
@@ -187,10 +190,10 @@ public class EmployerServiceTests {
         List<InternshipOffer> internshipOffers = new ArrayList<>();
         internshipOffers.add(
             InternshipOffer.builder()
-                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
-                .taskDescription("*description ici*")
+                .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
+                .description("*description ici*")
                 .program("Technique de l'informatique")
-                .qualifications("*compétences requises ici*")
+                .requiredSkills("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))
                 .salary(25.0)

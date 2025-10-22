@@ -8,24 +8,47 @@ export default function PdfViewer({ fileUrl }: { fileUrl: string }) {
     const [isReady, setIsReady] = useState(false);
     const [numPages, setNumPages] = useState<number>(0);
     const [scale, setScale] = useState(1); // optional zoom
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-            'pdfjs-dist/build/pdf.worker.min.mjs',
-            import.meta.url,
-        ).toString();
+        // Utiliser le worker fourni par react-pdf via CDN
+        pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
         setIsReady(true);
     }, []);
 
     const onLoadError = (err: unknown) => {
         console.error('PDF load error:', err);
+        setError('Erreur lors du chargement du PDF. Veuillez réessayer.');
     };
 
     const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-        setNumPages(numPages);
+        // Ajouter un petit délai pour s'assurer que le worker est stable
+        setTimeout(() => {
+            setNumPages(numPages);
+        }, 100);
     };
 
     if (!isReady) return null;
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 bg-red-50 rounded-lg">
+                <div className="text-red-600 text-6xl mb-4">⚠️</div>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Erreur PDF</h3>
+                <p className="text-red-700 text-center mb-4">{error}</p>
+                <button 
+                    onClick={() => {
+                        setError(null);
+                        setIsReady(false);
+                        setTimeout(() => setIsReady(true), 100);
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -44,13 +67,16 @@ export default function PdfViewer({ fileUrl }: { fileUrl: string }) {
                 padding: 8,
             }}>
                 <Document file={fileUrl} onLoadError={onLoadError} onLoadSuccess={onDocumentLoadSuccess}>
-                    {Array.from({ length: numPages }, (_, i) => (
+                    {numPages > 0 && Array.from({ length: numPages }, (_, i) => (
                         <Page
                             key={`page_${i + 1}`}
                             pageNumber={i + 1}
                             scale={scale}
                             renderTextLayer
                             renderAnnotationLayer
+                            onLoadError={(error) => {
+                                console.error(`Error loading page ${i + 1}:`, error);
+                            }}
                         />
                     ))}
                 </Document>

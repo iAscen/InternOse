@@ -94,7 +94,9 @@
     "createOffer": "Créer une offre",
     "company": "Entreprise",
     "companyName": "Nom de l'entreprise",
-    "applications": "Candidatures reçues"
+    "applications": "Candidatures reçues",
+    "date": "Date",
+    "status": "Statut"
   },
   "student": {
     "dashboard": "Tableau de bord étudiant",
@@ -115,7 +117,24 @@
     "acceptedFormat": "Format accepté :",
     "acceptedFormatDesc": "Seuls les fichiers PDF sont acceptés, taille maximale 10MB.",
     "validation": "Validation :",
-    "validationDesc": "Votre CV sera validé par le gestionnaire de stage dans les plus brefs délais."
+    "validationDesc": "Votre CV sera validé par le gestionnaire de stage dans les plus brefs délais.",
+    "jobTitle": "Titre du poste",
+    "jobTitlePlaceholder": "Ex: Développeur logiciel",
+    "company": "Entreprise",
+    "companyPlaceholder": "Ex: Tech Inc.",
+    "location": "Lieu",
+    "locationPlaceholder": "Ex: Montréal, QC",
+    "salary": "Salaire",
+    "salaryRange": "Fourchette salariale",
+    "min": "Min",
+    "max": "Max",
+    "duration": "Durée",
+    "minWeeks": "Semaines min",
+    "maxWeeks": "Semaines max",
+    "startDate": "Date de début",
+    "dateFrom": "Du",
+    "dateTo": "Au",
+    "apply": "Postuler"
   },
   "im": {
     "dashboard": "Tableau de bord gestionnaire de stages",

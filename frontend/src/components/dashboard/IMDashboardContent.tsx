@@ -74,7 +74,6 @@ export default function IMDashboardContent() {
         try {
             setLoading(true);
             const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
-            console.log(response)
             if (response.success && response.data) {
                 setOffers(response.data);
             } else {
@@ -140,8 +139,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.pendingSubmissions')}
                             value={(() => {
-                                const pendingOffers = offers.filter(offer => !offer.validationStatus || offer.validationStatus === 'PENDING').length;
-                                const pendingCvs = cvs.filter(cv => cv.cvStatus === 'pending').length;
+                                const pendingOffers = offers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
+                                const pendingCvs = cvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
                                 console.log('Pending offers:', pendingOffers, 'Pending CVs:', pendingCvs, 'Total:', pendingOffers + pendingCvs);
                                 return pendingOffers + pendingCvs;
                             })()}
@@ -152,8 +151,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.approvedSubmissions')}
                             value={
-                                offers.filter(offer => offer.validationStatus === 'APPROVED').length +
-                                cvs.filter(cv => cv.cvStatus === 'approved').length
+                                offers.filter(offer => offer.verificationStatus === 'APPROVED').length +
+                                cvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length
                             }
                             icon={statsIcons.approved}
                             bgColor="bg-green-100"
@@ -162,8 +161,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.refusedSubmissions')}
                             value={
-                                offers.filter(offer => offer.validationStatus === 'REJECTED').length +
-                                cvs.filter(cv => cv.cvStatus === 'rejected').length
+                                offers.filter(offer => offer.verificationStatus === 'REJECTED').length +
+                                cvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
                             }
                             icon={statsIcons.refused}
                             bgColor="bg-red-100"
@@ -186,10 +185,12 @@ export default function IMDashboardContent() {
                                         setShowFilterMenuResumes(false)
                                     }} />
                                     {showSortMenuOffers &&
-                                        <SortMenuOffers applySorting={(sortBy: string) => {
-                                            setShowSortMenuOffers(false);
-                                            loadOffers(sortBy, undefined);
-                                        }}/>
+                                        <SortMenuOffers
+                                            userRole="INTERNSHIP_MANAGER"
+                                            applySorting={(sortBy: string) => {
+                                                setShowSortMenuOffers(false);
+                                                loadOffers(sortBy, undefined);
+                                            }}/>
                                     }
                                 </div>
                                 <div className="relative">
@@ -200,16 +201,18 @@ export default function IMDashboardContent() {
                                         setShowFilterMenuResumes(false)
                                     }}/>
                                     {showFilterMenuOffers &&
-                                        <FilterMenuOffers applyFilters={(filterBy: string[]) => {
-                                            setShowFilterMenuOffers(false);
-                                            loadOffers(undefined, filterBy);
-                                        }}/>
+                                        <FilterMenuOffers
+                                            userRole="INTERNSHIP_MANAGER"
+                                            applyFilters={(filterBy: string[]) => {
+                                                setShowFilterMenuOffers(false);
+                                                loadOffers(undefined, filterBy);
+                                            }}/>
                                     }
                                 </div>
                             </div>
                         </div>
                         <OfferList
-                          changeCursorIfApproved={false}
+                            isStudent={false}
                           isEmployer={false} 
                           loading={loading} 
                           offers={offers}

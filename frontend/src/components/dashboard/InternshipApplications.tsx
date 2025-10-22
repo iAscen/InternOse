@@ -87,7 +87,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 				<div>
 					<div className="bg-white rounded-lg shadow-md text-gray-900">
 						<div className="flex px-6 py-4 border-b border-gray-200">
-							<h2 className="text-xl font-semibold text-gray-900">{internship.jobTitle + ": "}{t('dashboard.internshipApplications.applications')}</h2>
+							<h2 className="text-xl font-semibold text-gray-900">{(internship.jobTitle || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
 							{/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
 							<div className="flex ml-auto items-center space-x-4 text-gray-900">
 								<div className="relative">
@@ -139,7 +139,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 cursor-pointer hover:bg-gray-100">
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
-										{application.firstName + " " + application.lastName}
+										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<span className="ml-auto">
 										{getStatusBadge(application)}
@@ -147,11 +147,11 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 								</div>
 								<div className="mb-2">
 									<h4 className="text-md font-medium text-gray-900 mb-1">Institution</h4>
-									<p className="text-sm text-gray-700 leading-relaxed">{application.institution + " - " + application.program}</p>
+									<p className="text-sm text-gray-700 leading-relaxed">{(application.institution || 'Non spécifié') + " - " + (application.program || 'Non spécifié')}</p>
               					</div>
 								<div>
 									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>
-									<p className="text-sm text-gray-700 leading-relaxed">{getDateWithoutTime(application.applicationDate!)}</p>
+									<p className="text-sm text-gray-700 leading-relaxed">{application.applicationDate ? getDateWithoutTime(application.applicationDate) : 'Date non disponible'}</p>
               					</div>
 							</div>
 						

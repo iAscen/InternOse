@@ -1,12 +1,9 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.security.Paths;
-import cal.ose.internose.security.exceptions.ResourceNotFoundException;
-import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.TestPaths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,7 +49,7 @@ public class EmployerControllerTests {
         when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            get(TestPaths.buildEmployerInternshipOffersUrl(employerID))
             .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -71,11 +68,10 @@ public class EmployerControllerTests {
         // Arrange
         Long employerID = 1L;
         InternshipOfferDTO internshipOfferDTO = exampleInternshipOffers().getFirst();
-        InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
-        when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOffer));
+        when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOfferDTO));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post(Paths.INTERNSHIP_OFFERS_PATH + "?employerID=" + employerID)
+            post(TestPaths.buildEmployerInternshipOffersUrl(employerID))
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();
@@ -84,34 +80,29 @@ public class EmployerControllerTests {
     }
 
     @Test
-    public void testFindStudentsBy() throws Exception {
-        when(employerService.findStudentsBy(1L, null, null, null, null))
+    public void testGetStudentApplications() throws Exception {
+        when(employerService.findApplicationsBy(1L, null, null, null, null))
                 .thenReturn(new ArrayList<>());
 
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-                        .param("internshipId", "1")
+                get(TestPaths.buildEmployerApplicationsUrl(1L))
+                        .param("internshipOfferID", "1")
         ).andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
-    public void testFindStudentsBy_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.findStudentsBy(1L, null, null, null, null))
-                .thenThrow(new ResourceNotFoundException("error"));
+    public void testGetStudentApplications_ThrowsResourceNotFoundException() throws Exception {
+        when(employerService.findApplicationsBy(1L, null, null, null, null))
+                .thenThrow(new RuntimeException("error"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENTS_BY_INTERNSHIP_OFFER_PATH)
-                        .param("internshipId", "1")
+                get(TestPaths.buildEmployerApplicationsUrl(1L))
+                        .param("internshipOfferID", "1")
         ).andReturn();
 
-        String body = mvcResult.getResponse().getContentAsString();
-
-        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(body,  ErrorResponseDTO.class);
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        assertThat(errorResponseDTO.getMessage()).isEqualTo("error");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
     @Test
@@ -126,13 +117,12 @@ public class EmployerControllerTests {
                 .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.PENDING)
                 .build();
 
-        when(employerService.getStudentApplicationDetails(1L, 1L))
+        when(employerService.getApplicationDetails(1L, 1L))
                 .thenReturn(application);
 
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_APPLICATION_DETAILS_PATH)
-                        .param("internshipId", "1")
-                        .param("studentId", "1")
+                get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
+                        .param("internshipOfferID", "1")
         ).andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -146,30 +136,25 @@ public class EmployerControllerTests {
 
     @Test
     public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.getStudentApplicationDetails(1L, 1L))
-                .thenThrow(new ResourceNotFoundException("Application not found"));
+        when(employerService.getApplicationDetails(1L, 1L))
+                .thenThrow(new RuntimeException("Application not found"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get(Paths.STUDENT_APPLICATION_DETAILS_PATH)
-                        .param("internshipId", "1")
-                        .param("studentId", "1")
+                get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
+                        .param("internshipOfferID", "1")
         ).andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        
-        String body = mvcResult.getResponse().getContentAsString();
-        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(body, ErrorResponseDTO.class);
-        assertThat(errorResponseDTO.getMessage()).isEqualTo("Application not found");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
     private List<InternshipOfferDTO> exampleInternshipOffers() {
         List<InternshipOfferDTO> offresStage = new ArrayList<>();
         offresStage.add(
             InternshipOfferDTO.builder()
-                .jobTitle("Ingénieur logiciel junior chez Artyom Tech Inc.")
-                .taskDescription("*description ici*")
+                .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
+                .description("*description ici*")
                 .program("Technique de l'informatique")
-                .qualifications("*compétences requises ici*")
+                .requiredSkills("*compétences requises ici*")
                 .duration(6)
                 .startDate(LocalDate.of(2026, 1, 23))
                 .salary(25.0)

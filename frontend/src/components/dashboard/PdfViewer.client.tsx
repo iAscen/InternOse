@@ -24,6 +24,16 @@ export default function PdfViewer({ fileUrl, onCleanup }: PdfViewerProps) {
         setupPdfWorker();
         pdfWorkerManager.registerComponent(componentId);
 
+        // S'assurer que le worker est prêt avant de continuer
+        const checkWorker = () => {
+            if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+                console.warn('PDF worker not ready, retrying...');
+                setTimeout(checkWorker, 100);
+                return;
+            }
+        };
+        checkWorker();
+
         return () => {
             console.log(`Cleaning up PDF component: ${componentId}`);
 
@@ -69,20 +79,6 @@ export default function PdfViewer({ fileUrl, onCleanup }: PdfViewerProps) {
             fileUrl: fileUrl,
             activeComponents: pdfWorkerManager.getActiveComponentsCount()
         });
-
-        if (fileUrl) {
-            fetch(fileUrl, { method: 'HEAD' })
-                .then(response => {
-                    console.log('File accessibility check:', {
-                        url: fileUrl,
-                        status: response.status,
-                        contentType: response.headers.get('Content-Type')
-                    });
-                })
-                .catch(err => {
-                    console.error('File accessibility error:', err);
-                });
-        }
     }, [fileUrl]);
 
     const onLoadError = (err: unknown) => {
@@ -114,10 +110,13 @@ export default function PdfViewer({ fileUrl, onCleanup }: PdfViewerProps) {
 
     const onDocumentLoadSuccess = (pdf: any) => {
         console.log('PDF loaded successfully:', { numPages: pdf.numPages, fileUrl });
-        setNumPages(pdf.numPages);
-        setLoading(false);
-        setLoadError(null);
-        documentRef.current = pdf;
+        // Ajouter un petit délai pour s'assurer que le worker est stable
+        setTimeout(() => {
+            setNumPages(pdf.numPages);
+            setLoading(false);
+            setLoadError(null);
+            documentRef.current = pdf;
+        }, 100);
     };
 
     const onDocumentLoadStart = () => {
@@ -199,7 +198,7 @@ export default function PdfViewer({ fileUrl, onCleanup }: PdfViewerProps) {
                     onLoadStart={onDocumentLoadStart}
                     className="flex flex-col items-center"
                 >
-                    {Array.from({ length: numPages }, (_, i) => (
+                    {numPages > 0 && Array.from({ length: numPages }, (_, i) => (
                         <div key={`page_${i + 1}`} className="mb-4 shadow-lg">
                             <Page
                                 pageNumber={i + 1}
@@ -207,6 +206,9 @@ export default function PdfViewer({ fileUrl, onCleanup }: PdfViewerProps) {
                                 renderTextLayer
                                 renderAnnotationLayer
                                 className="border border-gray-300"
+                                onLoadError={(error) => {
+                                    console.error(`Error loading page ${i + 1}:`, error);
+                                }}
                             />
                         </div>
                     ))}

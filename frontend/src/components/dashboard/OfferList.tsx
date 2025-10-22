@@ -1,22 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
+import ApplyOfferModal from './ApplyOfferModal';
+import { apiService } from '~/services/apiService';
 
 interface OfferListProps {
-  changeCursorIfApproved: boolean;
-  selectOffer?: (offer: InternshipOffer) => void;
+  isStudent: boolean;
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
   onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
+  onApplicationSuccess?: (offerId: number) => void; // Callback pour rafraîchir après candidature réussie
+  cvStatus?: 'none' | 'pending' | 'approved' | 'rejected'; // Statut du CV de l'étudiant
+  changeCursorIfApproved?: boolean; // Pour changer le curseur sur les offres approuvées
+  selectOffer?: (offer: InternshipOffer) => void; // Callback pour sélectionner une offre
+  appliedOffers?: Set<number>; // Offres auxquelles l'étudiant a postulé
 }
 
-export default function OfferList({changeCursorIfApproved, selectOffer, isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
+export default function OfferList({ isStudent, isEmployer, loading, offers, onOfferValidation, onApplicationSuccess, cvStatus, changeCursorIfApproved, selectOffer, appliedOffers }: OfferListProps) {
   const { t } = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const [selectedOfferToApply, setSelectedOfferToApply] = useState<InternshipOffer | null>(null);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [applyError, setApplyError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
   const handleValidateOffer = (offer: InternshipOffer) => {
     setSelectedOffer(offer);
     setIsModalOpen(true);
@@ -28,14 +38,63 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
     }
   };
 
+  const handleApplyClick = (offer: InternshipOffer) => {
+    setSelectedOfferToApply(offer);
+    setIsApplyModalOpen(true);
+    setApplyError('');
+  };
+
+  const handleApplySubmit = async () => {
+    if (!selectedOfferToApply || !selectedOfferToApply.id) {
+      setApplyError('Erreur: Informations manquantes');
+      return;
+    }
+
+    try {
+      const studentId = await apiService.getStudentIdFromJWT();
+      if (!studentId) {
+        setApplyError('Impossible de récupérer votre identifiant');
+        return;
+      }
+
+      const response = await apiService.applyToOffer(studentId, selectedOfferToApply.id);
+
+        if (response.success) {
+          setSuccessMessage('Votre candidature a été soumise avec succès !');
+          setIsApplyModalOpen(false);
+          setSelectedOfferToApply(null);
+          // Rafraîchir les données du dashboard
+          if (onApplicationSuccess && selectedOfferToApply?.id) {
+            onApplicationSuccess(selectedOfferToApply.id);
+          }
+          // Afficher le message pendant 5 secondes
+          setTimeout(() => setSuccessMessage(''), 5000);
+        } else {
+        setApplyError(response.error || 'Une erreur est survenue lors de la candidature');
+      }
+    } catch (error) {
+      setApplyError('Problème technique lors de la soumission. Veuillez réessayer.');
+    }
+  };
+
+  const handleApplyClose = () => {
+    setIsApplyModalOpen(false);
+    setSelectedOfferToApply(null);
+    setApplyError('');
+  };
+
   const getStatusBadge = (offer: InternshipOffer) => {
-    if (offer.validationStatus === 'APPROVED') {
+    if (isStudent) {
+      return null
+    }
+
+    if (offer.verificationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
           {t('im.approved')}
         </span>
       );
-    } else if (offer.validationStatus === 'REJECTED') {
+    } else if (offer.verificationStatus === 'REJECTED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
           {t('im.rejected')}
@@ -67,7 +126,7 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
   if (offers.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md">
-        { isEmployer &&
+        {isEmployer &&
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
           </div>
@@ -81,15 +140,23 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      { isEmployer &&
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
-        </div>
+      {isEmployer &&
+          <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+          </div>
       }
 
       <div className="divide-y divide-gray-200">
         {offers.map((offer, index) => (
-          <div key={offer.id || index} onClick={() => selectOffer ? selectOffer(offer) : ""} className={`p-6 hover:bg-gray-50 transition-colors ${(offer.validationStatus == "APPROVED" && changeCursorIfApproved) ? "cursor-pointer" : ""}`}>
+          <div 
+            key={offer.id || index} 
+            className={`p-6 hover:bg-gray-50 transition-colors ${changeCursorIfApproved && offer.verificationStatus === 'APPROVED' ? 'cursor-pointer' : ''}`}
+            onClick={() => {
+              if (isEmployer && changeCursorIfApproved && offer.verificationStatus === 'APPROVED' && selectOffer) {
+                selectOffer(offer);
+              }
+            }}
+          >
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-start justify-between">
@@ -129,7 +196,7 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
-                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'PENDING') && (
+                    {!isEmployer && !isStudent && (!offer.verificationStatus || offer.verificationStatus === 'PENDING') && (
                       <button
                         onClick={() => handleValidateOffer(offer)}
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
@@ -140,6 +207,42 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
                         {t('im.validateOffer')}
                       </button>
                     )}
+                      {isStudent && offer.verificationStatus === 'APPROVED' && (
+                          cvStatus === 'approved' ? (
+                              appliedOffers?.has(offer.id || 0) ? (
+                                  <button
+                                      disabled
+                                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-green-700 bg-green-100 rounded-md cursor-not-allowed"
+                                  >
+                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      Candidature envoyée
+                                  </button>
+                              ) : (
+                                  <button
+                                      onClick={() => handleApplyClick(offer)}
+                                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                                  >
+                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      {t('student.apply')}
+                                  </button>
+                              )
+                          ) : (
+                              <button
+                                  disabled
+                                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-md cursor-not-allowed"
+                                  title={cvStatus === 'none' ? 'Téléversez un CV pour postuler' : 'Votre CV doit être approuvé pour postuler'}
+                              >
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  {t('student.apply')}
+                              </button>
+                          )
+                      )}
                   </div>
                 </div>
               </div>
@@ -158,7 +261,7 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
               </div>
               {/* Affichage de la raison de rejet si applicable */}
-              {offer.validationStatus === 'REJECTED' && offer.rejectionReason && (
+              {offer.verificationStatus === 'REJECTED' && offer.rejectionReason && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3">
                   <h4 className="text-sm font-medium text-red-800 mb-1">{t('dashboard.rejectionReason')}</h4>
                   <p className="text-sm text-red-700">{offer.rejectionReason}</p>
@@ -168,6 +271,13 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
           </div>
         ))}
       </div>
+
+      {/* Message de succès */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg shadow-lg max-w-md">
+          ✓ {successMessage}
+        </div>
+      )}
 
       {/* Validation Modal */}
       {selectedOffer && (
@@ -181,6 +291,15 @@ export default function OfferList({changeCursorIfApproved, selectOffer, isEmploy
           onValidationSuccess={handleValidationSuccess}
         />
       )}
+
+      {/* Apply Modal */}
+      <ApplyOfferModal
+        offer={selectedOfferToApply}
+        isOpen={isApplyModalOpen}
+        onClose={handleApplyClose}
+        onApply={handleApplySubmit}
+        error={applyError}
+      />
     </div>
   );
 }

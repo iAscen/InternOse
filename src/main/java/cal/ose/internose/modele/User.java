@@ -8,14 +8,15 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 @Entity
+@Table(name = "USERS")
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @Getter
 @Setter
 @ToString
-@SuperBuilder
-public abstract class UserApp {
+public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -27,20 +28,15 @@ public abstract class UserApp {
     @Embedded
     private Credentials credentials;
 
-    public String getEmail(){
+    public String getEmail() {
         return credentials.getEmail();
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return credentials.getPassword();
     }
 
-    public Role getRole(){
-        return credentials.getRole();
-    }
-
-
-    public Collection<? extends GrantedAuthority> getAuthorities(){
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return credentials.getAuthorities();
     }
 }

@@ -18,7 +18,7 @@ export interface EmployerRegistrationRequest {
   email: string;
   password: string;
   role: 'EMPLOYER';
-  enterprise: string;
+  company: string;
 }
 
 export interface ErrorResponseDTO {
