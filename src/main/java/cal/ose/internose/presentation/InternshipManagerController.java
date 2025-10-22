@@ -71,18 +71,14 @@ public class InternshipManagerController {
         @RequestParam(required = false) String title
     ) {
         try {
-            System.out.println("🔍 /search endpoint called with valid: " + valid + ", program: " + program + ", title: " + title);
-            
             Boolean verified = null;
             if (valid != null) {
                 verified = Boolean.parseBoolean(valid);
             }
             
             List<InternshipOfferDTO> offers = internshipManagerService.findInternshipsBy(verified, program, title, sortBy);
-            System.out.println("🔍 Returning " + offers.size() + " offers from /search");
             return ResponseEntity.ok(offers);
         } catch (Exception e) {
-            System.out.println("🔍 Error in /search: " + e.getMessage());
             return ResponseEntity.status(500).body(new ArrayList<>());
         }
     }

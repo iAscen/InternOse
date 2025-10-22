@@ -30,19 +30,13 @@ public class StudentController {
 
     @GetMapping("/resume/status")
     public ResponseEntity<Map<String, Object>> getResumeStatus(@RequestParam("studentID") Long studentID) {
-        System.out.println("🔍 /resume/status called with studentID: " + studentID);
         return getCVStatus(studentID);
     }
 
     @GetMapping("/cv/status")
     public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
         try {
-            System.out.println("🔍 /cv/status called with studentID: " + studentID);
             StudentDTO student = studentService.getStudentByID(studentID);
-            System.out.println("🔍 Student found: " + (student != null ? "Yes" : "No"));
-            if (student != null) {
-                System.out.println("🔍 Student resume status: " + student.getResumeVerificationStatus());
-            }
 
             if (student == null)
                 return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
@@ -153,7 +147,6 @@ public class StudentController {
         @RequestParam(required = false) String sortOrder,
         @RequestParam(required = false, defaultValue = "0") Integer page,
         @RequestParam(required = false, defaultValue = "10") Integer size) {
-        System.out.println("🔍 /internship-offers/search called with studentID: " + studentID);
 
         try {
             InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()

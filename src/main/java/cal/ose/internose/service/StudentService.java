@@ -50,16 +50,9 @@ public class StudentService {
     }
 
     public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String status) {
-        System.out.println("🔍 getAllStudentsWithResumes called with status: " + status);
-        
         List<Student> students = studentDAO.findAll().stream()
             .filter(student -> student.getResumeVerificationStatus() != VerificationStatus.NONE)
             .toList();
-            
-        System.out.println("🔍 Found " + students.size() + " students with resumes");
-        for (Student student : students) {
-            System.out.println("🔍 Student ID: " + student.getId() + ", Status: " + student.getResumeVerificationStatus());
-        }
 
         if (status != null && !status.trim().isEmpty()) {
             try {
@@ -299,12 +292,8 @@ public class StudentService {
     }
 
     private void isResumeVerified(Long studentId) throws ResumeNotApprovedException {
-        Student student = studentDAO.findById(studentId).orElseThrow();
-        System.out.println("🔍 isResumeVerified - Student ID: " + studentId + ", CV Status: " + student.getResumeVerificationStatus());
-
         // Permettre aux étudiants de voir les offres même sans CV
         // Ils ne pourront postuler que si leur CV est approuvé
-        System.out.println("🔍 Allowing access - Students can view offers even without CV");
     }
 
     private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {

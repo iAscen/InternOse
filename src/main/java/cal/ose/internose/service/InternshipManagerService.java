@@ -23,8 +23,6 @@ public class InternshipManagerService {
     private final StudentDAO studentDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean verified, String program, String title, String sortBy) {
-        System.out.println("🔍 findInternshipsBy called with verified: " + verified + ", program: " + program + ", title: " + title);
-        
         String programPattern = program != null ? "%" + program + "%" : null;
         String titlePattern = title != null ? "%" + title + "%" : null;
 
@@ -32,16 +30,9 @@ public class InternshipManagerService {
         if (verified == null) {
             // Récupérer toutes les offres
             internshipOffers = internshipOfferDAO.findAllInternshipsBy(programPattern, titlePattern);
-            System.out.println("🔍 Using findAllInternshipsBy (all offers)");
         } else {
             // Filtrer par statut
             internshipOffers = internshipOfferDAO.findInternshipsBy(verified, programPattern, titlePattern);
-            System.out.println("🔍 Using findInternshipsBy (filtered by status)");
-        }
-        
-        System.out.println("🔍 Found " + internshipOffers.size() + " offers");
-        for (InternshipOffer offer : internshipOffers) {
-            System.out.println("🔍 Offer ID: " + offer.getId() + ", Status: " + offer.getVerificationStatus());
         }
 
         if (!internshipOffers.isEmpty()) {
@@ -64,12 +55,8 @@ public class InternshipManagerService {
     }
 
     public void verifyInternshipOffer(Long id, boolean approved, String reason) throws ResourceNotFoundException {
-        System.out.println("🔍 Starting verification for offer ID: " + id + ", approved: " + approved);
-        
         InternshipOffer internshipOffer = internshipOfferDAO.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
-
-        System.out.println("🔍 Current status: " + internshipOffer.getVerificationStatus());
 
         // Check if the offer has already been processed
         if (internshipOffer.getVerificationStatus() != VerificationStatus.PENDING) {
@@ -79,16 +66,12 @@ public class InternshipManagerService {
         if (approved) {
             internshipOffer.setVerificationStatus(VerificationStatus.APPROVED);
             internshipOffer.setRejectionReason(null);
-            System.out.println("🔍 Setting status to APPROVED");
         } else {
             internshipOffer.setRejectionReason(reason);
             internshipOffer.setVerificationStatus(VerificationStatus.REJECTED);
-            System.out.println("🔍 Setting status to REJECTED");
         }
 
-        InternshipOffer savedOffer = internshipOfferDAO.save(internshipOffer);
-        System.out.println("🔍 Saved offer status: " + savedOffer.getVerificationStatus());
-        System.out.println("🔍 Verification completed successfully");
+        internshipOfferDAO.save(internshipOffer);
     }
 
     public void verifyResume(Long id, boolean approved, String reason) {

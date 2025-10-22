@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -402,8 +401,8 @@ public class StudentServiceTests {
     }
 
     @Test
-    @DisplayName("Test de la méthode getAllApprovedInternshipOffers() avec CV non validé")
-    public void testViewInternshipOffersCvNotValidated() {
+    @DisplayName("Test de la méthode getAllApprovedInternshipOffers() avec CV non validé - maintenant autorisé")
+    public void testViewInternshipOffersCvNotValidated() throws ResumeNotApprovedException {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -411,17 +410,20 @@ public class StudentServiceTests {
         student.setResumeVerificationStatus(VerificationStatus.PENDING);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
-        // Act & Assert
-        assertThatThrownBy(() -> studentService.getAllApprovedInternshipOffers(studentId))
-            .isInstanceOf(ResumeNotApprovedException.class)
-            .hasMessage("Votre CV n'est pas approuvé");
+        // Mock the DAO method
+        when(internshipOfferDAO.findAll()).thenReturn(createTestOffers());
 
-        verify(internshipOfferDAO, never()).findAll();
+        // Act - should not throw exception anymore
+        List<InternshipOfferDTO> result = studentService.getAllApprovedInternshipOffers(studentId);
+
+        // Assert
+        assertThat(result).isNotNull();
+        verify(internshipOfferDAO).findAll();
     }
 
     @Test
-    @DisplayName("Test de la méthode countInternshipOffers() avec CV non validé")
-    public void testCountInternshipOffersCvNotValidated() {
+    @DisplayName("Test de la méthode countInternshipOffers() avec CV non validé - maintenant autorisé")
+    public void testCountInternshipOffersCvNotValidated() throws ResumeNotApprovedException {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -433,17 +435,21 @@ public class StudentServiceTests {
             .program("Informatique")
             .build();
 
-        // Act & Assert
-        assertThatThrownBy(() -> studentService.countInternshipOffers(criteria, studentId))
-            .isInstanceOf(ResumeNotApprovedException.class)
-            .hasMessage("Votre CV n'est pas approuvé");
+        // Mock the DAO method
+        when(internshipOfferDAO.countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(5L);
 
-        verify(internshipOfferDAO, never()).countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        // Act - should not throw exception anymore
+        Long result = studentService.countInternshipOffers(criteria, studentId);
+
+        // Assert
+        assertThat(result).isEqualTo(5L);
+        verify(internshipOfferDAO).countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
-    @DisplayName("Test de la méthode getInternshipOfferById() avec CV non validé")
-    public void testGetInternshipOfferByIdCvNotValidated() {
+    @DisplayName("Test de la méthode getInternshipOfferById() avec CV non validé - maintenant autorisé")
+    public void testGetInternshipOfferByIdCvNotValidated() throws ResumeNotApprovedException {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -452,18 +458,25 @@ public class StudentServiceTests {
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         Long offerId = 1L;
+        InternshipOffer mockOffer = InternshipOffer.builder()
+            .id(offerId)
+            .title("Test Offer")
+            .verificationStatus(VerificationStatus.APPROVED)
+            .build();
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(mockOffer));
 
-        // Act & Assert
-        assertThatThrownBy(() -> studentService.getInternshipOfferByID(studentId, offerId))
-            .isInstanceOf(ResumeNotApprovedException.class)
-            .hasMessage("Votre CV n'est pas approuvé");
+        // Act - should not throw exception anymore
+        Optional<InternshipOfferDTO> result = studentService.getInternshipOfferByID(studentId, offerId);
 
-        verify(internshipOfferDAO, never()).findByIDAndStatus(any(), any());
+        // Assert
+        assertThat(result).isPresent();
+        assertThat(result.get().getTitle()).isEqualTo("Test Offer");
+        verify(internshipOfferDAO).findById(offerId);
     }
 
     @Test
-    @DisplayName("Test de la méthode searchInternshipOffers() avec CV non validé")
-    public void testSearchInternshipOffersCvNotValidated() {
+    @DisplayName("Test de la méthode searchInternshipOffers() avec CV non validé - maintenant autorisé")
+    public void testSearchInternshipOffersCvNotValidated() throws ResumeNotApprovedException {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -476,13 +489,20 @@ public class StudentServiceTests {
             .address("Montréal")
             .build();
 
-        // Act & Assert
-        assertThatThrownBy(() -> studentService.searchInternshipOffers(criteria, studentId))
-            .isInstanceOf(ResumeNotApprovedException.class)
-            .hasMessage("Votre CV n'est pas approuvé");
+        // Mock the DAO methods
+        Page<InternshipOffer> mockPage = new PageImpl<>(List.of());
+        when(internshipOfferDAO.findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mockPage);
+        when(internshipOfferDAO.countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(0L);
 
-        // Verify that the DAO method was not called since validation failed
-        verify(internshipOfferDAO, never()).findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        // Act - should not throw exception anymore
+        Page<InternshipOfferDTO> result = studentService.searchInternshipOffers(criteria, studentId);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getContent().size()).isEqualTo(0);
+        verify(internshipOfferDAO).findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
 

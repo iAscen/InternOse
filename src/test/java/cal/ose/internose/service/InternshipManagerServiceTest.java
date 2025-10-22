@@ -34,7 +34,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findInternshipsBy(null, "%Informatique%", null))
+        when(internshipOfferDAO.findAllInternshipsBy("%Informatique%", null))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -47,7 +47,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void sortByDomain() {
-        when(internshipOfferDAO.findInternshipsBy(null, null, null))
+        when(internshipOfferDAO.findAllInternshipsBy(null, null))
             .thenReturn(List.of(
                 InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
@@ -66,7 +66,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findInternshipsBy(null, "%non%", null))
+        when(internshipOfferDAO.findAllInternshipsBy("%non%", null))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -82,7 +82,14 @@ class InternshipManagerServiceTest {
             .id(offerId)
             .verificationStatus(VerificationStatus.PENDING)
             .build();
+        InternshipOffer savedOffer = InternshipOffer.builder()
+            .id(offerId)
+            .verificationStatus(VerificationStatus.APPROVED)
+            .rejectionReason(null)
+            .build();
+        
         when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
+        when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(savedOffer);
 
         internshipManagerService.verifyInternshipOffer(offerId, true, "any comment should be ignored on approve");
 
@@ -103,7 +110,14 @@ class InternshipManagerServiceTest {
             .rejectionReason(null)
             .verificationStatus(VerificationStatus.PENDING)
             .build();
+        InternshipOffer savedOffer = InternshipOffer.builder()
+            .id(offerId)
+            .verificationStatus(VerificationStatus.REJECTED)
+            .rejectionReason(rejectionComment)
+            .build();
+        
         when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
+        when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(savedOffer);
 
         internshipManagerService.verifyInternshipOffer(offerId, false, rejectionComment);
 
