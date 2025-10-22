@@ -1040,7 +1040,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/internship-offer/apply`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.APPLY_INTERNSHIP), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
