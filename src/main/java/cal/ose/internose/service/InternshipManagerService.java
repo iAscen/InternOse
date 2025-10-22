@@ -5,6 +5,7 @@ import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,14 @@ public class InternshipManagerService {
         String programPattern = program != null ? "%" + program + "%" : null;
         String titlePattern = title != null ? "%" + title + "%" : null;
 
-        List<InternshipOffer> internshipOffers = internshipOfferDAO.findInternshipsBy(verified, programPattern, titlePattern);
+        List<InternshipOffer> internshipOffers;
+        if (verified == null) {
+            // Récupérer toutes les offres
+            internshipOffers = internshipOfferDAO.findAllInternshipsBy(programPattern, titlePattern);
+        } else {
+            // Filtrer par statut
+            internshipOffers = internshipOfferDAO.findInternshipsBy(verified, programPattern, titlePattern);
+        }
 
         if (!internshipOffers.isEmpty()) {
             if (sortBy != null && sortBy.equals("title")) {
@@ -46,8 +54,14 @@ public class InternshipManagerService {
         return InternshipOfferDTO.fromEntityList(internshipOffers);
     }
 
-    public void verifyInternshipOffer(Long id, boolean approved, String reason) {
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(id).orElseThrow();
+    public void verifyInternshipOffer(Long id, boolean approved, String reason) throws ResourceNotFoundException {
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
+
+        // Check if the offer has already been processed
+        if (internshipOffer.getVerificationStatus() != VerificationStatus.PENDING) {
+            throw new RuntimeException("This offer has already been validated");
+        }
 
         if (approved) {
             internshipOffer.setVerificationStatus(VerificationStatus.APPROVED);
@@ -61,7 +75,13 @@ public class InternshipManagerService {
     }
 
     public void verifyResume(Long id, boolean approved, String reason) {
-        Student student = studentDAO.findById(id).orElseThrow();
+        Student student = studentDAO.findById(id)
+            .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+
+        // Check if the resume has already been processed
+        if (student.getResumeVerificationStatus() != VerificationStatus.PENDING) {
+            throw new RuntimeException("Ce CV a déjà été traité");
+        }
 
         if (approved) {
             student.setResumeVerificationStatus(VerificationStatus.APPROVED);

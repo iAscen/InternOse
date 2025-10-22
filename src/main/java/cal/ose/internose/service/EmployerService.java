@@ -7,6 +7,7 @@ import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import jakarta.transaction.Transactional;
@@ -26,13 +27,15 @@ public class EmployerService {
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentApplicationDAO studentApplicationDAO;
 
-    public List<InternshipOfferDTO> listInternshipOffers(Long employerID) {
-        Employer employer = employerDAO.findById(employerID).orElseThrow();
+    public List<InternshipOfferDTO> listInternshipOffers(Long employerID) throws ResourceNotFoundException {
+        Employer employer = employerDAO.findById(employerID)
+            .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
         return InternshipOfferDTO.fromEntityList(internshipOfferDAO.findAllByEmployer(employer));
     }
 
-    public Optional<InternshipOfferDTO> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) {
-        Employer employer = employerDAO.findById(employerID).orElseThrow();
+    public Optional<InternshipOfferDTO> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) throws ResourceNotFoundException {
+        Employer employer = employerDAO.findById(employerID)
+            .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
         internshipOffer.setEmployer(employer);
         internshipOffer.setVerificationStatus(VerificationStatus.PENDING);
@@ -46,8 +49,9 @@ public class EmployerService {
         String institution,
         String program,
         String sortBy
-    ) {
-        internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+    ) throws ResourceNotFoundException {
+        internshipOfferDAO.findById(internshipOfferID)
+            .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
 
         List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(
             internshipOfferID, verificationStatus, institution, program
@@ -81,8 +85,9 @@ public class EmployerService {
         ).collect(Collectors.toList());
     }
 
-    public StudentDTO getApplicationDetails(Long internshipOfferID, Long studentID) {
-        internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+    public StudentDTO getApplicationDetails(Long internshipOfferID, Long studentID) throws ResourceNotFoundException {
+        internshipOfferDAO.findById(internshipOfferID)
+            .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
 
         return studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null)
             .stream()
@@ -100,6 +105,6 @@ public class EmployerService {
                     .applicationDate(studentApplication.getApplicationDate())
                     .applicationStatus(studentApplication.getApplicationStatus())
                     .build()
-            ).orElseThrow();
+            ).orElseThrow(() -> new ResourceNotFoundException("Student application not found"));
     }
 }

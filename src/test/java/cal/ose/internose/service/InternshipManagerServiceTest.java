@@ -34,7 +34,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findInternshipsBy(null, "%Informatique%", null))
+        when(internshipOfferDAO.findAllInternshipsBy("%Informatique%", null))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -47,7 +47,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void sortByDomain() {
-        when(internshipOfferDAO.findInternshipsBy(null, null, null))
+        when(internshipOfferDAO.findAllInternshipsBy(null, null))
             .thenReturn(List.of(
                 InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
@@ -66,7 +66,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findInternshipsBy(null, "%non%", null))
+        when(internshipOfferDAO.findAllInternshipsBy("%non%", null))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -76,13 +76,20 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void approveInternshipOffer() {
+    void approveInternshipOffer() throws ResourceNotFoundException {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
             .verificationStatus(VerificationStatus.PENDING)
             .build();
+        InternshipOffer savedOffer = InternshipOffer.builder()
+            .id(offerId)
+            .verificationStatus(VerificationStatus.APPROVED)
+            .rejectionReason(null)
+            .build();
+        
         when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
+        when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(savedOffer);
 
         internshipManagerService.verifyInternshipOffer(offerId, true, "any comment should be ignored on approve");
 
@@ -95,7 +102,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void rejectInternshipOffer() {
+    void rejectInternshipOffer() throws ResourceNotFoundException {
         Long offerId = 2L;
         String rejectionComment = "Détails insufficient dans la description";
         InternshipOffer existing = InternshipOffer.builder()
@@ -103,7 +110,14 @@ class InternshipManagerServiceTest {
             .rejectionReason(null)
             .verificationStatus(VerificationStatus.PENDING)
             .build();
+        InternshipOffer savedOffer = InternshipOffer.builder()
+            .id(offerId)
+            .verificationStatus(VerificationStatus.REJECTED)
+            .rejectionReason(rejectionComment)
+            .build();
+        
         when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(existing));
+        when(internshipOfferDAO.save(any(InternshipOffer.class))).thenReturn(savedOffer);
 
         internshipManagerService.verifyInternshipOffer(offerId, false, rejectionComment);
 
@@ -111,7 +125,7 @@ class InternshipManagerServiceTest {
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertTrue(saved.isVerified());
+        assertTrue(saved.getVerificationStatus() != VerificationStatus.PENDING);
         assertEquals(VerificationStatus.REJECTED, saved.getVerificationStatus());
         assertEquals(rejectionComment, saved.getRejectionReason());
     }
@@ -128,7 +142,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    public void validationInternshipOfferAlreadyValidated() {
+    public void validationInternshipOfferAlreadyValidated() throws ResourceNotFoundException {
         // Arrange
         Long offerId = 3L;
         InternshipOffer existing = InternshipOffer.builder()
@@ -250,12 +264,12 @@ class InternshipManagerServiceTest {
         // Arrange
         Long studentId = 1L;
         Student student = createTestStudents().get(0);
-        student.setCvStatus(DocumentStatus.NONE);
+        student.setResumeVerificationStatus(VerificationStatus.NONE);
         when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
 
         // Act & Assert
         try {
-            internshipManagerService.validateStudentCV(studentId, true, null);
+            internshipManagerService.verifyResume(studentId, true, null);
             assertThat(false).isTrue();
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Cet etudiant n'a pas de CV");

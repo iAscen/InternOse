@@ -155,14 +155,13 @@ public class StudentService {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
 
-        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
-
-        if (student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
-            throw new ResumeNotApprovedException("Votre CV n'est pas approuvé");
+        // Vérifier que l'étudiant a un CV approuvé pour pouvoir postuler
+        if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new ResumeNotApprovedException("Vous devez avoir un CV approuvé pour postuler aux offres de stage");
         }
 
-        if (internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED) {
-            throw new DocumentNotValidatedException("L'offre n'est pas validé");
+        if (internshipOffer != null && internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED) {
+            throw new DocumentNotValidatedException("L'offre n'est pas validée");
         }
 
         boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentID,
@@ -233,8 +232,8 @@ public class StudentService {
         throws ResumeNotApprovedException {
         isResumeVerified(studentID);
 
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        return Optional.of(InternshipOfferDTO.fromEntity(internshipOffer));
+        Optional<InternshipOffer> internshipOffer = internshipOfferDAO.findById(internshipOfferID);
+        return internshipOffer.map(InternshipOfferDTO::fromEntity);
     }
 
     /**
@@ -305,10 +304,8 @@ public class StudentService {
     }
 
     private void isResumeVerified(Long studentId) throws ResumeNotApprovedException {
-        Student student = studentDAO.findById(studentId).orElseThrow();
-
-        if (!student.getResumeVerificationStatus().equals(VerificationStatus.APPROVED))
-            throw new ResumeNotApprovedException("Votre CV n'est pas approuvé");
+        // Permettre aux étudiants de voir les offres même sans CV
+        // Ils ne pourront postuler que si leur CV est approuvé
     }
 
     private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {

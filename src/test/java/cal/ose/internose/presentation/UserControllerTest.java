@@ -1,7 +1,6 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
@@ -140,7 +139,7 @@ class UserControllerTest {
     void testLoginFail() throws Exception {
         // Arrange
         LoginDTO loginDTO = new LoginDTO("test@example.com", "WrongPassword");
-        when(userService.login(any())).thenThrow(new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password"));
+        when(userService.login(any())).thenThrow(new RuntimeException("Incorrect username or password"));
         String requestBody = objectMapper.writeValueAsString(loginDTO);
 
         // Act

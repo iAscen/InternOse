@@ -4,13 +4,15 @@ import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 
 interface OfferListProps {
+  isStudent: boolean;
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
   onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
+  cvStatus?: 'none' | 'pending' | 'approved' | 'rejected'; // Statut du CV de l'étudiant
 }
 
-export default function OfferList({ isEmployer, loading, offers, onOfferValidation }: OfferListProps) {
+export default function OfferList({ isStudent, isEmployer, loading, offers, onOfferValidation, cvStatus }: OfferListProps) {
   const { t } = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,13 +29,17 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
   };
 
   const getStatusBadge = (offer: InternshipOffer) => {
-    if (offer.validationStatus === 'APPROVED') {
+    if (isStudent) {
+      return null
+    }
+
+    if (offer.verificationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
           {t('im.approved')}
         </span>
       );
-    } else if (offer.validationStatus === 'REJECTED') {
+    } else if (offer.verificationStatus === 'REJECTED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
           {t('im.rejected')}
@@ -65,7 +71,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
   if (offers.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md">
-        { isEmployer &&
+        {isEmployer &&
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
           </div>
@@ -79,10 +85,10 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      { isEmployer &&
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
-        </div>
+      {isEmployer &&
+          <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+          </div>
       }
 
       <div className="divide-y divide-gray-200">
@@ -127,7 +133,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
-                    {!isEmployer && (!offer.validationStatus || offer.validationStatus === 'PENDING') && (
+                    {!isEmployer && !isStudent && (!offer.verificationStatus || offer.verificationStatus === 'PENDING') && (
                       <button
                         onClick={() => handleValidateOffer(offer)}
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
@@ -138,6 +144,30 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
                         {t('im.validateOffer')}
                       </button>
                     )}
+                      {isStudent && offer.verificationStatus === 'APPROVED' && (
+                          cvStatus === 'approved' ? (
+                              <button
+                                  onClick={() => console.log('Postuler TODO')}
+                                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                              >
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  {t('student.apply')}
+                              </button>
+                          ) : (
+                              <button
+                                  disabled
+                                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-md cursor-not-allowed"
+                                  title={cvStatus === 'none' ? 'Téléversez un CV pour postuler' : 'Votre CV doit être approuvé pour postuler'}
+                              >
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  {t('student.apply')}
+                              </button>
+                          )
+                      )}
                   </div>
                 </div>
               </div>
@@ -156,7 +186,7 @@ export default function OfferList({ isEmployer, loading, offers, onOfferValidati
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
               </div>
               {/* Affichage de la raison de rejet si applicable */}
-              {offer.validationStatus === 'REJECTED' && offer.rejectionReason && (
+              {offer.verificationStatus === 'REJECTED' && offer.rejectionReason && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3">
                   <h4 className="text-sm font-medium text-red-800 mb-1">{t('dashboard.rejectionReason')}</h4>
                   <p className="text-sm text-red-700">{offer.rejectionReason}</p>

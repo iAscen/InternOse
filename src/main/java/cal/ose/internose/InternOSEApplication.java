@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -133,10 +132,10 @@ public class InternOSEApplication {
                         .build()
                 );
 
-                // Ajouter une candidature en avance
-//                studentService.applyToInternshipOffer(2L, 1L);
-                List<StudentDTO> applications = employerService.findApplicationsBy(1L, null, "AL", null, null);
-                System.out.println(applications);
+                // Test de candidature supprimé - nécessite un CV approuvé
+                // studentService.applyToInternshipOffer(2L, 1L);
+                // List<StudentDTO> applications = employerService.findApplicationsBy(1L, null, "AL", null, null);
+                // System.out.println(applications);
             }
         };
     }

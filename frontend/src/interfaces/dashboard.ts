@@ -11,7 +11,7 @@ export interface InternshipOffer {
   salary: number;
   address: string;
   validee?: boolean;
-  validationStatus?: string; // "approuvé", "rejeté", null
+  verificationStatus?: string; // "APPROVED", "REJECTED", "PENDING"
   rejectionReason?: string; // Raison du rejet si applicable
 }
 
@@ -41,7 +41,7 @@ export interface DashboardStats {
   total: number;
   pending: number;
   approved: number;
-  expired: number;
+  rejected: number;
 }
 
 export interface Cv {

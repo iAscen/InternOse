@@ -1,9 +1,9 @@
 import { apiService } from './apiService';
-import type { 
-  InternshipOffer, 
-  CreateInternshipOfferRequest, 
-  DashboardStats, 
-  ApiResponse, 
+import type {
+  InternshipOffer,
+  CreateInternshipOfferRequest,
+  DashboardStats,
+  ApiResponse,
   Cv
 } from '../interfaces';
 
@@ -18,6 +18,14 @@ class DashboardService {
     return await apiService.getAllInternshipOffers(sortBy, filterBy);
   }
 
+  async StudentGetInternships(StudentId: number | null, sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetInternshipOffers(StudentId, sortBy, filterBy);
+  }
+
+  async StudentGetAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetAllInternshipOffers(sortBy, filterBy);
+  }
+
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     return await apiService.createInternshipOffer(offerData);
@@ -29,19 +37,28 @@ class DashboardService {
 
   // Calculer les statistiques du dashboard
   calculateStats(offers: InternshipOffer[]): DashboardStats {
-    const now = new Date();
     const total = offers.length;
-    const pending = offers.filter(offer => !offer.validee).length;
-    const approved = offers.filter(offer => offer.validee).length;
-    const expired = offers.filter(offer => new Date(offer.endDate) < now).length;
-    
-    return { total, pending, approved, expired };
+    const pending = offers.filter(offer => 
+      !offer.verificationStatus || 
+      offer.verificationStatus === 'PENDING' || 
+      offer.verificationStatus === 'pending'
+    ).length;
+    const approved = offers.filter(offer => 
+      offer.verificationStatus === 'APPROVED' || 
+      offer.verificationStatus === 'approved'
+    ).length;
+    const rejected = offers.filter(offer => 
+      offer.verificationStatus === 'REJECTED' || 
+      offer.verificationStatus === 'rejected'
+    ).length;
+
+    return { total, pending, approved, rejected };
   }
 
   // Valider les données du formulaire
   validateOfferData(data: CreateInternshipOfferRequest): string | null {
-    if (!data.jobTitle || !data.taskDescription || !data.qualifications || 
-        !data.duration || !data.startDate || !data.address) {
+    if (!data.jobTitle || !data.taskDescription || !data.qualifications ||
+      !data.duration || !data.startDate || !data.address) {
       return 'Veuillez remplir tous les champs obligatoires';
     }
 

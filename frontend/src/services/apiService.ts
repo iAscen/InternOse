@@ -386,7 +386,7 @@ class ApiService {
       formData.append('file', file);
       formData.append('studentID', studentId.toString());
 
-      const response = await fetch(`${API_BASE_URL}/student/cv`, {
+      const response = await fetch(`${API_BASE_URL}/student/resume`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -441,7 +441,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/cv/status?studentID=${studentId}`, {
+      const response = await fetch(`${API_BASE_URL}/student/resume/status?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -451,13 +451,14 @@ class ApiService {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('🔍 CV status response:', result);
         return {
           success: true,
           data: {
-            status: result.status || 'none',
-            fileName: result.fileName || '',
-            uploadedAt: result.uploadedAt || '',
-            validatedAt: result.validatedAt || '',
+            status: result.verificationStatus || 'none',
+            fileName: result.resumeFileName || '',
+            uploadedAt: result.upload_date || '',
+            validatedAt: result.verifyDate || '',
             rejectionReason: result.rejectionReason || ''
           },
         };
@@ -470,6 +471,127 @@ class ApiService {
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du statut du CV:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async StudentGetInternshipOffers(studentId: number | null, sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student/internship-offers?studentID=${studentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+        }
+      }
+    }
+    catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async StudentGetAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // Récupérer l'ID de l'étudiant depuis le JWT
+      const studentId = await this.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant',
+        };
+      }
+
+      // Extraire les paramètres de recherche du tableau filterBy
+      const program = filterBy ? filterBy[0] : null;
+      const location = filterBy ? filterBy[1] : null;
+      const jobTitle = filterBy ? filterBy[2] : null;
+      const company = filterBy ? filterBy[3] : null;
+      const minSalary = filterBy ? filterBy[4] : null;
+      const maxSalary = filterBy ? filterBy[5] : null;
+      const minDuration = filterBy ? filterBy[6] : null;
+      const maxDuration = filterBy ? filterBy[7] : null;
+      const startDateFrom = filterBy ? filterBy[8] : null;
+      const startDateTo = filterBy ? filterBy[9] : null;
+      const sortOrder = filterBy ? filterBy[10] : null;
+      const page = filterBy ? filterBy[11] : null;
+      const size = filterBy ? filterBy[12] : null;
+
+      // Construire les paramètres de requête
+      const params = new URLSearchParams();
+      params.append('studentID', studentId.toString());
+      if (sortBy) params.append('sortBy', sortBy);
+      if (program) params.append('program', program);
+      if (location) params.append('location', location);
+      if (jobTitle) params.append('jobTitle', jobTitle);
+      if (company) params.append('company', company);
+      if (minSalary && !isNaN(Number(minSalary))) params.append('minSalary', minSalary);
+      if (maxSalary && !isNaN(Number(maxSalary))) params.append('maxSalary', maxSalary);
+      if (minDuration && !isNaN(Number(minDuration))) params.append('minDuration', minDuration);
+      if (maxDuration && !isNaN(Number(maxDuration))) params.append('maxDuration', maxDuration);
+      if (startDateFrom) params.append('startDateFrom', startDateFrom);
+      if (startDateTo) params.append('startDateTo', startDateTo);
+      if (sortOrder) params.append('sortOrder', sortOrder);
+      if (page && !isNaN(Number(page))) params.append('page', page);
+      if (size && !isNaN(Number(size))) params.append('size', size);
+
+      const response = await fetch(`${API_BASE_URL}/student/internship-offers/search?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 Search response received from backend:', data);
+        return {
+          success: true,
+          data: data.offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erreur lors de la recherche des offres',
+        };
+      }
+    } catch (error) {
       return {
         success: false,
         error: 'Erreur de connexion au serveur',
@@ -663,7 +785,18 @@ class ApiService {
 
       if (response.ok) {
         const body = await response.json();
-        const cvs = body.data
+        const cvs = body.data.map((cv: any) => ({
+          studentId: cv.studentID,
+          firstName: cv.firstName,
+          lastName: cv.lastName,
+          email: cv.email,
+          cvStatus: cv.resumeVerificationStatus || 'pending', // Map resumeVerificationStatus to cvStatus
+          cvFileName: cv.resumeFileName || '',
+          cvFileType: 'pdf', // Default to PDF
+          uploadedAt: cv.resumeUploadDate || '',
+          validatedAt: cv.resumeVerifiedDate || '',
+          rejectionReason: cv.resumeRejectionReason || ''
+        }));
         return {
           success: true,
           data: cvs,
@@ -777,10 +910,10 @@ class ApiService {
       params.append('offerId', offerId.toString());
       params.append('approved', approved.toString());
       if (comment && comment.trim()) {
-        params.append('commentaire', comment.trim());
+        params.append('comment', comment.trim());
       }
 
-      const url = `${API_BASE_URL}/internship-manager/validation?${params.toString()}`;
+      const url = `${API_BASE_URL}/internship-manager/verify?${params.toString()}`;
       console.log('🔍 Validation URL:', url);
       console.log('🔍 Params:', {offerId, approved, comment});
 
@@ -840,10 +973,10 @@ class ApiService {
 
       // Construire les paramètres de requête
       const params = new URLSearchParams();
-      params.append('studentId', studentId.toString());
+      params.append('studentID', studentId.toString());
       params.append('approved', approved.toString());
       if (comment && comment.trim()) {
-        params.append('commentaire', comment.trim());
+        params.append('reason', comment.trim());
       }
       //             /api/internship-manager/students/{studentId}/cv/validate
       const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
