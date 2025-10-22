@@ -207,14 +207,14 @@ public class StudentService {
         // Utiliser la requête sans dates pour éviter les problèmes de type
         internshipOffersPage = internshipOfferDAO.findInternshipOffersWithoutDates(
             VerificationStatus.APPROVED,
-            searchParameters.get("title"),
+            searchParameters.get("jobTitle"),
             searchParameters.get("company"),
             searchParameters.get("program"),
             criteria.getMinDuration(),
             criteria.getMaxDuration(),
             criteria.getMinSalary(),
             criteria.getMaxSalary(),
-            searchParameters.get("adresse"),
+            searchParameters.get("location"),
             pageable
         );
 
@@ -264,14 +264,14 @@ public class StudentService {
 
         return internshipOfferDAO.countInternshipOffersWithoutDates(
             VerificationStatus.APPROVED,
-            searchParameters.get("title"),
+            searchParameters.get("jobTitle"),
             searchParameters.get("company"),
             searchParameters.get("program"),
             criteria.getMinDuration(),
             criteria.getMaxDuration(),
             criteria.getMinSalary(),
             criteria.getMaxSalary(),
-            searchParameters.get("adresse")
+            searchParameters.get("location")
         );
     }
 
@@ -310,10 +310,10 @@ public class StudentService {
     }
 
     private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {
-        String program = criteria.getProgram() != null ? "%" + criteria.getProgram() + "%" : null;
-        String location = criteria.getAddress() != null ? "%" + criteria.getAddress() + "%" : null;
-        String jobTitle = criteria.getTitle() != null ? "%" + criteria.getTitle() + "%" : null;
-        String company = criteria.getCompany() != null ? "%" + criteria.getCompany() + "%" : null;
+        String program = criteria.getProgram() != null ? "%" + criteria.getProgram().toLowerCase() + "%" : null;
+        String location = criteria.getAddress() != null ? "%" + criteria.getAddress().toLowerCase() + "%" : null;
+        String jobTitle = criteria.getTitle() != null ? "%" + criteria.getTitle().toLowerCase() + "%" : null;
+        String company = criteria.getCompany() != null ? "%" + criteria.getCompany().toLowerCase() + "%" : null;
 
         Map<String, String> searchParameters = new HashMap<>();
         searchParameters.put("program", program);

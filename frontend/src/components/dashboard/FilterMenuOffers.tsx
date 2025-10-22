@@ -47,6 +47,12 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const {name, value} = e.target;
+
+    // Debug: Print the selected program value
+    if (name === 'program') {
+      console.log('Program selected:', value);
+    }
+
     handleChange({
       target: {name, value}
     } as React.ChangeEvent<HTMLInputElement>);
@@ -100,7 +106,7 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
               <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
             </select>
           </div>
-          <ProgramSelector onChange={handleSelectChange}/>
+          <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
           <FormInput
             className={"mb-3"}
             id={"title"}
@@ -117,7 +123,7 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
     } else if (userRole === 'STUDENT') {
       return (
         <>
-          <ProgramSelector onChange={handleSelectChange}/>
+          <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
           <FormInput
             className={"mb-3"}
             id={"location"}
@@ -247,7 +253,7 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
               <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
             </select>
           </div>
-          <ProgramSelector onChange={handleSelectChange}/>
+          <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
         </>
       );
     }
