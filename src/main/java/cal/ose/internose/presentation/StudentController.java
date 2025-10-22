@@ -29,12 +29,7 @@ import org.springframework.data.domain.Page;
 public class StudentController {
     private final StudentService studentService;
 
-    @GetMapping("/resume/status")
-    public ResponseEntity<Map<String, Object>> getResumeStatus(@RequestParam("studentID") Long studentID) {
-        return getCVStatus(studentID);
-    }
-
-    @GetMapping("/cv/status")
+    @GetMapping(Paths.STUDENT_RESUME_STATUS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
         try {
             StudentDTO student = studentService.getStudentByID(studentID);
@@ -74,7 +69,7 @@ public class StudentController {
         }
     }
 
-    @PostMapping("/resume")
+    @PostMapping(Paths.STUDENT_RESUME_RELATIVE)
     public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID, @RequestParam("file") MultipartFile resumeFile) {
         try {
             studentService.uploadResume(studentID, resumeFile);
@@ -113,7 +108,7 @@ public class StudentController {
      *
      * @return Liste de toutes les offres de stage approuvées
      */
-    @GetMapping("/internship-offers")
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentID) {
         try {
             List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentID);
@@ -152,7 +147,7 @@ public class StudentController {
      * @param size          Taille de page (défaut: 10)
      * @return Une page avec des offres de stage correspondant aux critères
      */
-    @GetMapping("/internship-offers/search")
+    @GetMapping(Paths.STUDENT_SEARCH_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<Map<String, Object>> searchInternshipOffers(
         @RequestParam() Long studentID,
         @RequestParam(required = false) String title,
@@ -223,7 +218,7 @@ public class StudentController {
      * @param offerID ID de l'offre de stage
      * @return Détails de l'offre de stage
      */
-    @GetMapping("/internship-offers/{offerID}")
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
         @PathVariable Long offerID,
         @RequestParam Long studentID

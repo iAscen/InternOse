@@ -23,12 +23,12 @@ public class EmployerController {
     private final EmployerService employerService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/internship-offers")
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers(@RequestParam Long employerID) throws ResourceNotFoundException {
         return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers(employerID));
     }
 
-    @PostMapping("/internship-offers")
+    @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
     public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) throws ResourceNotFoundException {
         InternshipOfferDTO internshipOfferDTO;
         try {
@@ -44,7 +44,7 @@ public class EmployerController {
         }
     }
 
-    @GetMapping("/internship-offers/applications")
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_RELATIVE)
     public ResponseEntity<List<StudentDTO>> getStudentApplications(
         @RequestParam("internshipOfferID") Long internshipOfferID,
         @RequestParam(required = false) String resumeVerificationStatus,
@@ -62,7 +62,7 @@ public class EmployerController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping("/internship-offers/applications/{studentID}")
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_RELATIVE)
     public ResponseEntity<StudentDTO> getStudentApplicationDetails(
         @RequestParam("internshipOfferID") Long internshipOfferID,
         @PathVariable Long studentID

@@ -6,6 +6,7 @@ import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.TestPaths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
@@ -220,7 +221,7 @@ class InternshipManagerControllerTest {
             .thenReturn(createTestStudentDTOs());
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/cvs")
+                get(TestPaths.buildInternshipManagerStudentsCvsUrl())
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -240,7 +241,7 @@ class InternshipManagerControllerTest {
                 .toList());
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/cvs")
+                get(TestPaths.buildInternshipManagerStudentsCvsUrl())
                     .param("sortBy", "name")
                     .param("sortOrder", "asc")
                     .param("status", "PENDING")
@@ -260,7 +261,7 @@ class InternshipManagerControllerTest {
             .thenReturn(createTestStudentDTOs());
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/cvs")
+                get(TestPaths.buildInternshipManagerStudentsCvsUrl())
                     .param("sortBy", "date")
                     .param("sortOrder", "desc")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -310,7 +311,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/1/cv")
+                get(TestPaths.buildInternshipManagerResumeUrl(1L))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -326,7 +327,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/999/cv")
+                get(TestPaths.buildInternshipManagerResumeUrl(999L))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -344,7 +345,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/1/cv/download")
+                get(TestPaths.buildInternshipManagerDownloadResumeUrl(1L))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -357,7 +358,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/internship-manager/students/999/cv/download")
+                get(TestPaths.buildInternshipManagerDownloadResumeUrl(999L))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -372,7 +373,7 @@ class InternshipManagerControllerTest {
         doNothing().when(internshipManagerService).verifyResume(1L, true, null);
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/1/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
                     .param("approved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -390,7 +391,7 @@ class InternshipManagerControllerTest {
         doNothing().when(internshipManagerService).verifyResume(1L, false, "CV incomplet");
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/1/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
                     .param("approved", "false")
                     .param("reason", "CV incomplet")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -407,7 +408,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/999/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(999L))
                     .param("approved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -425,7 +426,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/1/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
                     .param("approved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -443,7 +444,7 @@ class InternshipManagerControllerTest {
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/1/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
                     .param("approved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -462,7 +463,7 @@ class InternshipManagerControllerTest {
             true, null);
 
         MvcResult mvcResult = mockMvc.perform(
-                post("/api/internship-manager/students/1/cv/validate")
+                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
                     .param("approved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();

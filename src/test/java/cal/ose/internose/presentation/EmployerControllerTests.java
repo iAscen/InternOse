@@ -3,6 +3,7 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.TestPaths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ public class EmployerControllerTests {
         when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get("/api/employer/internship-offers?employerID=" + employerID)
+            get(TestPaths.buildEmployerInternshipOffersUrl(employerID))
             .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -70,7 +71,7 @@ public class EmployerControllerTests {
         when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOfferDTO));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post("/api/employer/internship-offers?employerID=" + employerID)
+            post(TestPaths.buildEmployerInternshipOffersUrl(employerID))
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(internshipOfferDTO))
         ).andReturn();
@@ -84,7 +85,7 @@ public class EmployerControllerTests {
                 .thenReturn(new ArrayList<>());
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/employer/internship-offers/applications")
+                get(TestPaths.buildEmployerApplicationsUrl(1L))
                         .param("internshipOfferID", "1")
         ).andReturn();
 
@@ -97,7 +98,7 @@ public class EmployerControllerTests {
                 .thenThrow(new RuntimeException("error"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/employer/internship-offers/applications")
+                get(TestPaths.buildEmployerApplicationsUrl(1L))
                         .param("internshipOfferID", "1")
         ).andReturn();
 
@@ -120,7 +121,7 @@ public class EmployerControllerTests {
                 .thenReturn(application);
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/employer/internship-offers/applications/1")
+                get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
                         .param("internshipOfferID", "1")
         ).andReturn();
 
@@ -139,7 +140,7 @@ public class EmployerControllerTests {
                 .thenThrow(new RuntimeException("Application not found"));
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/employer/internship-offers/applications/1")
+                get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
                         .param("internshipOfferID", "1")
         ).andReturn();
 

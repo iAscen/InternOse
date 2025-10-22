@@ -27,7 +27,7 @@ public class InternshipManagerController {
     private final InternshipManagerService internshipManagerService;
     private final StudentService studentService;
 
-    @GetMapping("/employers/internship-offers")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_OFFERS_RELATIVE)
     public ResponseEntity<List<InternshipOfferDTO>> findInternshipOffersBy(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String valid,
@@ -48,7 +48,7 @@ public class InternshipManagerController {
     }
 
 
-    @GetMapping("/validation")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_VALIDATION_RELATIVE)
     public ResponseEntity<Map<String, Object>> getValidationStatus() {
         try {
             Map<String, Object> response = new HashMap<>();
@@ -63,7 +63,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/search")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_SEARCH_RELATIVE)
     public ResponseEntity<List<InternshipOfferDTO>> searchInternshipOffers(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String valid,
@@ -83,7 +83,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/verify")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_RELATIVE)
     public ResponseEntity<Map<String, Object>> verifyInternshipOffer(
         @RequestParam("offerId") Long internshipOfferID,
         @RequestParam Boolean approved,
@@ -105,7 +105,7 @@ public class InternshipManagerController {
         return getResponseEntity(HttpStatus.OK, null, response);
     }
 
-    @GetMapping("/students/cvs")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENTS_CVS_RELATIVE)
     public ResponseEntity<Map<String, Object>> getAllStudentsResumes(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String sortOrder,
@@ -131,7 +131,7 @@ public class InternshipManagerController {
         return getResponseEntity(HttpStatus.OK, null, response);
     }
 
-    @GetMapping("/students/{studentID}/cv")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUME_RELATIVE)
     public ResponseEntity<Map<String, Object>> getStudentResumeDetails(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
@@ -146,7 +146,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping("/students/{studentID}/cv/download")
+    @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_RELATIVE)
     public ResponseEntity<byte[]> downloadStudentCV(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
@@ -162,7 +162,7 @@ public class InternshipManagerController {
         }
     }
 
-    @PostMapping("/students/{studentID}/cv/validate")
+    @PostMapping(Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_RELATIVE)
     public ResponseEntity<Map<String, Object>> verifyStudentCV(
         @PathVariable Long studentID,
         @RequestParam Boolean approved,

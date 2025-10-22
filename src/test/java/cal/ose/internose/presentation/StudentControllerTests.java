@@ -5,6 +5,7 @@ import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.TestPaths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
@@ -96,7 +97,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get("/api/student/cv/status")
+            get(TestPaths.buildStudentResumeStatusUrl(studentID))
                 .param("studentID", String.valueOf(studentID))
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -117,7 +118,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get("/api/student/cv/status")
+            get(TestPaths.buildStudentResumeStatusUrl(studentID))
                 .param("studentID", String.valueOf(studentID))
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -140,7 +141,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers")
+                get(TestPaths.buildStudentInternshipOffersUrl(studentId))
                         .param("studentID", studentId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -169,7 +170,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/search")
+                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
                         .param("studentID", studentId.toString())
                         .param("program", "Informatique")
                         .param("location", "Montréal")
@@ -206,7 +207,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/search")
+                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
                     .param("studentID", studentId.toString())
                     .param("minSalary", "500")
                     .param("maxSalary", "1000")
@@ -239,7 +240,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/search")
+                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
                     .param("studentID", studentId.toString())
                     .param("startDateFrom", "2024-06-01")
                     .param("startDateTo", "2024-08-31")
@@ -272,7 +273,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/search")
+                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
                     .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -299,7 +300,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/" + offerId)
+                get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
                     .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -325,7 +326,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/" + offerId)
+                get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
                     .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -350,7 +351,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers/search")
+                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
                     .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -375,7 +376,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get("/api/student/internship-offers")
+                get(TestPaths.buildStudentInternshipOffersUrl(studentId))
                     .param("studentID", studentId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();

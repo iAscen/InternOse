@@ -10,14 +10,13 @@ import type {
   Cv
 } from '~/interfaces';
 import {ErrorService} from './errorService';
-
-const API_BASE_URL = 'http://localhost:8080/api';
+import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
 
 class ApiService {
   // Méthode de connexion - correspond à AuthController.login()
   async login(loginData: LoginRequest): Promise<ApiResponse<string>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.AUTH.LOGIN), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +58,7 @@ class ApiService {
   // Méthode d'inscription étudiant - correspond à AuthController.registerStudent()
   async registerStudent(studentData: StudentRegistrationRequest): Promise<ApiResponse<string>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/students/register`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.AUTH.STUDENT_REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +100,7 @@ class ApiService {
   // Méthode d'inscription employeur - correspond à AuthController.registerEmployer()
   async registerEmployer(employerData: EmployerRegistrationRequest): Promise<ApiResponse<string>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/employers/register`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.AUTH.EMPLOYER_REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -386,7 +385,7 @@ class ApiService {
       formData.append('file', file);
       formData.append('studentID', studentId.toString());
 
-      const response = await fetch(`${API_BASE_URL}/student/resume`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.RESUME), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -441,7 +440,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/resume/status?studentID=${studentId}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.RESUME_STATUS) + `?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -488,7 +487,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/student/internship-offers?studentID=${studentId}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.INTERNSHIP_OFFERS) + `?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -569,7 +568,7 @@ class ApiService {
       if (page && !isNaN(Number(page))) params.append('page', page);
       if (size && !isNaN(Number(size))) params.append('size', size);
 
-      const response = await fetch(`${API_BASE_URL}/student/internship-offers/search?${params.toString()}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.SEARCH_INTERNSHIP_OFFERS) + `?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -619,7 +618,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/employer/internship-offers?employerID=${employerId}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.EMPLOYER.INTERNSHIP_OFFERS) + `?employerID=${employerId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -672,7 +671,7 @@ class ApiService {
       if (program) params.append('program', program);
       if (title) params.append('title', title);
 
-      const response = await fetch(`${API_BASE_URL}/internship-manager/search?${params.toString()}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.SEARCH) + `?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -723,7 +722,7 @@ class ApiService {
       }
 
       // Envoyer l'ID de l'employeur comme paramètre de requête (pas dans le body)
-      const response = await fetch(`${API_BASE_URL}/employer/internship-offers?employerID=${employerId}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.EMPLOYER.INTERNSHIP_OFFERS) + `?employerID=${employerId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -775,7 +774,7 @@ class ApiService {
       if (program) params.append('program', program);
       if (institution) params.append('institution', institution);
 
-      const response = await fetch(`${API_BASE_URL}/internship-manager/students/cvs?${params.toString()}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.STUDENTS_CVS) + `?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -826,7 +825,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.RESUME, { studentID: String(studentId) }), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -865,7 +864,7 @@ class ApiService {
         };
       }
 
-      const response = await fetch(`${API_BASE_URL}/internship-manager/students/${studentId}/cv/download`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.DOWNLOAD_RESUME, { studentID: String(studentId) }), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -913,7 +912,7 @@ class ApiService {
         params.append('comment', comment.trim());
       }
 
-      const url = `${API_BASE_URL}/internship-manager/verify?${params.toString()}`;
+      const url = buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.VERIFY_OFFER) + `?${params.toString()}`;
       console.log('🔍 Validation URL:', url);
       console.log('🔍 Params:', {offerId, approved, comment});
 
@@ -979,7 +978,7 @@ class ApiService {
         params.append('reason', comment.trim());
       }
       //             /api/internship-manager/students/{studentId}/cv/validate
-      const url = `${API_BASE_URL}/internship-manager/students/${studentId}/cv/validate?${params.toString()}`;
+      const url = buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.VERIFY_RESUME, { studentID: String(studentId) }) + `?${params.toString()}`;
       console.log('🔍 Validation URL:', url);
       console.log('🔍 Params:', {cvId: studentId, approved, comment});
 
