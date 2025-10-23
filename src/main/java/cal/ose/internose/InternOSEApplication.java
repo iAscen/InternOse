@@ -56,6 +56,8 @@ public class InternOSEApplication {
                         .lastName("A.")
                         .email("alice@gmail.com")
                         .password("Password123!")
+                        .program("420.B0")
+                        .institution("AL")
                         .build()
                 );
 
@@ -73,6 +75,34 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
+
+                userService.registerStudent(
+                    StudentDTO.builder()
+                        .firstName("Charles")
+                        .lastName("C.")
+                        .email("charles@gmail.com")
+                        .program("420.B0")
+                        .institution("AL")
+                        .password("Password123!")
+                        .build()
+                );
+                studentService.uploadResume(4L, cvDummy);
+                internshipManagerService.verifyResume(4L, true, "");
+
+                userService.registerStudent(
+                    StudentDTO.builder()
+                        .firstName("Dan")
+                        .lastName("D.")
+                        .email("dan@gmail.com")
+                        .program("322.A1")
+                        .institution("AL")
+                        .password("Password123!")
+                        .build()
+                );
+                studentService.uploadResume(5L, cvDummy);
+                internshipManagerService.verifyResume(5L, true, "");
+
+
 
                 // Créer quelques offres de stage en avance
                 Optional<InternshipOfferDTO> kotlinDev = employerService.createInternshipOffer(
@@ -146,7 +176,10 @@ public class InternOSEApplication {
                 );
 
                 // Test de candidature supprimé - nécessite un CV approuvé
-                // studentService.applyToInternshipOffer(2L, 1L);
+                 studentService.applyToInternshipOffer(2L, 1L);
+//                 studentService.applyToInternshipOffer(4L, 1L);
+//                 studentService.applyToInternshipOffer(5L, 1L);
+
                 // List<StudentDTO> applications = employerService.findApplicationsBy(1L, null, "AL", null, null);
                 // System.out.println(applications);
             }

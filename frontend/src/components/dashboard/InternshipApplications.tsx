@@ -87,7 +87,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 				<div>
 					<div className="bg-white rounded-lg shadow-md text-gray-900">
 						<div className="flex px-6 py-4 border-b border-gray-200">
-							<h2 className="text-xl font-semibold text-gray-900">{(internship.jobTitle || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
+							<h2 className="text-xl font-semibold text-gray-900">{(internship.title || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
 							{/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
 							<div className="flex ml-auto items-center space-x-4 text-gray-900">
 								<div className="relative">
@@ -146,8 +146,8 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 									</span>	
 								</div>
 								<div className="mb-2">
-									<h4 className="text-md font-medium text-gray-900 mb-1">Institution</h4>
-									<p className="text-sm text-gray-700 leading-relaxed">{(application.institution || 'Non spécifié') + " - " + (application.program || 'Non spécifié')}</p>
+									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.school")}</h4>
+									<p className="text-sm text-gray-700 leading-relaxed">{(application.institution || t("dashboard.internshipApplications.notSpecified")) + " - " + (application.program || t("dashboard.internshipApplications.notSpecified"))}</p>
               					</div>
 								<div>
 									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>

@@ -242,7 +242,9 @@
       "noCandidaturesFound": "Aucune candidature reçue pour cette offre.",
       "applications": "Candidatures",
       "applicationDate": "Date de candidature",
-      "validateApplication": "Valider la candidature"
+      "validateApplication": "Valider la candidature",
+      "school": "École",
+      "notSpecified": "Non spécifié"
     }
   },
   "errors": {

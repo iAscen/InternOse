@@ -245,7 +245,9 @@
       "noCandidaturesFound": "No applications received for this offer.",
       "applications": "Applications",
       "applicationDate": "Application date",
-      "validateApplication": "Validate application"
+      "validateApplication": "Validate application",
+      "school": "School",
+      "notSpecified": "Not specified"
     }
   },
   "errors": {
