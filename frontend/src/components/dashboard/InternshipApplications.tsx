@@ -182,7 +182,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 					
 					<div className="mt-1">
 						{applications.map((application, index) => {
-							return <div key={application.id || index} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100">
+							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100 cursor-pointer">
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
