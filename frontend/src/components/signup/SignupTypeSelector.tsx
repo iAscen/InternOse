@@ -42,7 +42,7 @@ export default function SignupTypeSelector({ onSelectEmployer, onSelectStudent }
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                {t('auth.employerAccount')}
+                {t('auth.signupEmployerTitle')}
               </h3>
               <p className="text-gray-600 text-lg leading-relaxed">
                 {t('employer.dashboard')}
@@ -68,7 +68,7 @@ export default function SignupTypeSelector({ onSelectEmployer, onSelectStudent }
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                {t('auth.studentAccount')}
+                {t('auth.signupStudentTitle')}
               </h3>
               <p className="text-gray-600 text-lg leading-relaxed">
                 {t('student.dashboard')}

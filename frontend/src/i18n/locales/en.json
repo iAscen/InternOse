@@ -35,6 +35,8 @@
     "signupTitle": "Sign Up",
     "loginSubtitle": "Sign in to your account",
     "signupSubtitle": "Create your account",
+    "signupEmployerTitle": "Employer",
+    "signupStudentTitle": "Student",
     "forgotPassword": "Forgot password?",
     "noAccount": "No account?",
     "hasAccount": "Already have an account?",
