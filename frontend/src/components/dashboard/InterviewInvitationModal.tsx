@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Cv, InternshipOffer, CreateInterviewInvitationRequest } from '~/interfaces';
+import { apiService } from '~/services/apiService';
 
 interface InterviewInvitationModalProps {
   isOpen: boolean;
@@ -73,14 +74,15 @@ export default function InterviewInvitationModal({
         message: formData.message.trim() || undefined
       };
 
-      // TODO: Appel API pour envoyer la convocation
-      console.log('Sending invitation:', invitation);
+      // Appel API pour envoyer la convocation
+      const response = await apiService.scheduleInterview(invitation);
       
-      // Simuler un délai d'envoi
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      if (onInvitationSent) {
-        onInvitationSent(invitation);
+      if (response.success) {
+        if (onInvitationSent) {
+          onInvitationSent(invitation);
+        }
+      } else {
+        throw new Error(response.error || 'Erreur lors de l\'envoi de la convocation');
       }
 
       // Réinitialiser le formulaire

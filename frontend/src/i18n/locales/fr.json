@@ -251,7 +251,8 @@
       "validateApplication": "Valider la candidature",
       "school": "École",
       "notSpecified": "Non spécifié",
-      "inviteToInterview": "Convoquer"
+      "inviteToInterview": "Convoquer",
+      "pendingInterview": "Entrevue en attente"
     }
   },
   "errors": {

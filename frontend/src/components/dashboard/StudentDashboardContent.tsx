@@ -40,12 +40,12 @@ export default function StudentDashboardContent() {
     }
   }, [navigate]);
 
+
     const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
         try {
             setLoading(true);
 
           const response = await dashboardService.StudentGetAllInternshipOffers(sortBy, filterBy);
-            console.log(response.data);
             if (response.success && response.data) {
                 setOffers(response.data);
             } else {
@@ -95,13 +95,16 @@ export default function StudentDashboardContent() {
         const pendingApplications = applications.filter(app => 
           app.applicationStatus === 'PENDING' || app.applicationStatus === 'pending'
         ).length;
+        const interviewApplications = applications.filter(app => 
+          app.applicationStatus === 'PENDING_INTERVIEW' || app.applicationStatus === 'pending_interview'
+        ).length;
         const approvedApplications = applications.filter(app => 
           app.applicationStatus === 'ACCEPTED' || app.applicationStatus === 'accepted'
         ).length;
         
         return {
-            applications: totalApplications,
-            pendingApplications: 0, // À implémenter plus tard - quand l'employeur convoque l'étudiant
+            applications: pendingApplications, // Seules les candidatures en attente (pas d'entrevue)
+            pendingApplications: interviewApplications, // Candidatures avec entrevue planifiée
             approvedApplications: approvedApplications
         };
     };

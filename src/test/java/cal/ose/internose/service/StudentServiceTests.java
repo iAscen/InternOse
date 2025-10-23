@@ -2,6 +2,7 @@ package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
@@ -42,6 +43,9 @@ public class StudentServiceTests {
     @Mock
     private InternshipOfferDAO internshipOfferDAO;
 
+    @Mock
+    private StudentApplicationDAO studentApplicationDAO;
+
     @InjectMocks
     private StudentService studentService;
 
@@ -49,6 +53,7 @@ public class StudentServiceTests {
     void setUp() {
         reset(studentDAO);
         reset(internshipOfferDAO);
+        reset(studentApplicationDAO);
         // Clear any previous interactions
         clearInvocations(studentDAO);
         clearInvocations(internshipOfferDAO);
@@ -348,6 +353,10 @@ public class StudentServiceTests {
 
         List<InternshipOffer> mockOffers = createTestOffers();
         when(internshipOfferDAO.findAll()).thenReturn(mockOffers);
+        
+        // Mock des candidatures - aucune candidature pour ces offres
+        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+            .thenReturn(Optional.empty());
 
         // Act
         List<InternshipOfferDTO> result = studentService.getAllApprovedInternshipOffers(studentId);
@@ -356,6 +365,8 @@ public class StudentServiceTests {
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.get(0).getTitle()).isEqualTo("Développeur Java");
         assertThat(result.get(1).getTitle()).isEqualTo("Analyste de données");
+        assertThat(result.get(0).getApplicationStatus()).isNull(); // Pas de candidature
+        assertThat(result.get(1).getApplicationStatus()).isNull(); // Pas de candidature
         verify(internshipOfferDAO, times(1)).findAll();
     }
 
@@ -415,6 +426,10 @@ public class StudentServiceTests {
 
         // Mock the DAO method
         when(internshipOfferDAO.findAll()).thenReturn(createTestOffers());
+        
+        // Mock des candidatures - aucune candidature pour ces offres
+        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+            .thenReturn(Optional.empty());
 
         // Act - should not throw exception anymore
         List<InternshipOfferDTO> result = studentService.getAllApprovedInternshipOffers(studentId);

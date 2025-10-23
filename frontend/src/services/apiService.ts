@@ -7,7 +7,9 @@ import type {
   CreateInternshipOfferRequest,
   ErrorResponseDTO,
   ApiResponse,
-  Cv
+  Cv,
+  CreateInterviewInvitationRequest,
+  InterviewInvitation
 } from '~/interfaces';
 import {ErrorService} from './errorService';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -568,7 +570,7 @@ class ApiService {
       if (page && !isNaN(Number(page))) params.append('page', page);
       if (size && !isNaN(Number(size))) params.append('size', size);
 
-      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.SEARCH_INTERNSHIP_OFFERS) + `?${params.toString()}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.INTERNSHIP_OFFERS) + `?studentID=${studentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -578,10 +580,9 @@ class ApiService {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('🔍 Search response received from backend:', data);
         return {
           success: true,
-          data: data.offers,
+          data: data.offers || data, // L'endpoint simple retourne directement les offres
         };
       } else {
         const errorData = await response.json();
@@ -1173,6 +1174,68 @@ class ApiService {
           return {
             success: false,
             error: errorText || 'Erreur lors de la candidature'
+          };
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
+
+  // Méthode pour programmer une entrevue - correspond à EmployerController.scheduleInterview()
+  async scheduleInterview(invitationData: CreateInterviewInvitationRequest): Promise<ApiResponse<InterviewInvitation>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      // Séparer les paramètres de requête du body et mapper les champs
+      const { studentId, internshipOfferId, interviewDate, message, ...rest } = invitationData;
+      
+      // Mapper les champs pour correspondre au backend
+      const interviewDetails = {
+        interviewDateTime: interviewDate, // Le backend attend interviewDateTime
+        personalizedMessage: message,    // Le backend attend personalizedMessage
+        ...rest
+      };
+      
+      // Construire l'URL avec les paramètres de requête
+      const url = `${buildFullApiUrl(API_PATHS.EMPLOYER.SCHEDULE_INTERVIEW)}?internshipOfferID=${internshipOfferId}&studentID=${studentId}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(interviewDetails)
+      });
+
+      if (response.ok) {
+        const interview: InterviewInvitation = await response.json();
+        return {
+          success: true,
+          data: interview
+        };
+      } else {
+        try {
+          const errorResponse: ErrorResponseDTO = await response.json();
+          return {
+            success: false,
+            error: ErrorService.getUserFriendlyMessage(response.status, errorResponse.message)
+          };
+        } catch {
+          const errorText = await response.text();
+          return {
+            success: false,
+            error: ErrorService.getUserFriendlyMessage(response.status, errorText)
           };
         }
       }

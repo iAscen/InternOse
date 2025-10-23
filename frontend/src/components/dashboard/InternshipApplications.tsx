@@ -76,6 +76,12 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
           {t('im.rejected')}
         </span>
       );
+    } else if (application.applicationStatus === 'PENDING_INTERVIEW') {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+          {t('dashboard.internshipApplications.pendingInterview')}
+        </span>
+      );
     } else {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -94,6 +100,8 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 
 	const handleInvitationSent = (invitation: CreateInterviewInvitationRequest) => {
 		setSuccessMessage(t('interviewInvitation.success'));
+		// Rafraîchir la liste des candidatures pour mettre à jour le statut
+		fetchStudentApplications(null, null, null, null);
 		setTimeout(() => {
 			setSuccessMessage(null);
 		}, 5000);
@@ -180,12 +188,14 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										<button
-											onClick={(e) => handleInviteToInterview(application, e)}
-											className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-										>
-											{t('dashboard.internshipApplications.inviteToInterview')}
-										</button>
+										{application.applicationStatus !== 'PENDING_INTERVIEW' && (
+											<button
+												onClick={(e) => handleInviteToInterview(application, e)}
+												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+											>
+												{t('dashboard.internshipApplications.inviteToInterview')}
+											</button>
+										)}
 										<span>
 											{getStatusBadge(application)}
 										</span>	

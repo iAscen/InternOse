@@ -239,8 +239,9 @@ public class StudentService {
 
     /**
      * Récupère toutes les offres de stage approuvées (sans filtres)
+     * avec le statut de candidature de l'étudiant
      *
-     * @return Liste de toutes les offres approuvées
+     * @return Liste de toutes les offres approuvées avec statut de candidature
      */
     public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentID) throws ResumeNotApprovedException {
         isResumeVerified(studentID);
@@ -248,7 +249,23 @@ public class StudentService {
         List<InternshipOffer> offers = internshipOfferDAO.findAll().stream()
             .filter(offer -> offer.getVerificationStatus() == VerificationStatus.APPROVED)
             .toList();
-        return InternshipOfferDTO.fromEntityList(offers);
+        
+        // Convertir en DTOs et ajouter le statut de candidature
+        return offers.stream().map(offer -> {
+            InternshipOfferDTO dto = InternshipOfferDTO.fromEntity(offer);
+            
+            // Vérifier si l'étudiant a postulé à cette offre
+            Optional<StudentApplication> application = studentApplicationDAO
+                .findByStudentIdAndInternshipOfferId(studentID, offer.getId());
+            
+            if (application.isPresent()) {
+                dto.setApplicationStatus(application.get().getApplicationStatus().name());
+            } else {
+                dto.setApplicationStatus(null); // Pas de candidature
+            }
+            
+            return dto;
+        }).toList();
     }
 
     /**

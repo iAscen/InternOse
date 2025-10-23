@@ -144,6 +144,11 @@ public class EmployerService {
                 .build();
 
         interview = interviewDAO.save(interview);
+        
+        // Mettre à jour le statut de la candidature
+        application.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
+        studentApplicationDAO.save(application);
+        
         return InterviewDTO.fromEntity(interview);
     }
 

@@ -13,6 +13,7 @@ export interface InternshipOffer {
   validee?: boolean;
   verificationStatus?: string; // "APPROVED", "REJECTED", "PENDING"
   rejectionReason?: string; // Raison du rejet si applicable
+  applicationStatus?: string; // "PENDING", "PENDING_INTERVIEW", "ACCEPTED", "REJECTED"
 }
 
 export interface CreateInternshipOfferRequest {
