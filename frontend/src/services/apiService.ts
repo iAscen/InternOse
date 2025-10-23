@@ -557,8 +557,8 @@ class ApiService {
       params.append('studentID', studentId.toString());
       if (sortBy) params.append('sortBy', sortBy);
       if (program) params.append('program', program);
-      if (location) params.append('location', location);
-      if (jobTitle) params.append('jobTitle', jobTitle);
+      if (location) params.append('address', location);
+      if (jobTitle) params.append('title', jobTitle);
       if (company) params.append('company', company);
       if (minSalary && !isNaN(Number(minSalary))) params.append('minSalary', minSalary);
       if (maxSalary && !isNaN(Number(maxSalary))) params.append('maxSalary', maxSalary);
@@ -570,7 +570,7 @@ class ApiService {
       if (page && !isNaN(Number(page))) params.append('page', page);
       if (size && !isNaN(Number(size))) params.append('size', size);
 
-      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.INTERNSHIP_OFFERS) + `?studentID=${studentId}`, {
+      const response = await fetch(buildFullApiUrl(API_PATHS.STUDENT.SEARCH_INTERNSHIP_OFFERS) + "?" + params.toString(), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
