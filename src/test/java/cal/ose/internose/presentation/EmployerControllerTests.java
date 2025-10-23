@@ -1,8 +1,11 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.security.exceptions.ResourceNotFoundException;
+import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import cal.ose.internose.TestPaths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +20,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -49,15 +54,14 @@ public class EmployerControllerTests {
         when(employerService.listInternshipOffers(anyLong())).thenReturn(internshipOffers);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(TestPaths.buildEmployerInternshipOffersUrl(employerID))
-            .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                get(TestPaths.buildEmployerInternshipOffersUrl(employerID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
         // Assert
         List<InternshipOfferDTO> internshipOfferDTOs = objectMapper.readValue(
-            mvcResult.getResponse().getContentAsString(),
-            objectMapper.getTypeFactory().constructCollectionType(List.class, InternshipOfferDTO.class)
-        );
+                mvcResult.getResponse().getContentAsString(),
+                objectMapper.getTypeFactory().constructCollectionType(List.class, InternshipOfferDTO.class));
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(internshipOfferDTOs.size()).isEqualTo(1);
     }
@@ -68,13 +72,14 @@ public class EmployerControllerTests {
         // Arrange
         Long employerID = 1L;
         InternshipOfferDTO internshipOfferDTO = exampleInternshipOffers().getFirst();
-        when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class))).thenReturn(Optional.of(internshipOfferDTO));
+        when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class)))
+                .thenReturn(Optional.of(internshipOfferDTO));
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            post(TestPaths.buildEmployerInternshipOffersUrl(employerID))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(internshipOfferDTO))
-        ).andReturn();
+                post(TestPaths.buildEmployerInternshipOffersUrl(employerID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(internshipOfferDTO)))
+                .andReturn();
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
     }
@@ -86,8 +91,8 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(TestPaths.buildEmployerApplicationsUrl(1L))
-                        .param("internshipOfferID", "1")
-        ).andReturn();
+                        .param("internshipOfferID", "1"))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
@@ -99,8 +104,8 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(TestPaths.buildEmployerApplicationsUrl(1L))
-                        .param("internshipOfferID", "1")
-        ).andReturn();
+                        .param("internshipOfferID", "1"))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
@@ -122,14 +127,14 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
-                        .param("internshipOfferID", "1")
-        ).andReturn();
+                        .param("internshipOfferID", "1"))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        
+
         String responseBody = mvcResult.getResponse().getContentAsString();
         StudentDTO responseApplication = objectMapper.readValue(responseBody, StudentDTO.class);
-        
+
         assertThat(responseApplication.getFirstName()).isEqualTo("John");
         assertThat(responseApplication.getLastName()).isEqualTo("Doe");
     }
@@ -141,8 +146,8 @@ public class EmployerControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(
                 get(TestPaths.buildEmployerApplicationDetailsUrl(1L, 1L))
-                        .param("internshipOfferID", "1")
-        ).andReturn();
+                        .param("internshipOfferID", "1"))
+                .andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
@@ -150,17 +155,258 @@ public class EmployerControllerTests {
     private List<InternshipOfferDTO> exampleInternshipOffers() {
         List<InternshipOfferDTO> offresStage = new ArrayList<>();
         offresStage.add(
-            InternshipOfferDTO.builder()
-                .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
-                .description("*description ici*")
-                .program("Technique de l'informatique")
-                .requiredSkills("*compétences requises ici*")
-                .duration(6)
-                .startDate(LocalDate.of(2026, 1, 23))
-                .salary(25.0)
-                .address("*adresse du stage ici*")
-                .build()
-        );
+                InternshipOfferDTO.builder()
+                        .title("Ingénieur logiciel junior chez Artyom Tech Inc.")
+                        .description("*description ici*")
+                        .program("Technique de l'informatique")
+                        .requiredSkills("*compétences requises ici*")
+                        .duration(6)
+                        .startDate(LocalDate.of(2026, 1, 23))
+                        .salary(25.0)
+                        .address("*adresse du stage ici*")
+                        .build());
         return offresStage;
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/employer/interviews/schedule - succès")
+    public void testPOSTScheduleInterview() throws Exception {
+        // Arrange
+        Long internshipOfferID = 1L;
+        Long studentID = 1L;
+
+        InterviewDTO interviewDTO = InterviewDTO.builder()
+                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewMode("ONLINE")
+                .location("https://zoom.us/meeting")
+                .personalizedMessage("Nous sommes ravis de vous rencontrer")
+                .build();
+
+        InterviewDTO createdInterview = InterviewDTO.builder()
+                .id(1L)
+                .studentApplicationId(1L)
+                .studentId(studentID)
+                .studentFirstName("John")
+                .studentLastName("Doe")
+                .internshipOfferId(internshipOfferID)
+                .jobTitle("Stage développeur")
+                .interviewDateTime(interviewDTO.getInterviewDateTime())
+                .interviewMode(interviewDTO.getInterviewMode())
+                .location(interviewDTO.getLocation())
+                .personalizedMessage(interviewDTO.getPersonalizedMessage())
+                .status("SCHEDULED")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
+                .thenReturn(createdInterview);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(TestPaths.buildEmployerScheduleInterviewUrl(internshipOfferID, studentID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(interviewDTO)))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(true);
+        assertThat(response.get("message")).isEqualTo("Convocation envoyée avec succès");
+        assertThat(response.get("interview")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/employer/interviews/schedule - offre non trouvée")
+    public void testPOSTScheduleInterview_OfferNotFound() throws Exception {
+        // Arrange
+        Long internshipOfferID = 1L;
+        Long studentID = 1L;
+
+        InterviewDTO interviewDTO = InterviewDTO.builder()
+                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewMode("ONLINE")
+                .location("https://zoom.us/meeting")
+                .personalizedMessage("Message")
+                .build();
+
+        when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
+                .thenThrow(new ResourceNotFoundException("Internship offer not found"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(TestPaths.buildEmployerScheduleInterviewUrl(internshipOfferID, studentID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(interviewDTO)))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(false);
+        assertThat(response.get("message")).isEqualTo("Internship offer not found");
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/employer/interviews/schedule - entrevue déjà existante")
+    public void testPOSTScheduleInterview_AlreadyExists() throws Exception {
+        // Arrange
+        Long internshipOfferID = 1L;
+        Long studentID = 1L;
+
+        InterviewDTO interviewDTO = InterviewDTO.builder()
+                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewMode("ONLINE")
+                .location("https://zoom.us/meeting")
+                .personalizedMessage("Message")
+                .build();
+
+        when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
+                .thenThrow(new AlreadyExistsException("Une entrevue existe déjà pour cette candidature"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(TestPaths.buildEmployerScheduleInterviewUrl(internshipOfferID, studentID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(interviewDTO)))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(false);
+        assertThat(response.get("message")).isEqualTo("Une entrevue existe déjà pour cette candidature");
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/employer/interviews/schedule - JSON invalide")
+    public void testPOSTScheduleInterview_InvalidJSON() throws Exception {
+        // Arrange
+        Long internshipOfferID = 1L;
+        Long studentID = 1L;
+        String invalidJSON = "{ invalid json }";
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(TestPaths.buildEmployerScheduleInterviewUrl(internshipOfferID, studentID))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJSON))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(false);
+        assertThat(response.get("message")).isEqualTo("La structure JSON fournie est incorrecte");
+    }
+
+    @Test
+    @DisplayName("Test de GET /api/employer/interviews - succès")
+    public void testGETEmployerInterviews() throws Exception {
+        // Arrange
+        Long employerID = 1L;
+
+        List<InterviewDTO> interviews = new ArrayList<>();
+        interviews.add(InterviewDTO.builder()
+                .id(1L)
+                .studentApplicationId(1L)
+                .studentId(1L)
+                .studentFirstName("John")
+                .studentLastName("Doe")
+                .internshipOfferId(1L)
+                .jobTitle("Stage développeur")
+                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewMode("ONLINE")
+                .location("https://zoom.us/meeting")
+                .personalizedMessage("Message personnalisé")
+                .status("SCHEDULED")
+                .createdAt(LocalDateTime.now())
+                .build());
+
+        when(employerService.getInterviewsByEmployer(employerID)).thenReturn(interviews);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(TestPaths.buildEmployerInterviewsUrl(employerID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(true);
+        assertThat(response.get("count")).isEqualTo(1);
+        assertThat(response.get("interviews")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test de GET /api/employer/interviews - employeur non trouvé")
+    public void testGETEmployerInterviews_EmployerNotFound() throws Exception {
+        // Arrange
+        Long employerID = 1L;
+
+        when(employerService.getInterviewsByEmployer(employerID))
+                .thenThrow(new ResourceNotFoundException("Employer not found"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(TestPaths.buildEmployerInterviewsUrl(employerID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(false);
+        assertThat(response.get("message")).isEqualTo("Employer not found");
+    }
+
+    @Test
+    @DisplayName("Test de GET /api/employer/interviews - liste vide")
+    public void testGETEmployerInterviews_EmptyList() throws Exception {
+        // Arrange
+        Long employerID = 1L;
+
+        when(employerService.getInterviewsByEmployer(employerID)).thenReturn(new ArrayList<>());
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(TestPaths.buildEmployerInterviewsUrl(employerID))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+
+        assertThat(response.get("success")).isEqualTo(true);
+        assertThat(response.get("count")).isEqualTo(0);
     }
 }

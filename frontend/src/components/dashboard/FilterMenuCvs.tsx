@@ -2,7 +2,6 @@ import {useTranslation} from "react-i18next";
 import {useForm} from "~/hooks";
 import FormSection from "~/components/FormSection";
 import FormInput from "~/components/FormInput";
-import ProgramSelector from "~/components/ProgramSelector";
 
 interface FilterMenuOffersProps {
     applyFilters: Function;
@@ -13,7 +12,6 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
 
     const {formData, handleChange} = useForm({
         status: "",
-        program: "",
         institution: ""
     });
 
@@ -27,9 +25,8 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const status = formData.status != "" ? formData.status : undefined;
-        const program = formData.program != "" ? formData.program : undefined;
         const institution = formData.institution != "" ? formData.institution : undefined;
-        applyFilters([status, program, institution]);
+        applyFilters([status, undefined, institution]);
     }
 
     return (
@@ -55,7 +52,6 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                     <option value="rejected" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
                                 </select>
                             </div>
-                            <ProgramSelector onChange={handleSelectChange} />
                             <FormInput
                                 className={"mb-3"}
                                 id={"institution"}

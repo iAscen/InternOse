@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {apiService} from "~/services/apiService";
 import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ClientOnly from "./ClientOnly";
 
 export default function Header() {
   const {isAuthenticated, userRole, userName, userEmail} = useAuth();
@@ -35,59 +36,68 @@ export default function Header() {
 
             {/* Navigation - right next to logo */}
             <nav className="hidden lg:flex ml-4 md:ml-6 lg:ml-8 space-x-3 md:space-x-4 lg:space-x-6">
-              {!isAuthenticated && (
-                <Link
-                  to="/"
-                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
-                >
-                  {t('navigation.home')}
-                </Link>
-              )}
-              {isAuthenticated && userRole === 'EMPLOYER' && (
-                <Link
-                  to="/employer-dashboard"
-                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
-                >
-                  {t('employer.dashboard')}
-                </Link>
-              )}
-              {isAuthenticated && userRole === 'STUDENT' && (
-                <Link
-                  to="/student-dashboard"
-                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
-                >
-                  {t('student.dashboard')}
-                </Link>
-              )}
-              {isAuthenticated && userRole === 'INTERNSHIP_MANAGER' && (
-                <Link
-                  to="/im-dashboard"
-                  className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
-                >
-                  {t('im.dashboard')}
-                </Link>
-              )}
+              <ClientOnly 
+                fallback={<div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>}
+                waitForI18n={true}
+              >
+                {!isAuthenticated && (
+                  <Link
+                    to="/"
+                    className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                  >
+                    {t('navigation.home')}
+                  </Link>
+                )}
+                {isAuthenticated && userRole === 'EMPLOYER' && (
+                  <Link
+                    to="/employer-dashboard"
+                    className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                  >
+                    {t('employer.dashboard')}
+                  </Link>
+                )}
+                {isAuthenticated && userRole === 'STUDENT' && (
+                  <Link
+                    to="/student-dashboard"
+                    className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                  >
+                    {t('student.dashboard')}
+                  </Link>
+                )}
+                {isAuthenticated && userRole === 'INTERNSHIP_MANAGER' && (
+                  <Link
+                    to="/im-dashboard"
+                    className="text-gray-700 hover:text-blue-600 px-2 md:px-3 py-2 rounded-md text-sm md:text-base font-semibold transition-colors hover:bg-gray-100"
+                  >
+                    {t('im.dashboard')}
+                  </Link>
+                )}
+              </ClientOnly>
             </nav>
           </div>
 
           {/* Right side: Actions + Language Switcher */}
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
-            {!isAuthenticated ? (
-              <>
-                <Link
-                  to="/signup"
-                  className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  {t('common.signup')}
-                </Link>
-                <Link
-                  to="/login"
-                  className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  {t('common.login')}
-                </Link>
-              </>
-            ) : (
+            <ClientOnly 
+              fallback={<div className="w-20 h-10 bg-gray-200 rounded animate-pulse"></div>}
+              waitForI18n={true}
+            >
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to="/signup"
+                    className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    {t('common.signup')}
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="hidden sm:inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    {t('common.login')}
+                  </Link>
+                </>
+              ) : (
               <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
                 {/* Menu déroulant utilisateur */}
                 <div className="relative" ref={menuRef}>
@@ -136,7 +146,8 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            )}
+              )}
+            </ClientOnly>
 
             {/* Mobile menu button - Show hamburger menu on small screens */}
             <div className="sm:hidden ml-2" ref={mobileMenuRef}>
@@ -154,50 +165,60 @@ export default function Header() {
               {showMobileMenu && (
                 <div
                   className="absolute right-2 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                  {!isAuthenticated ? (
-                    <>
-                      <Link
-                        to="/login"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      >
-                        {t('common.login')}
-                      </Link>
-                      <Link
-                        to="/signup"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-200"
-                      >
-                        {t('common.signup')}
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <div className="px-4 py-3 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">
-                          {userRole === 'EMPLOYER' && t('auth.employerAccount')}
-                          {userRole === 'STUDENT' && t('auth.studentAccount')}
-                          {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
-                        </p>
-                        <p className="text-xs text-gray-500">{userEmail}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          apiService.removeToken();
-                          window.location.href = '/';
-                        }}
-                        className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        {t('common.logout')}
-                      </button>
-                    </>
-                  )}
+                  <ClientOnly 
+                    fallback={<div className="p-4"><div className="w-20 h-4 bg-gray-200 rounded animate-pulse mb-2"></div><div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div></div>}
+                    waitForI18n={true}
+                  >
+                    {!isAuthenticated ? (
+                      <>
+                        <Link
+                          to="/login"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          {t('common.login')}
+                        </Link>
+                        <Link
+                          to="/signup"
+                          onClick={() => setShowMobileMenu(false)}
+                          className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-200"
+                        >
+                          {t('common.signup')}
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <p className="text-sm font-medium text-gray-900">
+                            {userRole === 'EMPLOYER' && t('auth.employerAccount')}
+                            {userRole === 'STUDENT' && t('auth.studentAccount')}
+                            {userRole === 'INTERNSHIP_MANAGER' && t('auth.imAccount')}
+                          </p>
+                          <p className="text-xs text-gray-500">{userEmail}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            apiService.removeToken();
+                            window.location.href = '/';
+                          }}
+                          className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          {t('common.logout')}
+                        </button>
+                      </>
+                    )}
+                  </ClientOnly>
                 </div>
               )}
             </div>
 
             {/* Language Switcher - Always at the far right */}
-            <LanguageSwitcher/>
+            <ClientOnly 
+              fallback={<div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>}
+              waitForI18n={true}
+            >
+              <LanguageSwitcher/>
+            </ClientOnly>
           </div>
         </div>
       </div>

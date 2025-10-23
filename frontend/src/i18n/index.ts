@@ -19,6 +19,7 @@ i18n
   .use(initReactI18next) // Pass i18n instance to react-i18next
   .init({
     resources,
+    lng: 'fr', // Set default language explicitly
     fallbackLng: 'fr', // Default to French since it's a Quebec project
     debug: import.meta.env.DEV, // Enable debug messages in development
     interpolation: {
@@ -27,6 +28,12 @@ i18n
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
+      // Only detect language on client side
+      checkWhitelist: true,
+    },
+    // Ensure consistent rendering between server and client
+    react: {
+      useSuspense: false,
     },
   });
 

@@ -1,13 +1,14 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, useRef, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import type { Cv, InternshipOffer } from "~/interfaces";
+import type { Cv, InternshipOffer, CreateInterviewInvitationRequest } from "~/interfaces";
 import { apiService } from "~/services/apiService";
 import ApplicationValidationModal from "./ApplicationValidationModal";
+import InterviewInvitationModal from "./InterviewInvitationModal";
 import SortButton from "./SortButton";
-import SortMenuCvs from "./SortMenuCvs";
 import FilterButton from "./FilterButton";
 import FilterMenuCvs from "./FilterMenuCvs";
 import SortMenuApplications from "./SortMenuApplications";
+import { useClickOutside } from "~/hooks/useClickOutside";
 
 
 interface InternshipCandidatesProps {
@@ -21,7 +22,23 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	const [selectedApplication, setSelectedApplication] = useState<Cv | null>(null)
 	const [showSortMenuApplications, setShowSortMenuApplications] = useState(false);
     const [showFilterMenuApplications, setShowFilterMenuApplications] = useState(false);
+	const [showInvitationModal, setShowInvitationModal] = useState(false);
+	const [studentToInvite, setStudentToInvite] = useState<Cv | null>(null);
+	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const {t} = useTranslation()
+
+	// Refs pour les dropdowns
+	const sortMenuRef = useRef<HTMLDivElement>(null);
+	const filterMenuRef = useRef<HTMLDivElement>(null);
+
+	// Fermer les dropdowns quand on clique à l'extérieur
+	useClickOutside(sortMenuRef, () => {
+		setShowSortMenuApplications(false);
+	});
+
+	useClickOutside(filterMenuRef, () => {
+		setShowFilterMenuApplications(false);
+	});
 
 	useEffect(() => {
 		fetchStudentApplications(null, null, null, null)
@@ -59,6 +76,12 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
           {t('im.rejected')}
         </span>
       );
+    } else if (application.applicationStatus === 'PENDING_INTERVIEW') {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+          {t('dashboard.internshipApplications.pendingInterview')}
+        </span>
+      );
     } else {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -68,12 +91,35 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
     }
   };
 
+	const handleInviteToInterview = (application: Cv, e: React.MouseEvent) => {
+		e.stopPropagation(); // Empêcher la sélection de l'application
+		setStudentToInvite(application);
+		setShowInvitationModal(true);
+		setSuccessMessage(null);
+	};
+
+	const handleInvitationSent = (invitation: CreateInterviewInvitationRequest) => {
+		setSuccessMessage(t('interviewInvitation.success'));
+		// Rafraîchir la liste des candidatures pour mettre à jour le statut
+		fetchStudentApplications(null, null, null, null);
+		setTimeout(() => {
+			setSuccessMessage(null);
+		}, 5000);
+	};
+
 	return (
 		<>
 			{
 				errorMessage &&
 				<div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {errorMessage}
+				</div>
+			}
+
+			{
+				successMessage &&
+				<div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            {successMessage}
 				</div>
 			}
 
@@ -90,7 +136,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 							<h2 className="text-xl font-semibold text-gray-900">{(internship.title || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
 							{/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
 							<div className="flex ml-auto items-center space-x-4 text-gray-900">
-								<div className="relative">
+								<div className="relative" ref={sortMenuRef}>
 									<SortButton onClick={() => {
 										setShowSortMenuApplications(true)
 										setShowFilterMenuApplications(false)
@@ -102,7 +148,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 										}}/>
 									}
 								</div>
-								<div className="relative">
+								<div className="relative" ref={filterMenuRef}>
 									<FilterButton onClick={() => {
 										setShowSortMenuApplications(false)
 										setShowFilterMenuApplications(true)
@@ -136,14 +182,24 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 					
 					<div className="mt-1">
 						{applications.map((application, index) => {
-							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 cursor-pointer hover:bg-gray-100">
+							return <div key={application.id || index} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100">
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
-									<span className="ml-auto">
-										{getStatusBadge(application)}
-									</span>	
+									<div className="ml-auto flex items-center space-x-2">
+										{application.applicationStatus !== 'PENDING_INTERVIEW' && (
+											<button
+												onClick={(e) => handleInviteToInterview(application, e)}
+												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+											>
+												{t('dashboard.internshipApplications.inviteToInterview')}
+											</button>
+										)}
+										<span>
+											{getStatusBadge(application)}
+										</span>	
+									</div>
 								</div>
 								<div className="mb-2">
 									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.school")}</h4>
@@ -167,6 +223,20 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 				}
 			</>
 		}
+
+		{/* Modal d'invitation à l'entrevue */}
+		{studentToInvite && (
+			<InterviewInvitationModal
+				isOpen={showInvitationModal}
+				onClose={() => {
+					setShowInvitationModal(false);
+					setStudentToInvite(null);
+				}}
+				student={studentToInvite}
+				internshipOffer={internship}
+				onInvitationSent={handleInvitationSent}
+			/>
+		)}
 		</>
 	)
 }

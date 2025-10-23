@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import '../../src/utils/pdfConfig';
 
 export default function PdfViewer({ fileUrl }: { fileUrl: string }) {
     const [isReady, setIsReady] = useState(false);
@@ -11,8 +12,9 @@ export default function PdfViewer({ fileUrl }: { fileUrl: string }) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Utiliser le worker fourni par react-pdf via CDN
-        pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+        // Désactiver le worker pour éviter les problèmes CORS/404
+        pdfjs.GlobalWorkerOptions.workerSrc = '';
+        console.log('PDF.js worker disabled in PdfViewer (development mode)');
         setIsReady(true);
     }, []);
 

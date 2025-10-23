@@ -122,6 +122,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                autoComplete="email"
               />
             </div>
           </FormSection>

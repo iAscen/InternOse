@@ -15,10 +15,6 @@ export default function SortMenuOffers({applySorting}: SortMenuOffersProps) {
                 className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
           {t('im.status')}
         </button>
-        <button onClick={() => applySorting("program")}
-                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-          {t('im.program')}
-        </button>
         <button onClick={() => applySorting("date")}
                 className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
            Date

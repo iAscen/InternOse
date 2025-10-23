@@ -212,12 +212,27 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                               appliedOffers?.has(offer.id || 0) ? (
                                   <button
                                       disabled
-                                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-green-700 bg-green-100 rounded-md cursor-not-allowed"
+                                      className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${
+                                          offer.applicationStatus === 'PENDING_INTERVIEW' 
+                                              ? 'text-blue-700 bg-blue-100' 
+                                              : offer.applicationStatus === 'ACCEPTED'
+                                              ? 'text-green-700 bg-green-100'
+                                              : offer.applicationStatus === 'REJECTED'
+                                              ? 'text-red-700 bg-red-100'
+                                              : 'text-green-700 bg-green-100'
+                                      }`}
                                   >
                                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                       </svg>
-                                      Candidature envoyée
+                                      {offer.applicationStatus === 'PENDING_INTERVIEW' 
+                                          ? 'Entrevue en attente'
+                                          : offer.applicationStatus === 'ACCEPTED'
+                                          ? 'Candidature acceptée'
+                                          : offer.applicationStatus === 'REJECTED'
+                                          ? 'Candidature refusée'
+                                          : 'Candidature envoyée'
+                                      }
                                   </button>
                               ) : (
                                   <button

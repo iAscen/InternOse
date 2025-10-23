@@ -57,7 +57,7 @@ class DashboardService {
 
   // Valider les données du formulaire
   validateOfferData(data: CreateInternshipOfferRequest): string | null {
-    if (!data.jobTitle || !data.taskDescription || !data.qualifications ||
+    if (!data.title || !data.description || !data.requiredSkills ||
       !data.duration || !data.startDate || !data.address) {
       return 'Veuillez remplir tous les champs obligatoires';
     }

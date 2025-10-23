@@ -26,6 +26,7 @@ public class InternshipOfferDTO {
     private String address;
     private VerificationStatus verificationStatus;
     private String rejectionReason;
+    private String applicationStatus; // Statut de candidature de l'étudiant
 
     public boolean isVerified() {
         return verificationStatus != VerificationStatus.PENDING;

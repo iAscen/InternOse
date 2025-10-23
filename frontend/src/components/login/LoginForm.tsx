@@ -103,6 +103,7 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        autoComplete="email"
                     />
                     <FormInput
                         id="password"
@@ -114,6 +115,7 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
                         onChange={handleChange}
                         required
                         minLength={8}
+                        autoComplete="current-password"
                     />
                 </div>
             </FormSection>

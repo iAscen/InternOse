@@ -124,6 +124,7 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                autoComplete="email"
               />
             </div>
           </FormSection>

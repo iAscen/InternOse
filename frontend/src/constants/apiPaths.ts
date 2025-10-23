@@ -17,6 +17,8 @@ export const API_PATHS = {
     INTERNSHIP_OFFERS: '/employer/internship-offers',
     APPLICATIONS: '/employer/internship-offers/applications',
     APPLICATION_DETAILS: '/employer/internship-offers/applications/{studentID}',
+    INTERVIEWS: '/employer/interviews',
+    SCHEDULE_INTERVIEW: '/employer/interviews/schedule',
   },
   
   // Étudiant
