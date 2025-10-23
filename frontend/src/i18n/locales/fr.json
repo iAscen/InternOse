@@ -22,7 +22,11 @@
     "error": "Erreur",
     "success": "Succès",
     "optional": "Optionnel",
-    "processing": "Traitement en cours..."
+    "processing": "Traitement en cours...",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
   },
   "navigation": {
     "home": "Accueil",
@@ -67,7 +71,9 @@
     "passwordUppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
     "passwordDigit": "Le mot de passe doit contenir au moins un chiffre",
     "passwordSpecial": "Le mot de passe doit contenir au moins un caractère spécial",
-    "passwordMismatch": "Les mots de passe ne correspondent pas"
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "employerAccount": "Compte Employeur",
+    "studentAccount": "Compte Étudiant"
   },
   "programSelector": {
     "label": "Programme",
@@ -244,7 +250,8 @@
       "applicationDate": "Date de candidature",
       "validateApplication": "Valider la candidature",
       "school": "École",
-      "notSpecified": "Non spécifié"
+      "notSpecified": "Non spécifié",
+      "inviteToInterview": "Convoquer"
     }
   },
   "errors": {
@@ -314,6 +321,31 @@
       "title": "CV rejeté",
       "description": "Votre CV \"{{fileName}}\" a été rejeté. Veuillez téléverser une nouvelle version.",
       "uploadNewCv": "Téléverser un nouveau CV"
+    }
+  },
+  "interviewInvitation": {
+    "title": "Convoquer un étudiant",
+    "subtitle": "Convoquer {{studentName}} pour l'offre \"{{offerTitle}}\"",
+    "date": "Date de l'entrevue",
+    "time": "Heure de l'entrevue",
+    "mode": "Mode de l'entrevue",
+    "inPerson": "En personne",
+    "online": "En ligne",
+    "location": "Lieu de l'entrevue",
+    "locationPlaceholder": "Ex: 123 Rue Main, Montréal, QC",
+    "meetingLink": "Lien de réunion",
+    "meetingLinkPlaceholder": "Ex: https://meet.google.com/abc-defg-hij",
+    "message": "Message personnalisé",
+    "messagePlaceholder": "Ajoutez un message personnalisé pour l'étudiant...",
+    "send": "Envoyer la convocation",
+    "sending": "Envoi en cours...",
+    "success": "Convocation envoyée avec succès !",
+    "errors": {
+      "dateRequired": "La date de l'entrevue est requise",
+      "timeRequired": "L'heure de l'entrevue est requise",
+      "locationRequired": "Le lieu de l'entrevue est requis",
+      "meetingLinkRequired": "Le lien de réunion est requis",
+      "sendFailed": "Erreur lors de l'envoi de la convocation. Veuillez réessayer."
     }
   }
 }

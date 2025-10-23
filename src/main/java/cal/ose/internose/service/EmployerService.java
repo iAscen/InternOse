@@ -59,12 +59,16 @@ public class EmployerService {
 
         Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
             case "institution" ->
-                Comparator.comparing(studentApplication -> studentApplication.getStudent().getInstitution());
+                Comparator.comparing(studentApplication -> 
+                    studentApplication.getStudent().getInstitution() != null ? 
+                    studentApplication.getStudent().getInstitution() : "");
             case "status" ->
                 Comparator.comparing(studentApplication -> studentApplication.getStudent().getResumeVerificationStatus());
             case "applicationDate" -> Comparator.comparing(StudentApplication::getApplicationDate);
             case "applicationStatus" -> Comparator.comparing(StudentApplication::getApplicationStatus);
-            default -> Comparator.comparing(studentApplication -> studentApplication.getStudent().getProgram());
+            default -> Comparator.comparing(studentApplication -> 
+                studentApplication.getStudent().getProgram() != null ? 
+                studentApplication.getStudent().getProgram() : "");
         };
 
         applications = applications.stream().sorted(comparator).toList();

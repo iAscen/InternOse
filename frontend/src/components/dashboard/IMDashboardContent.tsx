@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { apiService } from "~/services/apiService";
@@ -14,6 +14,7 @@ import OfferList from "~/components/dashboard/OfferList";
 import CvList from "./CvList";
 import SortMenuCvs from "./SortMenuCvs";
 import FilterMenuCvs from "./FilterMenuCvs";
+import { useClickOutside } from "~/hooks/useClickOutside";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -26,6 +27,29 @@ export default function IMDashboardContent() {
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Refs pour les dropdowns
+    const sortOffersMenuRef = useRef<HTMLDivElement>(null);
+    const filterOffersMenuRef = useRef<HTMLDivElement>(null);
+    const sortCvsMenuRef = useRef<HTMLDivElement>(null);
+    const filterCvsMenuRef = useRef<HTMLDivElement>(null);
+
+    // Fermer les dropdowns quand on clique à l'extérieur
+    useClickOutside(sortOffersMenuRef, () => {
+        setShowSortMenuOffers(false);
+    });
+
+    useClickOutside(filterOffersMenuRef, () => {
+        setShowFilterMenuOffers(false);
+    });
+
+    useClickOutside(sortCvsMenuRef, () => {
+        setShowSortMenuResumes(false);
+    });
+
+    useClickOutside(filterCvsMenuRef, () => {
+        setShowFilterMenuResumes(false);
+    });
 
     // Icônes pour les statistiques
     const statsIcons = {
@@ -177,7 +201,7 @@ export default function IMDashboardContent() {
                                 {t("im.internshipOffersSection")}
                             </h2>
                             <div className="flex items-center space-x-4">
-                                <div className="relative">
+                                <div className="relative" ref={sortOffersMenuRef}>
                                     <SortButton onClick={() => {
                                         setShowSortMenuOffers(!showSortMenuOffers)
                                         setShowFilterMenuOffers(false)
@@ -193,7 +217,7 @@ export default function IMDashboardContent() {
                                             }}/>
                                     }
                                 </div>
-                                <div className="relative">
+                                <div className="relative" ref={filterOffersMenuRef}>
                                     <FilterButton onClick={() => {
                                         setShowSortMenuOffers(false)
                                         setShowFilterMenuOffers(!showFilterMenuOffers)
@@ -227,7 +251,7 @@ export default function IMDashboardContent() {
                                 {t("im.resumesSection")}
                             </h2>
                             <div className="flex items-center space-x-4 text-gray-900">
-                                <div className="relative">
+                                <div className="relative" ref={sortCvsMenuRef}>
                                     <SortButton onClick={() => {
                                         setShowSortMenuOffers(false)
                                         setShowFilterMenuOffers(false)
@@ -241,7 +265,7 @@ export default function IMDashboardContent() {
                                         }}/>
                                     }
                                 </div>
-                                <div className="relative">
+                                <div className="relative" ref={filterCvsMenuRef}>
                                     <FilterButton onClick={() => {
                                         setShowSortMenuOffers(false)
                                         setShowFilterMenuOffers(false)

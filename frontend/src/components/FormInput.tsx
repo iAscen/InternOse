@@ -10,6 +10,7 @@ interface FormInputProps {
   required?: boolean;
   className?: string;
   minLength?: number;
+  autoComplete?: string;
 }
 
 export default function FormInput({
@@ -23,7 +24,8 @@ export default function FormInput({
   error,
   required = false,
   className = "",
-  minLength
+  minLength,
+  autoComplete
 }: FormInputProps) {
   return (
     <div className={className}>
@@ -44,6 +46,7 @@ export default function FormInput({
         placeholder={placeholder}
         required={required}
         minLength={minLength}
+        autoComplete={autoComplete}
       />
       {error && (
         <div className="text-red-700 text-sm mt-2 flex items-center font-medium">

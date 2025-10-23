@@ -81,6 +81,7 @@ export default function PasswordField({
           error={errors.password}
           required
           minLength={8}
+          autoComplete="new-password"
         />
         <p className="mt-1 text-xs text-gray-500">
           {t('auth.passwordRequirements')}
@@ -98,6 +99,7 @@ export default function PasswordField({
           error={errors.confirmPassword}
           required
           minLength={8}
+          autoComplete="new-password"
         />
       </div>
     </div>

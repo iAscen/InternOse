@@ -22,7 +22,11 @@
     "error": "Error",
     "success": "Success",
     "optional": "Optional",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
   },
   "navigation": {
     "home": "Home",
@@ -67,7 +71,9 @@
     "passwordUppercase": "Password must contain at least one uppercase letter",
     "passwordDigit": "Password must contain at least one digit",
     "passwordSpecial": "Password must contain at least one special character",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "employerAccount": "Employer Account",
+    "studentAccount": "Student Account"
   },
   "programSelector": {
     "label": "Program",
@@ -247,7 +253,8 @@
       "applicationDate": "Application date",
       "validateApplication": "Validate application",
       "school": "School",
-      "notSpecified": "Not specified"
+      "notSpecified": "Not specified",
+      "inviteToInterview": "Invite to Interview"
     }
   },
   "errors": {
@@ -318,6 +325,31 @@
       "title": "CV rejected",
       "description": "Your CV \"{{fileName}}\" has been rejected. Please upload a new version.",
       "uploadNewCv": "Upload new CV"
+    }
+  },
+  "interviewInvitation": {
+    "title": "Invite Student to Interview",
+    "subtitle": "Invite {{studentName}} for the offer \"{{offerTitle}}\"",
+    "date": "Interview Date",
+    "time": "Interview Time",
+    "mode": "Interview Mode",
+    "inPerson": "In Person",
+    "online": "Online",
+    "location": "Interview Location",
+    "locationPlaceholder": "Ex: 123 Main St, Montreal, QC",
+    "meetingLink": "Meeting Link",
+    "meetingLinkPlaceholder": "Ex: https://meet.google.com/abc-defg-hij",
+    "message": "Personal Message",
+    "messagePlaceholder": "Add a personal message for the student...",
+    "send": "Send Invitation",
+    "sending": "Sending...",
+    "success": "Invitation sent successfully!",
+    "errors": {
+      "dateRequired": "Interview date is required",
+      "timeRequired": "Interview time is required",
+      "locationRequired": "Interview location is required",
+      "meetingLinkRequired": "Meeting link is required",
+      "sendFailed": "Error sending invitation. Please try again."
     }
   }
 }

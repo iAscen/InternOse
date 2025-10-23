@@ -14,8 +14,7 @@ interface ApplicationValidationModalProps {
 export default function ApplicationValidationModalProps({
   cv,
   isOpen,
-  onClose,
-  onValidationSuccess
+  onClose
 }: ApplicationValidationModalProps) {
   const { t } = useTranslation();
   //Peut etre utile pour la story EQ6-14, mais effacer si pas necessaire

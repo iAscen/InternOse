@@ -60,3 +60,25 @@ export interface Cv {
   validatedAt?: string;
   rejectionReason?: string;
 }
+
+export interface InterviewInvitation {
+  id?: number;
+  studentId: number;
+  internshipOfferId: number;
+  interviewDate: string; // Format ISO: "2024-01-15T14:30:00"
+  interviewMode: 'ONLINE' | 'IN_PERSON';
+  location?: string; // Lieu physique ou lien de réunion
+  message?: string; // Message personnalisé
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'COMPLETED';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateInterviewInvitationRequest {
+  studentId: number;
+  internshipOfferId: number;
+  interviewDate: string;
+  interviewMode: 'ONLINE' | 'IN_PERSON';
+  location?: string;
+  message?: string;
+}

@@ -1,29 +1,21 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useClickOutside } from '../hooks';
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(dropdownRef, () => setIsOpen(false));
-
-  // Ensure we're on the client before accessing i18n.language
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const languages = [
     { code: 'fr', name: 'Français', flag: '🇫🇷' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
   ];
 
-  // Use fallback language during SSR and initial render to prevent hydration mismatch
-  const currentLanguage = isClient 
-    ? (languages.find(lang => lang.code === i18n.language) || languages[0])
-    : languages[0]; // Always use French (first language) during SSR
+  // Since we're wrapped in ClientOnly, we can safely access i18n.language
+  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   const handleLanguageChange = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
@@ -62,14 +54,14 @@ export default function LanguageSwitcher() {
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
               className={`w-full flex items-center space-x-2 sm:space-x-3 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-gray-50 transition-colors duration-200 ${
-                isClient && i18n.language === lang.code 
+                i18n.language === lang.code 
                   ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500' 
                   : 'text-gray-700'
               }`}
             >
               <span className="text-base sm:text-lg">{lang.flag}</span>
               <span className="font-medium text-xs sm:text-sm">{lang.name}</span>
-              {isClient && i18n.language === lang.code && (
+              {i18n.language === lang.code && (
                 <svg
                   className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 ml-auto"
                   fill="currentColor"
