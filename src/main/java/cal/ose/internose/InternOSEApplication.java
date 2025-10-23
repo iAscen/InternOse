@@ -94,7 +94,7 @@ public class InternOSEApplication {
                         .lastName("D.")
                         .email("dan@gmail.com")
                         .program("322.A1")
-                        .institution("AL")
+                        .institution("VM")
                         .password("Password123!")
                         .build()
                 );
@@ -173,6 +173,13 @@ public class InternOSEApplication {
                         .address("Paris, France")
                         .build()
                 );
+
+                internshipManagerService.verifyInternshipOffer(5L, true, "");
+                internshipManagerService.verifyInternshipOffer(4L, true, "");
+                internshipManagerService.verifyInternshipOffer(1L, true, "");
+
+                studentService.applyToInternshipOffer(4L, 1L);
+                studentService.applyToInternshipOffer(5L, 1L);
 
                 // Test de candidature supprimé - nécessite un CV approuvé
 //                 studentService.applyToInternshipOffer(2L, 1L);
