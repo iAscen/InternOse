@@ -212,6 +212,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(true);
@@ -247,6 +248,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(false);
@@ -281,6 +283,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(false);
@@ -306,6 +309,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(false);
@@ -347,6 +351,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(true);
@@ -373,6 +378,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(false);
@@ -397,6 +403,7 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
 
         assertThat(response.get("success")).isEqualTo(true);
