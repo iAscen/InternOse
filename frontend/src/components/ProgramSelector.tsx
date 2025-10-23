@@ -1,5 +1,6 @@
 ﻿import {useTranslation} from "react-i18next";
 import type {ChangeEventHandler} from "react";
+import { programs } from "~/constants/programs";
 
 interface ProgramSelectorProps {
   onChange: ChangeEventHandler;
@@ -8,23 +9,6 @@ interface ProgramSelectorProps {
 
 export default function ProgramSelector({onChange, value}: ProgramSelectorProps) {
   const {t} = useTranslation();
-
-  // Seulement les programmes **techniques** offerts par Cégep André-Laurendeau
-  // https://claurendeau.qc.ca/programmes/explorez-nos-programmes
-  const programs = [
-    { id: "410.A1", name: t("programSelector.programs.410A1") },
-    { id: "180.A0", name: t("programSelector.programs.180A0") },
-    { id: "180.B0", name: t("programSelector.programs.180B0") },
-    { id: "410.G0", name: t("programSelector.programs.410G0") },
-    { id: "322.A1", name: t("programSelector.programs.322A1") },
-    { id: "420.B0", name: t("programSelector.programs.420B0") },
-    { id: "388.A1", name: t("programSelector.programs.388A1") },
-    { id: "221.A0", name: t("programSelector.programs.221A0") },
-    { id: "221.D0", name: t("programSelector.programs.221D0") },
-    { id: "221.B0", name: t("programSelector.programs.221B0") },
-    { id: "243.D0", name: t("programSelector.programs.243D0") },
-    { id: "244.A0", name: t("programSelector.programs.244A0") }
-  ];
 
   return (
     <div className="mb-3">
@@ -40,7 +24,7 @@ export default function ProgramSelector({onChange, value}: ProgramSelectorProps)
       >
         <option value="" className="text-gray-900 bg-white">{t('programSelector.placeholder')}</option>
         {programs.map((program, index) => (
-          <option key={index} value={program.id} className="text-gray-900 bg-white">{program.name}</option>
+          <option key={index} value={program.id} className="text-gray-900 bg-white">{t(program.key)}</option>
         ))}
       </select>
     </div>

@@ -1,10 +1,10 @@
 // Interfaces pour le dashboard et les offres de stage
 export interface InternshipOffer {
   id?: number;
-  jobTitle: string;
-  taskDescription: string;
+  title: string;
+  description: string;
   program: string;
-  qualifications: string;
+  requiredSkills: string;
   duration: number;
   startDate: string; // Format ISO: "2024-01-15"
   endDate: string;   // Format ISO: "2024-04-15"
@@ -16,10 +16,10 @@ export interface InternshipOffer {
 }
 
 export interface CreateInternshipOfferRequest {
-  jobTitle: string;
-  taskDescription: string;
+  title: string;
+  description: string;
   program: string;
-  qualifications: string;
+  requiredSkills: string;
   duration: number;
   startDate: string;
   salary: number;

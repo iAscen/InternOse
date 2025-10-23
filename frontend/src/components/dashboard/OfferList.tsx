@@ -161,7 +161,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.jobTitle}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,7 +250,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
             <div className="mt-4 space-y-3">
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.description')}</h4>
-                <p className="text-sm text-gray-700 leading-relaxed">{offer.taskDescription}</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{offer.description}</p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.program')}</h4>
@@ -258,7 +258,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
-                <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
               </div>
               {/* Affichage de la raison de rejet si applicable */}
               {offer.verificationStatus === 'REJECTED' && offer.rejectionReason && (
