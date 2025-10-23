@@ -1,5 +1,6 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
@@ -51,13 +52,17 @@ public class EmployerController {
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_RELATIVE)
     public ResponseEntity<List<StudentDTO>> getStudentApplications(
             @RequestParam("internshipOfferID") Long internshipOfferID,
-            @RequestParam(required = false) String resumeVerificationStatus,
+            @RequestParam(required = false) String applicationStatus,
             @RequestParam(required = false) String institution,
             @RequestParam(required = false) String program,
             @RequestParam(required = false) String sortBy) throws ResourceNotFoundException {
+
+        if (applicationStatus != null && applicationStatus.equals("APPROVED"))
+            applicationStatus = "ACCEPTED";
+
         List<StudentDTO> students = employerService.findApplicationsBy(
                 internshipOfferID,
-                resumeVerificationStatus != null ? VerificationStatus.valueOf(resumeVerificationStatus) : null,
+                applicationStatus != null ? StudentApplication.ApplicationStatus.valueOf(applicationStatus) : null,
                 institution,
                 program,
                 sortBy);

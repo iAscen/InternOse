@@ -13,13 +13,13 @@ public interface StudentApplicationDAO extends JpaRepository<StudentApplication,
         "SELECT sa FROM StudentApplication sa " +
             "JOIN sa.student s " +
             "WHERE sa.internshipOffer.id = :internshipOfferID " +
-            "AND (:verificationStatus IS NULL OR s.resumeVerificationStatus = :verificationStatus) " +
+            "AND (:applicationStatus IS NULL OR sa.applicationStatus = :applicationStatus) " +
             "AND (:program IS NULL OR s.program = :program) " +
             "AND (:institution IS NULL OR s.institution = :institution)"
     )
     List<StudentApplication> findApplicationsBy(
         @Param("internshipOfferID") Long internshipOfferID,
-        @Param("verificationStatus") VerificationStatus verificationStatus,
+        @Param("applicationStatus") StudentApplication.ApplicationStatus applicationStatus,
         @Param("institution") String institution,
         @Param("program") String program
     );

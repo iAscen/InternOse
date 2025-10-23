@@ -51,7 +51,7 @@ public class EmployerService {
 
     public List<StudentDTO> findApplicationsBy(
             Long internshipOfferID,
-            VerificationStatus verificationStatus,
+            StudentApplication.ApplicationStatus applicationStatus,
             String institution,
             String program,
             String sortBy) throws ResourceNotFoundException {
@@ -59,7 +59,7 @@ public class EmployerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
 
         List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(
-                internshipOfferID, verificationStatus, institution, program);
+                internshipOfferID, applicationStatus, institution, program);
 
         Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
             case "institution" ->
