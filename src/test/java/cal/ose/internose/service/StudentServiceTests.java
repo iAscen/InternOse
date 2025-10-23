@@ -49,6 +49,9 @@ public class StudentServiceTests {
     void setUp() {
         reset(studentDAO);
         reset(internshipOfferDAO);
+        // Clear any previous interactions
+        clearInvocations(studentDAO);
+        clearInvocations(internshipOfferDAO);
     }
 
     @Test
@@ -256,12 +259,12 @@ public class StudentServiceTests {
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
-            eq("%Informatique%"),
+            eq("%informatique%"),
             isNull(),
             isNull(),
             isNull(),
             isNull(),
-            isNull(),
+            eq("%montréal%"),
             any(Pageable.class)
         )).thenReturn(mockPage);
 
@@ -276,12 +279,12 @@ public class StudentServiceTests {
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
-            eq("%Informatique%"),
+            eq("%informatique%"),
             isNull(),
             isNull(),
             isNull(),
             isNull(),
-            isNull(),
+            eq("%montréal%"),
             any(Pageable.class)
         );
     }
@@ -374,7 +377,7 @@ public class StudentServiceTests {
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
-            eq("%Informatique%"),
+            eq("%informatique%"),
             isNull(),
             isNull(),
             isNull(),
@@ -391,7 +394,7 @@ public class StudentServiceTests {
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
-            eq("%Informatique%"),
+            eq("%informatique%"),
             isNull(),
             isNull(),
             isNull(),

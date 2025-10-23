@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -176,7 +175,7 @@ public class InternOSEApplication {
                 );
 
                 // Test de candidature supprimé - nécessite un CV approuvé
-                 studentService.applyToInternshipOffer(2L, 1L);
+//                 studentService.applyToInternshipOffer(2L, 1L);
 //                 studentService.applyToInternshipOffer(4L, 1L);
 //                 studentService.applyToInternshipOffer(5L, 1L);
 
