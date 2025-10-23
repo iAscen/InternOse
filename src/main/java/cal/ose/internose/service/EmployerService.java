@@ -1,15 +1,19 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.Employer;
+import cal.ose.internose.modele.Interview;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.persistance.EmployerDAO;
+import cal.ose.internose.persistance.InterviewDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
+import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.AlreadyExistsException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,16 +30,18 @@ public class EmployerService {
     private final EmployerDAO employerDAO;
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentApplicationDAO studentApplicationDAO;
+    private final InterviewDAO interviewDAO;
 
     public List<InternshipOfferDTO> listInternshipOffers(Long employerID) throws ResourceNotFoundException {
         Employer employer = employerDAO.findById(employerID)
-            .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
         return InternshipOfferDTO.fromEntityList(internshipOfferDAO.findAllByEmployer(employer));
     }
 
-    public Optional<InternshipOfferDTO> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) throws ResourceNotFoundException {
+    public Optional<InternshipOfferDTO> createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO)
+            throws ResourceNotFoundException {
         Employer employer = employerDAO.findById(employerID)
-            .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
         internshipOffer.setEmployer(employer);
         internshipOffer.setVerificationStatus(VerificationStatus.PENDING);
@@ -44,18 +50,16 @@ public class EmployerService {
     }
 
     public List<StudentDTO> findApplicationsBy(
-        Long internshipOfferID,
-        VerificationStatus verificationStatus,
-        String institution,
-        String program,
-        String sortBy
-    ) throws ResourceNotFoundException {
+            Long internshipOfferID,
+            VerificationStatus verificationStatus,
+            String institution,
+            String program,
+            String sortBy) throws ResourceNotFoundException {
         internshipOfferDAO.findById(internshipOfferID)
-            .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
 
         List<StudentApplication> applications = studentApplicationDAO.findApplicationsBy(
-            internshipOfferID, verificationStatus, institution, program
-        );
+                internshipOfferID, verificationStatus, institution, program);
 
         Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
             case "institution" ->
@@ -63,7 +67,8 @@ public class EmployerService {
                     studentApplication.getStudent().getInstitution() != null ? 
                     studentApplication.getStudent().getInstitution() : "");
             case "status" ->
-                Comparator.comparing(studentApplication -> studentApplication.getStudent().getResumeVerificationStatus());
+                Comparator
+                        .comparing(studentApplication -> studentApplication.getStudent().getResumeVerificationStatus());
             case "applicationDate" -> Comparator.comparing(StudentApplication::getApplicationDate);
             case "applicationStatus" -> Comparator.comparing(StudentApplication::getApplicationStatus);
             default -> Comparator.comparing(studentApplication -> 
@@ -74,41 +79,96 @@ public class EmployerService {
         applications = applications.stream().sorted(comparator).toList();
 
         return applications.stream().map(
-            (studentApplication) ->
-                StudentDTO.builder()
-                    .id(studentApplication.getStudent().getId())
-                    .firstName(studentApplication.getStudent().getFirstName())
-                    .lastName(studentApplication.getStudent().getLastName())
-                    .resumeVerificationStatus(studentApplication.getStudent().getResumeVerificationStatus())
-                    .program(studentApplication.getStudent().getProgram())
-                    .institution(studentApplication.getStudent().getInstitution())
-                    .resumeFileData(studentApplication.getStudent().getResumeFileData())
-                    .applicationDate(studentApplication.getApplicationDate())
-                    .applicationStatus(studentApplication.getApplicationStatus())
-                    .build()
-        ).collect(Collectors.toList());
+                (studentApplication) -> StudentDTO.builder()
+                        .id(studentApplication.getStudent().getId())
+                        .firstName(studentApplication.getStudent().getFirstName())
+                        .lastName(studentApplication.getStudent().getLastName())
+                        .resumeVerificationStatus(studentApplication.getStudent().getResumeVerificationStatus())
+                        .program(studentApplication.getStudent().getProgram())
+                        .institution(studentApplication.getStudent().getInstitution())
+                        .resumeFileData(studentApplication.getStudent().getResumeFileData())
+                        .applicationDate(studentApplication.getApplicationDate())
+                        .applicationStatus(studentApplication.getApplicationStatus())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public StudentDTO getApplicationDetails(Long internshipOfferID, Long studentID) throws ResourceNotFoundException {
         internshipOfferDAO.findById(internshipOfferID)
-            .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
 
         return studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null)
-            .stream()
-            .filter(app -> app.getStudent().getId().equals(studentID))
-            .findFirst()
-            .map((studentApplication) ->
-                StudentDTO.builder()
-                    .id(studentApplication.getStudent().getId())
-                    .firstName(studentApplication.getStudent().getFirstName())
-                    .lastName(studentApplication.getStudent().getLastName())
-                    .resumeVerificationStatus(studentApplication.getStudent().getResumeVerificationStatus())
-                    .program(studentApplication.getStudent().getProgram())
-                    .institution(studentApplication.getStudent().getInstitution())
-                    .resumeFileData(studentApplication.getStudent().getResumeFileData())
-                    .applicationDate(studentApplication.getApplicationDate())
-                    .applicationStatus(studentApplication.getApplicationStatus())
-                    .build()
-            ).orElseThrow(() -> new ResourceNotFoundException("Student application not found"));
+                .stream()
+                .filter(app -> app.getStudent().getId().equals(studentID))
+                .findFirst()
+                .map((studentApplication) -> StudentDTO.builder()
+                        .id(studentApplication.getStudent().getId())
+                        .firstName(studentApplication.getStudent().getFirstName())
+                        .lastName(studentApplication.getStudent().getLastName())
+                        .resumeVerificationStatus(studentApplication.getStudent().getResumeVerificationStatus())
+                        .program(studentApplication.getStudent().getProgram())
+                        .institution(studentApplication.getStudent().getInstitution())
+                        .resumeFileData(studentApplication.getStudent().getResumeFileData())
+                        .applicationDate(studentApplication.getApplicationDate())
+                        .applicationStatus(studentApplication.getApplicationStatus())
+                        .build())
+                .orElseThrow(() -> new ResourceNotFoundException("Student application not found"));
+    }
+
+    public InterviewDTO scheduleInterview(Long internshipOfferID, Long studentID, InterviewDTO interviewDTO)
+            throws ResourceNotFoundException, AlreadyExistsException {
+        // Vérifier que l'offre existe
+        internshipOfferDAO.findById(internshipOfferID)
+                .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
+
+        // Trouver la candidature
+        StudentApplication application = studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null)
+                .stream()
+                .filter(app -> app.getStudent().getId().equals(studentID))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Student application not found"));
+
+        // Vérifier qu'il n'y a pas déjà une entrevue pour cette candidature
+        if (interviewDAO.existsByStudentApplicationId(application.getId())) {
+            throw new AlreadyExistsException("Une entrevue existe déjà pour cette candidature");
+        }
+
+        // Créer l'entrevue
+        Interview interview = Interview.builder()
+                .studentApplication(application)
+                .interviewDateTime(interviewDTO.getInterviewDateTime())
+                .interviewMode(Interview.InterviewMode.valueOf(interviewDTO.getInterviewMode()))
+                .location(interviewDTO.getLocation())
+                .personalizedMessage(interviewDTO.getPersonalizedMessage())
+                .status(Interview.InterviewStatus.SCHEDULED)
+                .build();
+
+        interview = interviewDAO.save(interview);
+        return InterviewDTO.fromEntity(interview);
+    }
+
+    public List<InterviewDTO> getInterviewsByEmployer(Long employerID) throws ResourceNotFoundException {
+        employerDAO.findById(employerID)
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+
+        List<Interview> interviews = interviewDAO.findByEmployerId(employerID);
+        return InterviewDTO.fromEntityList(interviews);
+    }
+
+    public Optional<InterviewDTO> getInterviewByApplication(Long internshipOfferID, Long studentID)
+            throws ResourceNotFoundException {
+        // Vérifier que l'offre existe
+        internshipOfferDAO.findById(internshipOfferID)
+                .orElseThrow(() -> new ResourceNotFoundException("Internship offer not found"));
+
+        // Trouver la candidature
+        StudentApplication application = studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null)
+                .stream()
+                .filter(app -> app.getStudent().getId().equals(studentID))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Student application not found"));
+
+        return interviewDAO.findByStudentApplicationId(application.getId())
+                .map(InterviewDTO::fromEntity);
     }
 }
