@@ -55,6 +55,14 @@ public class UserServiceTest {
         reset(jwtTokenProvider, userDAO, passwordEncoder, authenticationManager);
     }
 
+    private void mockSuccessfulRegistration(User user) {
+        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(userDAO.save(any())).thenReturn(user);
+        when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString()))
+            .thenReturn("mocked-jwt-token");
+    }
+
     @Test
     void testRegisterEmployer() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         EmployerDTO dto = createEmployerDTO(null);
@@ -72,8 +80,6 @@ public class UserServiceTest {
     void testRegisterEmployerToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Employer mockEmployer = Employer.builder()
             .firstName(dto.getFirstName())
             .lastName(dto.getLastName())
@@ -81,9 +87,8 @@ public class UserServiceTest {
             .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.EMPLOYER))
             .build();
         mockEmployer.setId(1L);
-        when(userDAO.save(any(Employer.class))).thenReturn(mockEmployer);
-        when(jwtTokenProvider.generateToken(
-            any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
+
+        mockSuccessfulRegistration(mockEmployer);
 
         String token = userService.registerEmployer(dto);
 
@@ -142,17 +147,13 @@ public class UserServiceTest {
     void testRegisterStudentToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Student mockStudent = Student.builder()
             .firstName(dto.getFirstName())
             .lastName(dto.getLastName())
             .credentials(new Credentials(dto.getEmail(), "encodedPassword", UserRole.STUDENT))
             .build();
         mockStudent.setId(1L);
-        when(userDAO.save(any(Student.class))).thenReturn(mockStudent);
-        when(jwtTokenProvider.generateToken(
-            any(Authentication.class), anyLong(), anyString(), anyString())).thenReturn("mocked-jwt-token");
+        mockSuccessfulRegistration(mockStudent);
 
         String token = userService.registerStudent(dto);
 
