@@ -22,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.junit.jupiter.api.AfterEach;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -47,6 +48,11 @@ public class UserServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() {
+        reset(jwtTokenProvider, userDAO, passwordEncoder, authenticationManager);
     }
 
     @Test
