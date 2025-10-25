@@ -33,6 +33,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
+    private static final String TEST_FIRST_NAME = "testPrenom";
+    private static final String TEST_LAST_NAME = "testNom";
+    private static final String TEST_COMPANY = "testEntreprise";
+    private static final String TEST_EMAIL = "test@Email";
+    private static final String TEST_PASSWORD = "TestPassword1@";
+
     @Mock
     private JwtTokenProvider jwtTokenProvider;
     @Mock
@@ -68,7 +74,7 @@ public class UserServiceTest {
         EmployerDTO dto = createEmployerDTO(null);
 
         when(userDAO.save(any(Employer.class))).thenReturn(
-            Employer.builder().firstName("testNom").lastName("testPrenom").build());
+            Employer.builder().firstName(TEST_FIRST_NAME).lastName(TEST_LAST_NAME).build());
 
         userService.registerEmployer(dto);
 
@@ -136,7 +142,7 @@ public class UserServiceTest {
         StudentDTO dto = createStudentDTO(null);
 
         when(userDAO.save(any(Student.class))).thenReturn(
-            Student.builder().firstName("testNom").lastName("testPrenom").build());
+            Student.builder().firstName(TEST_FIRST_NAME).lastName(TEST_LAST_NAME).build());
 
         userService.registerStudent(dto);
 
@@ -207,8 +213,8 @@ public class UserServiceTest {
         when(userDAO.findUserByEmail(loginDTO.getEmail()))
             .thenReturn(Optional.of(mockUser));
         when(mockUser.getId()).thenReturn(1L);
-        when(mockUser.getFirstName()).thenReturn("John");
-        when(mockUser.getLastName()).thenReturn("Doe");
+        when(mockUser.getFirstName()).thenReturn(TEST_FIRST_NAME);
+        when(mockUser.getLastName()).thenReturn(TEST_LAST_NAME);
         when(jwtTokenProvider.generateToken(
             eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
 
@@ -238,21 +244,21 @@ public class UserServiceTest {
 
     private StudentDTO createStudentDTO(String password) {
         return StudentDTO.builder()
-            .firstName("testNom")
-            .lastName("testPrenom")
-            .email("testEmail")
-            .password(password == null ? "TestPassword1@" : password)
+            .firstName(TEST_FIRST_NAME)
+            .lastName(TEST_LAST_NAME)
+            .email(TEST_EMAIL)
+            .password(password == null ? TEST_PASSWORD : password)
             .userRole(UserRole.STUDENT).build();
     }
 
     private EmployerDTO createEmployerDTO(String password) {
         return EmployerDTO.builder()
-            .firstName("testNom")
-            .lastName("testPrenom")
-            .email("testEmail")
-            .password(password != null ? password : "TestPassword1@")
+            .firstName(TEST_FIRST_NAME)
+            .lastName(TEST_LAST_NAME)
+            .email(TEST_EMAIL)
+            .password(password != null ? password : TEST_PASSWORD)
             .userRole(UserRole.EMPLOYER)
-            .company("testEntreprise")
+            .company(TEST_COMPANY)
             .build();
     }
 
