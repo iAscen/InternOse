@@ -9,7 +9,7 @@ import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.UserService;
-import cal.ose.internose.util.DummyMultipartFile;
+import cal.ose.internose.utilities.DummyMultipartFile;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +38,7 @@ public class InternOSEApplication {
             EmployerService employerService = employerServiceProvider.getIfAvailable();
             StudentService studentService = studentServiceProvider.getIfAvailable();
             InternshipManagerService internshipManagerService = internshipManagerServiceProvider.getIfAvailable();
-            if (userService != null && employerService != null && studentService != null) {
+            if (userService != null && employerService != null && studentService != null && internshipManagerService != null) {
                 // Créer quelques utilisateurs en avance
                 userService.registerEmployer(
                     EmployerDTO.builder()
@@ -59,13 +59,10 @@ public class InternOSEApplication {
                         .institution("AL")
                         .build()
                 );
-
-                // Upload cvDummy.pdf
-                MultipartFile cvDummy = DummyMultipartFile.createDummyPdf("util/cv/cvDummy.pdf");
-                studentService.uploadResume(2L, cvDummy);
-
+                // Téléverser et approuver un CV fictif
+                MultipartFile dummyResume = DummyMultipartFile.createDummyResume("utilities/DummyResume.pdf");
+                studentService.uploadResume(2L, dummyResume);
                 internshipManagerService.verifyResume(2L, true, "");
-
                 userService.registerInternshipManager(
                     InternshipManagerDTO.builder()
                         .firstName("Bob")
@@ -74,7 +71,6 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-
                 userService.registerStudent(
                     StudentDTO.builder()
                         .firstName("Charles")
@@ -85,9 +81,8 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-                studentService.uploadResume(4L, cvDummy);
+                studentService.uploadResume(4L, dummyResume);
                 internshipManagerService.verifyResume(4L, true, "");
-
                 userService.registerStudent(
                     StudentDTO.builder()
                         .firstName("Dan")
@@ -98,10 +93,8 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-                studentService.uploadResume(5L, cvDummy);
+                studentService.uploadResume(5L, dummyResume);
                 internshipManagerService.verifyResume(5L, true, "");
-
-
 
                 // Créer quelques offres de stage en avance
                 Optional<InternshipOfferDTO> kotlinDev = employerService.createInternshipOffer(
@@ -180,14 +173,6 @@ public class InternOSEApplication {
 
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
-
-                // Test de candidature supprimé - nécessite un CV approuvé
-//                 studentService.applyToInternshipOffer(2L, 1L);
-//                 studentService.applyToInternshipOffer(4L, 1L);
-//                 studentService.applyToInternshipOffer(5L, 1L);
-
-                // List<StudentDTO> applications = employerService.findApplicationsBy(1L, null, "AL", null, null);
-                // System.out.println(applications);
             }
         };
     }
