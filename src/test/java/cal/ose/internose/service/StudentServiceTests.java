@@ -355,7 +355,7 @@ public class StudentServiceTests {
         when(internshipOfferDAO.findAll()).thenReturn(mockOffers);
         
         // Mock des candidatures - aucune candidature pour ces offres
-        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(anyLong(), anyLong()))
             .thenReturn(Optional.empty());
 
         // Act
@@ -428,7 +428,7 @@ public class StudentServiceTests {
         when(internshipOfferDAO.findAll()).thenReturn(createTestOffers());
         
         // Mock des candidatures - aucune candidature pour ces offres
-        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(anyLong(), anyLong()))
             .thenReturn(Optional.empty());
 
         // Act - should not throw exception anymore

@@ -14,40 +14,40 @@ import java.util.stream.Collectors;
 @Setter
 public class InterviewDTO {
     private Long id;
-    private Long studentApplicationId;
-    private Long studentId;
+    private Long studentApplicationID;
+    private Long internshipOfferID;
+    private Long studentID;
     private String studentFirstName;
     private String studentLastName;
-    private Long internshipOfferId;
-    private String jobTitle;
-    private LocalDateTime interviewDateTime;
-    private String interviewMode;
+    private String title;
+    private LocalDateTime interviewDate;
+    private Interview.InterviewMode interviewMode;
     private String location;
     private String personalizedMessage;
-    private String status;
-    private LocalDateTime createdAt;
+    private LocalDateTime scheduleDate;
+    private Interview.InterviewStatus interviewStatus;
 
     public static InterviewDTO fromEntity(Interview interview) {
         return InterviewDTO.builder()
-                .id(interview.getId())
-                .studentApplicationId(interview.getStudentApplication().getId())
-                .studentId(interview.getStudentApplication().getStudent().getId())
-                .studentFirstName(interview.getStudentApplication().getStudent().getFirstName())
-                .studentLastName(interview.getStudentApplication().getStudent().getLastName())
-                .internshipOfferId(interview.getStudentApplication().getInternshipOffer().getId())
-                .jobTitle(interview.getStudentApplication().getInternshipOffer().getTitle())
-                .interviewDateTime(interview.getInterviewDateTime())
-                .interviewMode(interview.getInterviewMode().name())
-                .location(interview.getLocation())
-                .personalizedMessage(interview.getPersonalizedMessage())
-                .status(interview.getStatus().name())
-                .createdAt(interview.getCreatedAt())
-                .build();
+            .id(interview.getId())
+            .studentApplicationID(interview.getStudentApplication().getId())
+            .internshipOfferID(interview.getStudentApplication().getInternshipOffer().getId())
+            .studentID(interview.getStudentApplication().getStudent().getId())
+            .studentFirstName(interview.getStudentApplication().getStudent().getFirstName())
+            .studentLastName(interview.getStudentApplication().getStudent().getLastName())
+            .title(interview.getStudentApplication().getInternshipOffer().getTitle())
+            .interviewDate(interview.getInterviewDate())
+            .interviewMode(interview.getInterviewMode())
+            .location(interview.getLocation())
+            .personalizedMessage(interview.getPersonalizedMessage())
+            .interviewStatus(interview.getInterviewStatus())
+            .scheduleDate(interview.getScheduleDate())
+            .build();
     }
 
     public static List<InterviewDTO> fromEntityList(List<Interview> interviews) {
         return interviews.stream()
-                .map(InterviewDTO::fromEntity)
-                .collect(Collectors.toList());
+            .map(InterviewDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 }

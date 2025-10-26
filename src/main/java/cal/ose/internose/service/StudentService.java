@@ -10,7 +10,7 @@ import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import jakarta.transaction.Transactional;
@@ -165,10 +165,10 @@ public class StudentService {
             throw new DocumentNotValidatedException("L'offre n'est pas validée");
         }
 
-        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentID,
+        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentAndInternshipOffer(studentID,
             internshipOfferID);
         if (hasAlreadyApplied) {
-            throw new AlreadyExistsException("Vous avez déjà postulé à cette offre");
+            throw new InterviewAlreadyScheduledException("Vous avez déjà postulé à cette offre");
         }
 
         if (student != null && internshipOffer != null) {
@@ -256,7 +256,7 @@ public class StudentService {
             
             // Vérifier si l'étudiant a postulé à cette offre
             Optional<StudentApplication> application = studentApplicationDAO
-                .findByStudentIdAndInternshipOfferId(studentID, offer.getId());
+                .findByStudentAndInternshipOffer(studentID, offer.getId());
             
             if (application.isPresent()) {
                 dto.setApplicationStatus(application.get().getApplicationStatus().name());

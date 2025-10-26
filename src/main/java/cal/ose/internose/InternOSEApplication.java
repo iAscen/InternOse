@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -97,7 +96,7 @@ public class InternOSEApplication {
                 internshipManagerService.verifyResume(5L, true, "");
 
                 // Créer quelques offres de stage en avance
-                Optional<InternshipOfferDTO> kotlinDev = employerService.createInternshipOffer(
+                InternshipOfferDTO kotlinDev = employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
                         .title("Développeur Kotlin")
@@ -110,10 +109,7 @@ public class InternOSEApplication {
                         .address("Laval, Québec")
                         .build()
                 );
-                kotlinDev.ifPresent(
-                    internshipOfferDTO
-                        -> internshipOfferDTO.setVerificationStatus(VerificationStatus.APPROVED)
-                );
+                kotlinDev.setVerificationStatus(VerificationStatus.APPROVED);
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()

@@ -10,7 +10,7 @@ import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,7 +81,7 @@ public class EmployerServiceTests {
         }
 
         @Test
-        public void testFindApplicationsBy() throws ResourceNotFoundException {
+        public void testGetStudentApplications() throws ResourceNotFoundException {
                 Student student1 = Student.builder().id(1L).program("Z").build();
                 Student student2 = Student.builder().id(2L).program("A").build();
 
@@ -100,10 +100,10 @@ public class EmployerServiceTests {
                 when(internshipOfferDAO.findById(1L))
                                 .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
-                when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                when(studentApplicationDAO.findBy(1L, null, null, null))
                                 .thenReturn(applications);
 
-                List<StudentDTO> studentDTOs = employerService.findApplicationsBy(1L, null, null, null, "program");
+                List<StudentDTO> studentDTOs = employerService.getStudentApplications(1L, null, null, null, "program");
 
                 assertThat(studentDTOs.size()).isEqualTo(2);
                 assertThat(studentDTOs.get(0).getProgram()).isEqualTo("A");
@@ -114,31 +114,31 @@ public class EmployerServiceTests {
         }
 
         @Test
-        public void testFindApplicationsBy_EmptyList() throws ResourceNotFoundException {
+        public void testGetStudentApplications_EmptyList() throws ResourceNotFoundException {
                 when(internshipOfferDAO.findById(1L))
                                 .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
-                when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                when(studentApplicationDAO.findBy(1L, null, null, null))
                                 .thenReturn(new ArrayList<>());
 
-                List<StudentDTO> studentDTOs = employerService.findApplicationsBy(1L, null, null, null, "program");
+                List<StudentDTO> studentDTOs = employerService.getStudentApplications(1L, null, null, null, "program");
 
                 assertThat(studentDTOs.size()).isEqualTo(0);
         }
 
         @Test
-        public void testFindApplicationsBy_ThrowsResourceNotFoundException() {
+        public void testGetStudentApplications_ThrowsResourceNotFoundException() {
                 when(internshipOfferDAO.findById(1L))
                                 .thenReturn(Optional.empty());
 
                 assertThrows(
                                 ResourceNotFoundException.class,
-                                () -> employerService.findApplicationsBy(1L, null, null, null, null));
+                                () -> employerService.getStudentApplications(1L, null, null, null, null));
 
         }
 
         @Test
-        public void testGetApplicationDetails() throws ResourceNotFoundException {
+        public void testGetStudentApplicationDetails() throws ResourceNotFoundException {
                 Student student = Student.builder()
                                 .id(1L)
                                 .firstName("John")
@@ -157,10 +157,10 @@ public class EmployerServiceTests {
                 when(internshipOfferDAO.findById(1L))
                                 .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
-                when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                when(studentApplicationDAO.findBy(1L, null, null, null))
                                 .thenReturn(List.of(application));
 
-                StudentDTO result = employerService.getApplicationDetails(1L, 1L);
+                StudentDTO result = employerService.getStudentApplicationDetails(1L, 1L);
 
                 assertThat(result.getId()).isEqualTo(1L);
                 assertThat(result.getFirstName()).isEqualTo("John");
@@ -169,16 +169,16 @@ public class EmployerServiceTests {
         }
 
         @Test
-        public void testGetApplicationDetails_ThrowsResourceNotFoundException() {
+        public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() {
                 when(internshipOfferDAO.findById(1L))
                                 .thenReturn(Optional.of(InternshipOffer.builder().id(1L).build()));
 
-                when(studentApplicationDAO.findApplicationsBy(1L, null, null, null))
+                when(studentApplicationDAO.findBy(1L, null, null, null))
                                 .thenReturn(List.of());
 
                 assertThrows(
                                 ResourceNotFoundException.class,
-                                () -> employerService.getApplicationDetails(1L, 1L));
+                                () -> employerService.getStudentApplicationDetails(1L, 1L));
         }
 
         private Employer exampleEmployer() {
@@ -207,7 +207,7 @@ public class EmployerServiceTests {
 
         @Test
         @DisplayName("Test de la méthode scheduleInterview() - succès")
-        public void testScheduleInterview() throws ResourceNotFoundException, AlreadyExistsException {
+        public void testScheduleInterview() throws ResourceNotFoundException, InterviewAlreadyScheduledException {
                 // Arrange
                 Long internshipOfferID = 1L;
                 Long studentID = 1L;
@@ -223,7 +223,7 @@ public class EmployerServiceTests {
                                 .build();
 
                 InterviewDTO interviewDTO = InterviewDTO.builder()
-                                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                                 .interviewMode("ONLINE")
                                 .location("https://zoom.us/meeting")
                                 .personalizedMessage("Nous sommes ravis de vous rencontrer")
@@ -232,7 +232,7 @@ public class EmployerServiceTests {
                 Interview savedInterview = Interview.builder()
                                 .id(1L)
                                 .studentApplication(application)
-                                .interviewDateTime(interviewDTO.getInterviewDateTime())
+                                .interviewDateTime(interviewDTO.getInterviewDate())
                                 .interviewMode(Interview.InterviewMode.ONLINE)
                                 .location(interviewDTO.getLocation())
                                 .personalizedMessage(interviewDTO.getPersonalizedMessage())
@@ -241,9 +241,9 @@ public class EmployerServiceTests {
                                 .build();
 
                 when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-                when(studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null))
+                when(studentApplicationDAO.findBy(internshipOfferID, null, null, null))
                                 .thenReturn(List.of(application));
-                when(interviewDAO.existsByStudentApplicationId(application.getId())).thenReturn(false);
+                when(interviewDAO.existsByStudentApplication(application.getId())).thenReturn(false);
                 when(interviewDAO.save(any(Interview.class))).thenReturn(savedInterview);
 
                 // Act
@@ -252,7 +252,7 @@ public class EmployerServiceTests {
                 // Assert
                 assertThat(result).isNotNull();
                 assertThat(result.getId()).isEqualTo(1L);
-                assertThat(result.getStudentId()).isEqualTo(studentID);
+                assertThat(result.getStudentID()).isEqualTo(studentID);
                 assertThat(result.getInterviewMode()).isEqualTo("ONLINE");
                 assertThat(result.getLocation()).isEqualTo("https://zoom.us/meeting");
                 verify(interviewDAO, times(1)).save(any(Interview.class));
@@ -265,7 +265,7 @@ public class EmployerServiceTests {
                 Long internshipOfferID = 1L;
                 Long studentID = 1L;
                 InterviewDTO interviewDTO = InterviewDTO.builder()
-                                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                                 .interviewMode("ONLINE")
                                 .location("https://zoom.us/meeting")
                                 .personalizedMessage("Message")
@@ -287,7 +287,7 @@ public class EmployerServiceTests {
                 Long internshipOfferID = 1L;
                 Long studentID = 1L;
                 InterviewDTO interviewDTO = InterviewDTO.builder()
-                                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                                 .interviewMode("ONLINE")
                                 .location("https://zoom.us/meeting")
                                 .personalizedMessage("Message")
@@ -296,7 +296,7 @@ public class EmployerServiceTests {
                 InternshipOffer internshipOffer = InternshipOffer.builder().id(internshipOfferID).build();
 
                 when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-                when(studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null))
+                when(studentApplicationDAO.findBy(internshipOfferID, null, null, null))
                                 .thenReturn(new ArrayList<>());
 
                 // Act & Assert
@@ -322,20 +322,20 @@ public class EmployerServiceTests {
                                 .build();
 
                 InterviewDTO interviewDTO = InterviewDTO.builder()
-                                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                                 .interviewMode("ONLINE")
                                 .location("https://zoom.us/meeting")
                                 .personalizedMessage("Message")
                                 .build();
 
                 when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-                when(studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null))
+                when(studentApplicationDAO.findBy(internshipOfferID, null, null, null))
                                 .thenReturn(List.of(application));
-                when(interviewDAO.existsByStudentApplicationId(application.getId())).thenReturn(true);
+                when(interviewDAO.existsByStudentApplication(application.getId())).thenReturn(true);
 
                 // Act & Assert
                 assertThrows(
-                                AlreadyExistsException.class,
+                                InterviewAlreadyScheduledException.class,
                                 () -> employerService.scheduleInterview(internshipOfferID, studentID, interviewDTO));
                 verify(interviewDAO, never()).save(any(Interview.class));
         }
@@ -378,7 +378,7 @@ public class EmployerServiceTests {
                                 .build();
 
                 when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
-                when(interviewDAO.findByEmployerId(employerID)).thenReturn(List.of(interview));
+                when(interviewDAO.findByEmployer(employerID)).thenReturn(List.of(interview));
 
                 // Act
                 List<InterviewDTO> result = employerService.getInterviewsByEmployer(employerID);
@@ -389,7 +389,7 @@ public class EmployerServiceTests {
                 assertThat(result.get(0).getStudentFirstName()).isEqualTo("John");
                 assertThat(result.get(0).getStudentLastName()).isEqualTo("Doe");
                 assertThat(result.get(0).getInterviewMode()).isEqualTo("ONLINE");
-                verify(interviewDAO, times(1)).findByEmployerId(employerID);
+                verify(interviewDAO, times(1)).findByEmployer(employerID);
         }
 
         @Test
@@ -403,7 +403,7 @@ public class EmployerServiceTests {
                 assertThrows(
                                 ResourceNotFoundException.class,
                                 () -> employerService.getInterviewsByEmployer(employerID));
-                verify(interviewDAO, never()).findByEmployerId(anyLong());
+                verify(interviewDAO, never()).findByEmployer(anyLong());
         }
 
         @Test
@@ -433,9 +433,9 @@ public class EmployerServiceTests {
                                 .build();
 
                 when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-                when(studentApplicationDAO.findApplicationsBy(internshipOfferID, null, null, null))
+                when(studentApplicationDAO.findBy(internshipOfferID, null, null, null))
                                 .thenReturn(List.of(application));
-                when(interviewDAO.findByStudentApplicationId(application.getId())).thenReturn(Optional.of(interview));
+                when(interviewDAO.findByStudentApplication(application.getId())).thenReturn(Optional.of(interview));
 
                 // Act
                 Optional<InterviewDTO> result = employerService.getInterviewByApplication(internshipOfferID, studentID);
@@ -445,6 +445,6 @@ public class EmployerServiceTests {
                 assertThat(result.get().getId()).isEqualTo(1L);
                 assertThat(result.get().getInterviewMode()).isEqualTo("IN_PERSON");
                 assertThat(result.get().getLocation()).isEqualTo("123 Main St");
-                verify(interviewDAO, times(1)).findByStudentApplicationId(application.getId());
+                verify(interviewDAO, times(1)).findByStudentApplication(application.getId());
         }
 }

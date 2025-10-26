@@ -6,7 +6,7 @@ import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -94,7 +94,7 @@ public class StudentController {
         } catch (ResumeNotApprovedException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(errorMessage + e.getMessage());
-        } catch (AlreadyExistsException e) {
+        } catch (InterviewAlreadyScheduledException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(errorMessage + e.getMessage());
         } catch (IllegalArgumentException e) {
