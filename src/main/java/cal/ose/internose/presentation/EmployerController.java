@@ -24,16 +24,25 @@ public class EmployerController {
     private final ObjectMapper objectMapper;
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
-    public ResponseEntity<List<InternshipOfferDTO>> listInternshipOffers(@RequestParam Long employerID) {
-        return getResponseEntity(HttpStatus.OK, employerService.listInternshipOffers(employerID));
+    public ResponseEntity<String> listInternshipOffers(@RequestParam Long employerID) {
+        try {
+            return getResponseEntity(
+                HttpStatus.OK, objectMapper.writeValueAsString(employerService.listInternshipOffers(employerID))
+            );
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }
     }
 
     @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
-    public ResponseEntity<?> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
+    public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
         try {
-            InternshipOfferDTO internshipOfferDTO = objectMapper.readValue(requestBody, InternshipOfferDTO.class);
-            InternshipOfferDTO createdInternshipOffer = employerService.createInternshipOffer(employerID, internshipOfferDTO);
-            return getResponseEntity(HttpStatus.CREATED, createdInternshipOffer);
+            InternshipOfferDTO internshipOfferDTO = employerService.createInternshipOffer(
+                employerID, objectMapper.readValue(requestBody, InternshipOfferDTO.class)
+            );
+            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(internshipOfferDTO));
         } catch (JsonProcessingException e) {
             return getResponseEntity(
                 HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
@@ -42,58 +51,64 @@ public class EmployerController {
     }
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_RELATIVE)
-    public ResponseEntity<List<StudentDTO>> getStudentApplications(
+    public ResponseEntity<String> getStudentApplications(
         @RequestParam("internshipOfferID") Long internshipOfferID,
         @RequestParam(required = false) String applicationStatus,
         @RequestParam(required = false) String institution,
         @RequestParam(required = false) String program,
         @RequestParam(required = false) String sortBy
     ) {
-        List<StudentDTO> students = employerService.getStudentApplications(
-            internshipOfferID,
-            applicationStatus != null ? StudentApplication.ApplicationStatus.valueOf(applicationStatus) : null,
-            institution,
-            program,
-            sortBy
-        );
-        return getResponseEntity(HttpStatus.OK, students);
+        try {
+            List<StudentDTO> studentApplications = employerService.getStudentApplications(
+                internshipOfferID,
+                applicationStatus != null ? StudentApplication.ApplicationStatus.valueOf(applicationStatus) : null,
+                institution,
+                program,
+                sortBy
+            );
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(studentApplications));
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
     }
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_RELATIVE)
-    public ResponseEntity<StudentDTO> getStudentApplicationDetails(
-        @RequestParam("internshipOfferID") Long internshipOfferID,
-        @PathVariable Long studentID
-    ) {
-        StudentDTO studentApplicationDetails = employerService.getStudentApplicationDetails(internshipOfferID, studentID);
-        return getResponseEntity(HttpStatus.OK, studentApplicationDetails);
+    public ResponseEntity<String> getStudentApplicationDetails(@RequestParam Long internshipOfferID, @PathVariable Long studentID) {
+        try {
+            StudentDTO studentApplicationDetails = employerService.getStudentApplicationDetails(internshipOfferID, studentID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(studentApplicationDetails));
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
     }
 
     @PostMapping(Paths.EMPLOYER_SCHEDULE_INTERVIEW_RELATIVE)
-    public ResponseEntity<?> scheduleInterview(
-        @RequestParam("internshipOfferID") Long internshipOfferID,
-        @RequestParam("studentID") Long studentID,
+    public ResponseEntity<String> scheduleInterview(
+        @RequestParam Long internshipOfferID,
+        @RequestParam Long studentID,
         @RequestBody String requestBody
     ) {
         try {
-            InterviewDTO interviewDTO = objectMapper.readValue(requestBody, InterviewDTO.class);
-            InterviewDTO scheduledInterview = employerService.scheduleInterview(internshipOfferID, studentID, interviewDTO);
-            return getResponseEntity(HttpStatus.CREATED, scheduledInterview);
+            InterviewDTO interviewDTO = employerService.scheduleInterview(
+                internshipOfferID, studentID, objectMapper.readValue(requestBody, InterviewDTO.class)
+            );
+            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(interviewDTO));
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
     @GetMapping(Paths.EMPLOYER_INTERVIEWS_RELATIVE)
-    public ResponseEntity<?> getScheduledInterviews(@RequestParam("employerID") Long employerID) {
+    public ResponseEntity<String> getScheduledInterviews(@RequestParam Long employerID) {
         try {
             List<InterviewDTO> scheduledInterviews = employerService.getInterviewsByEmployer(employerID);
-            return getResponseEntity(HttpStatus.OK, scheduledInterviews);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(scheduledInterviews));
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.OK, e.getMessage());
+            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
-    private <T> ResponseEntity<T> getResponseEntity(HttpStatus status, T body) {
+    private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }
 }
