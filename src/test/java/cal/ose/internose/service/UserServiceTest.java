@@ -106,9 +106,12 @@ public class UserServiceTest {
     @MethodSource({"weakPasswordProvider"})
     void testEmployerPasswordTooWeak(String password, String errorMessage) {
         EmployerDTO employerDTO = createEmployerDTO(password);
-        WeakPasswordException exception = assertThrows(WeakPasswordException.class,
+        WeakPasswordException exception = assertThrows(
+            WeakPasswordException.class,
             () -> userService.registerEmployer(employerDTO));
         assertEquals(errorMessage, exception.getMessage());
+
+        verifyNoInteractions(userDAO, jwtTokenProvider, authenticationManager);
     }
 
     @Test
