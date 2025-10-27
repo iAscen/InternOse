@@ -49,16 +49,16 @@ public class StudentService {
         return StudentDTO.fromEntity(student);
     }
 
-    public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String status) {
+    public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String verificationStatus) {
         List<Student> students = studentDAO.findAll().stream()
             .filter(student -> student.getResumeVerificationStatus() != VerificationStatus.NONE)
             .toList();
 
-        if (status != null && !status.trim().isEmpty()) {
+        if (verificationStatus != null && !verificationStatus.trim().isEmpty()) {
             try {
-                VerificationStatus statusFilter = VerificationStatus.valueOf(status.toUpperCase());
+                VerificationStatus verificationStatusFilter = VerificationStatus.valueOf(verificationStatus.toUpperCase());
                 students = students.stream()
-                    .filter(student -> student.getResumeVerificationStatus() == statusFilter)
+                    .filter(student -> student.getResumeVerificationStatus() == verificationStatusFilter)
                     .toList();
             } catch (IllegalArgumentException e) {
                 // Si le statut n'est pas valide, le filtre est ignoré
@@ -70,7 +70,7 @@ public class StudentService {
             boolean ascending = sortOrder == null || !sortOrder.equalsIgnoreCase("desc");
 
             switch (sortBy.toLowerCase()) {
-                case "status":
+                case "verification-status":
                     students = students.stream()
                         .sorted((s1, s2) -> ascending
                             ? s1.getResumeVerificationStatus().toString().compareTo(s2.getResumeVerificationStatus().toString())
@@ -163,7 +163,7 @@ public class StudentService {
 
         boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentAndInternshipOffer(student, internshipOffer);
         if (hasAlreadyApplied)
-            throw new InterviewAlreadyScheduledException("Vous avez déjà postulé.e à cette offre de stage");
+            throw new InterviewAlreadyScheduledException();
 
         if (student != null && internshipOffer != null) {
             StudentApplication application = StudentApplication.builder()
