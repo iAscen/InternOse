@@ -26,9 +26,9 @@ public interface StudentApplicationDAO extends JpaRepository<StudentApplication,
         @Param("program") String program
     );
 
-    List<StudentApplication> findByStudentId(Long studentID);
-
-    boolean existsByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);
+    List<StudentApplication> findByStudent(Student student);
 
     Optional<StudentApplication> findByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);
+
+    boolean existsByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);
 }
