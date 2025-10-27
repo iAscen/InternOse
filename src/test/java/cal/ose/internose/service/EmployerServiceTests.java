@@ -378,7 +378,7 @@ public class EmployerServiceTests {
                                 .build();
 
                 when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
-                when(interviewDAO.findByEmployer(employerID)).thenReturn(List.of(interview));
+                when(interviewDAO.findAllByStudentApplicationInternshipOfferEmployer(employerID)).thenReturn(List.of(interview));
 
                 // Act
                 List<InterviewDTO> result = employerService.getInterviewsByEmployer(employerID);
@@ -389,7 +389,7 @@ public class EmployerServiceTests {
                 assertThat(result.get(0).getStudentFirstName()).isEqualTo("John");
                 assertThat(result.get(0).getStudentLastName()).isEqualTo("Doe");
                 assertThat(result.get(0).getInterviewMode()).isEqualTo("ONLINE");
-                verify(interviewDAO, times(1)).findByEmployer(employerID);
+                verify(interviewDAO, times(1)).findAllByStudentApplicationInternshipOfferEmployer(employerID);
         }
 
         @Test
@@ -403,7 +403,7 @@ public class EmployerServiceTests {
                 assertThrows(
                                 ResourceNotFoundException.class,
                                 () -> employerService.getInterviewsByEmployer(employerID));
-                verify(interviewDAO, never()).findByEmployer(anyLong());
+                verify(interviewDAO, never()).findAllByStudentApplicationInternshipOfferEmployer(anyLong());
         }
 
         @Test
