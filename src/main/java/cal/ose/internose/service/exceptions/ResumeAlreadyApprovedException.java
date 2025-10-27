@@ -1,4 +1,4 @@
-﻿package cal.ose.internose.service.exceptions;
+package cal.ose.internose.service.exceptions;
 
 public class ResumeAlreadyApprovedException extends Exception {
     public ResumeAlreadyApprovedException() {

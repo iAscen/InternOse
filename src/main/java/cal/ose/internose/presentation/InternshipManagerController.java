@@ -17,7 +17,6 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-@RequestMapping(Paths.INTERNSHIP_MANAGER_BASE_PATH)
 @CrossOrigin(origins = "http://localhost:5173")
 @AllArgsConstructor
 public class InternshipManagerController {
@@ -25,8 +24,8 @@ public class InternshipManagerController {
     private final StudentService studentService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_OFFERS_RELATIVE)
-    public ResponseEntity<String> findInternshipOffersBy(
+    @GetMapping(Paths.INTERNSHIP_MANAGER_OFFERS_PATH)
+    public ResponseEntity<String> getAllEmployersInternshipOffers(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String isVerified,
         @RequestParam(required = false) String program,
@@ -47,29 +46,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_SEARCH_RELATIVE)
-    public ResponseEntity<String> browseInternshipOffers(
-        @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) String isVerified,
-        @RequestParam(required = false) String program,
-        @RequestParam(required = false) String title
-    ) {
-        Boolean isVerifiedBoolean = null;
-        if (isVerified != null) isVerifiedBoolean = Boolean.parseBoolean(isVerified);
-
-        try {
-            List<InternshipOfferDTO> internshipOfferDTOs =
-                internshipManagerService.findInternshipsBy(isVerifiedBoolean, program, title, sortBy);
-
-            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTOs));
-        } catch (Exception e) {
-            return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
-            );
-        }
-    }
-
-    @GetMapping(Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_RELATIVE)
+    @GetMapping(Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH)
     public ResponseEntity<String> verifyInternshipOffer(
         @RequestParam Long internshipOfferID,
         @RequestParam Boolean isApproved,
@@ -85,7 +62,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_STUDENTS_CVS_RELATIVE)
+    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUMES_PATH)
     public ResponseEntity<String> getAllStudentsResumes(
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String sortOrder,
@@ -103,7 +80,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUME_RELATIVE)
+    @GetMapping(Paths.INTERNSHIP_MANAGER_RESUME_PATH)
     public ResponseEntity<String> getStudentResumeDetails(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
@@ -115,7 +92,7 @@ public class InternshipManagerController {
         }
     }
 
-    @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_RELATIVE)
+    @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH)
     public ResponseEntity<String> downloadStudentResume(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
@@ -130,7 +107,7 @@ public class InternshipManagerController {
         }
     }
 
-    @PostMapping(Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_RELATIVE)
+    @PostMapping(Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_PATH)
     public ResponseEntity<String> verifyStudentResume(
         @PathVariable Long studentID,
         @RequestParam Boolean isApproved,

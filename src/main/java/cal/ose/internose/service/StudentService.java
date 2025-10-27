@@ -163,7 +163,7 @@ public class StudentService {
 
         boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentAndInternshipOffer(student, internshipOffer);
         if (hasAlreadyApplied)
-            throw new InterviewAlreadyScheduledException();
+            throw new InterviewAlreadyScheduledException("Vous avez déjà postulé.e à cette offre de stage");
 
         if (student != null && internshipOffer != null) {
             StudentApplication application = StudentApplication.builder()

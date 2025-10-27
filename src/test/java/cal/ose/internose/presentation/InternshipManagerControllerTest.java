@@ -48,7 +48,7 @@ class InternshipManagerControllerTest {
     private InternshipOfferDAO internshipOfferDAO;
 
     @Test
-    void findInternshipOffersBy() throws Exception {
+    void getAllEmployersInternshipOffers() throws Exception {
         when(internshipManagerService.findInternshipsBy(
             null, "Informatique", null, null)).thenReturn(
             List.of(InternshipOfferDTO.builder().program("Informatique").build()));
@@ -71,7 +71,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByWithFilters() throws Exception {
+    void getAllEmployersInternshipOffersWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
             true, "Informatique", "Développeur", "title")).thenReturn(
@@ -107,7 +107,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByWithSorting() throws Exception {
+    void getAllEmployersInternshipOffersWithSorting() throws Exception {
         // Test avec tri par statut
         when(internshipManagerService.findInternshipsBy(
             null, null, null, "status")).thenReturn(
@@ -137,7 +137,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByEmptyResult() throws Exception {
+    void getAllEmployersInternshipOffersEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
             null, "NonExistent", null, null)).thenReturn(List.of());

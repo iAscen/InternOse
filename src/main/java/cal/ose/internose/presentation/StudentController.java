@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping(Paths.STUDENT_BASE_PATH)
 @CrossOrigin("http://localhost:5173")
 @AllArgsConstructor
 public class StudentController {
@@ -26,7 +25,7 @@ public class StudentController {
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping(Paths.STUDENT_RESUME_STATUS_RELATIVE)
+    @GetMapping(Paths.STUDENT_RESUME_PATH)
     public ResponseEntity<String> getResumeStatus(@RequestParam Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
@@ -40,7 +39,7 @@ public class StudentController {
         }
     }
 
-    @PostMapping(Paths.STUDENT_RESUME_RELATIVE)
+    @PostMapping(Paths.STUDENT_RESUME_PATH)
     public ResponseEntity<String> uploadResume(@RequestParam Long studentID, @RequestParam MultipartFile resumeFile) {
         try {
             studentService.uploadResume(studentID, resumeFile);
@@ -54,21 +53,7 @@ public class StudentController {
         }
     }
 
-    @PostMapping(Paths.STUDENT_APPLY_TO_INTERNSHIP_RELATIVE)
-    public ResponseEntity<String> applyToInternshipOffer(@RequestParam Long studentID, @RequestParam Long internshipOfferID) {
-        try {
-            studentService.applyToInternshipOffer(studentID, internshipOfferID);
-            return getResponseEntity(
-                HttpStatus.CREATED, "{ \"message\": \"Vous avez postulé à cette offre de stage avec succès\" }"
-            );
-        } catch (Exception e) {
-            return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
-            );
-        }
-    }
-
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_RELATIVE)
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH)
     public ResponseEntity<String> browseInternshipOffers(@RequestParam Long studentID) {
         try {
             List<InternshipOfferDTO> approvedInternshipOfferDTOs = studentService.getAllApprovedInternshipOffers(studentID);
@@ -82,7 +67,7 @@ public class StudentController {
         }
     }
 
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_RELATIVE)
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH)
     public ResponseEntity<String> getInternshipOfferDetails(@PathVariable Long internshipOfferID) {
         try {
             InternshipOfferDTO internshipOfferDTO = studentService.getInternshipOfferByID(internshipOfferID);
@@ -96,7 +81,21 @@ public class StudentController {
         }
     }
 
-    @GetMapping(Paths.STUDENT_APPLICATIONS_RELATIVE)
+    @PostMapping(Paths.STUDENT_APPLY_TO_INTERNSHIP_OFFER_PATH)
+    public ResponseEntity<String> applyToInternshipOffer(@RequestParam Long studentID, @PathVariable Long internshipOfferID) {
+        try {
+            studentService.applyToInternshipOffer(studentID, internshipOfferID);
+            return getResponseEntity(
+                HttpStatus.CREATED, "{ \"message\": \"Vous avez postulé à cette offre de stage avec succès\" }"
+            );
+        } catch (Exception e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }
+    }
+
+    @GetMapping(Paths.STUDENT_APPLICATIONS_PATH)
     public ResponseEntity<String> getStudentApplications(HttpServletRequest httpServletRequest) {
         try {
             String token = httpServletRequest.getHeader("Authorization");

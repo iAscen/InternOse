@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(Paths.EMPLOYER_BASE_PATH)
 @CrossOrigin(origins = "http://localhost:5173")
 @AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<String> listInternshipOffers(@RequestParam Long employerID) {
         try {
             return getResponseEntity(
@@ -36,7 +35,7 @@ public class EmployerController {
         }
     }
 
-    @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_RELATIVE)
+    @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
         try {
             InternshipOfferDTO internshipOfferDTO = employerService.createInternshipOffer(
@@ -50,7 +49,7 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_RELATIVE)
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATIONS_PATH)
     public ResponseEntity<String> getStudentApplications(
         @RequestParam("internshipOfferID") Long internshipOfferID,
         @RequestParam(required = false) String applicationStatus,
@@ -72,7 +71,7 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_RELATIVE)
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH)
     public ResponseEntity<String> getStudentApplicationDetails(@RequestParam Long internshipOfferID, @PathVariable Long studentID) {
         try {
             StudentDTO studentApplicationDetails = employerService.getStudentApplicationDetails(internshipOfferID, studentID);
@@ -82,7 +81,7 @@ public class EmployerController {
         }
     }
 
-    @PostMapping(Paths.EMPLOYER_SCHEDULE_INTERVIEW_RELATIVE)
+    @PostMapping(Paths.EMPLOYER_INTERVIEWS_PATH)
     public ResponseEntity<String> scheduleInterview(
         @RequestParam Long internshipOfferID,
         @RequestParam Long studentID,
@@ -98,7 +97,7 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERVIEWS_RELATIVE)
+    @GetMapping(Paths.EMPLOYER_INTERVIEWS_PATH)
     public ResponseEntity<String> getScheduledInterviews(@RequestParam Long employerID) {
         try {
             List<InterviewDTO> scheduledInterviews = employerService.getInterviewsByEmployer(employerID);
