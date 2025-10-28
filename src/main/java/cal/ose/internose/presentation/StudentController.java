@@ -1,282 +1,120 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.security.Paths;
 import cal.ose.internose.security.JwtTokenProvider;
+import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
-import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import org.springframework.data.domain.Page;
 
 @RestController
-@RequestMapping(Paths.STUDENT_BASE_PATH)
 @CrossOrigin("http://localhost:5173")
 @AllArgsConstructor
 public class StudentController {
     private final StudentService studentService;
+    private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping(Paths.STUDENT_RESUME_STATUS_RELATIVE)
-    public ResponseEntity<Map<String, Object>> getCVStatus(@RequestParam("studentID") Long studentID) {
+    @GetMapping(Paths.STUDENT_RESUME_PATH)
+    public ResponseEntity<String> getResumeStatus(@RequestParam Long studentID) {
         try {
-            StudentDTO student = studentService.getStudentByID(studentID);
-
-            if (student == null)
-                return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("resumeFileName", student.getResumeFileName() != null
-                    ? student.getResumeFileName()
-                    : "");
-            response.put("upload_date", student.getResumeUploadDate() != null
-                    ? student.getResumeUploadDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                    : "");
-            response.put("verificationStatus", student.getResumeVerificationStatus().name().toLowerCase());
-            response.put("verifyDate", student.getResumeVerifiedDate() != null
-                    ? student.getResumeVerifiedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                    : "");
-            response.put("rejectionReason", student.getResumeRejectionReason() != null
-                    ? student.getResumeRejectionReason()
-                    : "");
-
-            return getResponseEntity(HttpStatus.OK, response);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("Student not found")) {
-                return getResponseEntity(HttpStatus.NOT_FOUND, Map.of("error", "Étudiant non trouvé"));
-            }
+            StudentDTO studentDTO = studentService.getStudentByID(studentID);
             return getResponseEntity(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
+                HttpStatus.OK, objectMapper.writeValueAsString(studentDTO.getResumeVerificationStatus())
+            );
         } catch (Exception e) {
             return getResponseEntity(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    Map.of("error", "Erreur lors de la récupération du statut du CV"));
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    @PostMapping(Paths.STUDENT_RESUME_RELATIVE)
-    public ResponseEntity<String> uploadResume(@RequestParam("studentID") Long studentID,
-            @RequestParam("file") MultipartFile resumeFile) {
+    @PostMapping(Paths.STUDENT_RESUME_PATH)
+    public ResponseEntity<String> uploadResume(@RequestParam Long studentID, @RequestParam MultipartFile resumeFile) {
         try {
             studentService.uploadResume(studentID, resumeFile);
             return getResponseEntity(
-                    HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }");
+                HttpStatus.CREATED, "{ \"message\": \"Votre CV a été téléversé avec succès\" }"
+            );
         } catch (IOException e) {
             return getResponseEntity(
-                    HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    @PostMapping(Paths.STUDENT_APPLY_INTERNSHIP_RELATIVE)
-    public ResponseEntity<String> applyToInternship(@RequestParam("studentId") Long studentId,
-            @RequestParam("internshipId") Long internshipId) {
-        String errorMessage = "Erreur lors de la postulation: ";
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH)
+    public ResponseEntity<String> browseInternshipOffers(@RequestParam Long studentID) {
         try {
-            studentService.applyToInternshipOffer(studentId, internshipId);
+            List<InternshipOfferDTO> approvedInternshipOfferDTOs = studentService.getAllApprovedInternshipOffers(studentID);
             return getResponseEntity(
-                    HttpStatus.CREATED, "{ \"message\": \"Votre postulation a été effectuée avec succès \" }");
-        } catch (ResumeNotApprovedException e) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(errorMessage + e.getMessage());
-        } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(errorMessage + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(errorMessage + e.getMessage());
-        }
-    }
-
-    /**
-     * Récupère toutes les offres de stage disponibles pour les étudiants
-     *
-     * @return Liste de toutes les offres de stage approuvées
-     */
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFERS_RELATIVE)
-    public ResponseEntity<Map<String, Object>> getAllInternshipOffers(@RequestParam Long studentID) {
-        try {
-            List<InternshipOfferDTO> offers = studentService.getAllApprovedInternshipOffers(studentID);
-            Map<String, Object> response = new HashMap<>();
-            response.put("offers", offers);
-            response.put("count", offers.size());
-            return getResponseEntity(HttpStatus.OK, response);
-        } catch (ResumeNotApprovedException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Votre CV n'est pas approuvé");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.FORBIDDEN, errorResponse);
+                HttpStatus.OK, objectMapper.writeValueAsString(approvedInternshipOfferDTOs)
+            );
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    /**
-     * Recherche les offres de stage avec filtres et tri
-     *
-     * @param title         Programme
-     * @param company       Nom de l'entreprise
-     * @param minDuration   Durée minimum (en semaines)
-     * @param maxDuration   Durée maximum (en semaines)
-     * @param startDateFrom Date de début minimum (format: yyyy-MM-dd)
-     * @param startDateTo   Date de début maximum (format: yyyy-MM-dd)
-     * @param minSalary     Salaire minimum
-     * @param maxSalary     Salaire maximum
-     * @param address       Lieu (adresse)
-     * @param sortBy        Critère de tri (jobTitle, company, startDate, salary,
-     *                      duration, program, address)
-     * @param sortOrder     Ordre de tri (asc, desc)
-     * @param page          Numéro de page (défaut: 0)
-     * @param size          Taille de page (défaut: 10)
-     * @return Une page avec des offres de stage correspondant aux critères
-     */
-    @GetMapping(Paths.STUDENT_SEARCH_INTERNSHIP_OFFERS_RELATIVE)
-    public ResponseEntity<Map<String, Object>> searchInternshipOffers(
-            @RequestParam() Long studentID,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String company,
-            @RequestParam(required = false) String program,
-            @RequestParam(required = false) Integer minDuration,
-            @RequestParam(required = false) Integer maxDuration,
-            @RequestParam(required = false) String startDateFrom,
-            @RequestParam(required = false) String startDateTo,
-            @RequestParam(required = false) Double minSalary,
-            @RequestParam(required = false) Double maxSalary,
-            @RequestParam(required = false) String address,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortOrder,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size) {
-
+    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH)
+    public ResponseEntity<String> getInternshipOfferDetails(@PathVariable Long internshipOfferID) {
         try {
-            InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-                    .title(title)
-                    .company(company)
-                    .program(program)
-                    .minDuration(minDuration)
-                    .maxDuration(maxDuration)
-                    .startDateFrom(startDateFrom != null ? LocalDate.parse(startDateFrom) : null)
-                    .startDateTo(startDateTo != null ? LocalDate.parse(startDateTo) : null)
-                    .minSalary(minSalary)
-                    .maxSalary(maxSalary)
-                    .address(address)
-                    .sortBy(sortBy)
-                    .sortOrder(sortOrder)
-                    .page(page)
-                    .size(size)
-                    .build();
-
-            Page<InternshipOfferDTO> offersPage = studentService.searchInternshipOffers(criteria, studentID);
-            Long totalCount = studentService.countInternshipOffers(criteria, studentID);
-
-            // Construction de la réponse
-            Map<String, Object> response = new HashMap<>();
-            response.put("offers", offersPage.getContent());
-            response.put("count", totalCount);
-            response.put("totalElements", totalCount);
-            response.put("pages", offersPage.getTotalPages());
-            response.put("totalPages", offersPage.getTotalPages());
-            response.put("currentPage", offersPage.getNumber());
-            response.put("size", offersPage.getSize());
-            response.put("hasNext", offersPage.hasNext());
-            response.put("hasPrevious", offersPage.hasPrevious());
-
-            return getResponseEntity(HttpStatus.OK, response);
-        } catch (ResumeNotApprovedException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Votre CV n'est pas approuvé");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY, errorResponse);
+            InternshipOfferDTO internshipOfferDTO = studentService.getInternshipOfferByID(internshipOfferID);
+            return getResponseEntity(
+                HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTO)
+            );
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Erreur lors de la recherche des offres de stage");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    /**
-     * Récupère les détails d'une offre de stage spécifique
-     *
-     * @param offerID ID de l'offre de stage
-     * @return Détails de l'offre de stage
-     */
-    @GetMapping(Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_RELATIVE)
-    public ResponseEntity<Map<String, Object>> getInternshipOfferDetails(
-            @PathVariable Long offerID,
-            @RequestParam Long studentID) {
+    @PostMapping(Paths.STUDENT_APPLY_TO_INTERNSHIP_OFFER_PATH)
+    public ResponseEntity<String> applyToInternshipOffer(@RequestParam Long studentID, @PathVariable Long internshipOfferID) {
         try {
-            Optional<InternshipOfferDTO> offer = studentService.getInternshipOfferByID(studentID, offerID);
-            if (offer.isEmpty()) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Offre de stage non trouvée");
-                return getResponseEntity(HttpStatus.NOT_FOUND, errorResponse);
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("internshipOffer", offer.get());
-            response.put("offer", offer.get());
-            return getResponseEntity(HttpStatus.OK, response);
-        } catch (ResumeNotApprovedException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Votre CV n'est pas approuvé");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.FORBIDDEN, errorResponse);
+            studentService.applyToInternshipOffer(studentID, internshipOfferID);
+            return getResponseEntity(
+                HttpStatus.CREATED, "{ \"message\": \"Vous avez postulé à cette offre de stage avec succès\" }"
+            );
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Une erreur est survenue lors de la récupération de l'offre de stage");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse);
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    /**
-     * Récupère les candidatures d'un étudiant
-     *
-     * @param request Requête HTTP pour extraire le token JWT
-     * @return Liste des candidatures de l'étudiant
-     */
-    @GetMapping(Paths.STUDENT_APPLICATIONS_RELATIVE)
-    public ResponseEntity<List<Map<String, Object>>> getStudentApplications(HttpServletRequest request) {
+    @GetMapping(Paths.STUDENT_APPLICATIONS_PATH)
+    public ResponseEntity<String> getStudentApplications(HttpServletRequest httpServletRequest) {
         try {
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
+            String token = httpServletRequest.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer")) {
                 token = token.substring(7);
-                Long studentID = jwtTokenProvider.getIdFromJWT(token);
-                List<Map<String, Object>> applications = studentService.getStudentApplications(studentID);
-                return getResponseEntity(HttpStatus.OK, applications);
+                Long studentID = jwtTokenProvider.getIDFromJWT(token);
+                List< StudentApplicationDTO> studentApplicationDTOs = studentService.getStudentApplications(studentID);
+                return getResponseEntity(HttpStatus.OK,  objectMapper.writeValueAsString(studentApplicationDTOs));
             } else {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Token d'authentification manquant");
-                return getResponseEntity(HttpStatus.UNAUTHORIZED, List.of(errorResponse));
+                return getResponseEntity(HttpStatus.UNAUTHORIZED, "{ \"message\": \"Token d'authentification manquant ou incorrect\" }");
             }
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Erreur lors de la récupération des candidatures");
-            errorResponse.put("message", e.getMessage());
-            return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, List.of(errorResponse));
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
         }
     }
 
-    private <T> ResponseEntity<T> getResponseEntity(HttpStatus status, T body) {
+    private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }
 }

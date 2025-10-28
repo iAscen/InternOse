@@ -43,7 +43,7 @@ public class AuthProvider implements AuthenticationProvider {
     }
 
     private User loadUserByEmail(String email) throws UserNotFoundException {
-        return userDAO.findUserByEmail(email).orElseThrow(UserNotFoundException::new);
+        return userDAO.findByCredentials_Email(email).orElseThrow(UserNotFoundException::new);
     }
 
     private void verifyAuthentication(Authentication authentication, User user) throws AuthenticationException {

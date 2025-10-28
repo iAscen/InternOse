@@ -57,7 +57,7 @@ public class JwtTokenProvider {
             .getSubject();
     }
 
-    public Long getIdFromJWT(String token) {
+    public Long getIDFromJWT(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(key())
             .build()

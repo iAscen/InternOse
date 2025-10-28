@@ -16,15 +16,11 @@ public class StudentApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @ManyToOne
     private Student student;
-
     @ManyToOne
     private InternshipOffer internshipOffer;
-
     private LocalDateTime applicationDate;
-
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ApplicationStatus applicationStatus = ApplicationStatus.PENDING;

@@ -5,7 +5,7 @@ import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.TestPaths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -86,7 +86,7 @@ public class EmployerControllerTests {
 
     @Test
     public void testGetStudentApplications() throws Exception {
-        when(employerService.findApplicationsBy(1L, null, null, null, null))
+        when(employerService.getStudentApplications(1L, null, null, null, null))
                 .thenReturn(new ArrayList<>());
 
         MvcResult mvcResult = mockMvc.perform(
@@ -99,7 +99,7 @@ public class EmployerControllerTests {
 
     @Test
     public void testGetStudentApplications_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.findApplicationsBy(1L, null, null, null, null))
+        when(employerService.getStudentApplications(1L, null, null, null, null))
                 .thenThrow(new RuntimeException("error"));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -122,7 +122,7 @@ public class EmployerControllerTests {
                 .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.PENDING)
                 .build();
 
-        when(employerService.getApplicationDetails(1L, 1L))
+        when(employerService.getStudentApplicationDetails(1L, 1L))
                 .thenReturn(application);
 
         MvcResult mvcResult = mockMvc.perform(
@@ -141,7 +141,7 @@ public class EmployerControllerTests {
 
     @Test
     public void testGetStudentApplicationDetails_ThrowsResourceNotFoundException() throws Exception {
-        when(employerService.getApplicationDetails(1L, 1L))
+        when(employerService.getStudentApplicationDetails(1L, 1L))
                 .thenThrow(new RuntimeException("Application not found"));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -176,7 +176,7 @@ public class EmployerControllerTests {
         Long studentID = 1L;
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
-                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                 .interviewMode("ONLINE")
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Nous sommes ravis de vous rencontrer")
@@ -184,18 +184,18 @@ public class EmployerControllerTests {
 
         InterviewDTO createdInterview = InterviewDTO.builder()
                 .id(1L)
-                .studentApplicationId(1L)
-                .studentId(studentID)
+                .studentApplicationID(1L)
+                .studentID(studentID)
                 .studentFirstName("John")
                 .studentLastName("Doe")
-                .internshipOfferId(internshipOfferID)
-                .jobTitle("Stage développeur")
-                .interviewDateTime(interviewDTO.getInterviewDateTime())
+                .internshipOfferID(internshipOfferID)
+                .title("Stage développeur")
+                .interviewDate(interviewDTO.getInterviewDate())
                 .interviewMode(interviewDTO.getInterviewMode())
                 .location(interviewDTO.getLocation())
                 .personalizedMessage(interviewDTO.getPersonalizedMessage())
-                .status("SCHEDULED")
-                .createdAt(LocalDateTime.now())
+                .interviewStatus("SCHEDULED")
+                .scheduleDate(LocalDateTime.now())
                 .build();
 
         when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
@@ -228,7 +228,7 @@ public class EmployerControllerTests {
         Long studentID = 1L;
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
-                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                 .interviewMode("ONLINE")
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message")
@@ -263,14 +263,14 @@ public class EmployerControllerTests {
         Long studentID = 1L;
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
-                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                 .interviewMode("ONLINE")
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message")
                 .build();
 
         when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
-                .thenThrow(new AlreadyExistsException("Une entrevue existe déjà pour cette candidature"));
+                .thenThrow(new InterviewAlreadyScheduledException("Une entrevue existe déjà pour cette candidature"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -318,25 +318,25 @@ public class EmployerControllerTests {
 
     @Test
     @DisplayName("Test de GET /api/employer/interviews - succès")
-    public void testGETEmployerInterviews() throws Exception {
+    public void testGETScheduledInterviews() throws Exception {
         // Arrange
         Long employerID = 1L;
 
         List<InterviewDTO> interviews = new ArrayList<>();
         interviews.add(InterviewDTO.builder()
                 .id(1L)
-                .studentApplicationId(1L)
-                .studentId(1L)
+                .studentApplicationID(1L)
+                .studentID(1L)
                 .studentFirstName("John")
                 .studentLastName("Doe")
-                .internshipOfferId(1L)
-                .jobTitle("Stage développeur")
-                .interviewDateTime(LocalDateTime.of(2024, 12, 15, 14, 30))
+                .internshipOfferID(1L)
+                .title("Stage développeur")
+                .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
                 .interviewMode("ONLINE")
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message personnalisé")
-                .status("SCHEDULED")
-                .createdAt(LocalDateTime.now())
+                .interviewStatus("SCHEDULED")
+                .scheduleDate(LocalDateTime.now())
                 .build());
 
         when(employerService.getInterviewsByEmployer(employerID)).thenReturn(interviews);
@@ -361,7 +361,7 @@ public class EmployerControllerTests {
 
     @Test
     @DisplayName("Test de GET /api/employer/interviews - employeur non trouvé")
-    public void testGETEmployerInterviews_EmployerNotFound() throws Exception {
+    public void testGETEmployerInterviews_ScheduledNotFound() throws Exception {
         // Arrange
         Long employerID = 1L;
 
@@ -387,7 +387,7 @@ public class EmployerControllerTests {
 
     @Test
     @DisplayName("Test de GET /api/employer/interviews - liste vide")
-    public void testGETEmployerInterviews_EmptyList() throws Exception {
+    public void testGETScheduledInterviews_EmptyList() throws Exception {
         // Arrange
         Long employerID = 1L;
 
