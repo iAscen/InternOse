@@ -81,7 +81,7 @@ public class UserService {
             )
         );
 
-        User user = userDAO.findUserByEmail(loginDTO.getEmail()).orElseThrow();
+        User user = userDAO.findByCredentials_Email(loginDTO.getEmail()).orElseThrow();
 
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName()
@@ -93,7 +93,7 @@ public class UserService {
         try {
             verifyPasswordCriteria(password);
 
-            if (userDAO.findUserByEmail(email).isPresent()) {
+            if (userDAO.findByCredentials_Email(email).isPresent()) {
                 throw new UserAlreadyExistsException(
                     String.format(ErrorMessages.EMAIL_ALREADY_USED.getMessage(), email)
                 );

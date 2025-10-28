@@ -86,7 +86,7 @@ public class StudentControllerTests {
 
     @Test
     @DisplayName("Test de la méthode getCVStatus() (GET /api/student/cv/status)")
-    public void testGetCVStatus() throws Exception {
+    public void testGetResumeStatus() throws Exception {
         // Arrange
         Long studentID = 1L;
         Student student = exampleStudent();
@@ -111,7 +111,7 @@ public class StudentControllerTests {
 
     @Test
     @DisplayName("Test de la méthode getCVStatus() avec étudiant non trouvé")
-    public void testGetCVStatus_StudentNotFound() throws Exception {
+    public void testGetResumeStatus_StudentNotFound() throws Exception {
         // Arrange
         Long studentID = 999L;
         when(studentService.getStudentByID(studentID)).thenThrow(new RuntimeException("Student not found"));
@@ -129,7 +129,7 @@ public class StudentControllerTests {
 
     @Test
     @DisplayName("Test de la méthode getAllInternshipOffers() (GET /api/student/internship-offers)")
-    public void testGetAllInternshipOffers() throws Exception {
+    public void testBrowseInternshipOffers() throws Exception {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -365,7 +365,7 @@ public class StudentControllerTests {
 
     @Test
     @DisplayName("Test de la méthode getAllInternshipOffers() avec erreur de service")
-    public void testGetAllInternshipOffers_ServiceError() throws Exception {
+    public void testBrowseInternshipOffers_ServiceError() throws Exception {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();

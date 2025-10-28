@@ -8,24 +8,21 @@ import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
-import cal.ose.internose.service.exceptions.AlreadyExistsException;
-import cal.ose.internose.service.exceptions.DocumentNotValidatedException;
+import cal.ose.internose.service.exceptions.InternshipOfferNotApprovedException;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -52,16 +49,16 @@ public class StudentService {
         return StudentDTO.fromEntity(student);
     }
 
-    public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String status) {
+    public List<StudentDTO> getAllStudentsWithResumes(String sortBy, String sortOrder, String verificationStatus) {
         List<Student> students = studentDAO.findAll().stream()
             .filter(student -> student.getResumeVerificationStatus() != VerificationStatus.NONE)
             .toList();
 
-        if (status != null && !status.trim().isEmpty()) {
+        if (verificationStatus != null && !verificationStatus.trim().isEmpty()) {
             try {
-                VerificationStatus statusFilter = VerificationStatus.valueOf(status.toUpperCase());
+                VerificationStatus verificationStatusFilter = VerificationStatus.valueOf(verificationStatus.toUpperCase());
                 students = students.stream()
-                    .filter(student -> student.getResumeVerificationStatus() == statusFilter)
+                    .filter(student -> student.getResumeVerificationStatus() == verificationStatusFilter)
                     .toList();
             } catch (IllegalArgumentException e) {
                 // Si le statut n'est pas valide, le filtre est ignoré
@@ -73,11 +70,12 @@ public class StudentService {
             boolean ascending = sortOrder == null || !sortOrder.equalsIgnoreCase("desc");
 
             switch (sortBy.toLowerCase()) {
-                case "status":
+                case "verification-status":
                     students = students.stream()
                         .sorted((s1, s2) -> ascending
-                            ? s1.getResumeVerificationStatus().name().compareTo(s2.getResumeVerificationStatus().name())
-                            : s2.getResumeVerificationStatus().name().compareTo(s1.getResumeVerificationStatus().name()))
+                            ? s1.getResumeVerificationStatus().toString().compareTo(s2.getResumeVerificationStatus().toString())
+                            : s2.getResumeVerificationStatus().toString().compareTo(s1.getResumeVerificationStatus().toString())
+                        )
                         .toList();
                     break;
                 case "name":
@@ -152,24 +150,20 @@ public class StudentService {
         return StudentDTO.fromEntityList(students);
     }
 
-    public void applyToInternshipOffer(long studentID, long internshipOfferID) throws ResumeNotApprovedException {
+    public void applyToInternshipOffer(long studentID, long internshipOfferID)
+        throws ResumeNotApprovedException, InternshipOfferNotApprovedException, InterviewAlreadyScheduledException {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
 
-        // Vérifier que l'étudiant a un CV approuvé pour pouvoir postuler
-        if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED) {
-            throw new ResumeNotApprovedException("Vous devez avoir un CV approuvé pour postuler aux offres de stage");
-        }
+        if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED)
+            throw new ResumeNotApprovedException();
 
-        if (internshipOffer != null && internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED) {
-            throw new DocumentNotValidatedException("L'offre n'est pas validée");
-        }
+        if (internshipOffer != null && internshipOffer.getVerificationStatus() != VerificationStatus.APPROVED)
+            throw new InternshipOfferNotApprovedException();
 
-        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentIdAndInternshipOfferId(studentID,
-            internshipOfferID);
-        if (hasAlreadyApplied) {
-            throw new AlreadyExistsException("Vous avez déjà postulé à cette offre");
-        }
+        boolean hasAlreadyApplied = studentApplicationDAO.existsByStudentAndInternshipOffer(student, internshipOffer);
+        if (hasAlreadyApplied)
+            throw new InterviewAlreadyScheduledException("Vous avez déjà postulé.e à cette offre de stage");
 
         if (student != null && internshipOffer != null) {
             StudentApplication application = StudentApplication.builder()
@@ -180,186 +174,37 @@ public class StudentService {
                 .build();
             studentApplicationDAO.save(application);
 
-            if (internshipOffer.getApplications().isEmpty()) {
-                internshipOffer.setApplications(new ArrayList<>());
-            }
+            if (internshipOffer.getApplications().isEmpty()) internshipOffer.setApplications(new ArrayList<>());
             internshipOffer.getApplications().add(student);
             internshipOfferDAO.save(internshipOffer);
         }
     }
 
-    /**
-     * Recherche les offres de stage avec filtres et tri
-     *
-     * @param criteria Critères de recherche et de filtrage
-     * @return Une page avec des offres de stage correspondant aux critères
-     */
-    public Page<InternshipOfferDTO> searchInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentID) throws ResumeNotApprovedException {
-        isResumeVerified(studentID);
-
-        int page = criteria.getPage() != null ? criteria.getPage() : 0;
-        int size = criteria.getSize() != null ? criteria.getSize() : 10;
-        Sort sort = createSort(criteria.getSortBy(), criteria.getSortOrder());
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Map<String, String> searchParameters = getSearchParameters(criteria);
-        Page<InternshipOffer> internshipOffersPage;
-
-        // Utiliser la requête sans dates pour éviter les problèmes de type
-        internshipOffersPage = internshipOfferDAO.findInternshipOffersWithoutDates(
-            VerificationStatus.APPROVED,
-            searchParameters.get("jobTitle"),
-            searchParameters.get("company"),
-            searchParameters.get("program"),
-            criteria.getMinDuration(),
-            criteria.getMaxDuration(),
-            criteria.getMinSalary(),
-            criteria.getMaxSalary(),
-            searchParameters.get("location"),
-            pageable
-        );
-
-        // Conversion en DTOs
-        return internshipOffersPage.map(InternshipOfferDTO::fromEntity);
+    public InternshipOfferDTO getInternshipOfferByID(Long internshipOfferID) {
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+        return InternshipOfferDTO.fromEntity(internshipOffer);
     }
 
-    /**
-     * Récupère une offre de stage par son ID
-     *
-     * @param studentID ID de l'étudiant
-     * @param internshipOfferID ID de l'offre de stage
-     * @return L'offre de stage si elle est trouvée et approuvée
-     */
-    public Optional<InternshipOfferDTO> getInternshipOfferByID(Long studentID, Long internshipOfferID)
-        throws ResumeNotApprovedException {
-        isResumeVerified(studentID);
-
-        Optional<InternshipOffer> internshipOffer = internshipOfferDAO.findById(internshipOfferID);
-        return internshipOffer.map(InternshipOfferDTO::fromEntity);
-    }
-
-    /**
-     * Récupère toutes les offres de stage approuvées (sans filtres)
-     * avec le statut de candidature de l'étudiant
-     *
-     * @return Liste de toutes les offres approuvées avec statut de candidature
-     */
-    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentID) throws ResumeNotApprovedException {
-        isResumeVerified(studentID);
-
-        List<InternshipOffer> offers = internshipOfferDAO.findAll().stream()
+    public List<InternshipOfferDTO> getAllApprovedInternshipOffers(Long studentID) {
+        List<InternshipOffer> approvedInternshipOffers = internshipOfferDAO.findAll()
+            .stream()
             .filter(offer -> offer.getVerificationStatus() == VerificationStatus.APPROVED)
             .toList();
-        
-        // Convertir en DTOs et ajouter le statut de candidature
-        return offers.stream().map(offer -> {
-            InternshipOfferDTO dto = InternshipOfferDTO.fromEntity(offer);
-            
-            // Vérifier si l'étudiant a postulé à cette offre
-            Optional<StudentApplication> application = studentApplicationDAO
-                .findByStudentIdAndInternshipOfferId(studentID, offer.getId());
-            
-            if (application.isPresent()) {
-                dto.setApplicationStatus(application.get().getApplicationStatus().name());
-            } else {
-                dto.setApplicationStatus(null); // Pas de candidature
-            }
-            
-            return dto;
+
+        return approvedInternshipOffers.stream().map(internshipOffer -> {
+            InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
+            Student student = studentDAO.findById(studentID).orElseThrow();
+            Optional<StudentApplication> studentApplication =
+                studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer);
+            studentApplication.ifPresent(
+                application -> internshipOfferDTO.setApplicationStatus(application.getApplicationStatus().toString())
+            );
+            return internshipOfferDTO;
         }).toList();
     }
 
-    /**
-     * Compte le nombre d'offres de stage correspondant aux critères
-     *
-     * @param criteria Critères de recherche
-     * @return Nombre d'offres de stage correspondantes
-     */
-    public Long countInternshipOffers(InternshipOfferSearchCriteria criteria, Long studentID) throws ResumeNotApprovedException {
-        isResumeVerified(studentID);
-
-        Map<String, String> searchParameters = getSearchParameters(criteria);
-
-        return internshipOfferDAO.countInternshipOffersWithoutDates(
-            VerificationStatus.APPROVED,
-            searchParameters.get("jobTitle"),
-            searchParameters.get("company"),
-            searchParameters.get("program"),
-            criteria.getMinDuration(),
-            criteria.getMaxDuration(),
-            criteria.getMinSalary(),
-            criteria.getMaxSalary(),
-            searchParameters.get("location")
-        );
-    }
-
-    /**
-     * Crée un objet Sort selon les critères de tri
-     *
-     * @param sortBy    Critère de tri
-     * @param sortOrder Ordre de tri (asc/desc)
-     * @return Un objet Sort correspondant
-     */
-    private Sort createSort(String sortBy, String sortOrder) {
-        if (sortBy == null || sortBy.trim().isEmpty()) {
-            // Tri par défaut par date de début (plus récent en premier)
-            return Sort.by(Sort.Direction.DESC, "startDate");
-        }
-
-        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder)
-            ? Sort.Direction.DESC
-            : Sort.Direction.ASC;
-
-        return switch (sortBy.toLowerCase()) {
-            case "title", "titre" -> Sort.by(direction, "title");
-            case "company", "entreprise" -> Sort.by(direction, "employer.company");
-            case "program", "programme" -> Sort.by(direction, "program");
-            case "duration", "duree" -> Sort.by(direction, "duration");
-            case "startdate", "datedebut" -> Sort.by(direction, "startDate");
-            case "salary", "salaire" -> Sort.by(direction, "salary");
-            case "address", "lieu" -> Sort.by(direction, "address");
-            default -> Sort.by(Sort.Direction.DESC, "startDate");
-        };
-    }
-
-    private void isResumeVerified(Long studentId) throws ResumeNotApprovedException {
-        // Permettre aux étudiants de voir les offres même sans CV
-        // Ils ne pourront postuler que si leur CV est approuvé
-    }
-
-    private Map<String, String> getSearchParameters(InternshipOfferSearchCriteria criteria) {
-        String program = criteria.getProgram() != null ? "%" + criteria.getProgram().toLowerCase() + "%" : null;
-        String location = criteria.getAddress() != null ? "%" + criteria.getAddress().toLowerCase() + "%" : null;
-        String jobTitle = criteria.getTitle() != null ? "%" + criteria.getTitle().toLowerCase() + "%" : null;
-        String company = criteria.getCompany() != null ? "%" + criteria.getCompany().toLowerCase() + "%" : null;
-
-        Map<String, String> searchParameters = new HashMap<>();
-        searchParameters.put("program", program);
-        searchParameters.put("location", location);
-        searchParameters.put("jobTitle", jobTitle);
-        searchParameters.put("company", company);
-
-        return searchParameters;
-    }
-
-    /**
-     * Récupère les candidatures d'un étudiant
-     *
-     * @param studentID ID de l'étudiant
-     * @return Liste des candidatures de l'étudiant
-     */
-    public List<Map<String, Object>> getStudentApplications(Long studentID) {
-        List<StudentApplication> applications = studentApplicationDAO.findByStudentId(studentID);
-        
-        return applications.stream().map(application -> {
-            Map<String, Object> appData = new HashMap<>();
-            appData.put("id", application.getId());
-            appData.put("internshipOfferId", application.getInternshipOffer().getId());
-            appData.put("jobTitle", application.getInternshipOffer().getTitle());
-            appData.put("company", application.getInternshipOffer().getEmployer().getCompany());
-            appData.put("applicationDate", application.getApplicationDate());
-            appData.put("applicationStatus", application.getApplicationStatus());
-            appData.put("verificationStatus", application.getInternshipOffer().getVerificationStatus());
-            return appData;
-        }).collect(Collectors.toList());
+    public List<StudentApplicationDTO> getStudentApplications(Long studentID) {
+        Student student = studentDAO.findById(studentID).orElseThrow();
+        return StudentApplicationDTO.fromEntityList(studentApplicationDAO.findByStudent(student));
     }
 }
