@@ -209,7 +209,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                     )}
                       {isStudent && offer.verificationStatus === 'APPROVED' && (
                           cvStatus === 'approved' ? (
-                              appliedOffers?.has(offer.id || 0) ? (
+                              offer.applicationStatus ? (
                                   <button
                                       disabled
                                       className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${

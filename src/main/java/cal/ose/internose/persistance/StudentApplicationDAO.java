@@ -18,6 +18,19 @@ public interface StudentApplicationDAO extends JpaRepository<StudentApplication,
         String institution,
         String program
     );
+    
+    // Query flexible avec filtres optionnels
+    @Query("SELECT sa FROM StudentApplication sa WHERE sa.internshipOffer = :internshipOffer " +
+           "AND (:applicationStatus IS NULL OR sa.applicationStatus = :applicationStatus) " +
+           "AND (:institution IS NULL OR sa.student.institution = :institution) " +
+           "AND (:program IS NULL OR sa.student.program = :program)")
+    List<StudentApplication> findAllByInternshipOfferWithOptionalFilters(
+        @Param("internshipOffer") InternshipOffer internshipOffer,
+        @Param("applicationStatus") StudentApplication.ApplicationStatus applicationStatus,
+        @Param("institution") String institution,
+        @Param("program") String program
+    );
+    
     List<StudentApplication> findByStudent(Student student);
     Optional<StudentApplication> findByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);
     boolean existsByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);

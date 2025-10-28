@@ -31,12 +31,22 @@ public class InternshipManagerService {
         List<InternshipOffer> internshipOffers;
         if (isVerified == null) {
             // Récupérer toutes les offres
-            internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLike(programPattern, titlePattern);
+            if (programPattern == null && titlePattern == null) {
+                // Si aucun filtre n'est appliqué, récupérer toutes les offres
+                internshipOffers = internshipOfferDAO.findAll();
+            } else {
+                internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLike(programPattern, titlePattern);
+            }
         } else {
             // Filtrer par statut
-            internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLikeOrderByVerificationStatusAsc(
-                titlePattern, programPattern
-            );
+            if (programPattern == null && titlePattern == null) {
+                // Si aucun filtre n'est appliqué, récupérer toutes les offres puis filtrer par statut
+                internshipOffers = internshipOfferDAO.findAll();
+            } else {
+                internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLikeOrderByVerificationStatusAsc(
+                    titlePattern, programPattern
+                );
+            }
         }
 
         if (!internshipOffers.isEmpty()) {

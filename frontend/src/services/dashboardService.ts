@@ -14,16 +14,16 @@ class DashboardService {
   }
 
   // Récupérer toutes les offres de stages de tous les employeurs (pour le gestionnaire de stages)
-  async getAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.getAllInternshipOffers(sortBy, filterBy);
+  async getAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.getAllInternshipOffers();
   }
 
-  async StudentGetInternships(StudentId: number | null, sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.StudentGetInternshipOffers(StudentId, sortBy, filterBy);
+  async StudentGetInternships(StudentId: number | null): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetInternshipOffers(StudentId);
   }
 
-  async StudentGetAllInternshipOffers(sortBy?: string, filterBy?: string[]): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.StudentGetAllInternshipOffers(sortBy, filterBy);
+  async StudentGetAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+    return await apiService.StudentGetAllInternshipOffers();
   }
 
   // Créer une nouvelle offre de stage
@@ -31,8 +31,8 @@ class DashboardService {
     return await apiService.createInternshipOffer(offerData);
   }
 
-  async getAllCvs(sortBy?: string, filterBy?: string[], sortOrder?: string): Promise<ApiResponse<Cv[]>> {
-    return await apiService.getAllCvs(sortBy, filterBy, sortOrder)
+  async getAllCvs(): Promise<ApiResponse<Cv[]>> {
+    return await apiService.getAllCvs()
   }
 
   // Calculer les statistiques du dashboard

@@ -49,7 +49,7 @@ public class EmployerService {
         String sortBy
     ) {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        List<StudentApplication> applications = studentApplicationDAO.findAllByInternshipOfferAndApplicationStatusAndStudentInstitutionAndStudentProgram(
+        List<StudentApplication> applications = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
             internshipOffer, applicationStatus, institution, program
         );
         Comparator<StudentApplication> comparator = switch (sortBy == null ? "" : sortBy) {
@@ -89,7 +89,7 @@ public class EmployerService {
 
     public StudentDTO getStudentApplicationDetails(Long internshipOfferID, Long studentID) {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        return studentApplicationDAO.findAllByInternshipOfferAndApplicationStatusAndStudentInstitutionAndStudentProgram(internshipOffer, null, null, null)
+        return studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
             .stream()
             .filter(app -> app.getStudent().getId().equals(studentID))
             .findFirst()
@@ -111,7 +111,7 @@ public class EmployerService {
         throws InterviewAlreadyScheduledException {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
 
-        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferAndApplicationStatusAndStudentInstitutionAndStudentProgram(internshipOffer, null, null, null)
+        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
             .stream()
             .filter(app -> app.getStudent().getId().equals(studentID))
             .findFirst()
@@ -143,7 +143,7 @@ public class EmployerService {
 
     public Optional<InterviewDTO> getInterviewByApplication(Long internshipOfferID, Long studentID) {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferAndApplicationStatusAndStudentInstitutionAndStudentProgram(internshipOffer, null, null, null)
+        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
             .stream()
             .filter(app -> app.getStudent().getId().equals(studentID))
             .findFirst()

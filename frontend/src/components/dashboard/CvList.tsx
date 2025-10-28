@@ -35,19 +35,22 @@ export default function CvList({cvs, loading, onCvValidation}: CvListProps) {
     };
 
     const getCvStatusBadge = (status: string) => {
-        if (status === "approved") {
+        // Convert status to lowercase for comparison
+        const statusLower = status?.toLowerCase();
+        
+        if (statusLower === "approved") {
             return (
                 <span className="text-sm font-semibold rounded-full p-2 ps-3 pe-3 bg-green-100 text-green-800">
         {t('dashboard.validated')}
       </span>
             );
-        } else if (status === "rejected") {
+        } else if (statusLower === "rejected") {
             return (
                 <span className="text-sm font-semibold rounded-full p-2 ps-3 pe-3 bg-red-100 text-red-800">
         {t('dashboard.rejected')}
       </span>
             );
-        } else if (status === "pending") {
+        } else if (statusLower === "pending") {
             return (
                 <span className="text-sm font-semibold rounded-full p-2 ps-3 pe-3 bg-yellow-100 text-yellow-800">
         {t('dashboard.pending')}
@@ -75,7 +78,7 @@ export default function CvList({cvs, loading, onCvValidation}: CvListProps) {
               <div className="flex-auto flex justify-end">
                   <div className="ml-4 flex flex-col items-end space-y-2">
                       {getCvStatusBadge(cv.cvStatus)}
-                      {(!cv.cvStatus || cv.cvStatus === 'pending') && (
+                      {(!cv.cvStatus || cv.cvStatus?.toLowerCase() === 'pending') && (
                           <button
                               onClick={(e) => {
                                   e.stopPropagation();

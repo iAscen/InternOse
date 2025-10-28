@@ -15,21 +15,21 @@ export const API_PATHS = {
   EMPLOYER: {
     BASE: '/employer',
     INTERNSHIP_OFFERS: '/employer/internship-offers',
-    APPLICATIONS: '/employer/internship-offers/applications',
-    APPLICATION_DETAILS: '/employer/internship-offers/applications/{studentID}',
+    APPLICATIONS: '/employer/internship-offers/student-applications',
+    APPLICATION_DETAILS: '/employer/internship-offers/student-applications/{studentID}',
     INTERVIEWS: '/employer/interviews',
-    SCHEDULE_INTERVIEW: '/employer/interviews/schedule',
+    SCHEDULE_INTERVIEW: '/employer/interviews',
   },
   
   // Étudiant
   STUDENT: {
     BASE: '/student',
     RESUME: '/student/resume',
-    RESUME_STATUS: '/student/resume/status',
+    RESUME_STATUS: '/student/resume',
     INTERNSHIP_OFFERS: '/student/internship-offers',
-    SEARCH_INTERNSHIP_OFFERS: '/student/internship-offers/search',
+    SEARCH_INTERNSHIP_OFFERS: '/student/internship-offers',
     INTERNSHIP_OFFER_DETAILS: '/student/internship-offers/{offerID}',
-    APPLY_INTERNSHIP: '/student/apply-internship',
+    APPLY_INTERNSHIP: '/student/internship-offers/{offerID}/apply-to-internship',
     APPLICATIONS: '/student/applications',
   },
   
@@ -38,12 +38,12 @@ export const API_PATHS = {
     BASE: '/internship-manager',
     OFFERS: '/internship-manager/employers/internship-offers',
     VALIDATION: '/internship-manager/validation',
-    SEARCH: '/internship-manager/search',
+    SEARCH: '/internship-manager/employers/internship-offers',
     VERIFY_OFFER: '/internship-manager/verify',
-    STUDENTS_CVS: '/internship-manager/students/cvs',
-    RESUME: '/internship-manager/students/{studentID}/cv',
-    DOWNLOAD_RESUME: '/internship-manager/students/{studentID}/cv/download',
-    VERIFY_RESUME: '/internship-manager/students/{studentID}/cv/validate',
+    STUDENTS_CVS: '/internship-manager/students/resumes',
+    RESUME: '/internship-manager/students/{studentID}/resume',
+    DOWNLOAD_RESUME: '/internship-manager/students/{studentID}/resume/download',
+    VERIFY_RESUME: '/internship-manager/students/{studentID}/resume/verify',
   },
 } as const;
 

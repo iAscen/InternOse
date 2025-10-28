@@ -12,6 +12,7 @@ import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
 import type {InternshipOffer} from "~/interfaces";
 import {dashboardService} from "~/services/dashboardService";
+import { filterInternshipOffers, sortInternshipOffers } from '~/utils/filterUtils';
 
 export default function StudentDashboardContent() {
   const { t } = useTranslation();
@@ -20,7 +21,8 @@ export default function StudentDashboardContent() {
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [showUploadForm, setShowUploadForm] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [offers, setOffers] = useState<InternshipOffer[]>([]);
+    const [allOffers, setAllOffers] = useState<InternshipOffer[]>([]);
+    const [filteredOffers, setFilteredOffers] = useState<InternshipOffer[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
@@ -28,6 +30,8 @@ export default function StudentDashboardContent() {
     const [error, setError] = useState<string | null>(null);
     const [applications, setApplications] = useState<any[]>([]);
     const [appliedOffers, setAppliedOffers] = useState<Set<number>>(new Set());
+    const [offerFilters, setOfferFilters] = useState<string[]>([]);
+    const [offerSortBy, setOfferSortBy] = useState<string>('');
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -41,13 +45,13 @@ export default function StudentDashboardContent() {
   }, [navigate]);
 
 
-    const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
+    const loadOffers = async () => {
         try {
             setLoading(true);
 
-          const response = await dashboardService.StudentGetAllInternshipOffers(sortBy, filterBy);
+          const response = await dashboardService.StudentGetAllInternshipOffers();
             if (response.success && response.data) {
-                setOffers(response.data);
+                setAllOffers(response.data);
             } else {
                 setError(response.error || t('dashboard.loadingError'));
             }
@@ -58,11 +62,44 @@ export default function StudentDashboardContent() {
         }
     };
 
+    // Apply filters and sorting to offers
+    useEffect(() => {
+        let filtered = allOffers;
+        
+        // Apply filters
+        const program = offerFilters[0];
+        const jobTitle = offerFilters[1];
+        const minSalary = offerFilters[2];
+        const maxSalary = offerFilters[3];
+        const startDateFrom = offerFilters[4];
+        const startDateTo = offerFilters[5];
+        
+        if (program || jobTitle || minSalary || maxSalary || startDateFrom || startDateTo) {
+            filtered = filterInternshipOffers(filtered, {
+                program,
+                title: jobTitle,
+                minSalary,
+                maxSalary,
+                startDateFrom,
+                startDateTo
+            });
+        }
+        
+        // Apply sorting
+        if (offerSortBy) {
+            filtered = sortInternshipOffers(filtered, offerSortBy, true);
+        }
+        
+        setFilteredOffers(filtered);
+    }, [allOffers, offerFilters, offerSortBy]);
+
   // Charger le statut du CV depuis le backend
   const loadCVStatus = async () => {
     try {
       const response = await apiService.getCVStatus();
+      console.log('🔍 Dashboard CV status response:', response);
       if (response.success && response.data) {
+        console.log('🔍 Setting CV status to:', response.data.status);
         setCvStatus(response.data.status as 'none' | 'pending' | 'approved' | 'rejected');
         setCvFileName(response.data.fileName || null);
       }
@@ -82,10 +119,18 @@ export default function StudentDashboardContent() {
           // Mettre à jour les offres auxquelles l'étudiant a postulé
           const appliedOfferIds = new Set(response.data.map((app: any) => app.internshipOfferId));
           setAppliedOffers(appliedOfferIds);
+        } else {
+          // Ne pas afficher d'erreur si les candidatures ne peuvent pas être chargées
+          console.log('Applications not loaded, using empty array');
+          setApplications([]);
+          setAppliedOffers(new Set());
         }
       }
     } catch (error) {
       console.error('Erreur lors du chargement des candidatures:', error);
+      // Ne pas bloquer le dashboard si les candidatures ne peuvent pas être chargées
+      setApplications([]);
+      setAppliedOffers(new Set());
     }
   };
 
@@ -303,7 +348,7 @@ export default function StudentDashboardContent() {
                                           userRole="STUDENT"
                                           applySorting={(sortBy: string) => {
                                               setShowSortMenuOffers(false);
-                                              loadOffers(sortBy, undefined);
+                                              setOfferSortBy(sortBy);
                                           }}/>
                                   }
                               </div>
@@ -319,7 +364,7 @@ export default function StudentDashboardContent() {
                                           userRole="STUDENT"
                                           applyFilters={(filterBy: string[]) => {
                                               setShowFilterMenuOffers(false);
-                                              loadOffers(undefined, filterBy);
+                                              setOfferFilters(filterBy);
                                           }}/>
                                   }
                               </div>
@@ -329,7 +374,7 @@ export default function StudentDashboardContent() {
           isStudent={true}
           isEmployer={false}
           loading={loading}
-          offers={offers}
+          offers={filteredOffers}
           onOfferValidation={() => loadOffers()}
           onApplicationSuccess={handleApplicationSuccess}
           cvStatus={cvStatus}

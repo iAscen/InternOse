@@ -22,7 +22,18 @@ export default function Home() {
   // Rediriger automatiquement vers le bon dashboard si l'utilisateur est connecté
   useEffect(() => {
     if (apiService.isAuthenticated()) {
-      const userRole = apiService.getUserRole();
+      // Essayer d'abord de récupérer le rôle depuis localStorage
+      let userRole = apiService.getUserRole();
+      
+      // Si pas trouvé dans localStorage, essayer depuis le JWT
+      if (!userRole) {
+        userRole = apiService.getUserRoleFromJWT();
+        if (userRole) {
+          // Sauvegarder le rôle dans localStorage pour éviter de re-décoder le JWT
+          apiService.saveUserRole(userRole);
+        }
+      }
+      
       if (userRole === 'EMPLOYER') {
         navigate('/employer-dashboard');
       } else if (userRole === 'STUDENT') {
