@@ -66,7 +66,7 @@ public class UserServiceTest {
     void testRegisterEmployerToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
+        when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Employer mockEmployer = Employer.builder()
             .firstName(dto.getFirstName())
@@ -112,7 +112,7 @@ public class UserServiceTest {
     void testEmployerEmailExists() {
         EmployerDTO dto = createEmployerDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
+        when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
             () -> userService.registerEmployer(dto));
 
@@ -136,7 +136,7 @@ public class UserServiceTest {
     void testRegisterStudentToken() throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
+        when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         Student mockStudent = Student.builder()
             .firstName(dto.getFirstName())
@@ -181,7 +181,7 @@ public class UserServiceTest {
     void testStudentEmailExists() {
         StudentDTO dto = createStudentDTO(null);
 
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.of(mock(User.class)));
+        when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.of(mock(User.class)));
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
             () -> userService.registerStudent(dto));
 
@@ -197,7 +197,7 @@ public class UserServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenReturn(mockAuthentication);
-        when(userDAO.findUserByEmail(loginDTO.getEmail()))
+        when(userDAO.findByCredentials_Email(loginDTO.getEmail()))
             .thenReturn(Optional.of(mockUser));
         when(mockUser.getId()).thenReturn(1L);
         when(mockUser.getFirstName()).thenReturn("John");
@@ -210,7 +210,7 @@ public class UserServiceTest {
         assertNotNull(token);
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userDAO).findUserByEmail(loginDTO.getEmail());
+        verify(userDAO).findByCredentials_Email(loginDTO.getEmail());
         verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString());
     }
 

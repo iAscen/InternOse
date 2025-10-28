@@ -260,7 +260,7 @@ public class StudentServiceTests {
         List<InternshipOffer> mockOffers = createTestOffers();
         Page<InternshipOffer> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
 
-        when(internshipOfferDAO.findInternshipOffersWithoutDates(
+        when(internshipOfferDAO.findAllWithoutDates(
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
@@ -280,7 +280,7 @@ public class StudentServiceTests {
         assertThat(result).isNotNull();
         assertThat(result.getContent().size()).isEqualTo(2);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        verify(internshipOfferDAO, times(1)).findInternshipOffersWithoutDates(
+        verify(internshipOfferDAO, times(1)).findAllWithoutDates(
             eq(VerificationStatus.APPROVED),
             isNull(),
             isNull(),
@@ -355,7 +355,7 @@ public class StudentServiceTests {
         when(internshipOfferDAO.findAll()).thenReturn(mockOffers);
         
         // Mock des candidatures - aucune candidature pour ces offres
-        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(anyLong(), anyLong()))
             .thenReturn(Optional.empty());
 
         // Act
@@ -428,7 +428,7 @@ public class StudentServiceTests {
         when(internshipOfferDAO.findAll()).thenReturn(createTestOffers());
         
         // Mock des candidatures - aucune candidature pour ces offres
-        when(studentApplicationDAO.findByStudentIdAndInternshipOfferId(anyLong(), anyLong()))
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(anyLong(), anyLong()))
             .thenReturn(Optional.empty());
 
         // Act - should not throw exception anymore
@@ -509,7 +509,7 @@ public class StudentServiceTests {
 
         // Mock the DAO methods
         Page<InternshipOffer> mockPage = new PageImpl<>(List.of());
-        when(internshipOfferDAO.findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+        when(internshipOfferDAO.findAllWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(mockPage);
         when(internshipOfferDAO.countInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(0L);
@@ -520,7 +520,7 @@ public class StudentServiceTests {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getContent().size()).isEqualTo(0);
-        verify(internshipOfferDAO).findInternshipOffersWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(internshipOfferDAO).findAllWithoutDates(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 
 

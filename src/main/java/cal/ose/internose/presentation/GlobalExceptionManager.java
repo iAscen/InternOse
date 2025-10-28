@@ -2,7 +2,6 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.exceptions.AuthenticationException;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
-import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
@@ -14,44 +13,44 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionManager {
     @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
+    public ResponseEntity<String> handleException(Exception e) {
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 
     @ExceptionHandler({UserAlreadyExistsException.class})
-    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+    public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 
     @ExceptionHandler({RequiredFieldException.class})
-    public ResponseEntity<ErrorResponseDTO> handleRequiredFieldException(RequiredFieldException e) {
+    public ResponseEntity<String> handleRequiredFieldException(RequiredFieldException e) {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 
     @ExceptionHandler({WeakPasswordException.class})
-    public ResponseEntity<ErrorResponseDTO> handleWeakPasswordException(WeakPasswordException e) {
+    public ResponseEntity<String> handleWeakPasswordException(WeakPasswordException e) {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException e) {
+    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException e) {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
-            .body(new ErrorResponseDTO(e.getMessage()));
+            .body(e.getMessage());
     }
 }

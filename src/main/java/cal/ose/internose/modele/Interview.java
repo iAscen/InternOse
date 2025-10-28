@@ -16,36 +16,21 @@ public class Interview {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @ManyToOne
-    @JoinColumn(name = "student_application_id", nullable = false)
     private StudentApplication studentApplication;
-
-    @Column(nullable = false)
-    private LocalDateTime interviewDateTime;
-
+    private LocalDateTime interviewDate;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private InterviewMode interviewMode;
-
-    @Column(length = 500)
     private String location;
-
-    @Column(length = 1000)
     private String personalizedMessage;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
+    private LocalDateTime scheduleDate;
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private InterviewStatus status = InterviewStatus.SCHEDULED;
-
+    private InterviewStatus interviewStatus = InterviewStatus.SCHEDULED;
     public enum InterviewMode {
         IN_PERSON,
         ONLINE
     }
-
     public enum InterviewStatus {
         SCHEDULED,
         COMPLETED,
@@ -53,7 +38,7 @@ public class Interview {
     }
 
     @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+    private void onCreate() {
+        scheduleDate = LocalDateTime.now();
     }
 }

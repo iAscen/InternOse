@@ -48,7 +48,7 @@ class InternshipManagerControllerTest {
     private InternshipOfferDAO internshipOfferDAO;
 
     @Test
-    void findInternshipOffersBy() throws Exception {
+    void getAllEmployersInternshipOffers() throws Exception {
         when(internshipManagerService.findInternshipsBy(
             null, "Informatique", null, null)).thenReturn(
             List.of(InternshipOfferDTO.builder().program("Informatique").build()));
@@ -71,7 +71,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByWithFilters() throws Exception {
+    void getAllEmployersInternshipOffersWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
             true, "Informatique", "Développeur", "title")).thenReturn(
@@ -107,7 +107,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByWithSorting() throws Exception {
+    void getAllEmployersInternshipOffersWithSorting() throws Exception {
         // Test avec tri par statut
         when(internshipManagerService.findInternshipsBy(
             null, null, null, "status")).thenReturn(
@@ -137,7 +137,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void findInternshipOffersByEmptyResult() throws Exception {
+    void getAllEmployersInternshipOffersEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
             null, "NonExistent", null, null)).thenReturn(List.of());
@@ -337,7 +337,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void downloadStudentCV_Success() throws Exception {
+    void downloadStudentResume_Success() throws Exception {
         // Test de téléchargement d'un CV
         Student student = createTestStudents().get(0);
         student.setResumeFileData("test cv data".getBytes());
@@ -366,7 +366,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void verifyStudentCV_Approve() throws Exception {
+    void verifyStudentResume_Approve() throws Exception {
         // Test d'approbation d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
@@ -384,7 +384,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void verifyStudentCV_Reject() throws Exception {
+    void verifyStudentResume_Reject() throws Exception {
         // Test de refus d'un CV
         Student student = createTestStudents().get(0);
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
@@ -419,7 +419,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void verifyStudentCV_AlreadyProcessed() throws Exception {
+    void verifyStudentResume_AlreadyProcessed() throws Exception {
         // Test avec CV déjà traité
         Student student = createTestStudents().get(0);
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
@@ -437,7 +437,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void verifyStudentCV_NoCV() throws Exception {
+    void verifyStudentCV_NoResume() throws Exception {
         // Test avec étudiant sans CV
         Student student = createTestStudents().get(0);
         student.setResumeVerificationStatus(VerificationStatus.NONE);
@@ -455,7 +455,7 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void verifyStudentCV_ServiceException() throws Exception {
+    void verifyStudentResume_ServiceException() throws Exception {
         // Test avec exception du service
         Student student = createTestStudents().get(0);
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));

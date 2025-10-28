@@ -34,7 +34,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findAllInternshipsBy("%Informatique%", null))
+        when(internshipOfferDAO.findAllByProgramAndTitle("%Informatique%", null))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
@@ -47,7 +47,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void sortByDomain() {
-        when(internshipOfferDAO.findAllInternshipsBy(null, null))
+        when(internshipOfferDAO.findAllByProgramAndTitle(null, null))
             .thenReturn(List.of(
                 InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
@@ -66,7 +66,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findAllInternshipsBy("%non%", null))
+        when(internshipOfferDAO.findAllByProgramAndTitle("%non%", null))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
