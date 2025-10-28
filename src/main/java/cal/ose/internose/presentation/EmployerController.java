@@ -103,7 +103,7 @@ public class EmployerController {
             List<InterviewDTO> scheduledInterviews = employerService.getInterviewsByEmployer(employerID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(scheduledInterviews));
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + e.getMessage() + "\" }");
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 

@@ -58,9 +58,9 @@ public class InternshipManagerService {
         return InternshipOfferDTO.fromEntityList(internshipOffers);
     }
 
-    public InternshipOfferDTO verifyInternshipOffer(Long studentID, boolean approved, String rejectionReason)
+    public InternshipOfferDTO verifyInternshipOffer(Long internshipOfferID, boolean approved, String rejectionReason)
         throws ResumeAlreadyApprovedException {
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(studentID).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
         if (internshipOffer.getVerificationStatus() != VerificationStatus.PENDING)
             throw new ResumeAlreadyApprovedException();
 

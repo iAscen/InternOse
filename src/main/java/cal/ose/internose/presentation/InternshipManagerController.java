@@ -58,7 +58,7 @@ public class InternshipManagerController {
 
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(verifiedInternshipOffer));
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + e.getMessage() + "\" }");
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
