@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {apiService} from '~/services/apiService';
+import {userAPI} from '~/services/UserAPI';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -8,10 +8,10 @@ export const useAuth = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsAuthenticated(apiService.isAuthenticated());
-    setUserRole(apiService.getUserRole());
-    setUserName(apiService.getUserName())
-    setUserEmail(apiService.getUserEmail());
+    setIsAuthenticated(userAPI.isAuthenticated());
+    setUserRole(userAPI.getUserRole());
+    setUserName(userAPI.getUserName())
+    setUserEmail(userAPI.getUserEmail());
   }, []);
 
   return {isAuthenticated, userRole, userName, userEmail};

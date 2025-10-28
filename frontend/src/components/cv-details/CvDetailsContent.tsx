@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSSR, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
 import type { Cv } from "~/interfaces";
-import { apiService } from "~/services/apiService";
+import { userAPI } from "~/services/UserAPI";
+import { internshipManagerAPI } from "~/services/InternshipManagerAPI";
 
 
 export function CvDetailsContent() {
@@ -16,10 +17,10 @@ export function CvDetailsContent() {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        if (!apiService.isAuthenticated()) {
+        if (!userAPI.isAuthenticated()) {
             navigate('/login');
         } else {
-            const userRole = apiService.getUserRole();
+            const userRole = userAPI.getUserRole();
             if (userRole !== 'INTERNSHIP_MANAGER') {
                 // Rediriger vers le bon dashboard selon le rôle
                 switch (userRole) {
@@ -53,7 +54,7 @@ export function CvDetailsContent() {
     }
 
     const loadCvDetails = async () => {
-        const response = await apiService.getCvDetails(Number(studentId))
+        const response = await internshipManagerAPI.getCvDetails(Number(studentId))
         
         if (response.success) {
             setCvDetails(response.data)
@@ -66,7 +67,7 @@ export function CvDetailsContent() {
     }
 
     const loadCvBytes = async () => {
-        const response = await apiService.getCvBlob(Number(studentId))
+        const response = await internshipManagerAPI.getCvBlob(Number(studentId))
         
         if (response.success) {
             setCvBlob(response.data)

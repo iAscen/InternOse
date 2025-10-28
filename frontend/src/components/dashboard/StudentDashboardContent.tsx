@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '~/services/apiService';
+import { userAPI } from '~/services/UserAPI';
+import { studentAPI } from '~/services/StudentAPI';
 import CVUploadSection from './CVUploadSection';
 import CVStatusCard from './CVStatusCard';
 import StatisticsCard from './StatisticsCard';
@@ -35,7 +36,7 @@ export default function StudentDashboardContent() {
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
-    if (!apiService.isAuthenticated()) {
+    if (!userAPI.isAuthenticated()) {
       navigate('/login');
     } else {
       loadCVStatus();
@@ -96,7 +97,7 @@ export default function StudentDashboardContent() {
   // Charger le statut du CV depuis le backend
   const loadCVStatus = async () => {
     try {
-      const response = await apiService.getCVStatus();
+      const response = await studentAPI.getCVStatus();
       console.log('🔍 Dashboard CV status response:', response);
       if (response.success && response.data) {
         console.log('🔍 Setting CV status to:', response.data.status);
@@ -111,9 +112,9 @@ export default function StudentDashboardContent() {
   // Charger les candidatures de l'étudiant
   const loadApplications = async () => {
     try {
-      const studentId = await apiService.getStudentIdFromJWT();
+      const studentId = await userAPI.getStudentIdFromJWT();
       if (studentId) {
-        const response = await apiService.getStudentApplications(studentId);
+        const response = await studentAPI.getStudentApplications(studentId);
         if (response.success && response.data) {
           setApplications(response.data);
           // Mettre à jour les offres auxquelles l'étudiant a postulé
@@ -174,7 +175,7 @@ export default function StudentDashboardContent() {
       }
 
       // Appel API réel
-      const response = await apiService.uploadCV(file);
+      const response = await studentAPI.uploadCV(file);
 
       if (response.success) {
         setCvFileName(file.name);

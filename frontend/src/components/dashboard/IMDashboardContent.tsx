@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { apiService } from "~/services/apiService";
+import { userAPI } from "~/services/UserAPI";
 import { dashboardService } from "~/services/dashboardService";
 import type { InternshipOffer } from "~/interfaces";
 import type { Cv } from "~/interfaces"
@@ -80,10 +80,10 @@ export default function IMDashboardContent() {
 
     // Vérifier l'authentification au chargement
     useEffect(() => {
-        if (!apiService.isAuthenticated()) {
+        if (!userAPI.isAuthenticated()) {
             navigate('/login');
         } else {
-            const userRole = apiService.getUserRole();
+            const userRole = userAPI.getUserRole();
             if (userRole !== 'INTERNSHIP_MANAGER') {
                 // Rediriger vers le bon dashboard selon le rôle
                 switch (userRole) {

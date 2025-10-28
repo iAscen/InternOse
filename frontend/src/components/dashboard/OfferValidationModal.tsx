@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '~/services/apiService';
+import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
 import type { InternshipOffer } from '~/interfaces';
 
 interface OfferValidationModalProps {
@@ -39,7 +39,7 @@ export default function OfferValidationModal({
     });
 
     try {
-      const response = await apiService.validateInternshipOffer(
+      const response = await internshipManagerAPI.validateInternshipOffer(
         offer.id, 
         type === 'approve', 
         type === 'reject' ? comment : undefined
@@ -105,7 +105,7 @@ export default function OfferValidationModal({
         <div className="px-6 py-4">
           {/* Offer Details */}
           <div className="mb-6">
-            <h4 className="text-md font-medium text-gray-900 mb-3">{offer.jobTitle}</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-3">{offer.title}</h4>
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,13 +140,13 @@ export default function OfferValidationModal({
           {/* Description */}
           <div className="mb-6">
             <h4 className="text-sm font-medium text-gray-900 mb-2">{t('internship.description')}</h4>
-            <p className="text-sm text-gray-700 leading-relaxed">{offer.taskDescription}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{offer.description}</p>
           </div>
 
           {/* Requirements */}
           <div className="mb-6">
             <h4 className="text-sm font-medium text-gray-900 mb-2">{t('internship.requirements')}</h4>
-            <p className="text-sm text-gray-700 leading-relaxed">{offer.qualifications}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
           </div>
 
           {/* Error Message */}

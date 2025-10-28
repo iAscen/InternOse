@@ -38,7 +38,7 @@ export default function ApplyOfferModal({ offer, isOpen, onClose, onApply, error
         <div className="p-6">
           {/* Détails de l'offre */}
           <div className="mb-6 bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.jobTitle}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p>📍 {offer.address}</p>
               <p>⏱ {offer.duration} semaines | 📅 {offer.startDate}</p>

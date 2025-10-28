@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '../../services/apiService';
+import { userAPI } from '../../services/UserAPI';
 import { dashboardService } from '../../services/dashboardService';
 import StatisticsCard from './StatisticsCard';
 import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
-import type { InternshipOffer, CreateOfferFormData } from '../../interfaces';
+import type { InternshipOffer, CreateOfferFormData, CreateInternshipOfferRequest } from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
 
 export default function EmployerDashboardContent() {
@@ -21,7 +21,7 @@ export default function EmployerDashboardContent() {
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
-    if (!apiService.isAuthenticated()) {
+    if (!userAPI.isAuthenticated()) {
       navigate('/login');
     }
   }, [navigate]);
@@ -61,12 +61,29 @@ export default function EmployerDashboardContent() {
     loadOffers();
   }, []);
 
+  // Fonction pour mapper CreateOfferFormData vers CreateInternshipOfferRequest
+  const mapFormDataToRequest = (formData: CreateOfferFormData): CreateInternshipOfferRequest => {
+    return {
+      title: formData.jobTitle,
+      description: formData.taskDescription,
+      program: formData.program,
+      requiredSkills: formData.qualifications,
+      duration: formData.duration,
+      startDate: formData.startDate,
+      salary: formData.salary,
+      address: formData.address,
+    };
+  };
+
   const handleCreateOffer = async (formData: CreateOfferFormData) => {
     setError(null);
     setSuccess(null);
 
+    // Mapper les données du formulaire vers le format API
+    const requestData = mapFormDataToRequest(formData);
+
     // Validation des données
-    const validationError = dashboardService.validateOfferData(formData);
+    const validationError = dashboardService.validateOfferData(requestData);
     if (validationError) {
       setError(validationError);
       return;
@@ -74,8 +91,8 @@ export default function EmployerDashboardContent() {
 
     try {
       setLoading(true);
-      console.log('Création de l\'offre avec les données:', formData);
-      const response = await dashboardService.createInternshipOffer(formData);
+      console.log('Création de l\'offre avec les données:', requestData);
+      const response = await dashboardService.createInternshipOffer(requestData);
       console.log('Réponse de création:', response);
 
       if (response.success) {

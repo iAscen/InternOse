@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '~/services/apiService';
+import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
 import type { Cv } from '~/interfaces';
 import PdfViewer from './PdfViewer.client';
 
@@ -39,7 +39,7 @@ export default function CvValidationModal({
       setError(null);
 
       try {
-        const response = await apiService.getCvBlob(cv.id);
+        const response = await internshipManagerAPI.getCvBlob(cv.id);
         console.log('🔍 CV Blob response:', response);
 
         if (response.success && response.data) {
@@ -101,7 +101,7 @@ export default function CvValidationModal({
     });
 
     try {
-      const response = await apiService.validateCv(
+      const response = await internshipManagerAPI.validateCv(
         cv.id,
         type === 'approve',
         type === 'reject' ? comment : undefined
@@ -135,7 +135,7 @@ export default function CvValidationModal({
     }
 
     try {
-      const response = await apiService.getCvBlob(cv.id);
+      const response = await internshipManagerAPI.getCvBlob(cv.id);
       
       if (response.success && response.data) {
         const url = window.URL.createObjectURL(response.data);

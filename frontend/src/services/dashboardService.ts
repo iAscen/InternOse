@@ -1,4 +1,6 @@
-import { apiService } from './apiService';
+import { employerAPI } from './EmployerAPI';
+import { studentAPI } from './StudentAPI';
+import { internshipManagerAPI } from './InternshipManagerAPI';
 import type {
   InternshipOffer,
   CreateInternshipOfferRequest,
@@ -10,29 +12,29 @@ import type {
 class DashboardService {
   // Récupérer toutes les offres de stage de l'employeur
   async getInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.getInternshipOffers();
+    return await employerAPI.getInternshipOffers();
   }
 
   // Récupérer toutes les offres de stages de tous les employeurs (pour le gestionnaire de stages)
   async getAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.getAllInternshipOffers();
+    return await internshipManagerAPI.getAllInternshipOffers();
   }
 
   async StudentGetInternships(StudentId: number | null): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.StudentGetInternshipOffers(StudentId);
+    return await studentAPI.StudentGetInternshipOffers(StudentId);
   }
 
   async StudentGetAllInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
-    return await apiService.StudentGetAllInternshipOffers();
+    return await studentAPI.StudentGetAllInternshipOffers();
   }
 
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
-    return await apiService.createInternshipOffer(offerData);
+    return await employerAPI.createInternshipOffer(offerData);
   }
 
   async getAllCvs(): Promise<ApiResponse<Cv[]>> {
-    return await apiService.getAllCvs()
+    return await internshipManagerAPI.getAllCvs()
   }
 
   // Calculer les statistiques du dashboard

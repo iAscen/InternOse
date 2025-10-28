@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { apiService } from "../services/apiService";
+import { userAPI } from "../services/UserAPI";
 
 export function meta({}: Route.MetaArgs) {
   // Note: Pour une internationalisation complète des métadonnées,
@@ -21,16 +21,16 @@ export default function Home() {
 
   // Rediriger automatiquement vers le bon dashboard si l'utilisateur est connecté
   useEffect(() => {
-    if (apiService.isAuthenticated()) {
+    if (userAPI.isAuthenticated()) {
       // Essayer d'abord de récupérer le rôle depuis localStorage
-      let userRole = apiService.getUserRole();
+      let userRole = userAPI.getUserRole();
       
       // Si pas trouvé dans localStorage, essayer depuis le JWT
       if (!userRole) {
-        userRole = apiService.getUserRoleFromJWT();
+        userRole = userAPI.getUserRoleFromJWT();
         if (userRole) {
           // Sauvegarder le rôle dans localStorage pour éviter de re-décoder le JWT
-          apiService.saveUserRole(userRole);
+          userAPI.saveUserRole(userRole);
         }
       }
       

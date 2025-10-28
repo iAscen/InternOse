@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Cv, InternshipOffer, CreateInterviewInvitationRequest } from '~/interfaces';
-import { apiService } from '~/services/apiService';
+import { employerAPI } from '~/services/EmployerAPI';
 
 interface InterviewInvitationModalProps {
   isOpen: boolean;
@@ -75,7 +75,7 @@ export default function InterviewInvitationModal({
       };
 
       // Appel API pour envoyer la convocation
-      const response = await apiService.scheduleInterview(invitation);
+      const response = await employerAPI.scheduleInterview(invitation);
       
       if (response.success) {
         if (onInvitationSent) {
