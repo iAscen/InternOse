@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionManager {
-    @ExceptionHandler({Exception.class})
+    /*@ExceptionHandler({Exception.class})
     public ResponseEntity<String> handleException(Exception e) {
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(e.getMessage());
-    }
+    }*/
 
     @ExceptionHandler({UserAlreadyExistsException.class})
     public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
