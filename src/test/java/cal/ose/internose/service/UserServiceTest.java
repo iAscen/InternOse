@@ -62,7 +62,7 @@ public class UserServiceTest {
     }
 
     private void mockSuccessfulRegistration(User user) {
-        when(userDAO.findUserByEmail(anyString())).thenReturn(Optional.empty());
+        when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userDAO.save(any())).thenReturn(user);
         when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString()))
