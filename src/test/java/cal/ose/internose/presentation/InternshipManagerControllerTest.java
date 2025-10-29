@@ -247,8 +247,7 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
-        assertThat(responseContent).contains("pending");
+        assertThat(responseContent).contains("PENDING");
     }
 
     @Test
@@ -266,7 +265,7 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
+        assertThat(responseContent).contains("APPROVED");
     }
 
     private List<Student> createTestStudents() {
