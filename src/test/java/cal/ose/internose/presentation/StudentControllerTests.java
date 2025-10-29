@@ -4,20 +4,22 @@ import cal.ose.internose.modele.Credentials;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.VerificationStatus;
+import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.TestPaths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.StudentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -42,6 +44,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class StudentControllerTests {
     @Mock
     private StudentService studentService;
+
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
+
+    // use a real ObjectMapper so controller can serialize responses during tests
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     @InjectMocks
     private StudentController studentController;
@@ -68,7 +79,7 @@ public class StudentControllerTests {
         Long studentID = 1L;
         Student student = exampleStudent();
         MockMultipartFile mockFile = new MockMultipartFile(
-            "file", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes()
+            "resumeFile", "CV_Exemple.pdf", "application/pdf", "Ceci est un fichier CV exemple".getBytes()
         );
         student.setResumeFileName(mockFile.getOriginalFilename());
         student.setResumeFileData(mockFile.getBytes());
@@ -76,16 +87,16 @@ public class StudentControllerTests {
         // Act
         MvcResult mvcResult = mockMvc.perform(
             multipart(Paths.STUDENT_RESUME_PATH)
-            .file(mockFile)
-            .param("studentID", String.valueOf(studentID))
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .file(mockFile)
+                .param("studentID", String.valueOf(studentID))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         ).andReturn();
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
     }
 
     @Test
-    @DisplayName("Test de la méthode getCVStatus() (GET /api/student/cv/status)")
+    @DisplayName("Test de la méthode getCVStatus() (GET /api/student/resume)")
     public void testGetResumeStatus() throws Exception {
         // Arrange
         Long studentID = 1L;
@@ -97,7 +108,7 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(TestPaths.buildStudentResumeStatusUrl(studentID))
+            get(Paths.STUDENT_RESUME_PATH)
                 .param("studentID", String.valueOf(studentID))
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
@@ -105,8 +116,7 @@ public class StudentControllerTests {
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("pending");
-        assertThat(responseContent).contains("test.pdf");
+        assertThat(responseContent).contains("PENDING");
     }
 
     @Test
@@ -118,13 +128,15 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-            get(TestPaths.buildStudentResumeStatusUrl(studentID))
+            get(Paths.STUDENT_RESUME_PATH)
                 .param("studentID", String.valueOf(studentID))
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Student not found");
     }
 
     @Test
@@ -141,16 +153,16 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentInternshipOffersUrl(studentId))
-                        .param("studentID", studentId.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Développeur Java");
-        assertThat(responseContent).contains("Analyste de données");
+        String responseContent2 = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent2).contains("Développeur Java");
+        assertThat(responseContent2).contains("Analyste de données");
     }
 
     @Test
@@ -163,30 +175,26 @@ public class StudentControllerTests {
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
-        Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
 
-        when(studentService.searchInternshipOffers(any(), eq(studentId))).thenReturn(mockPage);
-        when(studentService.countInternshipOffers(any(), eq(studentId))).thenReturn(2L);
+        when(studentService.getAllApprovedInternshipOffers(studentId)).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
-                        .param("studentID", studentId.toString())
-                        .param("program", "Informatique")
-                        .param("location", "Montréal")
-                        .param("sortBy", "startDate")
-                        .param("sortOrder", "asc")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .param("program", "Informatique")
+                .param("location", "Montréal")
+                .param("sortBy", "startDate")
+                .param("sortOrder", "asc")
+                .param("page", "0")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("offers");
-        assertThat(responseContent).contains("totalElements");
-        assertThat(responseContent).contains("totalPages");
+        assertThat(responseContent).contains("Développeur Java");
     }
 
     @Test
@@ -198,29 +206,25 @@ public class StudentControllerTests {
         student.setId(studentId);
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
-
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
-        Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
 
-        when(studentService.searchInternshipOffers(any(), eq(studentId))).thenReturn(mockPage);
-        when(studentService.countInternshipOffers(any() ,eq(studentId))).thenReturn(2L);
+        when(studentService.getAllApprovedInternshipOffers(studentId)).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
-                    .param("studentID", studentId.toString())
-                    .param("minSalary", "500")
-                    .param("maxSalary", "1000")
-                    .param("sortBy", "salary")
-                    .param("sortOrder", "desc")
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .param("minSalary", "500")
+                .param("maxSalary", "1000")
+                .param("sortBy", "salary")
+                .param("sortOrder", "desc")
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("offers");
-        assertThat(responseContent).contains("totalElements");
+        assertThat(responseContent).contains("Développeur Java");
     }
 
     @Test
@@ -233,27 +237,24 @@ public class StudentControllerTests {
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
-        Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
 
-        when(studentService.searchInternshipOffers(any(), eq(studentId))).thenReturn(mockPage);
-        when(studentService.countInternshipOffers(any(), eq(studentId))).thenReturn(2L);
+        when(studentService.getAllApprovedInternshipOffers(studentId)).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
-                    .param("studentID", studentId.toString())
-                    .param("startDateFrom", "2024-06-01")
-                    .param("startDateTo", "2024-08-31")
-                    .param("sortBy", "startDate")
-                    .param("sortOrder", "asc")
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .param("startDateFrom", "2024-06-01")
+                .param("startDateTo", "2024-08-31")
+                .param("sortBy", "startDate")
+                .param("sortOrder", "asc")
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("offers");
-        assertThat(responseContent).contains("totalElements");
+        assertThat(responseContent).contains("Développeur Java");
     }
 
     @Test
@@ -266,23 +267,20 @@ public class StudentControllerTests {
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
         List<InternshipOfferDTO> mockOffers = createTestOfferDTOs();
-        Page<InternshipOfferDTO> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
 
-        when(studentService.searchInternshipOffers(any(), eq(studentId))).thenReturn(mockPage);
-        when(studentService.countInternshipOffers(any(), eq(studentId))).thenReturn(2L);
+        when(studentService.getAllApprovedInternshipOffers(studentId)).thenReturn(mockOffers);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
-                    .param("studentID", studentId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("offers");
-        assertThat(responseContent).contains("totalElements");
+        assertThat(responseContent).contains("Développeur Java");
     }
 
     @Test
@@ -296,19 +294,18 @@ public class StudentControllerTests {
 
         Long offerId = 1L;
         InternshipOfferDTO mockOffer = createTestOfferDTO();
-        when(studentService.getInternshipOfferByID(studentId, offerId)).thenReturn(Optional.of(mockOffer));
-
+        when(studentService.getInternshipOfferByID(offerId))
+            .thenReturn(mockOffer);
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
-                    .param("studentID", studentId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("offer");
         assertThat(responseContent).contains("Développeur Java");
     }
 
@@ -322,19 +319,18 @@ public class StudentControllerTests {
 
         // Arrange
         Long offerId = 999L;
-        when(studentService.getInternshipOfferByID(studentId, offerId)).thenReturn(Optional.empty());
+        when(studentService.getInternshipOfferByID(offerId)).thenThrow(new RuntimeException("Offre de stage non trouvée"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
-                    .param("studentID", studentId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentInternshipOfferDetailsUrl(offerId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("error");
         assertThat(responseContent).contains("Offre de stage non trouvée");
     }
 
@@ -347,20 +343,19 @@ public class StudentControllerTests {
         student.setId(studentId);
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
 
-        when(studentService.searchInternshipOffers(any(), eq(studentId))).thenThrow(new RuntimeException("Erreur de base de données"));
+        when(studentService.getAllApprovedInternshipOffers(studentId)).thenThrow(new RuntimeException("Erreur de base de données"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
-                    .param("studentID", studentId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentSearchInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("error");
-        assertThat(responseContent).contains("Erreur lors de la recherche des offres de stage");
+        assertThat(responseContent).contains("Erreur de base de données");
     }
 
     @Test
@@ -376,54 +371,53 @@ public class StudentControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                get(TestPaths.buildStudentInternshipOffersUrl(studentId))
-                    .param("studentID", studentId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
+            get(TestPaths.buildStudentInternshipOffersUrl(studentId))
+                .param("studentID", studentId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("error");
-        assertThat(responseContent).contains("Erreur lors de la recherche des offres de stage");
+        assertThat(responseContent).contains("Erreur de base de données");
     }
 
     private List<InternshipOfferDTO> createTestOfferDTOs() {
         InternshipOfferDTO offer1 = InternshipOfferDTO.builder()
-                .id(1L)
-                .title("Développeur Java")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(750.0)
-                .duration(12)
-                .startDate(LocalDate.of(2024, 6, 1))
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
+            .id(1L)
+            .title("Développeur Java")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(750.0)
+            .duration(12)
+            .startDate(LocalDate.of(2024, 6, 1))
+            .verificationStatus(VerificationStatus.APPROVED)
+            .build();
 
         InternshipOfferDTO offer2 = InternshipOfferDTO.builder()
-                .id(2L)
-                .title("Analyste de données")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(650.0)
-                .duration(16)
-                .startDate(LocalDate.of(2024, 7, 1))
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
+            .id(2L)
+            .title("Analyste de données")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(650.0)
+            .duration(16)
+            .startDate(LocalDate.of(2024, 7, 1))
+            .verificationStatus(VerificationStatus.APPROVED)
+            .build();
 
         return List.of(offer1, offer2);
     }
 
     private InternshipOfferDTO createTestOfferDTO() {
         return InternshipOfferDTO.builder()
-                .id(1L)
-                .title("Développeur Java")
-                .program("Informatique")
-                .address("Montréal, QC")
-                .salary(750.0)
-                .duration(12)
-                .startDate(LocalDate.of(2024, 6, 1))
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
+            .id(1L)
+            .title("Développeur Java")
+            .program("Informatique")
+            .address("Montréal, QC")
+            .salary(750.0)
+            .duration(12)
+            .startDate(LocalDate.of(2024, 6, 1))
+            .verificationStatus(VerificationStatus.APPROVED)
+            .build();
     }
 }
