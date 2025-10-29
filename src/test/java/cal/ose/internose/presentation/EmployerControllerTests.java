@@ -1,5 +1,6 @@
 package cal.ose.internose.presentation;
 
+import cal.ose.internose.modele.Interview;
 import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
@@ -73,7 +74,7 @@ public class EmployerControllerTests {
         Long employerID = 1L;
         InternshipOfferDTO internshipOfferDTO = exampleInternshipOffers().getFirst();
         when(employerService.createInternshipOffer(anyLong(), any(InternshipOfferDTO.class)))
-                .thenReturn(Optional.of(internshipOfferDTO));
+            .thenReturn(internshipOfferDTO);
         // Act
         MvcResult mvcResult = mockMvc.perform(
                 post(TestPaths.buildEmployerInternshipOffersUrl(employerID))
@@ -177,7 +178,7 @@ public class EmployerControllerTests {
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
                 .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
-                .interviewMode("ONLINE")
+                .interviewMode(Interview.InterviewMode.ONLINE)
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Nous sommes ravis de vous rencontrer")
                 .build();
@@ -194,7 +195,7 @@ public class EmployerControllerTests {
                 .interviewMode(interviewDTO.getInterviewMode())
                 .location(interviewDTO.getLocation())
                 .personalizedMessage(interviewDTO.getPersonalizedMessage())
-                .interviewStatus("SCHEDULED")
+                .interviewStatus(Interview.InterviewStatus.SCHEDULED)
                 .scheduleDate(LocalDateTime.now())
                 .build();
 
@@ -229,7 +230,7 @@ public class EmployerControllerTests {
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
                 .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
-                .interviewMode("ONLINE")
+                .interviewMode(Interview.InterviewMode.ONLINE)
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message")
                 .build();
@@ -264,7 +265,7 @@ public class EmployerControllerTests {
 
         InterviewDTO interviewDTO = InterviewDTO.builder()
                 .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
-                .interviewMode("ONLINE")
+                .interviewMode(Interview.InterviewMode.ONLINE)
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message")
                 .build();
@@ -332,10 +333,10 @@ public class EmployerControllerTests {
                 .internshipOfferID(1L)
                 .title("Stage développeur")
                 .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
-                .interviewMode("ONLINE")
+                .interviewMode(Interview.InterviewMode.ONLINE)
                 .location("https://zoom.us/meeting")
                 .personalizedMessage("Message personnalisé")
-                .interviewStatus("SCHEDULED")
+                .interviewStatus(Interview.InterviewStatus.SCHEDULED)
                 .scheduleDate(LocalDateTime.now())
                 .build());
 
