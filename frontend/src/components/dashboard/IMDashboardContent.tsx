@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { apiService } from "~/services/apiService";
+import { userAPI } from "~/services/UserAPI";
 import { dashboardService } from "~/services/dashboardService";
 import type { InternshipOffer } from "~/interfaces";
 import type { Cv } from "~/interfaces"
@@ -15,18 +15,26 @@ import CvList from "./CvList";
 import SortMenuCvs from "./SortMenuCvs";
 import FilterMenuCvs from "./FilterMenuCvs";
 import { useClickOutside } from "~/hooks/useClickOutside";
+import { filterInternshipOffers, sortInternshipOffers, filterCvs, sortCvs } from "~/utils/filterUtils";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [offers, setOffers] = useState<InternshipOffer[]>([]);
-    const [cvs, setCvs] = useState<Cv[]>([])
+    const [allOffers, setAllOffers] = useState<InternshipOffer[]>([]);
+    const [allCvs, setAllCvs] = useState<Cv[]>([]);
+    const [filteredOffers, setFilteredOffers] = useState<InternshipOffer[]>([]);
+    const [filteredCvs, setFilteredCvs] = useState<Cv[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [offerFilters, setOfferFilters] = useState<string[]>([]);
+    const [cvFilters, setCvFilters] = useState<string[]>([]);
+    const [offerSortBy, setOfferSortBy] = useState<string>('');
+    const [cvSortBy, setCvSortBy] = useState<string>('');
+    const [cvSortOrder, setCvSortOrder] = useState<string>('asc');
 
     // Refs pour les dropdowns
     const sortOffersMenuRef = useRef<HTMLDivElement>(null);
@@ -72,10 +80,10 @@ export default function IMDashboardContent() {
 
     // Vérifier l'authentification au chargement
     useEffect(() => {
-        if (!apiService.isAuthenticated()) {
+        if (!userAPI.isAuthenticated()) {
             navigate('/login');
         } else {
-            const userRole = apiService.getUserRole();
+            const userRole = userAPI.getUserRole();
             if (userRole !== 'INTERNSHIP_MANAGER') {
                 // Rediriger vers le bon dashboard selon le rôle
                 switch (userRole) {
@@ -93,13 +101,13 @@ export default function IMDashboardContent() {
         }
     }, [navigate]);
 
-    // Charger les offres de stage
-    const loadOffers = async (sortBy?: string, filterBy?: string[]) => {
+    // Charger toutes les offres de stage (sans filtres backend)
+    const loadOffers = async () => {
         try {
             setLoading(true);
-            const response = await dashboardService.getAllInternshipOffers(sortBy, filterBy);
+            const response = await dashboardService.getAllInternshipOffers();
             if (response.success && response.data) {
-                setOffers(response.data);
+                setAllOffers(response.data);
             } else {
                 setError(response.error || t('dashboard.loadingError'));
             }
@@ -110,16 +118,16 @@ export default function IMDashboardContent() {
         }
     };
 
-    const loadCvs = async (sortBy?: string, filterBy?: string[], sortOrder?: string) => {
+    const loadCvs = async () => {
         try {
             setLoading(true);
             console.log('Loading CVs...');
-            const response = await dashboardService.getAllCvs(sortBy, filterBy, sortOrder);
+            const response = await dashboardService.getAllCvs();
             console.log('CV response:', response);
             if (response.success && response.data) {
                 const cvs: Cv[] = response.data
                 console.log('CVs loaded:', cvs);
-                setCvs(cvs);
+                setAllCvs(cvs);
             } else {
                 console.error('CV loading failed:', response.error);
                 setError(response.error || t('dashboard.loadingError'));
@@ -131,6 +139,51 @@ export default function IMDashboardContent() {
             setLoading(false);
         }
     }
+
+    // Apply filters and sorting to offers
+    useEffect(() => {
+        let filtered = allOffers;
+        
+        // Apply filters
+        const status = offerFilters[0];
+        const program = offerFilters[1];
+        const title = offerFilters[2];
+        
+        if (status || program || title) {
+            filtered = filterInternshipOffers(filtered, {
+                status,
+                program,
+                title
+            });
+        }
+        
+        // Apply sorting
+        if (offerSortBy) {
+            filtered = sortInternshipOffers(filtered, offerSortBy, true);
+        }
+        
+        setFilteredOffers(filtered);
+    }, [allOffers, offerFilters, offerSortBy]);
+
+    // Apply filters and sorting to CVs
+    useEffect(() => {
+        let filtered = allCvs;
+        
+        // Apply filters
+        const status = cvFilters[0];
+        const institution = cvFilters[2];
+        
+        if (status || institution) {
+            filtered = filterCvs(filtered, { status, institution });
+        }
+        
+        // Apply sorting
+        if (cvSortBy) {
+            filtered = sortCvs(filtered, cvSortBy, cvSortOrder === 'asc');
+        }
+        
+        setFilteredCvs(filtered);
+    }, [allCvs, cvFilters, cvSortBy, cvSortOrder]);
 
     useEffect(() => {
         loadOffers();
@@ -163,8 +216,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.pendingSubmissions')}
                             value={(() => {
-                                const pendingOffers = offers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
-                                const pendingCvs = cvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
+                                const pendingOffers = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
+                                const pendingCvs = allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
                                 console.log('Pending offers:', pendingOffers, 'Pending CVs:', pendingCvs, 'Total:', pendingOffers + pendingCvs);
                                 return pendingOffers + pendingCvs;
                             })()}
@@ -175,8 +228,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.approvedSubmissions')}
                             value={
-                                offers.filter(offer => offer.verificationStatus === 'APPROVED').length +
-                                cvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length
+                                allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length +
+                                allCvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length
                             }
                             icon={statsIcons.approved}
                             bgColor="bg-green-100"
@@ -185,8 +238,8 @@ export default function IMDashboardContent() {
                         <StatisticsCard
                             title={t('im.refusedSubmissions')}
                             value={
-                                offers.filter(offer => offer.verificationStatus === 'REJECTED').length +
-                                cvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
+                                allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length +
+                                allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
                             }
                             icon={statsIcons.refused}
                             bgColor="bg-red-100"
@@ -213,7 +266,7 @@ export default function IMDashboardContent() {
                                             userRole="INTERNSHIP_MANAGER"
                                             applySorting={(sortBy: string) => {
                                                 setShowSortMenuOffers(false);
-                                                loadOffers(sortBy, undefined);
+                                                setOfferSortBy(sortBy);
                                             }}/>
                                     }
                                 </div>
@@ -229,7 +282,7 @@ export default function IMDashboardContent() {
                                             userRole="INTERNSHIP_MANAGER"
                                             applyFilters={(filterBy: string[]) => {
                                                 setShowFilterMenuOffers(false);
-                                                loadOffers(undefined, filterBy);
+                                                setOfferFilters(filterBy);
                                             }}/>
                                     }
                                 </div>
@@ -239,7 +292,7 @@ export default function IMDashboardContent() {
                             isStudent={false}
                           isEmployer={false} 
                           loading={loading} 
-                          offers={offers}
+                          offers={filteredOffers}
                           onOfferValidation={() => loadOffers()}
                         />
                     </div>
@@ -261,7 +314,8 @@ export default function IMDashboardContent() {
                                     {showSortMenuResumes &&
                                         <SortMenuCvs applySorting={(sortBy: string, sortOrder: string) => {
                                             setShowSortMenuResumes(false);
-                                            loadCvs(sortBy, undefined, sortOrder)
+                                            setCvSortBy(sortBy);
+                                            setCvSortOrder(sortOrder);
                                         }}/>
                                     }
                                 </div>
@@ -275,18 +329,18 @@ export default function IMDashboardContent() {
                                     {showFilterMenuResumes &&
                                         <FilterMenuCvs applyFilters={(filterBy: string[]) => {
                                             setShowFilterMenuResumes(false);
-                                            loadCvs(undefined, filterBy, "desc");
+                                            setCvFilters(filterBy);
                                         }}/>
                                     }
                                 </div>
                             </div>
                         </div>
-                        {cvs.length != 0 && <CvList
+                        {filteredCvs.length != 0 && <CvList
                             loading={loading}
-                            cvs={cvs}
+                            cvs={filteredCvs}
                             onCvValidation={() => loadCvs()}
                         ></CvList>}
-                        {cvs.length == 0 && 
+                        {filteredCvs.length == 0 && 
                             <div className="text-center text-gray-900">
                                 {t('im.resumesSectionEmpty')}
                             </div>

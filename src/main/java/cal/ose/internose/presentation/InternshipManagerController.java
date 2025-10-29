@@ -7,6 +7,8 @@ import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -93,17 +95,22 @@ public class InternshipManagerController {
     }
 
     @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH)
-    public ResponseEntity<String> downloadStudentResume(@PathVariable Long studentID) {
+    public ResponseEntity<ByteArrayResource> downloadStudentResume(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
+            byte[] resumeData = studentDTO.getResumeFileData();
+            ByteArrayResource resource = new ByteArrayResource(resumeData);
+            
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            httpHeaders.setContentDispositionFormData("attachment", studentDTO.getResumeFileName());
-            httpHeaders.setContentLength(studentDTO.getResumeFileData().length);
+            httpHeaders.setContentDisposition(ContentDisposition.attachment().filename(studentDTO.getResumeFileName()).build());
+            httpHeaders.setContentLength(resumeData.length);
 
-            return getResponseEntity(HttpStatus.OK, httpHeaders, objectMapper.writeValueAsString(studentDTO.getResumeFileData()));
+            return ResponseEntity.ok()
+                    .headers(httpHeaders)
+                    .body(resource);
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -126,13 +133,13 @@ public class InternshipManagerController {
 
     private List<String> getStudentResumeDetails(StudentDTO studentDTO) {
         return List.of(
-            studentDTO.getResumeVerificationStatus().toString(),
-            studentDTO.getResumeUploadDate().toString(),
-            studentDTO.getResumeFileName(),
-            studentDTO.getResumeFileType(),
-            Base64.getEncoder().encodeToString(studentDTO.getResumeFileData()), // Convertir byte[] en String correctement
-            studentDTO.getResumeVerifiedDate().toString(),
-            studentDTO.getResumeRejectionReason()
+            studentDTO.getResumeVerificationStatus() != null ? studentDTO.getResumeVerificationStatus().toString() : "",
+            studentDTO.getResumeUploadDate() != null ? studentDTO.getResumeUploadDate().toString() : "",
+            studentDTO.getResumeFileName() != null ? studentDTO.getResumeFileName() : "",
+            studentDTO.getResumeFileType() != null ? studentDTO.getResumeFileType() : "",
+            studentDTO.getResumeFileData() != null ? Base64.getEncoder().encodeToString(studentDTO.getResumeFileData()) : "",
+            studentDTO.getResumeVerifiedDate() != null ? studentDTO.getResumeVerifiedDate().toString() : "",
+            studentDTO.getResumeRejectionReason() != null ? studentDTO.getResumeRejectionReason() : ""
         );
     }
 

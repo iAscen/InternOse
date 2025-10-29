@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '~/services/apiService';
+import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
 import type { Cv } from '~/interfaces';
 import PdfViewer from './PdfViewer.client';
 
@@ -39,14 +39,20 @@ export default function CvValidationModal({
       setError(null);
 
       try {
-        const response = await apiService.getCvBlob(cv.id);
+        const response = await internshipManagerAPI.getCvBlob(cv.id);
+        console.log('🔍 CV Blob response:', response);
 
         if (response.success && response.data) {
-          const blobUrl = URL.createObjectURL(response.data);
-          setCvUrl(blobUrl);
+          // Check if the blob is actually a PDF
+          if (response.data.type === 'application/pdf' || response.data.type === 'application/octet-stream') {
+            const blobUrl = URL.createObjectURL(response.data);
+            setCvUrl(blobUrl);
+          } else {
+            console.warn('Invalid blob type:', response.data.type);
+            setError('Le CV n\'est pas un fichier PDF valide');
+          }
         } else {
           console.warn('Failed to load CV:', response.error);
-
           setError(`Impossible de charger le CV: ${response.error}`);
         }
       } catch (err) {
@@ -95,7 +101,7 @@ export default function CvValidationModal({
     });
 
     try {
-      const response = await apiService.validateCv(
+      const response = await internshipManagerAPI.validateCv(
         cv.id,
         type === 'approve',
         type === 'reject' ? comment : undefined
@@ -129,7 +135,7 @@ export default function CvValidationModal({
     }
 
     try {
-      const response = await apiService.getCvBlob(cv.id);
+      const response = await internshipManagerAPI.getCvBlob(cv.id);
       
       if (response.success && response.data) {
         const url = window.URL.createObjectURL(response.data);
@@ -271,25 +277,32 @@ export default function CvValidationModal({
               <div className="bg-gray-50 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${cv.cvStatus === 'approved' ? 'bg-green-100' :
-                      cv.cvStatus === 'rejected' ? 'bg-red-100' :
-                        'bg-yellow-100'
-                      }`}>
-                      <svg className={`w-3 h-3 ${cv.cvStatus === 'approved' ? 'text-green-600' :
-                        cv.cvStatus === 'rejected' ? 'text-red-600' :
-                          'text-yellow-600'
-                        }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${cv.cvStatus === 'approved' ? 'bg-green-100 text-green-800' :
-                      cv.cvStatus === 'rejected' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                      {cv.cvStatus === 'approved' ? t('im.approved') : 
-                       cv.cvStatus === 'rejected' ? t('im.rejected') : 
-                       t('im.pending')}
-                    </span>
+                    {(() => {
+                      const statusLower = cv.cvStatus?.toLowerCase();
+                      return (
+                        <>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${statusLower === 'approved' ? 'bg-green-100' :
+                            statusLower === 'rejected' ? 'bg-red-100' :
+                              'bg-yellow-100'
+                            }`}>
+                            <svg className={`w-3 h-3 ${statusLower === 'approved' ? 'text-green-600' :
+                              statusLower === 'rejected' ? 'text-red-600' :
+                                'text-yellow-600'
+                              }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusLower === 'approved' ? 'bg-green-100 text-green-800' :
+                            statusLower === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                            {statusLower === 'approved' ? t('im.approved') :
+                              statusLower === 'rejected' ? t('im.rejected') :
+                                t('im.pending')}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                   <button
                     onClick={handleDownload}
@@ -320,7 +333,7 @@ export default function CvValidationModal({
             )}
 
             {/* Validation Actions - Only show for pending CVs */}
-            {cv.cvStatus === 'pending' ? (
+            {cv.cvStatus?.toLowerCase() === 'pending' || !cv.cvStatus ? (
               <div className="space-y-3">
                 {/* Approve Button */}
                 <button
@@ -402,17 +415,24 @@ export default function CvValidationModal({
             ) : (
               /* Message for already processed CVs */
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-                <div className="flex items-center justify-center mb-1">
-                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600">
-                    {cv.cvStatus === 'approved' ? t('im.cvAlreadyApproved') : t('im.cvAlreadyProcessed')}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {t('im.cvAlreadyProcessedMessage', { status: cv.cvStatus === 'approved' ? t('im.approved').toLowerCase() : t('im.rejected').toLowerCase() })}
-                </p>
+                {(() => {
+                  const statusLower = cv.cvStatus?.toLowerCase();
+                  return (
+                    <>
+                      <div className="flex items-center justify-center mb-1">
+                        <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-600">
+                          {statusLower === 'approved' ? t('im.cvAlreadyApproved') : t('im.cvAlreadyProcessed')}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {t('im.cvAlreadyProcessedMessage', { status: statusLower === 'approved' ? t('im.approved').toLowerCase() : t('im.rejected').toLowerCase() })}
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>

@@ -24,13 +24,10 @@ export default function SortMenuOffers({applySorting, userRole}: SortMenuOffersP
         ];
       case 'STUDENT':
         return [
-          { key: 'jobTitle', labelKey: 'student.jobTitle' },
-          { key: 'company', labelKey: 'student.company' },
+          { key: 'title', labelKey: 'im.title' },
           { key: 'program', labelKey: 'student.program' },
-          { key: 'location', labelKey: 'student.location' },
           { key: 'salary', labelKey: 'student.salary' },
-          { key: 'duration', labelKey: 'student.duration' },
-          { key: 'startDate', labelKey: 'student.startDate' }
+          { key: 'duration', labelKey: 'student.duration' }
         ];
       case 'EMPLOYER':
         return [

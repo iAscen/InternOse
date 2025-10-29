@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
 import PasswordField from "./PasswordField";
-import { apiService } from "../../services/apiService";
+import { userAPI } from "../../services/UserAPI";
 import { useForm } from "../../hooks";
 import type { StudentRegistrationRequest } from "../../interfaces";
 
@@ -56,12 +56,12 @@ export default function StudentForm({ onBack }: StudentFormProps) {
         role: 'STUDENT',
       };
 
-      const response = await apiService.registerStudent(registrationData);
+      const response = await userAPI.registerStudent(registrationData);
 
       if (response.success && response.data) {
         // Sauvegarder le token JWT et le rôle
-        apiService.saveToken(response.data);
-        apiService.saveUserRole('STUDENT');
+        userAPI.saveToken(response.data);
+        userAPI.saveUserRole('STUDENT');
         
         console.log('Inscription réussie ! Token:', response.data);
         // Rediriger vers le dashboard étudiant

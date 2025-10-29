@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { InternshipOffer } from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
-import { apiService } from '~/services/apiService';
+import { studentAPI } from '~/services/StudentAPI';
+import { userAPI } from '~/services/UserAPI';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -51,13 +52,13 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
     }
 
     try {
-      const studentId = await apiService.getStudentIdFromJWT();
+      const studentId = await userAPI.getStudentIdFromJWT();
       if (!studentId) {
         setApplyError('Impossible de récupérer votre identifiant');
         return;
       }
 
-      const response = await apiService.applyToOffer(studentId, selectedOfferToApply.id);
+      const response = await studentAPI.applyToOffer(studentId, selectedOfferToApply.id);
 
         if (response.success) {
           setSuccessMessage('Votre candidature a été soumise avec succès !');
@@ -209,7 +210,7 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                     )}
                       {isStudent && offer.verificationStatus === 'APPROVED' && (
                           cvStatus === 'approved' ? (
-                              appliedOffers?.has(offer.id || 0) ? (
+                              offer.applicationStatus ? (
                                   <button
                                       disabled
                                       className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${

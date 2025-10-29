@@ -1,7 +1,7 @@
 import {Link} from "react-router";
 import {useState, useRef} from "react";
 import {useTranslation} from "react-i18next";
-import {apiService} from "~/services/apiService";
+import {userAPI} from "~/services/UserAPI";
 import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ClientOnly from "./ClientOnly";
@@ -133,7 +133,7 @@ export default function Header() {
                         <div className="border-t border-gray-200 pt-3">
                           <button
                             onClick={() => {
-                              apiService.removeToken();
+                              userAPI.removeToken();
                               window.location.href = '/';
                             }}
                             className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -198,7 +198,7 @@ export default function Header() {
                         </div>
                         <button
                           onClick={() => {
-                            apiService.removeToken();
+                            userAPI.removeToken();
                             window.location.href = '/';
                           }}
                           className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import type { Cv, InternshipOffer, CreateInterviewInvitationRequest } from "~/interfaces";
-import { apiService } from "~/services/apiService";
+import { employerAPI } from "~/services/EmployerAPI";
 import ApplicationValidationModal from "./ApplicationValidationModal";
 import InterviewInvitationModal from "./InterviewInvitationModal";
 import SortButton from "./SortButton";
@@ -47,7 +47,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
 		const errorMes = "Erreur lors de l'obtention des candidatures."
 		try {
-			let response = await apiService.getStudentApplicationsBy(internship.id!, applicationStatus, program, institution, sortBy)
+			let response = await employerAPI.getStudentApplicationsBy(internship.id!, applicationStatus, program, institution, sortBy)
 			if (response.success) {
 				setApplications(response.data!)
 			}

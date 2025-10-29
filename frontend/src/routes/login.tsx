@@ -17,8 +17,6 @@ type AccountType = 'employer' | 'student';
 export default function Login() {
   const [accountType, setAccountType] = useState<AccountType | null>(null);
 
-  const handleSelectEmployer = () => setAccountType('employer');
-  const handleSelectStudent = () => setAccountType('student');
   const handleBack = () => setAccountType(null);
 
   if (!accountType) {

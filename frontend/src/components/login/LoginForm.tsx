@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
-import { apiService } from "../../services/apiService";
+import { userAPI } from "../../services/UserAPI";
 import { useForm } from "../../hooks";
 import type { LoginRequest } from "../../interfaces";
 
@@ -30,39 +30,49 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
         password: formData.password,
       };
 
-      const response = await apiService.login(loginData);
+      const response = await userAPI.login(loginData);
 
       if (response.success && response.data) {
         // Sauvegarder le token JWT
-        apiService.saveToken(response.data);
+        userAPI.saveToken(response.data);
         // Déterminer le rôle utilisateur depuis le JWT et rediriger vers le bon dashboard
-        const userRoleFromJWT = apiService.getUserRoleFromJWT();
+        const userRoleFromJWT = userAPI.getUserRoleFromJWT();
+        console.log('User role from JWT:', userRoleFromJWT);
         switch (userRoleFromJWT) {
           case 'EMPLOYER':
-            apiService.saveUserRole('EMPLOYER');
+            userAPI.saveUserRole('EMPLOYER');
+            console.log('Redirecting to employer-dashboard');
             window.location.href = '/employer-dashboard';
             break;
           case 'STUDENT':
-            apiService.saveUserRole('STUDENT');
+            userAPI.saveUserRole('STUDENT');
+            console.log('Redirecting to student-dashboard');
             window.location.href = '/student-dashboard';
             break;
            case 'INTERNSHIP_MANAGER':
-             apiService.saveUserRole('INTERNSHIP_MANAGER');
+             userAPI.saveUserRole('INTERNSHIP_MANAGER');
+             console.log('Redirecting to im-dashboard');
              window.location.href = '/im-dashboard';
              break;
           default:
+            console.log('Role from JWT not found, trying determineUserRole');
             // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
-            const determinedRole = await apiService.determineUserRole(formData.email);
+            const determinedRole = await userAPI.determineUserRole(formData.email);
+            console.log('Determined role:', determinedRole);
             if (determinedRole === 'EMPLOYER') {
-              apiService.saveUserRole('EMPLOYER');
-              window.location.href = '/dashboard';
+              userAPI.saveUserRole('EMPLOYER');
+              console.log('Redirecting to employer-dashboard (fallback)');
+              window.location.href = '/employer-dashboard';
             } else if (determinedRole === 'STUDENT') {
-              apiService.saveUserRole('STUDENT');
+              userAPI.saveUserRole('STUDENT');
+              console.log('Redirecting to student-dashboard (fallback)');
               window.location.href = '/student-dashboard';
              } else if (determinedRole === 'INTERNSHIP_MANAGER') {
-               apiService.saveUserRole('INTERNSHIP_MANAGER');
+               userAPI.saveUserRole('INTERNSHIP_MANAGER');
+               console.log('Redirecting to im-dashboard (fallback)');
                window.location.href = '/im-dashboard';
             } else {
+              console.error('Unable to determine user role, redirecting to home');
               // Si on ne peut toujours pas déterminer, rediriger vers l'accueil
               window.location.href = '/';
             }

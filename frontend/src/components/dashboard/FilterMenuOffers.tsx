@@ -23,13 +23,9 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
       case 'STUDENT':
         return {
           program: "",
-          location: "",
           jobTitle: "",
-          company: "",
           minSalary: "",
           maxSalary: "",
-          minDuration: "",
-          maxDuration: "",
           startDateFrom: "",
           startDateTo: ""
         };
@@ -68,16 +64,12 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
       applyFilters([status, program, title]);
     } else if (userRole === 'STUDENT') {
       const program = formData.program != "" ? formData.program : undefined;
-      const location = formData.location != "" ? formData.location : undefined;
       const jobTitle = formData.jobTitle != "" ? formData.jobTitle : undefined;
-      const company = formData.company != "" ? formData.company : undefined;
       const minSalary = formData.minSalary != "" ? formData.minSalary : undefined;
       const maxSalary = formData.maxSalary != "" ? formData.maxSalary : undefined;
-      const minDuration = formData.minDuration != "" ? formData.minDuration : undefined;
-      const maxDuration = formData.maxDuration != "" ? formData.maxDuration : undefined;
       const startDateFrom = formData.startDateFrom != "" ? formData.startDateFrom : undefined;
       const startDateTo = formData.startDateTo != "" ? formData.startDateTo : undefined;
-      applyFilters([program, location, jobTitle, company, minSalary, maxSalary, minDuration, maxDuration, startDateFrom, startDateTo]);
+      applyFilters([program, jobTitle, minSalary, maxSalary, startDateFrom, startDateTo]);
     } else if (userRole === 'EMPLOYER') {
       const status = formData.status != "" ? formData.status : undefined;
       const program = formData.program != "" ? formData.program : undefined;
@@ -102,8 +94,9 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
             >
               <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
-              <option value="false" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-              <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+              <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
+              <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+              <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
             </select>
           </div>
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
@@ -126,34 +119,12 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
           <FormInput
             className={"mb-3"}
-            id={"location"}
-            name={"location"}
-            type={"text"}
-            label={t('student.location')}
-            placeholder={t('student.locationPlaceholder')}
-            value={formData.location || ""}
-            onChange={handleChange}
-            required={false}
-          />
-          <FormInput
-            className={"mb-3"}
             id={"jobTitle"}
             name={"jobTitle"}
             type={"text"}
             label={t('student.jobTitle')}
             placeholder={t('student.jobTitlePlaceholder')}
             value={formData.jobTitle || ""}
-            onChange={handleChange}
-            required={false}
-          />
-          <FormInput
-            className={"mb-3"}
-            id={"company"}
-            name={"company"}
-            type={"text"}
-            label={t('student.company')}
-            placeholder={t('student.companyPlaceholder')}
-            value={formData.company || ""}
             onChange={handleChange}
             required={false}
           />
@@ -179,30 +150,6 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
                 label=""
                 placeholder={t('student.max')}
                 value={formData.maxSalary || ""}
-                onChange={handleChange}
-                required={false}
-              />
-            </div>
-          </div>
-          <div className="mb-3">
-            <div className="flex gap-2">
-              <FormInput
-                id={"minDuration"}
-                name={"minDuration"}
-                type={"number"}
-                label={t('student.minWeeks')}
-                placeholder={t('student.minWeeks')}
-                value={formData.minDuration || ""}
-                onChange={handleChange}
-                required={false}
-              />
-              <FormInput
-                id={"maxDuration"}
-                name={"maxDuration"}
-                type={"number"}
-                label={t('student.maxWeeks')}
-                placeholder={t('student.maxWeeks')}
-                value={formData.maxDuration || ""}
                 onChange={handleChange}
                 required={false}
               />
@@ -249,8 +196,9 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
             >
               <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
-              <option value="false" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-              <option value="true" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+              <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
+              <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+              <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
             </select>
           </div>
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>

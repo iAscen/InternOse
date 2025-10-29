@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import FormInput from "../FormInput";
 import FormSection from "../FormSection";
 import PasswordField from "./PasswordField";
-import { apiService } from "../../services/apiService";
+import { userAPI } from "../../services/UserAPI";
 import { useForm } from "../../hooks";
 import type { EmployerRegistrationRequest } from "../../interfaces";
 
@@ -58,12 +58,12 @@ export default function EmployerForm({ onBack }: EmployerFormProps) {
         company: formData.companyName,
       };
 
-      const response = await apiService.registerEmployer(registrationData);
+      const response = await userAPI.registerEmployer(registrationData);
 
       if (response.success && response.data) {
         // Sauvegarder le token JWT et le rôle
-        apiService.saveToken(response.data);
-        apiService.saveUserRole('EMPLOYER');
+        userAPI.saveToken(response.data);
+        userAPI.saveUserRole('EMPLOYER');
         
         console.log('Inscription réussie ! Token:', response.data);
         // Rediriger vers le dashboard employeur
