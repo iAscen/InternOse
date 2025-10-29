@@ -48,7 +48,7 @@ public class StudentControllerTests {
     @Mock
     private JwtTokenProvider jwtTokenProvider;
 
-    // use a real ObjectMapper so controller can serialize responses during tests
+    // utiliser un vrai object mapper pour serialiser les responses durant les tests
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper()
         .registerModule(new JavaTimeModule())

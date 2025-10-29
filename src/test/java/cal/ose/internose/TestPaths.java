@@ -23,7 +23,6 @@ public class TestPaths {
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATIONS_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH;
     public static final String EMPLOYER_INTERVIEWS_PATH = Paths.EMPLOYER_INTERVIEWS_PATH;
-    // use EMPLOYER_INTERVIEWS_PATH for scheduling/interviews
     public static final String EMPLOYER_SCHEDULE_INTERVIEW_PATH = Paths.EMPLOYER_INTERVIEWS_PATH;
 
     // Étudiant
@@ -31,7 +30,6 @@ public class TestPaths {
     public static final String STUDENT_RESUME_PATH = Paths.STUDENT_RESUME_PATH;
     public static final String STUDENT_RESUME_STATUS_PATH = Paths.STUDENT_RESUME_STATUS_PATH;
     public static final String STUDENT_INTERNSHIP_OFFERS_LIST_PATH = Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH;
-    // reuse internship offers list path for search endpoint (no separate constant in Paths)
     public static final String STUDENT_SEARCH_INTERNSHIP_OFFERS_LIST_PATH = Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH;
     public static final String STUDENT_INTERNSHIP_OFFER_DETAILS_PATH = Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH;
     public static final String STUDENT_APPLY_INTERNSHIP_PATH = Paths.STUDENT_APPLY_TO_INTERNSHIP_OFFER_PATH;
@@ -39,7 +37,6 @@ public class TestPaths {
     // Gestionnaire de stages
     public static final String INTERNSHIP_MANAGER_BASE_PATH = Paths.INTERNSHIP_MANAGER_BASE_PATH;
     public static final String INTERNSHIP_MANAGER_OFFERS_PATH = Paths.INTERNSHIP_MANAGER_OFFERS_PATH;
-    // map validation/search/CVs to available Paths constants
     public static final String INTERNSHIP_MANAGER_VALIDATION_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH;
     public static final String INTERNSHIP_MANAGER_SEARCH_PATH = Paths.INTERNSHIP_MANAGER_OFFERS_PATH;
     public static final String INTERNSHIP_MANAGER_VERIFY_OFFER_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH;
