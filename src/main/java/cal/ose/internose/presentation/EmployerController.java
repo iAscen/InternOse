@@ -6,6 +6,7 @@ import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -92,7 +93,10 @@ public class EmployerController {
                 internshipOfferID, studentID, objectMapper.readValue(requestBody, InterviewDTO.class)
             );
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(interviewDTO));
-        } catch (Exception e) {
+        } catch (InterviewAlreadyScheduledException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+        catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
