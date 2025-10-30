@@ -238,62 +238,6 @@ public class StudentServiceTests {
 
     // ========== TESTS POUR LES MÉTHODES D'OFFRES DE STAGE ==========
 
-//    @Test
-//    @DisplayName("Test de la méthode searchInternshipOffers() avec critères de base")
-//    public void testSearchInternshipOffers_WithBasicCriteria() throws ResumeNotApprovedException {
-//        Long studentId = 1L;
-//        Student student = exampleStudent();
-//        student.setId(studentId);
-//        student.setResumeVerificationStatus(VerificationStatus.APPROVED);
-//        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
-//
-//        // Arrange
-//        InternshipOfferSearchCriteria criteria = InternshipOfferSearchCriteria.builder()
-//            .program("Informatique")
-//            .address("Montréal")
-//            .sortBy("startDate")
-//            .sortOrder("asc")
-//            .page(0)
-//            .size(10)
-//            .build();
-//
-//        List<InternshipOffer> mockOffers = createTestOffers();
-//        Page<InternshipOffer> mockPage = new PageImpl<>(mockOffers, PageRequest.of(0, 10), 2);
-//
-//        when(internshipOfferDAO.findAllWithoutDates(
-//            eq(VerificationStatus.APPROVED),
-//            isNull(),
-//            isNull(),
-//            eq("%informatique%"),
-//            isNull(),
-//            isNull(),
-//            isNull(),
-//            isNull(),
-//            eq("%montréal%"),
-//            any(Pageable.class)
-//        )).thenReturn(mockPage);
-//
-//        // Act
-//        Page<InternshipOfferDTO> result = studentService.searchInternshipOffers(criteria, studentId);
-//
-//        // Assert
-//        assertThat(result).isNotNull();
-//        assertThat(result.getContent().size()).isEqualTo(2);
-//        assertThat(result.getTotalElements()).isEqualTo(2);
-//        verify(internshipOfferDAO, times(1)).findAllWithoutDates(
-//            eq(VerificationStatus.APPROVED),
-//            isNull(),
-//            isNull(),
-//            eq("%informatique%"),
-//            isNull(),
-//            isNull(),
-//            isNull(),
-//            isNull(),
-//            eq("%montréal%"),
-//            any(Pageable.class)
-//        );
-//    }
-//
     @Test
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre trouvée")
     public void testGetInternshipOfferById_OfferFound() throws ResumeNotApprovedException {
