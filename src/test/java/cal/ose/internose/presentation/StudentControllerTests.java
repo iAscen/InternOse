@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -124,7 +125,7 @@ public class StudentControllerTests {
     public void testGetResumeStatus_StudentNotFound() throws Exception {
         // Arrange
         Long studentID = 999L;
-        when(studentService.getStudentByID(studentID)).thenThrow(new RuntimeException("Student not found"));
+        when(studentService.getStudentByID(studentID)).thenThrow(new NoSuchElementException("Student not found"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -134,7 +135,7 @@ public class StudentControllerTests {
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Student not found");
     }
@@ -319,7 +320,7 @@ public class StudentControllerTests {
 
         // Arrange
         Long offerId = 999L;
-        when(studentService.getInternshipOfferByID(offerId)).thenThrow(new RuntimeException("Offre de stage non trouvée"));
+        when(studentService.getInternshipOfferByID(offerId)).thenThrow(new NoSuchElementException("Offre de stage non trouvée"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -329,7 +330,7 @@ public class StudentControllerTests {
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Offre de stage non trouvée");
     }
@@ -353,7 +354,7 @@ public class StudentControllerTests {
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Erreur de base de données");
     }
@@ -377,7 +378,7 @@ public class StudentControllerTests {
         ).andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Erreur de base de données");
     }

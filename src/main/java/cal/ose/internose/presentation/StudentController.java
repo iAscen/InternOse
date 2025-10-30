@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin("http://localhost:5173")
@@ -32,7 +33,11 @@ public class StudentController {
             return getResponseEntity(
                 HttpStatus.OK, objectMapper.writeValueAsString(studentDTO.getResumeVerificationStatus())
             );
-        } catch (Exception e) {
+        }  catch (NoSuchElementException e) {
+            return getResponseEntity(
+                HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }catch (Exception e) {
             return getResponseEntity(
                 HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
             );
@@ -62,7 +67,7 @@ public class StudentController {
             );
         } catch (Exception e) {
             return getResponseEntity(
-                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+                HttpStatus.INTERNAL_SERVER_ERROR, "{ \"message\": \"" + e.getMessage() + "\" }"
             );
         }
     }
@@ -73,6 +78,10 @@ public class StudentController {
             InternshipOfferDTO internshipOfferDTO = studentService.getInternshipOfferByID(internshipOfferID);
             return getResponseEntity(
                 HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTO)
+            );
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(
+                HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }"
             );
         } catch (Exception e) {
             return getResponseEntity(
