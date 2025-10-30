@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -93,6 +94,8 @@ public class EmployerController {
                 internshipOfferID, studentID, objectMapper.readValue(requestBody, InterviewDTO.class)
             );
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(interviewDTO));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (InterviewAlreadyScheduledException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
@@ -106,6 +109,8 @@ public class EmployerController {
         try {
             List<InterviewDTO> scheduledInterviews = employerService.getInterviewsByEmployer(employerID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(scheduledInterviews));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }

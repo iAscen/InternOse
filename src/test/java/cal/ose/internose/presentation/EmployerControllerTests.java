@@ -22,10 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -218,7 +215,7 @@ public class EmployerControllerTests {
     }
 
     @Test
-    @DisplayName("Test de POST /api/employer/interviews/schedule - offre non trouvée")
+    @DisplayName("Test de POST /api/employer/interviews offre non trouvée")
     public void testPOSTScheduleInterview_OfferNotFound() throws Exception {
         // Arrange
         Long internshipOfferID = 1L;
@@ -231,9 +228,8 @@ public class EmployerControllerTests {
                 .personalizedMessage("Message")
                 .build();
 
-        // RuntimeException marche seulement
         when(employerService.scheduleInterview(eq(internshipOfferID), eq(studentID), any(InterviewDTO.class)))
-                .thenThrow(new RuntimeException("Internship offer not found"));
+                .thenThrow(new NoSuchElementException("Internship offer not found"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -243,7 +239,7 @@ public class EmployerControllerTests {
                 .andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -287,7 +283,7 @@ public class EmployerControllerTests {
     }
 
     @Test
-    @DisplayName("Test de POST /api/employer/interviews/schedule - JSON invalide")
+    @DisplayName("Test de POST /api/employer/interviews - JSON invalide")
     public void testPOSTScheduleInterview_InvalidJSON() throws Exception {
         // Arrange
         Long internshipOfferID = 1L;
@@ -360,9 +356,8 @@ public class EmployerControllerTests {
         // Arrange
         Long employerID = 1L;
 
-        // RuntimeException marche seulement
         when(employerService.getInterviewsByEmployer(employerID))
-                .thenThrow(new RuntimeException("Employer not found"));
+                .thenThrow(new NoSuchElementException("Employer not found"));
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
@@ -371,7 +366,7 @@ public class EmployerControllerTests {
                 .andReturn();
 
         // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
         String responseBody = mvcResult.getResponse().getContentAsString();
 
