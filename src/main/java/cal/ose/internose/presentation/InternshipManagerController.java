@@ -90,7 +90,7 @@ public class InternshipManagerController {
 
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(studentResumeDetails));
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
@@ -110,7 +110,7 @@ public class InternshipManagerController {
                     .headers(httpHeaders)
                     .body(resource);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
 

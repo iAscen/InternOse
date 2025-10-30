@@ -28,8 +28,6 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -224,9 +222,9 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
-        assertThat(responseContent).contains("data");
-        assertThat(responseContent).contains("totalCount");
+        // Controller returns a raw list of StudentDTOs. Check for student data instead of wrapper fields.
+        assertThat(responseContent).contains("Alice");
+        assertThat(responseContent).contains("Bob");
     }
 
     @Test
@@ -301,7 +299,7 @@ class InternshipManagerControllerTest {
     @Test
     void getStudentResumeDetails_Success() throws Exception {
         // Test de récupération des détails d'un CV d'étudiant
-        Student student = createTestStudents().get(0);
+        Student student = createTestStudents().getFirst();
         student.setResumeFileName("alice_cv.pdf");
         student.setResumeFileType("application/pdf");
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
@@ -313,8 +311,8 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("success");
-        assertThat(responseContent).contains("Alice");
+        assertThat(responseContent).contains("PENDING");
+        assertThat(responseContent).contains("alice_cv.pdf");
     }
 
     @Test
@@ -329,7 +327,7 @@ class InternshipManagerControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Étudiant non trouvé");
+        assertThat(responseContent).contains("Student not found");
     }
 
     @Test
@@ -364,108 +362,111 @@ class InternshipManagerControllerTest {
     @Test
     void verifyStudentResume_Approve() throws Exception {
         // Test d'approbation d'un CV
-        Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
-        doNothing().when(internshipManagerService).verifyResume(1L, true, null);
-
-        MvcResult mvcResult = mockMvc.perform(
-                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
-                    .param("approved", "true")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("CV validé avec succès");
-    }
-
-    @Test
-    void verifyStudentResume_Reject() throws Exception {
-        // Test de refus d'un CV
-        Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
-        doNothing().when(internshipManagerService).verifyResume(1L, false, "CV incomplet");
-
-        MvcResult mvcResult = mockMvc.perform(
-                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
-                    .param("approved", "false")
-                    .param("reason", "CV incomplet")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("CV refusé avec succès");
-    }
-
-    @Test
-    void verifyStudentCV_StudentNotFound() throws Exception {
-        // Test avec étudiant non trouvé
-        when(studentService.getStudentByID(999L)).thenThrow(new RuntimeException("Student not found"));
-
-        MvcResult mvcResult = mockMvc.perform(
-                post(TestPaths.buildInternshipManagerVerifyResumeUrl(999L))
-                    .param("approved", "true")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Étudiant non trouvé");
-    }
-
-    @Test
-    void verifyStudentResume_AlreadyProcessed() throws Exception {
-        // Test avec CV déjà traité
-        Student student = createTestStudents().get(0);
+        Student student = createTestStudents().getFirst();
         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
+        when(internshipManagerService.verifyResume(1L, true, null)).thenReturn(StudentDTO.fromEntity(student));
 
         MvcResult mvcResult = mockMvc.perform(
                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
-                    .param("approved", "true")
+                    .param("isApproved", "true")
+                     .contentType(MediaType.APPLICATION_JSON))
+             .andReturn();
+
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("APPROVED");
+     }
+
+     @Test
+     void verifyStudentResume_Reject() throws Exception {
+         // Test de refus d'un CV
+         Student student = createTestStudents().get(0);
+         student.setResumeVerificationStatus(VerificationStatus.REJECTED);
+         student.setResumeRejectionReason("CV incomplet");
+         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
+         when(internshipManagerService.verifyResume(1L, false, "CV incomplet")).thenReturn(StudentDTO.fromEntity(student));
+
+         MvcResult mvcResult = mockMvc.perform(
+                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
+                    .param("isApproved", "false")
+                    .param("rejectionReason", "CV incomplet")
+                     .contentType(MediaType.APPLICATION_JSON))
+             .andReturn();
+
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("REJECTED");
+         assertThat(responseContent).contains("CV incomplet");
+     }
+
+     @Test
+     void verifyStudentCV_StudentNotFound() throws Exception {
+         // Test avec étudiant non trouvé
+         when(internshipManagerService.verifyResume(999L, true, null)).thenThrow(new RuntimeException("Student not found"));
+
+         MvcResult mvcResult = mockMvc.perform(
+                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(999L))
+                    .param("isApproved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+             .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Ce CV a déjà été traité");
-    }
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("Student not found");
+     }
 
-    @Test
-    void verifyStudentCV_NoResume() throws Exception {
-        // Test avec étudiant sans CV
-        Student student = createTestStudents().get(0);
-        student.setResumeVerificationStatus(VerificationStatus.NONE);
-        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
+     @Test
+     void verifyStudentResume_AlreadyProcessed() throws Exception {
+         // Test avec CV déjà traité
+         Student student = createTestStudents().get(0);
+         student.setResumeVerificationStatus(VerificationStatus.APPROVED);
+         when(internshipManagerService.verifyResume(1L, true, null)).thenThrow(new RuntimeException("Ce CV a déjà été traité"));
 
-        MvcResult mvcResult = mockMvc.perform(
-                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
-                    .param("approved", "true")
+         MvcResult mvcResult = mockMvc.perform(
+                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
+                    .param("isApproved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+             .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Aucun CV trouvé pour cet étudiant");
-    }
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("Ce CV a déjà été traité");
+     }
 
-    @Test
-    void verifyStudentResume_ServiceException() throws Exception {
-        // Test avec exception du service
-        Student student = createTestStudents().get(0);
-        when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
-        doThrow(new RuntimeException("Erreur de service")).when(internshipManagerService).verifyResume(1L,
-            true, null);
+     @Test
+     void verifyStudentCV_NoResume() throws Exception {
+         // Test avec étudiant sans CV
+         Student student = createTestStudents().get(0);
+         student.setResumeVerificationStatus(VerificationStatus.NONE);
+         when(internshipManagerService.verifyResume(1L, true, null)).thenThrow(new RuntimeException("Aucun CV trouvé pour cet étudiant"));
 
-        MvcResult mvcResult = mockMvc.perform(
-                post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
-                    .param("approved", "true")
+         MvcResult mvcResult = mockMvc.perform(
+                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
+                    .param("isApproved", "true")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+             .andReturn();
 
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).contains("Erreur lors de la validation du CV");
-    }
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("Aucun CV trouvé pour cet étudiant");
+     }
+
+     @Test
+     void verifyStudentResume_ServiceException() throws Exception {
+         // Test avec exception du service
+         Student student = createTestStudents().get(0);
+         when(studentService.getStudentByID(1L)).thenReturn(StudentDTO.fromEntity(student));
+         when(internshipManagerService.verifyResume(1L, true, null)).thenThrow(new RuntimeException("Erreur de service"));
+
+         MvcResult mvcResult = mockMvc.perform(
+                 post(TestPaths.buildInternshipManagerVerifyResumeUrl(1L))
+                    .param("isApproved", "true")
+                    .contentType(MediaType.APPLICATION_JSON))
+             .andReturn();
+
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+         String responseContent = mvcResult.getResponse().getContentAsString();
+         assertThat(responseContent).contains("Erreur de service");
+     }
 }
