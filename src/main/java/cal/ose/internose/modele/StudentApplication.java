@@ -28,7 +28,7 @@ public class StudentApplication {
     public enum ApplicationStatus {
         PENDING,
         PENDING_INTERVIEW,
-        ACCEPTED,
+        APPROVED,
         REJECTED
     }
 }
