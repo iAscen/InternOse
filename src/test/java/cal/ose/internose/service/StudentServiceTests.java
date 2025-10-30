@@ -271,7 +271,7 @@ public class StudentServiceTests {
         when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.empty());
 
         // Act & Assert: expect NoSuchElementException from orElseThrow()
-        java.util.NoSuchElementException ex = org.junit.jupiter.api.Assertions.assertThrows(
+        org.junit.jupiter.api.Assertions.assertThrows(
             java.util.NoSuchElementException.class,
             () -> studentService.getInternshipOfferByID(offerId)
         );

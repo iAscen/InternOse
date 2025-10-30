@@ -147,7 +147,5 @@ public class InternshipManagerController {
         return ResponseEntity.status(status).body(body);
     }
 
-    private ResponseEntity<String> getResponseEntity(HttpStatus status, HttpHeaders headers, String body) {
-        return ResponseEntity.status(status).headers(headers).body(body);
-    }
+    
 }

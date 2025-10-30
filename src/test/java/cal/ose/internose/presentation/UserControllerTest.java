@@ -169,6 +169,7 @@ class UserControllerTest {
     ) throws Exception {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(expectedHttpStatus.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).isNotNull();
 
 //        if (expectedSuccessMessage == null) {
 //            ErrorResponseDTO errorResponse = objectMapper.readValue(responseContent, ErrorResponseDTO.class);

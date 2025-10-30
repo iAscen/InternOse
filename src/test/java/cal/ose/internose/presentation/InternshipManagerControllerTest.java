@@ -160,7 +160,6 @@ class InternshipManagerControllerTest {
         // Test d'approbation d'une offre de stage
         Long internshipOfferID = 1L;
         Boolean isApproved = true;
-        String comment = "Offre approuvée";
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH)
