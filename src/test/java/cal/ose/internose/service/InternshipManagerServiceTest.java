@@ -5,7 +5,6 @@ import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentDAO;
-import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
@@ -79,7 +78,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void approveInternshipOffer() throws ResourceNotFoundException, ResumeAlreadyApprovedException {
+    void approveInternshipOffer() throws ResumeAlreadyApprovedException {
         Long offerId = 1L;
         InternshipOffer existing = InternshipOffer.builder()
             .id(offerId)
@@ -105,7 +104,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    void rejectInternshipOffer() throws ResourceNotFoundException, ResumeAlreadyApprovedException {
+    void rejectInternshipOffer() throws ResumeAlreadyApprovedException {
         Long offerId = 2L;
         String rejectionComment = "Détails insufficient dans la description";
         InternshipOffer existing = InternshipOffer.builder()
@@ -128,7 +127,7 @@ class InternshipManagerServiceTest {
         verify(internshipOfferDAO, times(1)).save(captor.capture());
         InternshipOffer saved = captor.getValue();
 
-        assertTrue(saved.getVerificationStatus() != VerificationStatus.PENDING);
+        assertNotSame(VerificationStatus.PENDING, saved.getVerificationStatus());
         assertEquals(VerificationStatus.REJECTED, saved.getVerificationStatus());
         assertEquals(rejectionComment, saved.getRejectionReason());
     }
@@ -145,7 +144,7 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    public void validationInternshipOfferAlreadyValidated() throws ResourceNotFoundException {
+    public void validationInternshipOfferAlreadyValidated() {
         // Arrange
         Long offerId = 3L;
         InternshipOffer existing = InternshipOffer.builder()

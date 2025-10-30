@@ -2,7 +2,6 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
-//import cal.ose.internose.service.DTOs.ErrorResponseDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;

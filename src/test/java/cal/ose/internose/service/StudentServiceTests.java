@@ -5,9 +5,7 @@ import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-//import cal.ose.internose.service.DTOs.InternshipOfferSearchCriteria;
 import cal.ose.internose.service.DTOs.StudentDTO;
-import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
@@ -240,7 +234,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre trouvée")
-    public void testGetInternshipOfferById_OfferFound() throws ResumeNotApprovedException {
+    public void testGetInternshipOfferById_OfferFound(){
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -265,7 +259,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre non trouvée")
-    public void testGetInternshipOfferById_OfferNotFound() throws ResumeNotApprovedException {
+    public void testGetInternshipOfferById_OfferNotFound() {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -287,7 +281,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllApprovedInternshipOffers()")
-    public void testGetAllApprovedInternshipOffers() throws ResumeNotApprovedException {
+    public void testGetAllApprovedInternshipOffers(){
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -316,7 +310,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getAllApprovedInternshipOffers() avec CV non validé - maintenant autorisé")
-    public void testViewInternshipOffersCvNotValidated() throws ResumeNotApprovedException {
+    public void testViewInternshipOffersCvNotValidated(){
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();
@@ -341,7 +335,7 @@ public class StudentServiceTests {
 
     @Test
     @DisplayName("Test de la méthode getInternshipOfferById() avec CV non validé - maintenant autorisé")
-    public void testGetInternshipOfferByIdCvNotValidated() throws ResumeNotApprovedException {
+    public void testGetInternshipOfferByIdCvNotValidated() {
         // Arrange
         Long studentId = 1L;
         Student student = exampleStudent();

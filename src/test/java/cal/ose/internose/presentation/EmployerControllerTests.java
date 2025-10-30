@@ -1,7 +1,6 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.Interview;
-import cal.ose.internose.security.exceptions.ResourceNotFoundException;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
