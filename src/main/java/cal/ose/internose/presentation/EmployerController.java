@@ -117,7 +117,7 @@ public class EmployerController {
         }
     }
 
-    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH)
+    @PutMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH)
     public ResponseEntity<String> reviewApplication(
         @PathVariable Long internshipOfferID,
         @PathVariable Long studentID,
