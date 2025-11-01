@@ -32,15 +32,4 @@ public class StudentApplication {
         APPROVED,
         REJECTED
     }
-
-    @Override
-    public String toString() {
-        return "StudentApplication{" +
-            "id=" + id +
-//            ", student=" + student +
-            ", internshipOffer=" + internshipOffer +
-            ", applicationDate=" + applicationDate +
-            ", applicationStatus=" + applicationStatus +
-            '}';
-    }
 }

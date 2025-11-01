@@ -57,26 +57,4 @@ public class InternshipOffer {
             .rejectionReason(internshipOfferDTO.getRejectionReason())
             .build();
     }
-
-
-    // todo remove
-    @Override
-    public String toString() {
-        return "InternshipOffer{" +
-            "id=" + id +
-//            ", employer=" + employer +
-            ", title='" + title + '\'' +
-            ", description='" + description + '\'' +
-            ", program='" + program + '\'' +
-            ", requiredSkills='" + requiredSkills + '\'' +
-            ", duration=" + duration +
-            ", startDate=" + startDate +
-            ", endDate=" + endDate +
-            ", salary=" + salary +
-            ", address='" + address + '\'' +
-            ", verificationStatus=" + verificationStatus +
-            ", rejectionReason='" + rejectionReason + '\'' +
-//            ", applications=" + applications +
-            '}';
-    }
 }
