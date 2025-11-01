@@ -16,6 +16,28 @@ export default function ApplicationsOfStudent({applications}: ApplicationsOfStud
         return formatted
     }
 
+    const getStatusBadge = (application: StudentApplication) => {
+        if (application.applicationStatus === 'APPROVED') {
+          return (
+            <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+              {t('im.approved')}
+            </span>
+          );
+        } else if (application.applicationStatus === 'REJECTED') {
+          return (
+            <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+              {t('im.rejected')}
+            </span>
+          );
+        } else {
+          return (
+            <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
+              {t('im.pending')}
+            </span>
+          );
+        }
+      };
+
     return (
         <div className="bg-white rounded-lg shadow-md pb-6">
             <div className="px-6 py-4">
@@ -56,7 +78,9 @@ export default function ApplicationsOfStudent({applications}: ApplicationsOfStud
                         </div>
                       </div>
                       
-                        {/*Ici vas le bout manquant*/}
+                        <div className="ml-4 flex flex-col items-end space-y-2">
+                            {getStatusBadge(application)}
+                        </div>
 
                     </div>
                   </div>
