@@ -9,6 +9,7 @@ import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -153,7 +154,7 @@ public class EmployerService {
     }
 
     public StudentApplicationDTO reviewApplication(Long internshipOfferID, Long studentID, boolean approved, String rejectionReason)
-//        throws ApplicationAlreadyReviewed
+        throws ApplicationAlreadyReviewedException
     {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
 
@@ -162,6 +163,10 @@ public class EmployerService {
             .filter(app -> app.getStudent().getId().equals(studentID))
             .findFirst()
             .orElseThrow();
+
+        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.PENDING) {
+            throw new ApplicationAlreadyReviewedException();
+        }
 
         if (approved) {
             studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.APPROVED);
