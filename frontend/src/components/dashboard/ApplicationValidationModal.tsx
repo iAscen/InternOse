@@ -28,11 +28,11 @@ export default function ApplicationValidationModal({
       };
     }
 
-    const status = type === 'approve' ? 'APPROVED' : 'REJECTED';
+    const isApproved = type === 'approve';
     const response = await employerAPI.updateApplicationStatus(
       internshipOffer.id,
       cv.id,
-      status,
+      isApproved,
       comment
     );
 
