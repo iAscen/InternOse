@@ -1,10 +1,8 @@
 package cal.ose.internose;
 
+import cal.ose.internose.modele.Interview;
 import cal.ose.internose.modele.VerificationStatus;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -18,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -169,6 +168,17 @@ public class InternOSEApplication {
 
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
+
+                employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
+                    .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
+                    .interviewMode(Interview.InterviewMode.ONLINE)
+                    .location("https://zoom.us/meeting")
+                    .personalizedMessage("Nous sommes ravis de vous rencontrer")
+                    .build()
+                );
+
+                employerService.reviewApplication(1L, 4L, true, "");
+                employerService.reviewApplication(1L, 5L, false, "it is bad lol");
             }
         };
     }

@@ -7,6 +7,7 @@ import cal.ose.internose.persistance.InterviewDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
@@ -149,5 +150,27 @@ public class EmployerService {
             .findFirst()
             .orElseThrow();
         return interviewDAO.findByStudentApplication(studentApplication).map(InterviewDTO::fromEntity);
+    }
+
+    public StudentApplicationDTO reviewApplication(Long internshipOfferID, Long studentID, boolean approved, String rejectionReason)
+//        throws ApplicationAlreadyReviewed
+    {
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+
+        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
+            .stream()
+            .filter(app -> app.getStudent().getId().equals(studentID))
+            .findFirst()
+            .orElseThrow();
+
+        if (approved) {
+            studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.APPROVED);
+            studentApplication.setRejectionReason(null);
+        } else {
+            studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED);
+            studentApplication.setRejectionReason(rejectionReason);
+        }
+
+        return StudentApplicationDTO.fromEntity(studentApplicationDAO.save(studentApplication));
     }
 }

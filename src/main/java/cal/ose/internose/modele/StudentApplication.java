@@ -24,11 +24,23 @@ public class StudentApplication {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ApplicationStatus applicationStatus = ApplicationStatus.PENDING;
+    private String rejectionReason;
 
     public enum ApplicationStatus {
         PENDING,
         PENDING_INTERVIEW,
         APPROVED,
         REJECTED
+    }
+
+    @Override
+    public String toString() {
+        return "StudentApplication{" +
+            "id=" + id +
+//            ", student=" + student +
+            ", internshipOffer=" + internshipOffer +
+            ", applicationDate=" + applicationDate +
+            ", applicationStatus=" + applicationStatus +
+            '}';
     }
 }
