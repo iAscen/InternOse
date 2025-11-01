@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { userAPI } from '../../services/UserAPI';
-import { dashboardService } from '../../services/dashboardService';
+import {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router';
+import {useTranslation} from 'react-i18next';
+import {userAPI} from '../../services/UserAPI';
+import {dashboardService} from '../../services/dashboardService';
 import StatisticsCard from './StatisticsCard';
 import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
-import type { InternshipOffer, CreateOfferFormData, CreateInternshipOfferRequest } from '../../interfaces';
+import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer} from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
+import {employerAPI} from "~/services/EmployerAPI";
 
 export default function EmployerDashboardContent() {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [offers, setOffers] = useState<InternshipOffer[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -18,6 +19,7 @@ export default function EmployerDashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null)
+  const [numbersOfApplications, setNumbersOfApplications] = useState<number[]>([])
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -38,10 +40,11 @@ export default function EmployerDashboardContent() {
       console.log('Chargement des offres...');
       const response = await dashboardService.getInternshipOffers();
       console.log('Réponse du serveur:', response);
-      
+
       if (response.success && response.data) {
         console.log('Offres chargées:', response.data);
         setOffers(response.data);
+        await countNumberOfApplicationsForOffers(response.data);
       } else {
         console.error('Erreur lors du chargement:', response.error);
         setError(response.error || t('dashboard.loadingError'));
@@ -53,6 +56,26 @@ export default function EmployerDashboardContent() {
       setLoading(false);
     }
   };
+
+  const countNumberOfApplicationsForOffers = async (offersList: InternshipOffer[], applicationStatus: string | null = null, program: string | null = null, institution: string | null = null, sortBy: string | null = null) => {
+    const errorMes = "Erreur lors du comptage des candidatures sur vos offres de stage."
+    const numbersOfApplications: number[] = [];
+    try {
+      for (let i = 0; i < offersList.length; i++) {
+        const offer = offersList[i]
+        let response = await employerAPI.getStudentApplicationsBy(offer.id, applicationStatus, program, institution, sortBy)
+        if (response.success) {
+          numbersOfApplications.push(response.data!.length);
+        } else {
+          setError(response.error || errorMes)
+          break
+        }
+      }
+      setNumbersOfApplications(numbersOfApplications);
+    } catch (error) {
+      setError(errorMes)
+    }
+  }
 
   // Calculer les statistiques
   const stats = dashboardService.calculateStats(offers);
@@ -116,22 +139,25 @@ export default function EmployerDashboardContent() {
   const statsIcons = {
     total: (
       <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
       </svg>
     ),
     pending: (
       <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     ),
     approved: (
       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     ),
     rejected: (
       <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
       </svg>
     )
   };
@@ -147,7 +173,7 @@ export default function EmployerDashboardContent() {
               <p className="text-gray-600 mt-2">{t('dashboard.subtitle')}</p>
             </div>
             <div>
-              {selectedOffer == null && 
+              {selectedOffer == null &&
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -173,55 +199,57 @@ export default function EmployerDashboardContent() {
 
         {/* Cartes de statistiques */}
         {selectedOffer == null &&
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatisticsCard
-              title={t('dashboard.totalOffers')}
-              value={stats.total}
-              icon={statsIcons.total}
-              bgColor="bg-blue-100"
-              iconColor="text-blue-600"
-            />
-            <StatisticsCard
-              title={t('dashboard.pending')}
-              value={stats.pending}
-              icon={statsIcons.pending}
-              bgColor="bg-yellow-100"
-              iconColor="text-yellow-600"
-            />
-            <StatisticsCard
-              title={t('dashboard.validated')}
-              value={stats.approved}
-              icon={statsIcons.approved}
-              bgColor="bg-green-100"
-              iconColor="text-green-600"
-            />
-            <StatisticsCard
-              title={t('dashboard.rejected')}
-              value={stats.rejected}
-              icon={statsIcons.rejected}
-              bgColor="bg-red-100"
-              iconColor="text-red-600"
-            />
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <StatisticsCard
+                title={t('dashboard.totalOffers')}
+                value={stats.total}
+                icon={statsIcons.total}
+                bgColor="bg-blue-100"
+                iconColor="text-blue-600"
+              />
+              <StatisticsCard
+                title={t('dashboard.pending')}
+                value={stats.pending}
+                icon={statsIcons.pending}
+                bgColor="bg-yellow-100"
+                iconColor="text-yellow-600"
+              />
+              <StatisticsCard
+                title={t('dashboard.validated')}
+                value={stats.approved}
+                icon={statsIcons.approved}
+                bgColor="bg-green-100"
+                iconColor="text-green-600"
+              />
+              <StatisticsCard
+                title={t('dashboard.rejected')}
+                value={stats.rejected}
+                icon={statsIcons.rejected}
+                bgColor="bg-red-100"
+                iconColor="text-red-600"
+              />
+            </div>
 
-          {/* Formulaire de création d'offre */}
-          {showCreateForm && (
-            <CreateOfferForm
-              onSubmit={handleCreateOffer}
-              onCancel={() => setShowCreateForm(false)}
-              loading={loading}
-            />
-          )}
+            {/* Formulaire de création d'offre */}
+            {showCreateForm && (
+              <CreateOfferForm
+                onSubmit={handleCreateOffer}
+                onCancel={() => setShowCreateForm(false)}
+                loading={loading}
+              />
+            )}
 
-          {/* Liste des offres existantes */}
-          <OfferList changeCursorIfApproved={true} selectOffer={selectOffer} isStudent={false} isEmployer={true} loading={loading} offers={offers} />
-        </>
+            {/* Liste des offres existantes */}
+            <OfferList changeCursorIfApproved={true} selectOffer={selectOffer} isStudent={false} isEmployer={true}
+                       loading={loading} offers={offers} numbersOfApplications={numbersOfApplications}/>
+          </>
         }
 
         {
-          selectedOffer && 
-          <InternshipApplications setSelectedOffer={setSelectedOffer} internship={selectedOffer}></InternshipApplications>
+          selectedOffer &&
+          <InternshipApplications setSelectedOffer={setSelectedOffer}
+                                  internship={selectedOffer}></InternshipApplications>
         }
       </div>
     </main>

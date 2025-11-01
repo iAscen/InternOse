@@ -202,6 +202,8 @@
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "salary": "Salaire",
+    "thereIs": "Il y a ",
+    "applicationsOnThisInternshipOffer": " candidatures sur cette offre de stage",
     "apply": "Postuler",
     "deadline": "Date limite",
     "weeks": "semaines",
@@ -244,7 +246,7 @@
     "student": "Étudiant",
     "rejectionReason": "Raison de rejet",
     "uploadedAt": "Téléversé le",
-    "internshipApplications" : {
+    "internshipApplications": {
       "sortAndFilter": "Trier / Filtrer",
       "goBack": "Retourner",
       "noCandidaturesFound": "Aucune candidature reçue pour cette offre.",
