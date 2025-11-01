@@ -4,6 +4,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
@@ -115,6 +116,28 @@ public class EmployerController {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
+
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH)
+    public ResponseEntity<String> reviewApplication(
+        @PathVariable Long internshipOfferID,
+        @PathVariable Long studentID,
+        @RequestParam Boolean isApproved,
+        @RequestParam(required = false) String comment
+    ) {
+        try {
+            StudentApplicationDTO reviewedApplication =
+                employerService.reviewApplication(internshipOfferID, studentID, isApproved, comment);
+
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(reviewedApplication));
+
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+
 
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);

@@ -177,8 +177,8 @@ public class InternOSEApplication {
                     .build()
                 );
 
-                employerService.reviewApplication(1L, 4L, true, "");
-                employerService.reviewApplication(1L, 5L, false, "Compétences insuffisantes");
+//                employerService.reviewApplication(1L, 4L, true, "");
+//                employerService.reviewApplication(1L, 5L, false, "Compétences insuffisantes");
             }
         };
     }
