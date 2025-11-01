@@ -263,6 +263,91 @@ class EmployerAPI {
       };
     }
   }
+
+  // Mettre à jour le statut d'une candidature (Accepter/Refuser)
+  async updateApplicationStatus(
+    internshipOfferId: number,
+    studentId: number,
+    status: 'APPROVED' | 'REJECTED',
+    rejectionReason?: string
+  ): Promise<ApiResponse<string>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      // Construire l'URL avec les paramètres
+      const url = buildFullApiUrl(API_PATHS.EMPLOYER.UPDATE_APPLICATION_STATUS, {
+        internshipOfferID: internshipOfferId,
+        studentID: studentId
+      });
+      
+      console.log('🔍 Update application status URL:', url);
+      
+      // Préparer le body avec le statut et optionnellement la raison de refus
+      const body: { applicationStatus: string; rejectionReason?: string } = {
+        applicationStatus: status
+      };
+      
+      if (status === 'REJECTED' && rejectionReason && rejectionReason.trim()) {
+        body.rejectionReason = rejectionReason.trim();
+      }
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      });
+
+      console.log('🔍 Update application status response status:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        return {
+          success: true,
+          data: result.message || (status === 'APPROVED' ? 'Candidature acceptée avec succès' : 'Candidature refusée avec succès')
+        };
+      } else {
+        let errorMessage = status === 'APPROVED' 
+          ? 'Erreur lors de l\'acceptation de la candidature' 
+          : 'Erreur lors du refus de la candidature';
+        
+        try {
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          console.log('🔍 Error data:', errorData);
+        } catch (parseError) {
+          try {
+            const clonedResponse = response.clone();
+            const errorText = await clonedResponse.text();
+            errorMessage = errorText || errorMessage;
+            console.log('🔍 Error text:', errorText);
+          } catch (textError) {
+            console.log('🔍 Cannot read error response');
+          }
+        }
+        
+        return {
+          success: false,
+          error: errorMessage
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
 }
 
 export const employerAPI = new EmployerAPI();
