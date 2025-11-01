@@ -172,11 +172,19 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 							
 								<ApplicationValidationModal
 									cv={selectedApplication}
+									internshipOffer={internship}
 									isOpen={true}
 									onClose={() => {
 										setSelectedApplication(null);
 									}}
-									onValidationSuccess={() => {console.log("dasdasd")}}
+									onValidationSuccess={() => {
+										// Rafraîchir la liste des candidatures après validation
+										fetchStudentApplications(null, null, null, null);
+										setSuccessMessage(t('dashboard.internshipApplications.validationSuccess'));
+										setTimeout(() => {
+											setSuccessMessage(null);
+										}, 5000);
+									}}
 								/>
 							)}
 					

@@ -256,7 +256,20 @@
       "validateApplication": "Validate application",
       "school": "School",
       "notSpecified": "Not specified",
-      "inviteToInterview": "Invite to Interview"
+      "inviteToInterview": "Invite to Interview",
+      "pendingInterview": "Pending interview",
+      "actions": "Actions",
+      "acceptApplication": "Accept application",
+      "rejectApplication": "Reject application",
+      "confirmReject": "Confirm rejection",
+      "rejectionComment": "Rejection comment",
+      "rejectionCommentPlaceholder": "Explain why this application is rejected (optional)",
+      "alreadyProcessed": "This application has already been processed.",
+      "alreadyProcessedMessage": "This application has already been processed and cannot be modified.",
+      "validationSuccess": "Application updated successfully!",
+      "validationError": "Error validating application",
+      "missingIds": "Error: Missing IDs",
+      "serverError": "Server connection error"
     }
   },
   "errors": {
@@ -302,7 +315,9 @@
       "getStarted": "Get started now",
       "learnMore": "Learn more"
     }
-    
+  },
+  "cv": {
+    "previousRejectionReason": "Previous rejection reason"
   },
   "cv-details": {
     "fileName": "File name",
