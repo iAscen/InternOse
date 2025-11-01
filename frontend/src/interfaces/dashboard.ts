@@ -62,6 +62,18 @@ export interface Cv {
   rejectionReason?: string;
 }
 
+export interface StudentApplication {
+  studentFirstName: string;
+  studentLastName: string;
+  internshipOfferTitle: string;
+  internshipOfferAddress: string;
+  internshipOfferStartDate: string;
+  internshipOfferEndDate: string;
+  internshipOfferDuration: number;
+  applicationDate: string;
+  applicationStatus: string;
+}
+
 export interface InterviewInvitation {
   id?: number;
   studentId: number;

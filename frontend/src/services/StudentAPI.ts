@@ -275,6 +275,7 @@ class StudentAPI {
 
       if (response.ok) {
         const applications = await response.json();
+        console.log(applications)
         return {
           success: true,
           data: applications
