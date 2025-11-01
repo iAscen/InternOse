@@ -85,11 +85,21 @@ export default function ApplicationsOfStudent({applications}: ApplicationsOfStud
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-3 flex">
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-1">{t('employer.date')}</h4>
                     <p className="text-sm text-gray-700 leading-relaxed">{getApplicationDate(application)}</p>
                   </div>
+
+                  {// application.applicationStatus === "APPROVED" && 
+                  <div className="flex gap-1 mt-4 ms-auto text-sm">
+                    <button className="rounded-sm px-2 bg-green-500 text-white hover:bg-green-600 hover:cursor-pointer">
+                        Accepter
+                    </button>
+                    <button className="rounded-sm px-2 bg-red-500 text-white hover:bg-red-600 hover:cursor-pointer">
+                        Refuser
+                    </button>
+                  </div>}
                 </div>
               </div>
             ))}
