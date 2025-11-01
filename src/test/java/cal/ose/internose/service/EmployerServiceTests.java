@@ -1,13 +1,12 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.EmployerDAO;
-import cal.ose.internose.persistance.InterviewDAO;
-import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
+import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
+import cal.ose.internose.service.exceptions.ApplicationNotInInterviewException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,9 @@ import static org.mockito.Mockito.*;
 public class EmployerServiceTests {
         @Mock
         private EmployerDAO employerDAO;
+
+        @Mock
+        private StudentDAO studentDAO;
 
         @Mock
         private InternshipOfferDAO internshipOfferDAO;
@@ -451,4 +453,161 @@ public class EmployerServiceTests {
                 assertEquals("123 Main St", result.get().getLocation());
                  verify(interviewDAO, times(1)).findByStudentApplication(application);
         }
+
+        @Test
+        @DisplayName("Test approver une application happy day scenario")
+        public void testApproveApplication() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = InternshipOffer.builder()
+                .id(internshipOfferID)
+                .verificationStatus(VerificationStatus.APPROVED)
+                .build();
+            Student student = Student.builder()
+                .id(studentID)
+                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                .build();
+            StudentApplication studentApplication = StudentApplication.builder()
+                .id(studentApplicationID)
+                .internshipOffer(internshipOffer)
+                .student(student)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_INTERVIEW)
+                .build();
+
+            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                .thenReturn(List.of(studentApplication));
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(studentApplication);
+
+            // Act
+            employerService.reviewApplication(internshipOfferID, studentID, true, "");
+
+            // Assert
+            assertThat(studentApplication.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test rejeter une application happy day scenario")
+        public void testRejectApplication() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = InternshipOffer.builder()
+                .id(internshipOfferID)
+                .verificationStatus(VerificationStatus.APPROVED)
+                .build();
+            Student student = Student.builder()
+                .id(studentID)
+                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                .build();
+            StudentApplication studentApplication = StudentApplication.builder()
+                .id(studentApplicationID)
+                .internshipOffer(internshipOffer)
+                .student(student)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_INTERVIEW)
+                .build();
+
+            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                .thenReturn(List.of(studentApplication));
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(studentApplication);
+
+            // Act
+            employerService.reviewApplication(internshipOfferID, studentID, false, "Compétences insuffisantes");
+
+            // Assert
+            assertThat(studentApplication.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication candidature ou offre non trouvée")
+        public void testReviewApplication_Throws_NoSuchElementException() {
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (NoSuchElementException e) {
+                assertThat(e.getMessage()).isEqualTo("No value present");
+            }
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication application non en attente d'interview")
+        public void testReviewApplication_Throws_ApplicationNotInInterviewException() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = InternshipOffer.builder()
+                .id(internshipOfferID)
+                .verificationStatus(VerificationStatus.APPROVED)
+                .build();
+            Student student = Student.builder()
+                .id(studentID)
+                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                .build();
+            StudentApplication studentApplication = StudentApplication.builder()
+                .id(studentApplicationID)
+                .internshipOffer(internshipOffer)
+                .student(student)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
+                .build();
+
+            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                .thenReturn(List.of(studentApplication));
+
+            // Act & Assert
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (ApplicationNotInInterviewException e) {
+                assertThat(e.getMessage()).isEqualTo("L'application n'est pas en attente d'interview");
+            }
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication application déjà examinée")
+        public void testReviewApplication_Throws_ApplicationAlreadyReviewedException() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = InternshipOffer.builder()
+                .id(internshipOfferID)
+                .verificationStatus(VerificationStatus.APPROVED)
+                .build();
+            Student student = Student.builder()
+                .id(studentID)
+                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                .build();
+            StudentApplication studentApplication = StudentApplication.builder()
+                .id(studentApplicationID)
+                .internshipOffer(internshipOffer)
+                .student(student)
+                .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+                .build();
+
+            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                .thenReturn(List.of(studentApplication));
+
+            // Act & Assert
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (ApplicationAlreadyReviewedException e) {
+                assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
+            }
+        }
+
 }
