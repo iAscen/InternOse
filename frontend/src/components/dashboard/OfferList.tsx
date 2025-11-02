@@ -1,26 +1,37 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import type { InternshipOffer } from '~/interfaces';
+import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import type {InternshipOffer} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
-import { studentAPI } from '~/services/StudentAPI';
-import { userAPI } from '~/services/UserAPI';
+import {studentAPI} from '~/services/StudentAPI';
+import {userAPI} from '~/services/UserAPI';
 
 interface OfferListProps {
   isStudent: boolean;
   isEmployer: boolean;
   loading: boolean;
   offers: InternshipOffer[];
+  numbersOfApplications: number[];
   onOfferValidation?: () => void; // Callback pour rafraîchir la liste après validation
   onApplicationSuccess?: (offerId: number) => void; // Callback pour rafraîchir après candidature réussie
   cvStatus?: 'none' | 'pending' | 'approved' | 'rejected'; // Statut du CV de l'étudiant
   changeCursorIfApproved?: boolean; // Pour changer le curseur sur les offres approuvées
   selectOffer?: (offer: InternshipOffer) => void; // Callback pour sélectionner une offre
-  appliedOffers?: Set<number>; // Offres auxquelles l'étudiant a postulé
 }
 
-export default function OfferList({ isStudent, isEmployer, loading, offers, onOfferValidation, onApplicationSuccess, cvStatus, changeCursorIfApproved, selectOffer, appliedOffers }: OfferListProps) {
-  const { t } = useTranslation();
+export default function OfferList({
+                                    isStudent,
+                                    isEmployer,
+                                    loading,
+                                    offers,
+                                    numbersOfApplications,
+                                    onOfferValidation,
+                                    onApplicationSuccess,
+                                    cvStatus,
+                                    changeCursorIfApproved,
+                                    selectOffer
+                                  }: OfferListProps) {
+  const {t} = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOfferToApply, setSelectedOfferToApply] = useState<InternshipOffer | null>(null);
@@ -60,17 +71,17 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
 
       const response = await studentAPI.applyToOffer(studentId, selectedOfferToApply.id);
 
-        if (response.success) {
-          setSuccessMessage('Votre candidature a été soumise avec succès !');
-          setIsApplyModalOpen(false);
-          setSelectedOfferToApply(null);
-          // Rafraîchir les données du dashboard
-          if (onApplicationSuccess && selectedOfferToApply?.id) {
-            onApplicationSuccess(selectedOfferToApply.id);
-          }
-          // Afficher le message pendant 5 secondes
-          setTimeout(() => setSuccessMessage(''), 5000);
-        } else {
+      if (response.success) {
+        setSuccessMessage('Votre candidature a été soumise avec succès !');
+        setIsApplyModalOpen(false);
+        setSelectedOfferToApply(null);
+        // Rafraîchir les données du dashboard
+        if (onApplicationSuccess && selectedOfferToApply?.id) {
+          onApplicationSuccess(selectedOfferToApply.id);
+        }
+        // Afficher le message pendant 5 secondes
+        setTimeout(() => setSuccessMessage(''), 5000);
+      } else {
         setApplyError(response.error || 'Une erreur est survenue lors de la candidature');
       }
     } catch (error) {
@@ -142,15 +153,15 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
   return (
     <div className="bg-white rounded-lg shadow-md">
       {isEmployer &&
-          <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
-          </div>
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.myOffers')}</h2>
+        </div>
       }
 
       <div className="divide-y divide-gray-200">
         {offers.map((offer, index) => (
-          <div 
-            key={offer.id || index} 
+          <div
+            key={offer.id || index}
             className={`p-6 hover:bg-gray-50 transition-colors ${changeCursorIfApproved && offer.verificationStatus === 'APPROVED' ? 'cursor-pointer' : ''}`}
             onClick={() => {
               if (isEmployer && changeCursorIfApproved && offer.verificationStatus === 'APPROVED' && selectOffer) {
@@ -166,34 +177,50 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                         {offer.address}
                       </div>
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                         {offer.startDate} - {offer.endDate}
                       </div>
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         {offer.duration} {t('internship.weeks')}
                       </div>
                     </div>
                     {offer.salary > 0 && (
                       <div className="mt-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                           </svg>
                           ${offer.salary}{t('internship.perHour')}
                         </span>
                       </div>
                     )}
+                    {
+                      isEmployer && numbersOfApplications[index] > 0 && (
+                        <div className="mt-2">
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {t('internship.thereIs') + numbersOfApplications[index] + t('internship.applicationsOnThisInternshipOffer')}
+                          </span>
+                        </div>
+                      )
+                    }
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
@@ -203,62 +230,66 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         {t('im.validateOffer')}
                       </button>
                     )}
-                      {isStudent && offer.verificationStatus === 'APPROVED' && (
-                          cvStatus === 'approved' ? (
-                              offer.applicationStatus ? (
-                                  <button
-                                      disabled
-                                      className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${
-                                          offer.applicationStatus === 'PENDING_INTERVIEW' 
-                                              ? 'text-blue-700 bg-blue-100' 
-                                              : offer.applicationStatus === 'ACCEPTED'
-                                              ? 'text-green-700 bg-green-100'
-                                              : offer.applicationStatus === 'REJECTED'
-                                              ? 'text-red-700 bg-red-100'
-                                              : 'text-green-700 bg-green-100'
-                                      }`}
-                                  >
-                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                      {offer.applicationStatus === 'PENDING_INTERVIEW' 
-                                          ? 'Entrevue en attente'
-                                          : offer.applicationStatus === 'ACCEPTED'
-                                          ? 'Candidature acceptée'
-                                          : offer.applicationStatus === 'REJECTED'
-                                          ? 'Candidature refusée'
-                                          : 'Candidature envoyée'
-                                      }
-                                  </button>
-                              ) : (
-                                  <button
-                                      onClick={() => handleApplyClick(offer)}
-                                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
-                                  >
-                                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                      {t('student.apply')}
-                                  </button>
-                              )
-                          ) : (
-                              <button
-                                  disabled
-                                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-md cursor-not-allowed"
-                                  title={cvStatus === 'none' ? 'Téléversez un CV pour postuler' : 'Votre CV doit être approuvé pour postuler'}
-                              >
-                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                  {t('student.apply')}
-                              </button>
-                          )
-                      )}
+                    {isStudent && offer.verificationStatus === 'APPROVED' && (
+                      cvStatus === 'approved' ? (
+                        offer.applicationStatus ? (
+                          <button
+                            disabled
+                            className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${
+                              offer.applicationStatus === 'PENDING_INTERVIEW'
+                                ? 'text-blue-700 bg-blue-100'
+                                : offer.applicationStatus === 'ACCEPTED'
+                                  ? 'text-green-700 bg-green-100'
+                                  : offer.applicationStatus === 'REJECTED'
+                                    ? 'text-red-700 bg-red-100'
+                                    : 'text-green-700 bg-green-100'
+                            }`}
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {offer.applicationStatus === 'PENDING_INTERVIEW'
+                              ? 'Entrevue en attente'
+                              : offer.applicationStatus === 'ACCEPTED'
+                                ? 'Candidature acceptée'
+                                : offer.applicationStatus === 'REJECTED'
+                                  ? 'Candidature refusée'
+                                  : 'Candidature envoyée'
+                            }
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleApplyClick(offer)}
+                            className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {t('student.apply')}
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          disabled
+                          className="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-md cursor-not-allowed"
+                          title={cvStatus === 'none' ? 'Téléversez un CV pour postuler' : 'Votre CV doit être approuvé pour postuler'}
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          {t('student.apply')}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -290,7 +321,8 @@ export default function OfferList({ isStudent, isEmployer, loading, offers, onOf
 
       {/* Message de succès */}
       {successMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg shadow-lg max-w-md">
+        <div
+          className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg shadow-lg max-w-md">
           ✓ {successMessage}
         </div>
       )}
