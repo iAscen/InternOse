@@ -5,6 +5,7 @@ import type { Cv } from '~/interfaces';
 import PdfViewer from './PdfViewer.client';
 
 interface BaseCvValidationModalProps {
+  isApplicationPending?: boolean;
   cv: Cv;
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +26,7 @@ interface BaseCvValidationModalProps {
 }
 
 export default function BaseCvValidationModal({
+  isApplicationPending = false,
   cv,
   isOpen,
   onClose,
@@ -147,7 +149,7 @@ export default function BaseCvValidationModal({
 
     try {
       const response = await internshipManagerAPI.getCvBlob(cv.id);
-      
+
       if (response.success && response.data) {
         const url = window.URL.createObjectURL(response.data);
         const a = document.createElement('a');
@@ -318,121 +320,126 @@ export default function BaseCvValidationModal({
             </div>
 
             {/* Existing Rejection Reason */}
-            {cv.rejectionReason && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">{t('cv.previousRejectionReason')}</h4>
-                <p className="text-xs text-gray-700 leading-relaxed bg-red-50 p-2 rounded-lg border border-red-200">{cv.rejectionReason}</p>
-              </div>
-            )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            {/* Validation Actions */}
-            {!processed ? (
-              <div className="space-y-3">
-                {/* Approve Button */}
-                <button
-                  onClick={() => setValidationType('approve')}
-                  disabled={isValidating}
-                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'approve'
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
-                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {t(approveLabelKey)}
-                </button>
-
-                {/* Reject Button */}
-                <button
-                  onClick={() => setValidationType('reject')}
-                  disabled={isValidating}
-                  className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'reject'
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
-                    } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  {t(rejectLabelKey)}
-                </button>
-
-                {/* Comment for Rejection */}
-                {validationType === 'reject' && (
-                  <div className="mt-4">
-                    <label htmlFor="rejection-comment" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t(rejectionCommentKey)} <span className="text-gray-500">({t('common.optional')})</span>
-                    </label>
-                    <textarea
-                      id="rejection-comment"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                      placeholder={t(rejectionCommentPlaceholderKey)}
-                    />
+            {!isApplicationPending && (
+              <>
+                {cv.rejectionReason && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">{t('cv.previousRejectionReason')}</h4>
+                    <p className="text-xs text-gray-700 leading-relaxed bg-red-50 p-2 rounded-lg border border-red-200">{cv.rejectionReason}</p>
                   </div>
                 )}
 
-                {/* Action Buttons */}
-                {validationType && (
-                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => setValidationType(null)}
-                      disabled={isValidating}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                    <button
-                      onClick={() => handleValidation(validationType)}
-                      disabled={isValidating}
-                      className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : 'bg-red-600 hover:bg-red-700'
-                        } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isValidating ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {t('common.processing')}
-                        </div>
-                      ) : (
-                        validationType === 'approve' ? t(confirmApproveKey) : t(confirmRejectKey)
-                      )}
-                    </button>
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                    {error}
                   </div>
                 )}
-              </div>
-            ) : (
-              /* Message for already processed */
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-                <div className="flex items-center justify-center mb-1">
-                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-600">
-                    {t(alreadyProcessedKey)}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {(() => {
-                    // Get the status label to interpolate in the message
-                    const statusDisplay = getStatusDisplay(cv);
-                    const statusLabel = statusDisplay.label.toLowerCase();
-                    return t(alreadyProcessedMessageKey, { status: statusLabel });
-                  })()}
-                </p>
-              </div>
+
+                {/* Validation Actions */}
+                {!processed ? (
+                  <div className="space-y-3">
+                    {/* Approve Button */}
+                    <button
+                      onClick={() => setValidationType('approve')}
+                      disabled={isValidating}
+                      className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'approve'
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100'
+                      } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {t(approveLabelKey)}
+                    </button>
+
+                    {/* Reject Button */}
+                    <button
+                      onClick={() => setValidationType('reject')}
+                      disabled={isValidating}
+                      className={`w-full flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium transition-colors ${validationType === 'reject'
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
+                      } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      {t(rejectLabelKey)}
+                    </button>
+
+                    {/* Comment for Rejection */}
+                    {validationType === 'reject' && (
+                      <div className="mt-4">
+                        <label htmlFor="rejection-comment" className="block text-sm font-medium text-gray-700 mb-2">
+                          {t(rejectionCommentKey)} <span className="text-gray-500">({t('common.optional')})</span>
+                        </label>
+                        <textarea
+                          id="rejection-comment"
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                          placeholder={t(rejectionCommentPlaceholderKey)}
+                        />
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    {validationType && (
+                      <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                        <button
+                          onClick={() => setValidationType(null)}
+                          disabled={isValidating}
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          {t('common.cancel')}
+                        </button>
+                        <button
+                          onClick={() => handleValidation(validationType)}
+                          disabled={isValidating}
+                          className={`flex-1 px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white transition-colors ${validationType === 'approve'
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-red-600 hover:bg-red-700'
+                          } ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isValidating ? (
+                            <div className="flex items-center justify-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              {t('common.processing')}
+                            </div>
+                          ) : (
+                            validationType === 'approve' ? t(confirmApproveKey) : t(confirmRejectKey)
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Message for already processed */
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center mb-1">
+                      <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-600">
+                        {t(alreadyProcessedKey)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {(() => {
+                        const statusDisplay = getStatusDisplay(cv);
+                        const statusLabel = statusDisplay.label.toLowerCase();
+                        return t(alreadyProcessedMessageKey, { status: statusLabel });
+                      })()}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
+
           </div>
 
           {/* Right Panel - PDF Viewer */}

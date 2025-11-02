@@ -293,17 +293,6 @@ class EmployerAPI {
       }) + `?${params.toString()}`;
       
       console.log('🔍 Update application status URL:', url);
-      
-      // Préparer le body avec le statut et optionnellement la raison de refus
-      const body: { applicationStatus: string; rejectionReason?: string } = {
-        applicationStatus: status
-      };
-
-      console.log(body)
-      
-      if (!isApproved && comment && comment.trim()) {
-        body.rejectionReason = comment.trim();
-      }
 
       console.error(params.toString());
 
@@ -313,7 +302,6 @@ class EmployerAPI {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body)
       });
 
 
