@@ -29,6 +29,8 @@ public class StudentApplication {
         PENDING,
         PENDING_INTERVIEW,
         APPROVED,
-        REJECTED
+        REJECTED,
+        ACCEPTED_BY_STUDENT,
+        REJECTED_BY_STUDENT
     }
 }

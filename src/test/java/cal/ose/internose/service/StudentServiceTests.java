@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -417,5 +419,168 @@ public class StudentServiceTests {
             .startDate(LocalDate.of(2024, 6, 1))
             .verificationStatus(VerificationStatus.APPROVED)
             .build();
+    }
+
+    @Test
+    @DisplayName("Test de la méthode respondToApprovedOffer() - accepter offre")
+    public void testRespondToApprovedOffer_Accept() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        
+        Student student = exampleStudent();
+        student.setId(studentID);
+        
+        InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setId(internshipOfferID);
+        internshipOffer.setEndDate(LocalDate.now().plusDays(30)); // Offre valide
+        
+        StudentApplication application = StudentApplication.builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+            .build();
+
+        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.of(application));
+        when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+        // Act
+        studentService.respondToApprovedOffer(studentID, internshipOfferID, true);
+
+        // Assert
+        verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode respondToApprovedOffer() - refuser offre")
+    public void testRespondToApprovedOffer_Reject() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        
+        Student student = exampleStudent();
+        student.setId(studentID);
+        
+        InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setId(internshipOfferID);
+        internshipOffer.setEndDate(LocalDate.now().plusDays(30)); // Offre valide
+        
+        StudentApplication application = StudentApplication.builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+            .build();
+
+        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.of(application));
+        when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+        // Act
+        studentService.respondToApprovedOffer(studentID, internshipOfferID, false);
+
+        // Assert
+        verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode respondToApprovedOffer() - candidature non trouvée")
+    public void testRespondToApprovedOffer_ApplicationNotFound() {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        
+        Student student = exampleStudent();
+        student.setId(studentID);
+        
+        InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setId(internshipOfferID);
+
+        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(
+            NoSuchElementException.class,
+            () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true)
+        );
+        verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
+    }
+
+    @Test
+    @DisplayName("Test de la méthode respondToApprovedOffer() - statut non APPROVED")
+    public void testRespondToApprovedOffer_NotApprovedStatus() {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        
+        Student student = exampleStudent();
+        student.setId(studentID);
+        
+        InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setId(internshipOfferID);
+        
+        StudentApplication application = StudentApplication.builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .applicationStatus(StudentApplication.ApplicationStatus.PENDING) // Pas APPROVED
+            .build();
+
+        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.of(application));
+
+        // Act & Assert
+        assertThrows(
+            Exception.class,
+            () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true)
+        );
+        verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
+    }
+
+    @Test
+    @DisplayName("Test de la méthode respondToApprovedOffer() - offre expirée")
+    public void testRespondToApprovedOffer_ExpiredOffer() {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        
+        Student student = exampleStudent();
+        student.setId(studentID);
+        
+        InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setId(internshipOfferID);
+        internshipOffer.setEndDate(LocalDate.now().minusDays(1)); // Offre expirée
+        
+        StudentApplication application = StudentApplication.builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+            .build();
+
+        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.of(application));
+
+        // Act & Assert
+        assertThrows(
+            Exception.class,
+            () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true)
+        );
+        verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
     }
 }

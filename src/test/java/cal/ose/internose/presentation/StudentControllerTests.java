@@ -37,8 +37,13 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("StudentController Tests")
@@ -420,5 +425,129 @@ public class StudentControllerTests {
             .startDate(LocalDate.of(2024, 6, 1))
             .verificationStatus(VerificationStatus.APPROVED)
             .build();
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/student/internship-offers/{internshipOfferID}/respond - accepter offre")
+    public void testRespondToApprovedOffer_Accept() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        String requestBody = "{\"accepted\":true}";
+        
+        doNothing().when(studentService).respondToApprovedOffer(
+            eq(studentID), 
+            eq(internshipOfferID), 
+            eq(true)
+        );
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            post(TestPaths.buildStudentRespondToOfferUrl(internshipOfferID, studentID))
+                .param("studentID", String.valueOf(studentID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody).contains("accepté cette offre de stage avec succès");
+        verify(studentService, times(1)).respondToApprovedOffer(
+            eq(studentID), 
+            eq(internshipOfferID), 
+            eq(true)
+        );
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/student/internship-offers/{internshipOfferID}/respond - refuser offre")
+    public void testRespondToApprovedOffer_Reject() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        String requestBody = "{\"accepted\":false}";
+        
+        doNothing().when(studentService).respondToApprovedOffer(
+            eq(studentID), 
+            eq(internshipOfferID), 
+            eq(false)
+        );
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            post(TestPaths.buildStudentRespondToOfferUrl(internshipOfferID, studentID))
+                .param("studentID", String.valueOf(studentID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody).contains("refusé cette offre de stage");
+        verify(studentService, times(1)).respondToApprovedOffer(
+            eq(studentID), 
+            eq(internshipOfferID), 
+            eq(false)
+        );
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/student/internship-offers/{internshipOfferID}/respond - offre non trouvée")
+    public void testRespondToApprovedOffer_NotFound() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 999L;
+        String requestBody = "{\"accepted\":true}";
+        
+        doThrow(new NoSuchElementException("Vous n'avez pas postulé à cette offre de stage"))
+            .when(studentService).respondToApprovedOffer(
+                eq(studentID), 
+                eq(internshipOfferID), 
+                anyBoolean()
+            );
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            post(TestPaths.buildStudentRespondToOfferUrl(internshipOfferID, studentID))
+                .param("studentID", String.valueOf(studentID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody).contains("Vous n'avez pas postulé à cette offre de stage");
+    }
+
+    @Test
+    @DisplayName("Test de POST /api/student/internship-offers/{internshipOfferID}/respond - offre expirée")
+    public void testRespondToApprovedOffer_Expired() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 1L;
+        String requestBody = "{\"accepted\":true}";
+        
+        doThrow(new Exception("Cette offre de stage a expiré, vous ne pouvez plus y répondre"))
+            .when(studentService).respondToApprovedOffer(
+                eq(studentID), 
+                eq(internshipOfferID), 
+                anyBoolean()
+            );
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            post(TestPaths.buildStudentRespondToOfferUrl(internshipOfferID, studentID))
+                .param("studentID", String.valueOf(studentID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody).contains("expiré");
     }
 }

@@ -116,6 +116,31 @@ public class EmployerController {
         }
     }
 
+    @PutMapping(Paths.EMPLOYER_UPDATE_APPLICATION_STATUS_PATH)
+    public ResponseEntity<String> updateApplicationStatus(
+        @PathVariable Long internshipOfferID,
+        @PathVariable Long studentID,
+        @RequestBody String requestBody
+    ) {
+        try {
+            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(requestBody);
+            StudentApplication.ApplicationStatus applicationStatus = 
+                StudentApplication.ApplicationStatus.valueOf(jsonNode.get("applicationStatus").asText());
+            String rejectionReason = jsonNode.has("rejectionReason") ? jsonNode.get("rejectionReason").asText() : null;
+            
+            employerService.updateApplicationStatus(internshipOfferID, studentID, applicationStatus, rejectionReason);
+            
+            String message = applicationStatus == StudentApplication.ApplicationStatus.APPROVED 
+                ? "La candidature a été acceptée avec succès" 
+                : "La candidature a été refusée avec succès";
+            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + message + "\" }");
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }

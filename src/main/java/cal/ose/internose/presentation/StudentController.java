@@ -123,6 +123,26 @@ public class StudentController {
         }
     }
 
+    @PostMapping(Paths.STUDENT_RESPOND_TO_OFFER_PATH)
+    public ResponseEntity<String> respondToApprovedOffer(
+        @RequestParam Long studentID,
+        @PathVariable Long internshipOfferID,
+        @RequestBody String requestBody
+    ) {
+        try {
+            boolean accepted = objectMapper.readTree(requestBody).get("accepted").asBoolean();
+            studentService.respondToApprovedOffer(studentID, internshipOfferID, accepted);
+            String message = accepted 
+                ? "Vous avez accepté cette offre de stage avec succès" 
+                : "Vous avez refusé cette offre de stage";
+            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + message + "\" }");
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }

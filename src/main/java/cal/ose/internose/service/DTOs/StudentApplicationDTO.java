@@ -19,6 +19,7 @@ public class StudentApplicationDTO {
     private String studentFirstName;
     private String studentLastName;
     private String internshipOfferTitle;
+    private Long internshipOfferId;
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
 
@@ -27,6 +28,7 @@ public class StudentApplicationDTO {
             .studentFirstName(studentApplication.getStudent().getFirstName())
             .studentLastName(studentApplication.getStudent().getLastName())
             .internshipOfferTitle(studentApplication.getInternshipOffer().getTitle())
+            .internshipOfferId(studentApplication.getInternshipOffer().getId())
             .applicationDate(studentApplication.getApplicationDate())
             .applicationStatus(studentApplication.getApplicationStatus())
             .build();
