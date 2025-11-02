@@ -151,6 +151,7 @@ public class EmployerService {
         return interviewDAO.findByStudentApplication(studentApplication).map(InterviewDTO::fromEntity);
     }
 
+    // juste pour tester
     public void updateApplicationStatus(Long internshipOfferID, Long studentID, StudentApplication.ApplicationStatus newStatus, String rejectionReason) {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
         StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
@@ -158,6 +159,7 @@ public class EmployerService {
             .filter(app -> app.getStudent().getId().equals(studentID))
             .findFirst()
             .orElseThrow();
+
         studentApplication.setApplicationStatus(newStatus);
         studentApplicationDAO.save(studentApplication);
     }

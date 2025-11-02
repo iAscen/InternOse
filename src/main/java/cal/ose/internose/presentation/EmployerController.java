@@ -116,6 +116,7 @@ public class EmployerController {
         }
     }
 
+    // Juste pour tester
     @PutMapping(Paths.EMPLOYER_UPDATE_APPLICATION_STATUS_PATH)
     public ResponseEntity<String> updateApplicationStatus(
         @PathVariable Long internshipOfferID,

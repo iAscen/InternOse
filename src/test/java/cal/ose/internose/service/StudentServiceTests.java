@@ -418,6 +418,7 @@ public class StudentServiceTests {
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))
+                .expirationDate(LocalDate.now().plusDays(10))
                 .verificationStatus(VerificationStatus.APPROVED)
                 .build();
     }
@@ -562,6 +563,7 @@ public class StudentServiceTests {
         student.setId(studentID);
 
         InternshipOffer internshipOffer = createTestOffer();
+        internshipOffer.setExpirationDate(LocalDate.now().minusDays(1));
         internshipOffer.setId(internshipOfferID);
         internshipOffer.setEndDate(LocalDate.now().minusDays(1)); // Offre expirée
 
