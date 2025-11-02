@@ -165,8 +165,11 @@
     "name": "Nom",
     "placeholderPending": "Ex: En attente de validation",
     "placeholderDev": "Ex: Développeur",
+    "resumesSectionComingSoon": "Cette section sera bientôt disponible",
+    "resumesSectionDescription": "Vous pourrez consulter et gérer les CVs des étudiants",
     "allStatuses": "Tous les statuts",
     "ascendingOrder": "Ascendant",
+    "noCvsFound": "Aucun CV trouvé",
     "validateOffer": "Valider l'offre",
     "approveOffer": "Approuver l'offre",
     "rejectOffer": "Refuser l'offre",
@@ -256,7 +259,19 @@
       "school": "École",
       "notSpecified": "Non spécifié",
       "inviteToInterview": "Convoquer",
-      "pendingInterview": "Entrevue en attente"
+      "pendingInterview": "Entrevue en attente",
+      "actions": "Actions",
+      "acceptApplication": "Accepter la candidature",
+      "rejectApplication": "Refuser la candidature",
+      "confirmReject": "Confirmer le refus",
+      "rejectionComment": "Commentaire de refus",
+      "rejectionCommentPlaceholder": "Expliquez pourquoi cette candidature est refusée (optionnel)",
+      "alreadyProcessed": "Cette candidature a déjà été traitée.",
+      "alreadyProcessedMessage": "Cette candidature a déjà été traitée et ne peut pas être modifiée.",
+      "validationSuccess": "Candidature mise à jour avec succès !",
+      "validationError": "Erreur lors de la validation de la candidature",
+      "missingIds": "Erreur : IDs manquants",
+      "serverError": "Erreur de connexion au serveur"
     }
   },
   "errors": {
@@ -302,6 +317,9 @@
       "getStarted": "Commencer maintenant",
       "learnMore": "En savoir plus"
     }
+  },
+  "cv": {
+    "previousRejectionReason": "Raison de refus précédente"
   },
   "cv-details": {
     "fileName": "Nom du fichier",

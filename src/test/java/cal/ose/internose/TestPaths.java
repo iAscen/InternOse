@@ -99,4 +99,16 @@ public class TestPaths {
     public static String buildEmployerInterviewsUrl(Long employerId) {
         return EMPLOYER_INTERVIEWS_PATH + "?employerID=" + employerId;
     }
+
+    public static String buildEmployerUpdateApplicationStatusUrl(Long internshipOfferId, Long studentId) {
+        return Paths.EMPLOYER_UPDATE_APPLICATION_STATUS_PATH
+            .replace("{internshipOfferID}", String.valueOf(internshipOfferId))
+            .replace("{studentID}", String.valueOf(studentId));
+    }
+
+    public static String buildStudentRespondToOfferUrl(Long internshipOfferId, Long studentId) {
+        return Paths.STUDENT_RESPOND_TO_OFFER_PATH
+            .replace("{internshipOfferID}", String.valueOf(internshipOfferId))
+            + "?studentID=" + studentId;
+    }
 }
