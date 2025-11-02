@@ -208,6 +208,40 @@ public class EmployerServiceTests {
                 return internshipOffers;
         }
 
+
+        private InternshipOffer offerWithStatus(Long id) {
+                return InternshipOffer.builder()
+                                .id(id)
+                                .verificationStatus(VerificationStatus.APPROVED)
+                                .build();
+        }
+
+        private Student studentWithResumeStatus(Long id) {
+                return Student.builder()
+                                .id(id)
+                                .resumeVerificationStatus(VerificationStatus.APPROVED)
+                                .build();
+        }
+
+        private StudentApplication applicationWithStatus(Long id,
+                                                         InternshipOffer offer,
+                                                         Student student,
+                                                         StudentApplication.ApplicationStatus status) {
+                return StudentApplication.builder()
+                                .id(id)
+                                .internshipOffer(offer)
+                                .student(student)
+                                .applicationStatus(status)
+                                .build();
+        }
+
+        private void stubOfferAndSingleApplication(InternshipOffer offer, StudentApplication application) {
+                when(internshipOfferDAO.findById(offer.getId())).thenReturn(Optional.of(offer));
+                when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                                .thenReturn(List.of(application));
+        }
+
         @Test
         @DisplayName("Test de la méthode scheduleInterview() - succès")
         public void testScheduleInterview() throws InterviewAlreadyScheduledException {
@@ -462,32 +496,22 @@ public class EmployerServiceTests {
             Long studentID = 1L;
             Long studentApplicationID = 1L;
 
-            InternshipOffer internshipOffer = InternshipOffer.builder()
-                .id(internshipOfferID)
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
-            Student student = Student.builder()
-                .id(studentID)
-                .resumeVerificationStatus(VerificationStatus.APPROVED)
-                .build();
-            StudentApplication studentApplication = StudentApplication.builder()
-                .id(studentApplicationID)
-                .internshipOffer(internshipOffer)
-                .student(student)
-                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_INTERVIEW)
-                .build();
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
 
-            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
-                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
-                .thenReturn(List.of(studentApplication));
-            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(studentApplication);
+            stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
 
             // Act
             employerService.reviewApplication(internshipOfferID, studentID, true, "");
 
             // Assert
-            assertThat(studentApplication.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
             verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
         }
 
@@ -499,32 +523,22 @@ public class EmployerServiceTests {
             Long studentID = 1L;
             Long studentApplicationID = 1L;
 
-            InternshipOffer internshipOffer = InternshipOffer.builder()
-                .id(internshipOfferID)
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
-            Student student = Student.builder()
-                .id(studentID)
-                .resumeVerificationStatus(VerificationStatus.APPROVED)
-                .build();
-            StudentApplication studentApplication = StudentApplication.builder()
-                .id(studentApplicationID)
-                .internshipOffer(internshipOffer)
-                .student(student)
-                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_INTERVIEW)
-                .build();
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
 
-            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
-                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
-                .thenReturn(List.of(studentApplication));
-            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(studentApplication);
+            stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
 
             // Act
             employerService.reviewApplication(internshipOfferID, studentID, false, "Compétences insuffisantes");
 
             // Assert
-            assertThat(studentApplication.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
             verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
         }
 
@@ -546,25 +560,15 @@ public class EmployerServiceTests {
             Long studentID = 1L;
             Long studentApplicationID = 1L;
 
-            InternshipOffer internshipOffer = InternshipOffer.builder()
-                .id(internshipOfferID)
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
-            Student student = Student.builder()
-                .id(studentID)
-                .resumeVerificationStatus(VerificationStatus.APPROVED)
-                .build();
-            StudentApplication studentApplication = StudentApplication.builder()
-                .id(studentApplicationID)
-                .internshipOffer(internshipOffer)
-                .student(student)
-                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
-                .build();
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING);
 
-            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
-                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
-                .thenReturn(List.of(studentApplication));
+            stubOfferAndSingleApplication(internshipOffer, application);
 
             // Act & Assert
             try {
@@ -582,25 +586,15 @@ public class EmployerServiceTests {
             Long studentID = 1L;
             Long studentApplicationID = 1L;
 
-            InternshipOffer internshipOffer = InternshipOffer.builder()
-                .id(internshipOfferID)
-                .verificationStatus(VerificationStatus.APPROVED)
-                .build();
-            Student student = Student.builder()
-                .id(studentID)
-                .resumeVerificationStatus(VerificationStatus.APPROVED)
-                .build();
-            StudentApplication studentApplication = StudentApplication.builder()
-                .id(studentApplicationID)
-                .internshipOffer(internshipOffer)
-                .student(student)
-                .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
-                .build();
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.APPROVED);
 
-            when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-            when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
-                any(InternshipOffer.class), eq(null), eq(null), eq(null)))
-                .thenReturn(List.of(studentApplication));
+            stubOfferAndSingleApplication(internshipOffer, application);
 
             // Act & Assert
             try {
