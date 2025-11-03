@@ -395,14 +395,18 @@ class StudentAPI {
 
       const studentId = await userAPI.getStudentIdFromJWT()
 
-      const url = buildFullApiUrl(API_PATHS.STUDENT.RESPOND_TO_OFFER, { internshipOfferID: String(internshipOfferID) }) + `?studentID=${studentId}`;
+      let url = buildFullApiUrl(API_PATHS.STUDENT.RESPOND_TO_OFFER) + `?studentID=${studentId}`;
+      url = url.replace(":internshipOfferID", internshipOfferID.toString())
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          accepted: acceptOffer
+        })
       });
 
       if (response.ok) {

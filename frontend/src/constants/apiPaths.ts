@@ -32,7 +32,7 @@ export const API_PATHS = {
     INTERNSHIP_OFFER_DETAILS: '/student/internship-offers/{offerID}',
     APPLY_INTERNSHIP: '/student/internship-offers/{offerID}/apply-to-internship',
     APPLICATIONS: '/student/applications',
-    RESPOND_TO_OFFER: '/api/student/internship-offers/{internshipOfferID}/respond'
+    RESPOND_TO_OFFER: '/student/internship-offers/:internshipOfferID/respond'
   },
   
   // Gestionnaire de stages

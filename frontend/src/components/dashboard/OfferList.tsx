@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {InternshipOffer} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
@@ -41,6 +41,11 @@ export default function OfferList({
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [selectedOfferToRespond, setSelectedOfferToRespond] = useState<InternshipOffer | null>(null);
   const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
+
+  const respondToOffer = (offer: InternshipOffer, acceptOffer: boolean) => {
+    console.log("Respond to offer")
+    studentAPI.respondToOffer(offer.id, acceptOffer)
+  }
 
   const handleValidateOffer = (offer: InternshipOffer) => {
     setSelectedOffer(offer);
@@ -247,9 +252,9 @@ export default function OfferList({
                             className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${
                               offer.applicationStatus === 'PENDING_INTERVIEW'
                                 ? 'text-blue-700 bg-blue-100'
-                                : offer.applicationStatus === 'ACCEPTED' || 'ACCEPTED_BY_STUDENT'
+                                : offer.applicationStatus === 'ACCEPTED' || offer.applicationStatus === 'ACCEPTED_BY_STUDENT'
                                   ? 'text-green-700 bg-green-100'
-                                  : offer.applicationStatus === 'REJECTED' || 'REJECTED_BY_STUDENT'
+                                  : offer.applicationStatus === 'REJECTED' || offer.applicationStatus === 'REJECTED_BY_STUDENT'
                                     ? 'text-red-700 bg-red-100'
                                     : 'text-green-700 bg-green-100'
                             }`}
@@ -368,7 +373,8 @@ export default function OfferList({
       {selectedOfferToRespond && isStudent && <RespondToOfferModal
                           offer={selectedOfferToRespond}
                           mode={confirmationType}
-                          onClose={() => setSelectedOfferToRespond(null)}></RespondToOfferModal>}
+                          onClose={() => setSelectedOfferToRespond(null)}
+                          onSubmit={() => respondToOffer(selectedOfferToRespond, confirmationType === "ACCEPT_OFFER")}></RespondToOfferModal>}
     </div>
   );
 }

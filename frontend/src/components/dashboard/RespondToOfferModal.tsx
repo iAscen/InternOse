@@ -2,11 +2,12 @@ import type { InternshipOffer, StudentApplication } from "~/interfaces";
 
 interface OfferConfirmationModalProps {
     offer: InternshipOffer,
-    mode: 'REJECT_OFFER' | 'ACCEPT_OFFER'
-    onClose: () => void
+    mode: 'REJECT_OFFER' | 'ACCEPT_OFFER',
+    onClose: () => void,
+    onSubmit: () => void
 }
 
-export default function RespondToOfferModal({offer, mode, onClose}: OfferConfirmationModalProps) {
+export default function RespondToOfferModal({offer, mode, onClose, onSubmit}: OfferConfirmationModalProps) {
       return (
     <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
@@ -63,6 +64,7 @@ export default function RespondToOfferModal({offer, mode, onClose}: OfferConfirm
                 Annuler
               </button>
               <button
+                onClick={onSubmit}
                 type="submit"
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
