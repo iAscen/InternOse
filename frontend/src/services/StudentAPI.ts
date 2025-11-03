@@ -382,6 +382,50 @@ class StudentAPI {
       };
     }
   }
+
+  async respondToOffer(internshipOfferID: number, acceptOffer: boolean) {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Non authentifié'
+        };
+      }
+
+      const studentId = await userAPI.getStudentIdFromJWT()
+
+      const url = buildFullApiUrl(API_PATHS.STUDENT.RESPOND_TO_OFFER, { internshipOfferID: String(internshipOfferID) }) + `?studentID=${studentId}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('🔍 Apply result:', result);
+        return {
+          success: true,
+          data: result
+        };
+      } else {
+        const errorData = await response.json()
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la reponse a l\'offre de stage.'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
 }
 
 export const studentAPI = new StudentAPI();
