@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +20,10 @@ public class StudentApplicationDTO {
     private String studentFirstName;
     private String studentLastName;
     private String internshipOfferTitle;
+    private String internshipOfferAddress;
+    private LocalDate internshipOfferStartDate;
+    private LocalDate internshipOfferEndDate;
+    private int internshipOfferDuration;
     private Long internshipOfferId;
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
@@ -28,6 +33,10 @@ public class StudentApplicationDTO {
             .studentFirstName(studentApplication.getStudent().getFirstName())
             .studentLastName(studentApplication.getStudent().getLastName())
             .internshipOfferTitle(studentApplication.getInternshipOffer().getTitle())
+            .internshipOfferAddress(studentApplication.getInternshipOffer().getAddress())
+            .internshipOfferStartDate(studentApplication.getInternshipOffer().getStartDate())
+            .internshipOfferEndDate(studentApplication.getInternshipOffer().getEndDate())
+            .internshipOfferDuration(studentApplication.getInternshipOffer().getDuration())
             .internshipOfferId(studentApplication.getInternshipOffer().getId())
             .applicationDate(studentApplication.getApplicationDate())
             .applicationStatus(studentApplication.getApplicationStatus())
