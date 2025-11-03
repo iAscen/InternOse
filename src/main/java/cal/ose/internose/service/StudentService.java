@@ -198,7 +198,8 @@ public class StudentService {
             Optional<StudentApplication> studentApplication =
                 studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer);
             studentApplication.ifPresent(
-                application -> internshipOfferDTO.setApplicationStatus(application.getApplicationStatus().toString())
+                application -> {internshipOfferDTO.setApplicationStatus(application.getApplicationStatus().toString());
+                                                 internshipOfferDTO.setApplicationId(application.getId());}
             );
             return internshipOfferDTO;
         }).toList();
