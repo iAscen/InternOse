@@ -5,7 +5,7 @@ import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
 import {studentAPI} from '~/services/StudentAPI';
 import {userAPI} from '~/services/UserAPI';
-import OfferConfirmationModal from './OfferConfirmationModal';
+import RespondToOfferModal from './RespondToOfferModal';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -39,7 +39,7 @@ export default function OfferList({
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [applyError, setApplyError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [selectedOfferToConfirm, setSelectedOfferToConfirm] = useState<InternshipOffer | null>(null);
+  const [selectedOfferToRespond, setSelectedOfferToRespond] = useState<InternshipOffer | null>(null);
   const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
 
   const handleValidateOffer = (offer: InternshipOffer) => {
@@ -313,10 +313,10 @@ export default function OfferList({
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
 
                 {offer.applicationStatus === "APPROVED" && <div className="flex gap-1 mt-4 ms-auto text-sm">
-                        <button onClick={() => {setSelectedOfferToConfirm(offer); setConfirmationType('ACCEPT_OFFER')}} className="rounded-sm px-2 bg-green-500 text-white hover:bg-green-600 hover:cursor-pointer">
+                        <button onClick={() => {setSelectedOfferToRespond(offer); setConfirmationType('ACCEPT_OFFER')}} className="rounded-sm px-2 bg-green-500 text-white hover:bg-green-600 hover:cursor-pointer">
                             Accepter
                         </button>
-                        <button onClick={() => {setSelectedOfferToConfirm(offer); setConfirmationType('REJECT_OFFER')}} className="rounded-sm px-2 bg-red-500 text-white hover:bg-red-600 hover:cursor-pointer">
+                        <button onClick={() => {setSelectedOfferToRespond(offer); setConfirmationType('REJECT_OFFER')}} className="rounded-sm px-2 bg-red-500 text-white hover:bg-red-600 hover:cursor-pointer">
                             Refuser
                         </button>
                     </div>}
@@ -365,10 +365,10 @@ export default function OfferList({
         error={applyError}
       />
 
-      {selectedOfferToConfirm && isStudent && <OfferConfirmationModal
-                          offer={selectedOfferToConfirm}
+      {selectedOfferToRespond && isStudent && <RespondToOfferModal
+                          offer={selectedOfferToRespond}
                           mode={confirmationType}
-                          onClose={() => setSelectedOfferToConfirm(null)}></OfferConfirmationModal>}
+                          onClose={() => setSelectedOfferToRespond(null)}></RespondToOfferModal>}
     </div>
   );
 }

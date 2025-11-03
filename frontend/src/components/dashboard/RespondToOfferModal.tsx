@@ -6,7 +6,7 @@ interface OfferConfirmationModalProps {
     onClose: () => void
 }
 
-export default function OfferConfirmationModal({offer, mode, onClose}: OfferConfirmationModalProps) {
+export default function RespondToOfferModal({offer, mode, onClose}: OfferConfirmationModalProps) {
       return (
     <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
