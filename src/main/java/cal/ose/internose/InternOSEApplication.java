@@ -1,10 +1,8 @@
 package cal.ose.internose;
 
+import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -169,6 +167,26 @@ public class InternOSEApplication {
 
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
+
+
+                //studentService.respondToApprovedOffer(4L, 1L, false);
+
+                /*CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
+                    .studentId(4L)
+                    .internshipOfferId(1L)
+                    .startDate(LocalDate.of(2026, 2, 19))
+                    .endDate(LocalDate.of(2026, 4, 15))
+                    .weeklyHours(35)
+                    .tasks("Develop API endpoints, Write unit tests, Update documentation")
+                    .educationalObjectives("Learn Spring Boot, Improve teamwork, Gain professional experience")
+                    .supervisorName("Alice Tremblay")
+                    .supervisorTitle("Lead Developer")
+                    .supervisorEmail("alice.tremblay@company.com")
+                    .supervisorPhone("514-123-4567")
+                    .build();
+
+                internshipManagerService.createInternshipContract(dto);*/
+
             }
         };
     }

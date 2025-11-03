@@ -1,12 +1,12 @@
-import type { StudentApplication } from "~/interfaces";
+import type { InternshipOffer, StudentApplication } from "~/interfaces";
 
-interface ApplicationConfirmationModalProps {
-    application: StudentApplication,
-    mode: 'REJECT' | 'ACCEPT'
+interface OfferConfirmationModalProps {
+    offer: InternshipOffer,
+    mode: 'REJECT_OFFER' | 'ACCEPT_OFFER'
     onClose: () => void
 }
 
-export default function ApplicationConfirmationModal({application, mode, onClose}: ApplicationConfirmationModalProps) {
+export default function OfferConfirmationModal({offer, mode, onClose}: OfferConfirmationModalProps) {
       return (
     <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
@@ -29,10 +29,11 @@ export default function ApplicationConfirmationModal({application, mode, onClose
         <div className="p-6">
           {/* Détails de l'offre */}
           <div className="mb-6 bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{application.internshipOfferTitle}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <p>📍 {application.internshipOfferAddress}</p>
-              <p>⏱ {application.internshipOfferDuration} semaines | 📅 {application.internshipOfferStartDate}</p>
+              <p>📍 {offer.address}</p>
+              <p>⏱ {offer.duration} semaines | 📅 {offer.startDate}</p>
+              {offer.salary > 0 && <p>💰 {offer.salary}$/h</p>}
             </div>
           </div>
 
@@ -40,12 +41,12 @@ export default function ApplicationConfirmationModal({application, mode, onClose
           <form /*onSubmit={handleSubmit}*/>
             {/* Information importante */}
             <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-              {mode === "REJECT" && (
+              {mode === "REJECT_OFFER" && (
                 <p className="text-sm text-gray-700 font-semibold">
                     En confirmant, vous <span className="font-extrabold">refuser</span> cette offre de stage. Cette décision est définitive.
                 </p>
                )}
-                {mode === "ACCEPT" && (
+                {mode === "ACCEPT_OFFER" && (
                 <p className="text-sm text-gray-700 font-semibold">
                     En confirmant, vous <span className="font-extrabold">acceptez</span> cette offre de stage. Cette décision est définitive.
                 </p>

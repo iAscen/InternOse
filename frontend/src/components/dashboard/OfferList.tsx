@@ -5,6 +5,7 @@ import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
 import {studentAPI} from '~/services/StudentAPI';
 import {userAPI} from '~/services/UserAPI';
+import OfferConfirmationModal from './OfferConfirmationModal';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -38,6 +39,8 @@ export default function OfferList({
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [applyError, setApplyError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [selectedOfferToConfirm, setSelectedOfferToConfirm] = useState<InternshipOffer | null>(null);
+  const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
 
   const handleValidateOffer = (offer: InternshipOffer) => {
     setSelectedOffer(offer);
@@ -244,9 +247,9 @@ export default function OfferList({
                             className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md cursor-not-allowed ${
                               offer.applicationStatus === 'PENDING_INTERVIEW'
                                 ? 'text-blue-700 bg-blue-100'
-                                : offer.applicationStatus === 'ACCEPTED'
+                                : offer.applicationStatus === 'ACCEPTED' || 'ACCEPTED_BY_STUDENT'
                                   ? 'text-green-700 bg-green-100'
-                                  : offer.applicationStatus === 'REJECTED'
+                                  : offer.applicationStatus === 'REJECTED' || 'REJECTED_BY_STUDENT'
                                     ? 'text-red-700 bg-red-100'
                                     : 'text-green-700 bg-green-100'
                             }`}
@@ -257,11 +260,13 @@ export default function OfferList({
                             </svg>
                             {offer.applicationStatus === 'PENDING_INTERVIEW'
                               ? 'Entrevue en attente'
-                              : offer.applicationStatus === 'ACCEPTED'
+                              : offer.applicationStatus === 'APPROVED'
                                 ? 'Candidature acceptée'
-                                : offer.applicationStatus === 'REJECTED'
-                                  ? 'Candidature refusée'
-                                  : 'Candidature envoyée'
+                                : offer.applicationStatus === 'ACCEPTED_BY_STUDENT'
+                                    ? 'Offre de stage acceptée'
+                                    : offer.applicationStatus === 'REJECTED' || offer.applicationStatus === "REJECTED_BY_STUDENT"
+                                      ? 'Candidature refusée'
+                                      : 'Candidature envoyée'
                             }
                           </button>
                         ) : (
@@ -303,9 +308,18 @@ export default function OfferList({
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.program')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.program}</p>
               </div>
-              <div>
+              <div className='flex'>
                 <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
+
+                {offer.applicationStatus === "APPROVED" && <div className="flex gap-1 mt-4 ms-auto text-sm">
+                        <button onClick={() => {setSelectedOfferToConfirm(offer); setConfirmationType('ACCEPT_OFFER')}} className="rounded-sm px-2 bg-green-500 text-white hover:bg-green-600 hover:cursor-pointer">
+                            Accepter
+                        </button>
+                        <button onClick={() => {setSelectedOfferToConfirm(offer); setConfirmationType('REJECT_OFFER')}} className="rounded-sm px-2 bg-red-500 text-white hover:bg-red-600 hover:cursor-pointer">
+                            Refuser
+                        </button>
+                    </div>}
               </div>
               {/* Affichage de la raison de rejet si applicable */}
               {offer.verificationStatus === 'REJECTED' && offer.rejectionReason && (
@@ -340,6 +354,8 @@ export default function OfferList({
         />
       )}
 
+      
+
       {/* Apply Modal */}
       <ApplyOfferModal
         offer={selectedOfferToApply}
@@ -348,6 +364,11 @@ export default function OfferList({
         onApply={handleApplySubmit}
         error={applyError}
       />
+
+      {selectedOfferToConfirm && isStudent && <OfferConfirmationModal
+                          offer={selectedOfferToConfirm}
+                          mode={confirmationType}
+                          onClose={() => setSelectedOfferToConfirm(null)}></OfferConfirmationModal>}
     </div>
   );
 }

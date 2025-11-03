@@ -11,10 +11,10 @@ import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
 import FilterButton from "~/components/dashboard/FilterButton";
 import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
-import type {InternshipOffer, StudentApplication} from "~/interfaces";
+import type {Cv, InternshipOffer, StudentApplication} from "~/interfaces";
 import {dashboardService} from "~/services/dashboardService";
 import { filterInternshipOffers, sortInternshipOffers } from '~/utils/filterUtils';
-import ApplicationsOfStudent from './ApplicationsOfStudent';
+
 
 export default function StudentDashboardContent() {
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ export default function StudentDashboardContent() {
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [applications, setApplications] = useState<StudentApplication[]>([]);
+    const [applications, setApplications] = useState<any[]>([]);
     const [appliedOffers, setAppliedOffers] = useState<Set<number>>(new Set());
     const [offerFilters, setOfferFilters] = useState<string[]>([]);
     const [offerSortBy, setOfferSortBy] = useState<string>('');
@@ -386,10 +386,6 @@ export default function StudentDashboardContent() {
                   </div>
               )}
 
-
-            <div>
-              <ApplicationsOfStudent applications={applications}></ApplicationsOfStudent>
-            </div>
           </div>
 
       </main>
