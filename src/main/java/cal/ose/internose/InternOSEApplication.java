@@ -167,7 +167,9 @@ public class InternOSEApplication {
 
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
+                studentService.applyToInternshipOffer(2L, 1L);
 
+                employerService.updateApplicationStatus(1L, 2L, StudentApplication.ApplicationStatus.APPROVED, null);
 
                 //studentService.respondToApprovedOffer(4L, 1L, false);
 

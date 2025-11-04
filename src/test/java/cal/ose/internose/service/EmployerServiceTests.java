@@ -18,10 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -568,5 +565,95 @@ public class EmployerServiceTests {
                                     null
                                 ));
                 verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test de la methode countUnseenApplications() - offre non trouvee")
+        public void testCountUnseenApplications_OfferNotFound() {
+            // Arrange
+            when(internshipOfferDAO.findById(1L)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class, () -> employerService.countUnseenApplications(1L));
+        }
+
+        @Test
+        @DisplayName("Test de la methode countUnseenApplications()")
+        public void testCountUnseenApplications() {
+            // Arrange
+            InternshipOffer internshipOffer1 = InternshipOffer.builder().id(1L).build();
+
+            when(internshipOfferDAO.findById(1L)).thenReturn(Optional.ofNullable(internshipOffer1));
+            when(studentApplicationDAO.findByInternshipOffer(internshipOffer1)).thenReturn(
+                studentApplicationsTestList()
+            );
+
+            // Act
+            Map<String, Integer> unseenApplications = employerService.countUnseenApplications(1L);
+
+            // Assert
+            assertEquals(2, unseenApplications.size());
+            assertEquals(1, unseenApplications.get("studentsWhoRejectedTheOffer"));
+            assertEquals(1, unseenApplications.get("studentsWhoAcceptedTheOffer"));
+        }
+
+        @Test
+        @DisplayName("Test de la methode makeApplicationsSeen() - offre non trouvee")
+        public void testMakeApplicationsSeen_OfferNotFound() {
+            // Arrange
+            when(internshipOfferDAO.findById(1L)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class, () -> employerService.makeApplicationsSeen(1L));
+        }
+
+        @Test
+        @DisplayName("Test de la methode makeApplicationsSeen()")
+        public void testMakeApplicationsSeen() {
+            // Arrange
+            List<StudentApplication> studentApplications = studentApplicationsTestList();
+
+            InternshipOffer internshipOffer1 = InternshipOffer.builder().id(1L).build();
+
+            when(internshipOfferDAO.findById(1L)).thenReturn(Optional.ofNullable(internshipOffer1));
+            when(studentApplicationDAO.findByInternshipOffer(internshipOffer1)).thenReturn(
+                studentApplications
+            );
+
+            // Act
+            employerService.makeApplicationsSeen(1L);
+
+            // Assert
+            verify(studentApplicationDAO, times(2)).save(any(StudentApplication.class));
+        }
+
+        private List<StudentApplication> studentApplicationsTestList() {
+            StudentApplication studentApplication1 = StudentApplication.builder()
+                .id(1L)
+                .applicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT)
+                .seenStatus(StudentApplication.SeenStatus.UNSEEN).build();
+
+            StudentApplication studentApplication2  = StudentApplication.builder()
+                .id(1L)
+                .applicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT)
+                .seenStatus(StudentApplication.SeenStatus.UNSEEN).build();
+
+            StudentApplication studentApplication3 = StudentApplication.builder()
+                .id(1L)
+                .applicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT)
+                .seenStatus(StudentApplication.SeenStatus.SEEN).build();
+
+            StudentApplication studentApplication4 = StudentApplication.builder()
+                .id(1L)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
+                .seenStatus(StudentApplication.SeenStatus.NONE).build();
+
+            ArrayList<StudentApplication> studentApplicationsTestList = new ArrayList<>();
+            studentApplicationsTestList.add(studentApplication1);
+            studentApplicationsTestList.add(studentApplication2);
+            studentApplicationsTestList.add(studentApplication3);
+            studentApplicationsTestList.add(studentApplication4);
+
+            return studentApplicationsTestList;
         }
 }
