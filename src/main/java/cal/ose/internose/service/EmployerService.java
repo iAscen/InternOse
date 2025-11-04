@@ -155,17 +155,17 @@ public class EmployerService {
     }
 
     // juste pour tester
-    public void updateApplicationStatus(Long internshipOfferID, Long studentID, StudentApplication.ApplicationStatus newStatus, String rejectionReason) {
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
-        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
-            .stream()
-            .filter(app -> app.getStudent().getId().equals(studentID))
-            .findFirst()
-            .orElseThrow();
-
-        studentApplication.setApplicationStatus(newStatus);
-        studentApplicationDAO.save(studentApplication);
-    }
+//    public void updateApplicationStatus(Long internshipOfferID, Long studentID, StudentApplication.ApplicationStatus newStatus, String rejectionReason) {
+//        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+//        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
+//            .stream()
+//            .filter(app -> app.getStudent().getId().equals(studentID))
+//            .findFirst()
+//            .orElseThrow();
+//
+//        studentApplication.setApplicationStatus(newStatus);
+//        studentApplicationDAO.save(studentApplication);
+//    }
 
     public StudentApplicationDTO reviewApplication(Long internshipOfferID, Long studentID, boolean approved, String rejectionReason)
         throws ApplicationAlreadyReviewedException
