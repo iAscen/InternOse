@@ -6,7 +6,6 @@ import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
-import cal.ose.internose.service.exceptions.ApplicationNotInInterviewException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -671,8 +670,8 @@ public class EmployerServiceTests {
         }
 
         @Test
-        @DisplayName("Test reviewApplication application non en attente d'interview")
-        public void testReviewApplication_Throws_ApplicationNotInInterviewException() {
+        @DisplayName("Test reviewApplication avec statut PENDING - accepter candidature")
+        public void testReviewApplication_WithPendingStatus_Accept() {
             // Arrange
             Long internshipOfferID = 1L;
             Long studentID = 1L;
@@ -687,13 +686,43 @@ public class EmployerServiceTests {
                             StudentApplication.ApplicationStatus.PENDING);
 
             stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
 
-            // Act & Assert
-            try {
-                employerService.reviewApplication(1L, 1L, true, "");
-            } catch (ApplicationNotInInterviewException e) {
-                assertThat(e.getMessage()).isEqualTo("L'application n'est pas en attente d'interview");
-            }
+            // Act
+            employerService.reviewApplication(1L, 1L, true, "");
+
+            // Assert
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication avec statut PENDING - refuser candidature")
+        public void testReviewApplication_WithPendingStatus_Reject() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+            String rejectionReason = "Compétences insuffisantes";
+
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING);
+
+            stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+            // Act
+            employerService.reviewApplication(1L, 1L, false, rejectionReason);
+
+            // Assert
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
+            assertThat(application.getRejectionReason()).isEqualTo(rejectionReason);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
         }
 
         @Test
