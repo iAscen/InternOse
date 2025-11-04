@@ -13,9 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -162,5 +160,51 @@ public class EmployerService {
 
         studentApplication.setApplicationStatus(newStatus);
         studentApplicationDAO.save(studentApplication);
+    }
+
+    public Map<String, Integer> countUnseenApplications(long offerId) {
+        int studentsWhoRejectedTheOffer = 0;
+        int studentsWhoAcceptedTheOffer = 0;
+
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(offerId).orElseThrow(
+            () -> new NoSuchElementException("Offer with id " + offerId + " not found")
+        );
+
+        for(StudentApplication application: internshipOffer.getStudentApplications()) {
+
+            if (application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {
+                if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) {
+                    studentsWhoRejectedTheOffer++;
+                }
+
+                if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
+                    studentsWhoRejectedTheOffer++;
+                }
+            }
+
+        }
+
+        Map<String, Integer> unseenApplications = new HashMap<>();
+        unseenApplications.put("studentsWhoRejectedTheOffer", studentsWhoRejectedTheOffer);
+        unseenApplications.put("studentsWhoAcceptedTheOffer", studentsWhoAcceptedTheOffer);
+
+        return unseenApplications;
+    }
+
+    public void makeApplicationsSeen(long offerId) {
+        InternshipOffer offer = internshipOfferDAO.findById(offerId).orElseThrow(
+            () -> new NoSuchElementException("Offer with id " + offerId + " not found")
+        );
+
+        for (StudentApplication application: offer.getStudentApplications()) {
+            if ((application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
+                application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) &&
+                application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {
+
+                application.setSeenStatus(StudentApplication.SeenStatus.SEEN);
+                studentApplicationDAO.save(application);
+            }
+
+        }
     }
 }

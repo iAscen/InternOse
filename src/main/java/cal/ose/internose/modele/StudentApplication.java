@@ -24,6 +24,15 @@ public class StudentApplication {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ApplicationStatus applicationStatus = ApplicationStatus.PENDING;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private SeenStatus seenStatus = SeenStatus.NONE;
+
+    public enum SeenStatus {
+        UNSEEN,
+        SEEN,
+        NONE // On utilise NONE lorsque l'application n'est pas encore rendu au statut ACCEPTED_BY_STUDENT et REJECTED_BY_STUDENT
+    }
 
     public enum ApplicationStatus {
         PENDING,

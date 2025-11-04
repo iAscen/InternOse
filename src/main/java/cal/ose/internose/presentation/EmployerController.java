@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -139,6 +140,35 @@ public class EmployerController {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @GetMapping(Paths.EMPLOYER_APPLICATIONS_COUNT_UNSEEN_PATH)
+    public ResponseEntity<String> getApplicationsCountUnseen(@PathVariable long offerID) {
+        try {
+            Map<String, Integer> unseenApplications = employerService.countUnseenApplications(offerID);
+
+            String json = String.format(
+                "{\"studentsWhoRejectedTheOffer\": %d, \"studentsWhoAcceptedTheOffer\": %d}",
+                unseenApplications.getOrDefault("studentsWhoRejectedTheOffer", 0),
+                unseenApplications.getOrDefault("studentsWhoAcceptedTheOffer", 0)
+            );
+
+            return ResponseEntity.ok(json);
+        } catch (NoSuchElementException e) {
+            String errorJson = String.format("{\"message\": \"%s\"}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorJson);
+        }
+    }
+
+    @PutMapping(Paths.EMPLOYER_APPLICATIONS_MAKE_SEEN)
+    private ResponseEntity<String> getResponseEntity(@PathVariable long offerID) {
+        try {
+            employerService.makeApplicationsSeen(offerID);
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            String errorJson = String.format("{\"message\": \"%s\"}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorJson);
         }
     }
 

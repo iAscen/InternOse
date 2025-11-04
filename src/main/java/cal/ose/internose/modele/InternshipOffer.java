@@ -43,6 +43,9 @@ public class InternshipOffer {
     )
     private List<Student> applications;
 
+    @OneToMany
+    private List<StudentApplication> studentApplications;
+
     public static InternshipOffer fromDTO(InternshipOfferDTO internshipOfferDTO) {
         return InternshipOffer.builder()
             .title(internshipOfferDTO.getTitle())

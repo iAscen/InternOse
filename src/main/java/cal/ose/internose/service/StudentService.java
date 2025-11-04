@@ -226,6 +226,8 @@ public class StudentService {
         studentApplication.setApplicationStatus(accepted 
             ? StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT 
             : StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+
+        studentApplication.setSeenStatus(StudentApplication.SeenStatus.UNSEEN);
         studentApplicationDAO.save(studentApplication);
     }
 }
