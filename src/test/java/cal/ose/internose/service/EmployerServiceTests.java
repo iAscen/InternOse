@@ -605,121 +605,121 @@ public class EmployerServiceTests {
 //                                ));
 //                verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
 //        }
-//
-//        @Test
-//        @DisplayName("Test approver une application happy day scenario")
-//        public void testApproveApplication() {
-//            // Arrange
-//            Long internshipOfferID = 1L;
-//            Long studentID = 1L;
-//            Long studentApplicationID = 1L;
-//
-//            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
-//            Student student = studentWithResumeStatus(studentID);
-//            StudentApplication application = applicationWithStatus(
-//                            studentApplicationID,
-//                            internshipOffer,
-//                            student,
-//                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
-//
-//            stubOfferAndSingleApplication(internshipOffer, application);
-//            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
-//
-//            // Act
-//            employerService.reviewApplication(internshipOfferID, studentID, true, "");
-//
-//            // Assert
-//            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
-//            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
-//        }
-//
-//        @Test
-//        @DisplayName("Test rejeter une application happy day scenario")
-//        public void testRejectApplication() {
-//            // Arrange
-//            Long internshipOfferID = 1L;
-//            Long studentID = 1L;
-//            Long studentApplicationID = 1L;
-//
-//            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
-//            Student student = studentWithResumeStatus(studentID);
-//            StudentApplication application = applicationWithStatus(
-//                            studentApplicationID,
-//                            internshipOffer,
-//                            student,
-//                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
-//
-//            stubOfferAndSingleApplication(internshipOffer, application);
-//            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
-//
-//            // Act
-//            employerService.reviewApplication(internshipOfferID, studentID, false, "Compétences insuffisantes");
-//
-//            // Assert
-//            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
-//            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
-//        }
-//
-//        @Test
-//        @DisplayName("Test reviewApplication candidature ou offre non trouvée")
-//        public void testReviewApplication_Throws_NoSuchElementException() {
-//            try {
-//                employerService.reviewApplication(1L, 1L, true, "");
-//            } catch (NoSuchElementException e) {
-//                assertThat(e.getMessage()).isEqualTo("No value present");
-//            }
-//        }
-//
-//        @Test
-//        @DisplayName("Test reviewApplication application non en attente d'interview")
-//        public void testReviewApplication_Throws_ApplicationNotInInterviewException() {
-//            // Arrange
-//            Long internshipOfferID = 1L;
-//            Long studentID = 1L;
-//            Long studentApplicationID = 1L;
-//
-//            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
-//            Student student = studentWithResumeStatus(studentID);
-//            StudentApplication application = applicationWithStatus(
-//                            studentApplicationID,
-//                            internshipOffer,
-//                            student,
-//                            StudentApplication.ApplicationStatus.PENDING);
-//
-//            stubOfferAndSingleApplication(internshipOffer, application);
-//
-//            // Act & Assert
-//            try {
-//                employerService.reviewApplication(1L, 1L, true, "");
-//            } catch (ApplicationNotInInterviewException e) {
-//                assertThat(e.getMessage()).isEqualTo("L'application n'est pas en attente d'interview");
-//            }
-//        }
-//
-//        @Test
-//        @DisplayName("Test reviewApplication application déjà examinée")
-//        public void testReviewApplication_Throws_ApplicationAlreadyReviewedException() {
-//            // Arrange
-//            Long internshipOfferID = 1L;
-//            Long studentID = 1L;
-//            Long studentApplicationID = 1L;
-//
-//            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
-//            Student student = studentWithResumeStatus(studentID);
-//            StudentApplication application = applicationWithStatus(
-//                            studentApplicationID,
-//                            internshipOffer,
-//                            student,
-//                            StudentApplication.ApplicationStatus.APPROVED);
-//
-//            stubOfferAndSingleApplication(internshipOffer, application);
-//
-//            // Act & Assert
-//            try {
-//                employerService.reviewApplication(1L, 1L, true, "");
-//            } catch (ApplicationAlreadyReviewedException e) {
-//                assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
-//            }
-//        }
+
+        @Test
+        @DisplayName("Test approver une application happy day scenario")
+        public void testApproveApplication() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
+
+            stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+            // Act
+            employerService.reviewApplication(internshipOfferID, studentID, true, "");
+
+            // Assert
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test rejeter une application happy day scenario")
+        public void testRejectApplication() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING_INTERVIEW);
+
+            stubOfferAndSingleApplication(internshipOffer, application);
+            when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+            // Act
+            employerService.reviewApplication(internshipOfferID, studentID, false, "Compétences insuffisantes");
+
+            // Assert
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
+            verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication candidature ou offre non trouvée")
+        public void testReviewApplication_Throws_NoSuchElementException() {
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (NoSuchElementException e) {
+                assertThat(e.getMessage()).isEqualTo("No value present");
+            }
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication application non en attente d'interview")
+        public void testReviewApplication_Throws_ApplicationNotInInterviewException() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.PENDING);
+
+            stubOfferAndSingleApplication(internshipOffer, application);
+
+            // Act & Assert
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (ApplicationNotInInterviewException e) {
+                assertThat(e.getMessage()).isEqualTo("L'application n'est pas en attente d'interview");
+            }
+        }
+
+        @Test
+        @DisplayName("Test reviewApplication application déjà examinée")
+        public void testReviewApplication_Throws_ApplicationAlreadyReviewedException() {
+            // Arrange
+            Long internshipOfferID = 1L;
+            Long studentID = 1L;
+            Long studentApplicationID = 1L;
+
+            InternshipOffer internshipOffer = offerWithStatus(internshipOfferID);
+            Student student = studentWithResumeStatus(studentID);
+            StudentApplication application = applicationWithStatus(
+                            studentApplicationID,
+                            internshipOffer,
+                            student,
+                            StudentApplication.ApplicationStatus.APPROVED);
+
+            stubOfferAndSingleApplication(internshipOffer, application);
+
+            // Act & Assert
+            try {
+                employerService.reviewApplication(1L, 1L, true, "");
+            } catch (ApplicationAlreadyReviewedException e) {
+                assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
+            }
+        }
 
 }
