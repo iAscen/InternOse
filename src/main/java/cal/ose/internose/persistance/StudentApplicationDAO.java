@@ -30,6 +30,8 @@ public interface StudentApplicationDAO extends JpaRepository<StudentApplication,
         @Param("institution") String institution,
         @Param("program") String program
     );
+
+    List<StudentApplication> findByInternshipOffer(InternshipOffer internshipOffer);
     
     List<StudentApplication> findByStudent(Student student);
     Optional<StudentApplication> findByStudentAndInternshipOffer(Student student, InternshipOffer internshipOffer);

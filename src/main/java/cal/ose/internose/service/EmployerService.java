@@ -170,7 +170,7 @@ public class EmployerService {
             () -> new NoSuchElementException("Offer with id " + offerId + " not found")
         );
 
-        for(StudentApplication application: internshipOffer.getStudentApplications()) {
+        for(StudentApplication application: studentApplicationDAO.findByInternshipOffer(internshipOffer)) {
 
             if (application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {
                 if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) {
@@ -178,7 +178,7 @@ public class EmployerService {
                 }
 
                 if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
-                    studentsWhoRejectedTheOffer++;
+                    studentsWhoAcceptedTheOffer++;
                 }
             }
 
@@ -196,7 +196,9 @@ public class EmployerService {
             () -> new NoSuchElementException("Offer with id " + offerId + " not found")
         );
 
-        for (StudentApplication application: offer.getStudentApplications()) {
+        List<StudentApplication> applications = studentApplicationDAO.findByInternshipOffer(offer);
+
+        for (StudentApplication application: applications) {
             if ((application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
                 application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) &&
                 application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {

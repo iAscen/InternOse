@@ -14,9 +14,11 @@ import { useClickOutside } from "~/hooks/useClickOutside";
 interface InternshipCandidatesProps {
 		setSelectedOffer: Dispatch<SetStateAction<InternshipOffer | null>>
     internship: InternshipOffer
+	countNumberOfUnseenApplications?: (offers: InternshipOffer[]) => Promise<void>
+	offers?: InternshipOffer[]
 }
 
-export default function InternshipApplications({setSelectedOffer, internship}: InternshipCandidatesProps) {
+export default function InternshipApplications({setSelectedOffer, internship, countNumberOfUnseenApplications, offers}: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [selectedApplication, setSelectedApplication] = useState<Cv | null>(null)
@@ -39,9 +41,16 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	useClickOutside(filterMenuRef, () => {
 		setShowFilterMenuApplications(false);
 	});
+	
+	const makeApplicationsSeen = async () => {
+		await employerAPI.makeApplicationsSeen(internship.id)
+		if (offers && countNumberOfUnseenApplications)
+			countNumberOfUnseenApplications(offers)
+	}
 
 	useEffect(() => {
 		fetchStudentApplications(null, null, null, null)
+		makeApplicationsSeen()
 	}, [])
 
 	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
@@ -64,7 +73,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	}
 
 	const getStatusBadge = (application: Cv) => {
-    if (application.applicationStatus === 'ACCEPTED') {
+    if (application.applicationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
           {t('im.approved')}
@@ -82,7 +91,21 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
           {t('dashboard.internshipApplications.pendingInterview')}
         </span>
       );
-    } else {
+    } else if (application.applicationStatus === 'REJECTED_BY_STUDENT') {
+		return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+          {"offre rejetee par l'etudiant"}
+        </span>
+      );
+	}
+	else if (application.applicationStatus === 'ACCEPTED_BY_STUDENT') {
+		return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+          {"offre acceptee par l'etudiant"}
+        </span>
+      );
+	}
+	else {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
           {t('im.pending')}

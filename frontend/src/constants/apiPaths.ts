@@ -20,6 +20,8 @@ export const API_PATHS = {
     UPDATE_APPLICATION_STATUS: '/employer/internship-offers/{internshipOfferID}/student-applications/{studentID}/status',
     INTERVIEWS: '/employer/interviews',
     SCHEDULE_INTERVIEW: '/employer/interviews',
+    APPLICATIONS_COUNT_UNSEEN: '/employer/:offerID/applications/count-unseen',
+    APPLICATIONS_MAKE_SEEN: '/employer/:offerID/applications/make-seen'
   },
   
   // Étudiant

@@ -162,7 +162,7 @@ public class EmployerController {
     }
 
     @PutMapping(Paths.EMPLOYER_APPLICATIONS_MAKE_SEEN)
-    private ResponseEntity<String> getResponseEntity(@PathVariable long offerID) {
+    private ResponseEntity<String> makeApplicationsSeen(@PathVariable long offerID) {
         try {
             employerService.makeApplicationsSeen(offerID);
             return ResponseEntity.ok().build();

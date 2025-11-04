@@ -11,9 +11,10 @@ import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
 import FilterButton from "~/components/dashboard/FilterButton";
 import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
-import type {Cv, InternshipOffer, StudentApplication} from "~/interfaces";
+import type {Cv, InternshipOffer, StudentApplication, UnseenApplicationsCount} from "~/interfaces";
 import {dashboardService} from "~/services/dashboardService";
 import { filterInternshipOffers, sortInternshipOffers } from '~/utils/filterUtils';
+import { employerAPI } from '~/services/EmployerAPI';
 
 
 export default function StudentDashboardContent() {

@@ -1,11 +1,12 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, type Dispatch, type SetStateAction} from 'react';
 import {useTranslation} from 'react-i18next';
-import type {InternshipOffer} from '~/interfaces';
+import type {InternshipOffer, UnseenApplicationsCount} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
 import {studentAPI} from '~/services/StudentAPI';
 import {userAPI} from '~/services/UserAPI';
 import RespondToOfferModal from './RespondToOfferModal';
+import { employerAPI } from '~/services/EmployerAPI';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -17,7 +18,8 @@ interface OfferListProps {
   onApplicationSuccess?: (offerId: number) => void; // Callback pour rafraîchir après candidature réussie
   cvStatus?: 'none' | 'pending' | 'approved' | 'rejected'; // Statut du CV de l'étudiant
   changeCursorIfApproved?: boolean; // Pour changer le curseur sur les offres approuvées
-  selectOffer?: (offer: InternshipOffer) => void; // Callback pour sélectionner une offre
+  selectOffer?: (offer: InternshipOffer) => void;
+  unseenApplicationsCount?: Map<number, UnseenApplicationsCount> // Callback pour sélectionner une offre
 }
 
 export default function OfferList({
@@ -30,7 +32,8 @@ export default function OfferList({
                                     onApplicationSuccess,
                                     cvStatus,
                                     changeCursorIfApproved,
-                                    selectOffer
+                                    selectOffer,
+                                    unseenApplicationsCount,
                                   }: OfferListProps) {
   const {t} = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
@@ -41,6 +44,24 @@ export default function OfferList({
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [selectedOfferToRespond, setSelectedOfferToRespond] = useState<InternshipOffer | null>(null);
   const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
+
+  const rejectedUnseenApplicationsLargerThanZero = (offerId: number) => {
+    if (unseenApplicationsCount) {
+      const nbUnseenApplications = unseenApplicationsCount.get(offerId)?.studentsWhoRejectedTheOffer
+      return nbUnseenApplications && nbUnseenApplications > 0
+    }
+
+    return false
+  };
+
+  const acceptedUnseenApplicationsLargerThanZero = (offerId: number) => {
+    if (unseenApplicationsCount) {
+      const nbUnseenApplications = unseenApplicationsCount.get(offerId)?.studentsWhoAcceptedTheOffer
+      return nbUnseenApplications && nbUnseenApplications > 0
+    }
+
+    return false
+  };
 
   const respondToOffer = (offer: InternshipOffer, acceptOffer: boolean) => {
     console.log("Respond to offer")
@@ -229,6 +250,26 @@ export default function OfferList({
                         </div>
                       )
                     }
+                    {
+                      isEmployer && unseenApplicationsCount && acceptedUnseenApplicationsLargerThanZero(offer.id) && (
+                        <div className="mt-2">
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {unseenApplicationsCount!.get(offer.id)?.studentsWhoAcceptedTheOffer}
+                          </span>
+                        </div>
+                      )
+                    }
+                    {
+                      isEmployer && unseenApplicationsCount && rejectedUnseenApplicationsLargerThanZero(offer.id) && (
+                        <div className="mt-2">
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {unseenApplicationsCount!.get(offer.id)?.studentsWhoRejectedTheOffer}
+                          </span>
+                        </div>
+                      )
+                    }
                   </div>
                   <div className="ml-4 flex flex-col items-end space-y-2">
                     {getStatusBadge(offer)}
@@ -314,9 +355,10 @@ export default function OfferList({
                 <p className="text-sm text-gray-700 leading-relaxed">{offer.program}</p>
               </div>
               <div className='flex'>
-                <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
-                <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
-
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">{t('internship.requirements')}</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">{offer.requiredSkills}</p>
+                </div>
                 {offer.applicationStatus === "APPROVED" && <div className="flex gap-1 mt-4 ms-auto text-sm">
                         <button onClick={() => {setSelectedOfferToRespond(offer); setConfirmationType('ACCEPT_OFFER')}} className="rounded-sm px-2 bg-green-500 text-white hover:bg-green-600 hover:cursor-pointer">
                             Accepter

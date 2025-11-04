@@ -350,7 +350,7 @@ class EmployerAPI {
     }
   }
 
-   async getApplicationsCountUnseen(offerID: number): Promise<ApiResponse<UnseenApplicationsCount>> {
+   async getUnseenApplicationsCount(offerID: number): Promise<ApiResponse<UnseenApplicationsCount>> {
     try {
       const token = userAPI.getToken();
       if (!token) {
@@ -361,7 +361,7 @@ class EmployerAPI {
       }
 
       let url = buildFullApiUrl(API_PATHS.EMPLOYER.APPLICATIONS_COUNT_UNSEEN)
-      url.replace("offerID", offerID.toString())
+      url = url.replace(":offerID", offerID.toString())
 
       const response = await fetch(url, {
         method: 'GET',
@@ -403,7 +403,7 @@ class EmployerAPI {
       }
 
       let url = buildFullApiUrl(API_PATHS.EMPLOYER.APPLICATIONS_MAKE_SEEN)
-      url.replace("offerID", offerID.toString())
+      url = url.replace(":offerID", offerID.toString())
 
       const response = await fetch(url, {
         method: 'PUT',

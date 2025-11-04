@@ -6,7 +6,7 @@ import {dashboardService} from '../../services/dashboardService';
 import StatisticsCard from './StatisticsCard';
 import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
-import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer} from '../../interfaces';
+import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer, UnseenApplicationsCount} from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
 import {employerAPI} from "~/services/EmployerAPI";
 
@@ -20,6 +20,22 @@ export default function EmployerDashboardContent() {
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null)
   const [numbersOfApplications, setNumbersOfApplications] = useState<number[]>([])
+   const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
+
+  const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
+    const countsMap = new Map<number, UnseenApplicationsCount>();
+    
+    for (const offer of offers) {
+      try {
+        const response = await employerAPI.getUnseenApplicationsCount(offer.id);
+        countsMap.set(offer.id, response.data!);
+      } catch (err) {
+        console.error(`Failed to fetch unseen count for offer ${offer.id}`, err);
+      }
+    }
+
+    setUnseenApplicationsCount(countsMap);
+  };
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -45,6 +61,7 @@ export default function EmployerDashboardContent() {
         console.log('Offres chargées:', response.data);
         setOffers(response.data);
         await countNumberOfApplicationsForOffers(response.data);
+        await countNumberOfUnseenApplications(response.data)
       } else {
         console.error('Erreur lors du chargement:', response.error);
         setError(response.error || t('dashboard.loadingError'));
@@ -242,14 +259,14 @@ export default function EmployerDashboardContent() {
 
             {/* Liste des offres existantes */}
             <OfferList changeCursorIfApproved={true} selectOffer={selectOffer} isStudent={false} isEmployer={true}
-                       loading={loading} offers={offers} numbersOfApplications={numbersOfApplications}/>
+                       loading={loading} offers={offers} numbersOfApplications={numbersOfApplications} unseenApplicationsCount={unseenApplicationsCount}/>
           </>
         }
 
         {
           selectedOffer &&
           <InternshipApplications setSelectedOffer={setSelectedOffer}
-                                  internship={selectedOffer}></InternshipApplications>
+                                  internship={selectedOffer} countNumberOfUnseenApplications={countNumberOfUnseenApplications} offers={offers}></InternshipApplications>
         }
       </div>
     </main>
