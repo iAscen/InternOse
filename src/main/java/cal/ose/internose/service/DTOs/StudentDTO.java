@@ -29,6 +29,7 @@ public class StudentDTO extends UserDTO {
     private String resumeRejectionReason;
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
+    private StudentApplication.SeenStatus seenStatus;
 
     public static StudentDTO fromEntity(Student student) {
         return StudentDTO.builder()

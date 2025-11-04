@@ -27,6 +27,7 @@ public class InternshipOfferDTO {
     private VerificationStatus verificationStatus;
     private String rejectionReason;
     private String applicationStatus; // Statut de candidature de l'étudiant
+    private String seenStatus; // Si l'application a ete vue par l'employeur ou non
     private long applicationId;
 
     public boolean isVerified() {

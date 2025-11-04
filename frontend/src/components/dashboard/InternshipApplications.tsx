@@ -28,6 +28,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 	const [studentToInvite, setStudentToInvite] = useState<Cv | null>(null);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const {t} = useTranslation()
+	const cleanupRuns = useRef(0)
 
 	// Refs pour les dropdowns
 	const sortMenuRef = useRef<HTMLDivElement>(null);
@@ -49,9 +50,30 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 	}
 
 	useEffect(() => {
-		fetchStudentApplications(null, null, null, null)
-		makeApplicationsSeen()
-	}, [])
+		//if (alreadyRan)
+		//	return
+
+		//setAlreadyRan(true)
+
+		fetchStudentApplications(null, null, null, null);
+
+		return () => {
+			console.log(cleanupRuns.current)
+			if (cleanupRuns.current > 0) {
+				makeApplicationsSeen()
+			}
+
+			cleanupRuns.current += 1
+			console.log(cleanupRuns.current)
+		}
+
+		/*setTimeout(() => {
+			if (alreadyRan)
+				return
+			
+			makeApplicationsSeen()
+		}, 2000)*/
+	}, []);
 
 	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
 		const errorMes = "Erreur lors de l'obtention des candidatures."
@@ -213,7 +235,8 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 					
 					<div className="mt-1">
 						{applications.map((application, index) => {
-							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100 cursor-pointer">
+							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg relative rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100 cursor-pointer">
+								{application.seenStatus && application.seenStatus === "UNSEEN" && <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-500 rounded-full" />}
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}

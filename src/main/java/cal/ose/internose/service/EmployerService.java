@@ -81,6 +81,7 @@ public class EmployerService {
                     .resumeFileData(studentApplication.getStudent().getResumeFileData())
                     .applicationDate(studentApplication.getApplicationDate())
                     .applicationStatus(studentApplication.getApplicationStatus())
+                    .seenStatus(studentApplication.getSeenStatus())
                     .build())
             .collect(Collectors.toList());
     }

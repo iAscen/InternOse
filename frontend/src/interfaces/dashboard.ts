@@ -55,6 +55,7 @@ export interface Cv {
   institution: string;
   applicationDate?: string;
   applicationStatus?: string;
+  seenStatus?: string; // UNSEEN SEEN NONE
   cvStatus: string;
   cvFileName: string;
   cvFileType: string;

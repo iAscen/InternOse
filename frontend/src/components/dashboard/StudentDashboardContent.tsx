@@ -119,7 +119,6 @@ export default function StudentDashboardContent() {
         const response = await studentAPI.getStudentApplications(studentId);
         if (response.success && response.data) {
           setApplications(response.data);
-          console.log(response.data)
           // Mettre à jour les offres auxquelles l'étudiant a postulé
           const appliedOfferIds = new Set(response.data.map((app: any) => app.internshipOfferId));
           setAppliedOffers(appliedOfferIds);

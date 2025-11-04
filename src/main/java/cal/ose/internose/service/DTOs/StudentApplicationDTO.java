@@ -27,6 +27,7 @@ public class StudentApplicationDTO {
     private Long internshipOfferId;
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
+    private StudentApplication.SeenStatus seenStatus;
 
     public static StudentApplicationDTO fromEntity(StudentApplication studentApplication) {
         return StudentApplicationDTO.builder()
@@ -40,6 +41,7 @@ public class StudentApplicationDTO {
             .internshipOfferId(studentApplication.getInternshipOffer().getId())
             .applicationDate(studentApplication.getApplicationDate())
             .applicationStatus(studentApplication.getApplicationStatus())
+            .seenStatus(studentApplication.getSeenStatus())
             .build();
     }
 
