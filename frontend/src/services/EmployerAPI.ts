@@ -269,8 +269,8 @@ class EmployerAPI {
   async updateApplicationStatus(
     internshipOfferId: number,
     studentId: number,
-    status: 'APPROVED' | 'REJECTED',
-    rejectionReason?: string
+    isApproved: boolean,
+    comment?: string
   ): Promise<ApiResponse<string>> {
     try {
       const token = userAPI.getToken();
@@ -281,22 +281,21 @@ class EmployerAPI {
         };
       }
 
+      const params = new URLSearchParams();
+      params.append("isApproved", isApproved.toString());
+      if (comment && comment.trim()) {
+        params.append('comment', comment.trim());
+      }
+
       // Construire l'URL avec les paramètres
       const url = buildFullApiUrl(API_PATHS.EMPLOYER.UPDATE_APPLICATION_STATUS, {
         internshipOfferID: internshipOfferId,
         studentID: studentId
-      });
+      }) + `?${params.toString()}`;
       
       console.log('🔍 Update application status URL:', url);
-      
-      // Préparer le body avec le statut et optionnellement la raison de refus
-      const body: { applicationStatus: string; rejectionReason?: string } = {
-        applicationStatus: status
-      };
-      
-      if (status === 'REJECTED' && rejectionReason && rejectionReason.trim()) {
-        body.rejectionReason = rejectionReason.trim();
-      }
+
+      console.error(params.toString());
 
       const response = await fetch(url, {
         method: 'PUT',
@@ -304,19 +303,19 @@ class EmployerAPI {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body)
       });
 
-      console.log('🔍 Update application status response status:', response.status);
+
+      console.log('🔍 Update application status response status:', isApproved ? 'APPROVED' : 'REJECTED');
 
       if (response.ok) {
         const result = await response.json();
         return {
           success: true,
-          data: result.message || (status === 'APPROVED' ? 'Candidature acceptée avec succès' : 'Candidature refusée avec succès')
+          data: result.message || (isApproved ? 'Candidature acceptée avec succès' : 'Candidature refusée avec succès')
         };
       } else {
-        let errorMessage = status === 'APPROVED' 
+        let errorMessage = isApproved
           ? 'Erreur lors de l\'acceptation de la candidature' 
           : 'Erreur lors du refus de la candidature';
         

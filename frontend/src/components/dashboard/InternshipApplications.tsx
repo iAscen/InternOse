@@ -202,6 +202,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 					{selectedApplication && errorMessage == null && (
 							
 								<ApplicationValidationModal
+                  isPending={selectedApplication.applicationStatus === 'PENDING'}
 									cv={selectedApplication}
 									internshipOffer={internship}
 									isOpen={true}
@@ -228,7 +229,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										{application.applicationStatus !== 'PENDING_INTERVIEW' && (
+										{(application.applicationStatus === 'PENDING') && (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

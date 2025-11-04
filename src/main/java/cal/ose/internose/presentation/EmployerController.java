@@ -4,6 +4,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
@@ -126,16 +127,36 @@ public class EmployerController {
     ) {
         try {
             com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(requestBody);
-            StudentApplication.ApplicationStatus applicationStatus = 
+            StudentApplication.ApplicationStatus applicationStatus =
                 StudentApplication.ApplicationStatus.valueOf(jsonNode.get("applicationStatus").asText());
             String rejectionReason = jsonNode.has("rejectionReason") ? jsonNode.get("rejectionReason").asText() : null;
-            
+
             employerService.updateApplicationStatus(internshipOfferID, studentID, applicationStatus, rejectionReason);
-            
-            String message = applicationStatus == StudentApplication.ApplicationStatus.APPROVED 
-                ? "La candidature a été acceptée avec succès" 
+
+            String message = applicationStatus == StudentApplication.ApplicationStatus.APPROVED
+                ? "La candidature a été acceptée avec succès"
                 : "La candidature a été refusée avec succès";
             return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + message + "\" }");
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PutMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH)
+    public ResponseEntity<String> reviewApplication(
+        @PathVariable Long internshipOfferID,
+        @PathVariable Long studentID,
+        @RequestParam Boolean isApproved,
+        @RequestParam(required = false) String comment
+    ) {
+        try {
+            StudentApplicationDTO reviewedApplication =
+                employerService.reviewApplication(internshipOfferID, studentID, isApproved, comment);
+
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(reviewedApplication));
+
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {

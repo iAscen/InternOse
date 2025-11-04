@@ -67,9 +67,29 @@ export default function OfferList({
   const respondToOffer = async (offer: InternshipOffer, acceptOffer: boolean) => {
     const response = await studentAPI.respondToOffer(offer.id, acceptOffer)
 
-    if (response.error) {
-      setError(response.error)
-
+    if (response.success) {
+      // Fermer le modal de confirmation
+      setSelectedOfferToRespond(null);
+      // Afficher un message de succès
+      setSuccessMessage(
+        acceptOffer 
+          ? 'Vous avez accepté cette offre de stage avec succès' 
+          : 'Vous avez refusé cette offre de stage'
+      );
+      // Rafraîchir les offres si callback disponible
+      if (onApplicationSuccess && offer.id) {
+        onApplicationSuccess(offer.id);
+      }
+      // Rafraîchir les offres via onOfferValidation si disponible
+      if (onOfferValidation) {
+        onOfferValidation();
+      }
+      // Masquer le message après 5 secondes
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 5000);
+    } else if (response.error) {
+      setError(response.error);
       setTimeout(() => {
         setError(null);
       }, 3000);

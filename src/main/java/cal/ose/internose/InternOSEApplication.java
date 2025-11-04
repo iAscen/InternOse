@@ -1,6 +1,6 @@
 package cal.ose.internose;
 
-import cal.ose.internose.modele.StudentApplication;
+import cal.ose.internose.modele.Interview;
 import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -169,28 +170,20 @@ public class InternOSEApplication {
                 studentService.applyToInternshipOffer(5L, 1L);
                 studentService.applyToInternshipOffer(2L, 1L);
 
-                employerService.updateApplicationStatus(1L, 2L, StudentApplication.ApplicationStatus.APPROVED, null);
-                employerService.updateApplicationStatus(1L, 5L, StudentApplication.ApplicationStatus.APPROVED, null);
+                employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
+                    .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
+                    .interviewMode(Interview.InterviewMode.ONLINE)
+                    .location("https://zoom.us/meeting")
+                    .personalizedMessage("Nous sommes ravis de vous rencontrer")
+                    .build()
+                );
+
+                // Employer accepts students
+                employerService.reviewApplication(1L, 2L, true, "");
+                employerService.reviewApplication(1L, 5L, true, "");
+                
+                // Student responds to approved offer
                 studentService.respondToApprovedOffer(5L, 1L, false);
-
-                //studentService.respondToApprovedOffer(4L, 1L, false);
-
-                /*CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
-                    .studentId(4L)
-                    .internshipOfferId(1L)
-                    .startDate(LocalDate.of(2026, 2, 19))
-                    .endDate(LocalDate.of(2026, 4, 15))
-                    .weeklyHours(35)
-                    .tasks("Develop API endpoints, Write unit tests, Update documentation")
-                    .educationalObjectives("Learn Spring Boot, Improve teamwork, Gain professional experience")
-                    .supervisorName("Alice Tremblay")
-                    .supervisorTitle("Lead Developer")
-                    .supervisorEmail("alice.tremblay@company.com")
-                    .supervisorPhone("514-123-4567")
-                    .build();
-
-                internshipManagerService.createInternshipContract(dto);*/
-
             }
         };
     }
