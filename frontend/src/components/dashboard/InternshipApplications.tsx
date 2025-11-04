@@ -50,29 +50,15 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 	}
 
 	useEffect(() => {
-		//if (alreadyRan)
-		//	return
-
-		//setAlreadyRan(true)
-
 		fetchStudentApplications(null, null, null, null);
 
 		return () => {
-			console.log(cleanupRuns.current)
 			if (cleanupRuns.current > 0) {
 				makeApplicationsSeen()
 			}
 
 			cleanupRuns.current += 1
-			console.log(cleanupRuns.current)
 		}
-
-		/*setTimeout(() => {
-			if (alreadyRan)
-				return
-			
-			makeApplicationsSeen()
-		}, 2000)*/
 	}, []);
 
 	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
