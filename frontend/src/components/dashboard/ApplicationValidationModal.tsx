@@ -4,6 +4,7 @@ import type { Cv, InternshipOffer } from '~/interfaces';
 import BaseCvValidationModal from './BaseCvValidationModal';
 
 interface ApplicationValidationModalProps {
+  isPending: boolean;
   cv: Cv;
   internshipOffer: InternshipOffer;
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ApplicationValidationModalProps {
 }
 
 export default function ApplicationValidationModal({
+  isPending,
   cv,
   internshipOffer,
   isOpen,
@@ -28,11 +30,11 @@ export default function ApplicationValidationModal({
       };
     }
 
-    const status = type === 'approve' ? 'APPROVED' : 'REJECTED';
+    const isApproved = type === 'approve';
     const response = await employerAPI.updateApplicationStatus(
       internshipOffer.id,
       cv.id,
-      status,
+      isApproved,
       comment
     );
 
@@ -82,6 +84,7 @@ export default function ApplicationValidationModal({
 
   return (
     <BaseCvValidationModal
+      isApplicationPending={isPending}
       cv={cv}
       isOpen={isOpen}
       onClose={onClose}

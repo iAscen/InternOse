@@ -7,7 +7,10 @@ import cal.ose.internose.persistance.InterviewDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
+import cal.ose.internose.service.exceptions.ApplicationNotInInterviewException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -162,5 +165,33 @@ public class EmployerService {
 
         studentApplication.setApplicationStatus(newStatus);
         studentApplicationDAO.save(studentApplication);
+    }
+
+    public StudentApplicationDTO reviewApplication(Long internshipOfferID, Long studentID, boolean approved, String rejectionReason)
+        throws ApplicationAlreadyReviewedException
+    {
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+
+        StudentApplication studentApplication = studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(internshipOffer, null, null, null)
+            .stream()
+            .filter(app -> app.getStudent().getId().equals(studentID))
+            .findFirst()
+            .orElseThrow();
+
+        if (studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING) {
+            throw new ApplicationNotInInterviewException();
+        } if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.PENDING_INTERVIEW) {
+            throw new ApplicationAlreadyReviewedException();
+        }
+
+        if (approved) {
+            studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.APPROVED);
+            studentApplication.setRejectionReason(null);
+        } else {
+            studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED);
+            studentApplication.setRejectionReason(rejectionReason);
+        }
+
+        return StudentApplicationDTO.fromEntity(studentApplicationDAO.save(studentApplication));
     }
 }

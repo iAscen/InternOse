@@ -16,6 +16,9 @@ public class Paths {
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/student-applications";
     public static final String EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH =
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/student-applications/{studentID}";
+    public static final String EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH =
+        EMPLOYER_INTERNSHIP_OFFERS_PATH + "/{internshipOfferID}/student-applications/{studentID}/status";
+    //todo fuse these two
     public static final String EMPLOYER_UPDATE_APPLICATION_STATUS_PATH =
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/{internshipOfferID}/student-applications/{studentID}/status";
     public static final String EMPLOYER_INTERVIEWS_PATH = EMPLOYER_BASE_PATH + "/interviews";

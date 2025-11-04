@@ -5,8 +5,11 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
+import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
+import cal.ose.internose.security.Paths;
 import cal.ose.internose.TestPaths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -316,6 +319,139 @@ public class EmployerControllerTests {
                                 "La structure JSON fournie est incorrecte",
                                 "Unexpected character");
         }
+    private String buildReviewApplicationUrl(Long internshipOfferId, Long studentId, Boolean isApproved, String comment) {
+        String base = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH
+            .replace("{internshipOfferID}", String.valueOf(internshipOfferId))
+            .replace("{studentID}", String.valueOf(studentId));
+        StringBuilder sb = new StringBuilder(base);
+        sb.append("?isApproved=").append(isApproved);
+        if (comment != null) {
+            sb.append("&comment=").append(comment);
+        }
+        return sb.toString();
+    }
+
+    @Test
+    @DisplayName("PUT /api/employer/internship-offers/{id}/student-applications/{studentId}/status - approve success")
+    public void testPUTReviewApplication_Approve_Success() throws Exception {
+        // Arrange
+        Long internshipOfferID = 10L;
+        Long studentID = 5L;
+
+        StudentApplicationDTO dto = StudentApplicationDTO.builder()
+            .studentFirstName("Alice")
+            .studentLastName("Martin")
+            .internshipOfferTitle("Développeur Java")
+            .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.APPROVED)
+            .build();
+
+        when(employerService.reviewApplication(internshipOfferID, studentID, true, null))
+            .thenReturn(dto);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                put(buildReviewApplicationUrl(internshipOfferID, studentID, true, null))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String body = mvcResult.getResponse().getContentAsString();
+        assertThat(body).contains("Alice");
+        assertThat(body).contains("APPROVED");
+    }
+
+    @Test
+    @DisplayName("PUT .../status - reject with comment success")
+    public void testPUTReviewApplication_Reject_WithComment_Success() throws Exception {
+        // Arrange
+        Long internshipOfferID = 11L;
+        Long studentID = 6L;
+        String comment = "Manque d'expérience";
+
+        StudentApplicationDTO dto = StudentApplicationDTO.builder()
+            .studentFirstName("Bob")
+            .studentLastName("Durand")
+            .internshipOfferTitle("Frontend React")
+            .applicationStatus(cal.ose.internose.modele.StudentApplication.ApplicationStatus.REJECTED)
+            .build();
+
+        when(employerService.reviewApplication(internshipOfferID, studentID, false, comment))
+            .thenReturn(dto);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                put(buildReviewApplicationUrl(internshipOfferID, studentID, false, comment))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        String body = mvcResult.getResponse().getContentAsString();
+        assertThat(body).contains("REJECTED");
+    }
+
+    @Test
+    @DisplayName("PUT .../status - not found maps to 404")
+    public void testPUTReviewApplication_NotFound() throws Exception {
+        // Arrange
+        Long internshipOfferID = 99L;
+        Long studentID = 77L;
+
+        when(employerService.reviewApplication(internshipOfferID, studentID, true, null))
+            .thenThrow(new NoSuchElementException("Application not found"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                put(buildReviewApplicationUrl(internshipOfferID, studentID, true, null))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String body = mvcResult.getResponse().getContentAsString();
+        assertThat(body).contains("Application not found");
+    }
+
+    @Test
+    @DisplayName("PUT .../status - already reviewed maps to 400")
+    public void testPUTReviewApplication_AlreadyReviewed_BadRequest() throws Exception {
+        // Arrange
+        Long internshipOfferID = 100L;
+        Long studentID = 88L;
+
+        when(employerService.reviewApplication(internshipOfferID, studentID, false, "reason"))
+            .thenThrow(new ApplicationAlreadyReviewedException());
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                put(buildReviewApplicationUrl(internshipOfferID, studentID, false, "reason"))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("PUT .../status - missing isApproved param leads to 400")
+    public void testPUTReviewApplication_MissingRequiredParam_BadRequest() throws Exception {
+        // Arrange
+        Long internshipOfferID = 101L;
+        Long studentID = 89L;
+        String base = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH
+            .replace("{internshipOfferID}", String.valueOf(internshipOfferID))
+            .replace("{studentID}", String.valueOf(studentID));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                put(base) // no isApproved param
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isIn(HttpStatus.BAD_REQUEST.value(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
 
         @Test
         @DisplayName("Test de GET /api/employer/interviews - succès")

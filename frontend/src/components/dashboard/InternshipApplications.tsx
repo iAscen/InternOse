@@ -64,7 +64,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 	}
 
 	const getStatusBadge = (application: Cv) => {
-    if (application.applicationStatus === 'ACCEPTED') {
+    if (application.applicationStatus === 'APPROVED') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
           {t('im.approved')}
@@ -171,6 +171,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 					{selectedApplication && errorMessage == null && (
 							
 								<ApplicationValidationModal
+                  isPending={selectedApplication.applicationStatus === 'PENDING'}
 									cv={selectedApplication}
 									internshipOffer={internship}
 									isOpen={true}
@@ -196,7 +197,7 @@ export default function InternshipApplications({setSelectedOffer, internship}: I
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										{application.applicationStatus !== 'PENDING_INTERVIEW' && (
+										{(application.applicationStatus === 'PENDING') && (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

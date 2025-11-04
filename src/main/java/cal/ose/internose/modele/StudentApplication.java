@@ -24,6 +24,7 @@ public class StudentApplication {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ApplicationStatus applicationStatus = ApplicationStatus.PENDING;
+    private String rejectionReason;
 
     public enum ApplicationStatus {
         PENDING,
