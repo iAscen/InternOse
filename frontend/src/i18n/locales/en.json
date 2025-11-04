@@ -255,6 +255,8 @@
     "uploadedAt": "Uploaded at",
     "refuseOfferConfirmationMessage": "By confirming, you refuse this internship offer. This decision is final.",
     "acceptOfferConfirmationMessage": "By confirming, you accept this internship offer. This decision is final.",
+    "acceptOfferSuccessMessage": "You have successfully accepted this internship offer",
+    "refuseOfferSuccessMessage": "You have refused this internship offer",
     "confirmYourDecisionMessage": "Confirm your decision",
     "studentsWhoRejectedTheOfferMessage": "new students rejected your internship offer !!",
     "studentsWhoAcceptedTheOfferMessage": "new students accepted your internship offer !!",

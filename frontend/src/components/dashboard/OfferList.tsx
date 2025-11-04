@@ -73,15 +73,14 @@ export default function OfferList({
       // Afficher un message de succès
       setSuccessMessage(
         acceptOffer 
-          ? 'Vous avez accepté cette offre de stage avec succès' 
-          : 'Vous avez refusé cette offre de stage'
+          ? t('dashboard.acceptOfferSuccessMessage')
+          : t('dashboard.refuseOfferSuccessMessage')
       );
-      // Rafraîchir les offres si callback disponible
+      // Rafraîchir les données: onApplicationSuccess recharge les offres ET les candidatures (stats)
+      // onOfferValidation est un fallback qui recharge seulement les offres
       if (onApplicationSuccess && offer.id) {
         onApplicationSuccess(offer.id);
-      }
-      // Rafraîchir les offres via onOfferValidation si disponible
-      if (onOfferValidation) {
+      } else if (onOfferValidation) {
         onOfferValidation();
       }
       // Masquer le message après 5 secondes

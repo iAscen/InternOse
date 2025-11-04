@@ -255,6 +255,8 @@
     "uploadedAt": "Téléversé le",
     "refuseOfferConfirmationMessage": "En confirmant, vous refusez cette offre de stage. Cette décision est définitive.",
     "acceptOfferConfirmationMessage": "En confirmant, vous acceptez cette offre de stage. Cette décision est définitive.",
+    "acceptOfferSuccessMessage": "Vous avez accepté cette offre de stage avec succès",
+    "refuseOfferSuccessMessage": "Vous avez refusé cette offre de stage",
     "confirmYourDecisionMessage": "Confirmer votre decision",
     "studentsWhoRejectedTheOfferMessage": "nouveaux étudiants ont refusé votre offre de stage !!",
     "studentsWhoAcceptedTheOfferMessage": "nouveaux étudiants ont accepté votre offre de stage !!",
