@@ -26,7 +26,9 @@
     "close": "Fermer",
     "confirm": "Confirmer",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "accept": "Acceptée",
+    "refuse": "Refuser"
   },
   "navigation": {
     "home": "Accueil",
@@ -183,6 +185,8 @@
     "approved": "Approuvé",
     "rejected": "Refusé",
     "pending": "En attente",
+    "acceptedByStudent": "Offre acceptée",
+    "rejectedByStudent": "Offre refusée",
     "clickToValidate": "Cliquer pour valider →",
     "cvAlreadyApproved": "CV Déjà Approuvé",
     "cvAlreadyProcessed": "CV Déjà Traité",
@@ -249,6 +253,11 @@
     "student": "Étudiant",
     "rejectionReason": "Raison de rejet",
     "uploadedAt": "Téléversé le",
+    "refuseOfferConfirmationMessage": "En confirmant, vous refusez cette offre de stage. Cette décision est définitive.",
+    "acceptOfferConfirmationMessage": "En confirmant, vous acceptez cette offre de stage. Cette décision est définitive.",
+    "confirmYourDecisionMessage": "Confirmer votre decision",
+    "studentsWhoRejectedTheOfferMessage": "nouveaux étudiants ont refusé votre offre de stage !!",
+    "studentsWhoAcceptedTheOfferMessage": "nouveaux étudiants ont accepté votre offre de stage !!",
     "internshipApplications": {
       "sortAndFilter": "Trier / Filtrer",
       "goBack": "Retourner",

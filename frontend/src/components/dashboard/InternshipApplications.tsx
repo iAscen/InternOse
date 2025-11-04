@@ -94,14 +94,14 @@ export default function InternshipApplications({setSelectedOffer, internship, co
     } else if (application.applicationStatus === 'REJECTED_BY_STUDENT') {
 		return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
-          {"offre rejetee par l'etudiant"}
+          {t('im.rejectedByStudent')}
         </span>
       );
 	}
 	else if (application.applicationStatus === 'ACCEPTED_BY_STUDENT') {
 		return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
-          {"offre acceptee par l'etudiant"}
+          {t('im.acceptedByStudent')}
         </span>
       );
 	}

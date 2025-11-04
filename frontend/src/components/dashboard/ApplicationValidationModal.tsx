@@ -49,12 +49,16 @@ export default function ApplicationValidationModal({
   const isProcessed = (cv: Cv) => {
     return cv.applicationStatus === 'ACCEPTED' || 
            cv.applicationStatus === 'APPROVED' || 
+           cv.applicationStatus === 'ACCEPTED_BY_STUDENT' ||
+           cv.applicationStatus === 'REJECTED_BY_STUDENT' ||
            cv.applicationStatus === 'REJECTED';
   };
 
   const getStatusDisplay = (cv: Cv) => {
     const isApproved = cv.applicationStatus === 'ACCEPTED' || cv.applicationStatus === 'APPROVED';
     const isRejected = cv.applicationStatus === 'REJECTED';
+    const acceptedByStudent = cv.applicationStatus === 'ACCEPTED_BY_STUDENT'
+    const rejectedByStudent = cv.applicationStatus === 'REJECTED_BY_STUDENT'
     
     if (isApproved) {
       return {
@@ -62,6 +66,20 @@ export default function ApplicationValidationModal({
         color: 'bg-green-100 text-green-800',
         bgColor: 'bg-green-100',
         iconColor: 'text-green-600'
+      };
+    } else if (acceptedByStudent) {
+      return {
+        label: t('im.acceptedByStudent'),
+        color: 'bg-green-100 text-green-800',
+        bgColor: 'bg-green-100',
+        iconColor: 'text-green-600'
+      };
+    } else if (rejectedByStudent) {
+      return {
+        label: t('im.rejectedByStudent'),
+        color: 'bg-red-100 text-red-800',
+        bgColor: 'bg-red-100',
+        iconColor: 'text-red-600'
       };
     } else if (isRejected) {
       return {

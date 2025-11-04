@@ -26,7 +26,9 @@
     "close": "Close",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "accept": "Accept",
+    "refuse": "Refuse"
   },
   "navigation": {
     "home": "Home",
@@ -183,6 +185,8 @@
     "approved": "Approved",
     "rejected": "Rejected",
     "pending": "Pending",
+    "acceptedByStudent": "Offer accepted",
+    "rejectedByStudent": "Offer rejected",
     "clickToValidate": "Click to validate →",
     "cvAlreadyApproved": "CV Already Approved",
     "cvAlreadyProcessed": "CV Already Processed",
@@ -249,6 +253,11 @@
     "student": "Student",
     "rejectionReason": "Reason of rejection",
     "uploadedAt": "Uploaded at",
+    "refuseOfferConfirmationMessage": "By confirming, you refuse this internship offer. This decision is final.",
+    "acceptOfferConfirmationMessage": "By confirming, you accept this internship offer. This decision is final.",
+    "confirmYourDecisionMessage": "Confirm your decision",
+    "studentsWhoRejectedTheOfferMessage": "new students rejected your internship offer !!",
+    "studentsWhoAcceptedTheOfferMessage": "new students accepted your internship offer !!",
     "internshipApplications": {
       "sortAndFilter": "Sort / Filter",
       "goBack": "Go back",

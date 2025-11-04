@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { InternshipOffer, StudentApplication } from "~/interfaces";
 
 interface OfferConfirmationModalProps {
@@ -8,13 +9,15 @@ interface OfferConfirmationModalProps {
 }
 
 export default function RespondToOfferModal({offer, mode, onClose, onSubmit}: OfferConfirmationModalProps) {
-      return (
+  const { t } = useTranslation();
+  
+  return (
     <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">
-            Confirmer votre décision
+            {t("dashboard.confirmYourDecisionMessage")}
           </h2>
           <button
             onClick={onClose}
@@ -33,7 +36,7 @@ export default function RespondToOfferModal({offer, mode, onClose, onSubmit}: Of
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p>📍 {offer.address}</p>
-              <p>⏱ {offer.duration} semaines | 📅 {offer.startDate}</p>
+              <p>⏱ {offer.duration} {t("internship.weeks")} | 📅 {offer.startDate}</p>
               {offer.salary > 0 && <p>💰 {offer.salary}$/h</p>}
             </div>
           </div>
@@ -44,12 +47,12 @@ export default function RespondToOfferModal({offer, mode, onClose, onSubmit}: Of
             <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
               {mode === "REJECT_OFFER" && (
                 <p className="text-sm text-gray-700 font-semibold">
-                    En confirmant, vous <span className="font-extrabold">refuser</span> cette offre de stage. Cette décision est définitive.
+                    {t("dashboard.refuseOfferConfirmationMessage")}
                 </p>
                )}
                 {mode === "ACCEPT_OFFER" && (
                 <p className="text-sm text-gray-700 font-semibold">
-                    En confirmant, vous <span className="font-extrabold">acceptez</span> cette offre de stage. Cette décision est définitive.
+                    {t("dashboard.acceptOfferConfirmationMessage")}
                 </p>
                 )}
             </div>
@@ -61,14 +64,14 @@ export default function RespondToOfferModal({offer, mode, onClose, onSubmit}: Of
                 onClick={onClose}
                 className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Annuler
+                {t("common.cancel")}
               </button>
               <button
                 onClick={onSubmit}
                 type="submit"
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                Confirmer
+                {t("common.confirm")}
               </button>
             </div>
           </form>
