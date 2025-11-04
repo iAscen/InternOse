@@ -6,7 +6,6 @@ import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
-import cal.ose.internose.service.exceptions.ApplicationNotInInterviewException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
