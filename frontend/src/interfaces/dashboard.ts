@@ -1,6 +1,6 @@
 // Interfaces pour le dashboard et les offres de stage
 export interface InternshipOffer {
-  id?: number;
+  id: number;
   title: string;
   description: string;
   program: string;

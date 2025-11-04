@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -206,5 +207,24 @@ public class StudentService {
     public List<StudentApplicationDTO> getStudentApplications(Long studentID) {
         Student student = studentDAO.findById(studentID).orElseThrow();
         return StudentApplicationDTO.fromEntityList(studentApplicationDAO.findByStudent(student));
+    }
+
+    public void respondToApprovedOffer(Long studentID, Long internshipOfferID, boolean accepted) throws Exception {
+        Student student = studentDAO.findById(studentID).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+        StudentApplication studentApplication = studentApplicationDAO
+            .findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Vous n'avez pas postulé à cette offre de stage"));
+        
+        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.APPROVED)
+            throw new Exception("Cette offre n'a pas été acceptée par l'employeur ou a déjà été traitée");
+        
+        if (internshipOffer.getExpirationDate() != null && internshipOffer.getExpirationDate().isBefore(java.time.LocalDate.now()))
+            throw new Exception("Cette offre de stage a expiré, vous ne pouvez plus y répondre");
+        
+        studentApplication.setApplicationStatus(accepted 
+            ? StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT 
+            : StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+        studentApplicationDAO.save(studentApplication);
     }
 }

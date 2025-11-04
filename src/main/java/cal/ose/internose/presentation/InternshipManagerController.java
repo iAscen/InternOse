@@ -95,22 +95,20 @@ public class InternshipManagerController {
     }
 
     @GetMapping(Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH)
-    public ResponseEntity<ByteArrayResource> downloadStudentResume(@PathVariable Long studentID) {
+    public ResponseEntity<?> downloadStudentResume(@PathVariable Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
             byte[] resumeData = studentDTO.getResumeFileData();
-            ByteArrayResource resource = new ByteArrayResource(resumeData);
+            ByteArrayResource byteArrayResource = new ByteArrayResource(resumeData);
             
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             httpHeaders.setContentDisposition(ContentDisposition.attachment().filename(studentDTO.getResumeFileName()).build());
             httpHeaders.setContentLength(resumeData.length);
 
-            return ResponseEntity.ok()
-                    .headers(httpHeaders)
-                    .body(resource);
+            return ResponseEntity.ok().headers(httpHeaders).body(byteArrayResource);
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
@@ -146,6 +144,4 @@ public class InternshipManagerController {
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }
-
-    
 }

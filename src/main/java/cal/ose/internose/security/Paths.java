@@ -18,6 +18,9 @@ public class Paths {
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/student-applications/{studentID}";
     public static final String EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH =
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/{internshipOfferID}/student-applications/{studentID}/status";
+    //todo fuse these two
+    public static final String EMPLOYER_UPDATE_APPLICATION_STATUS_PATH =
+        EMPLOYER_INTERNSHIP_OFFERS_PATH + "/{internshipOfferID}/student-applications/{studentID}/status";
     public static final String EMPLOYER_INTERVIEWS_PATH = EMPLOYER_BASE_PATH + "/interviews";
 
     // Étudiant
@@ -30,6 +33,8 @@ public class Paths {
     public static final String STUDENT_APPLY_TO_INTERNSHIP_OFFER_PATH =
         STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/apply-to-internship";
     public static final String STUDENT_APPLICATIONS_PATH = STUDENT_BASE_PATH + "/applications";
+    public static final String STUDENT_RESPOND_TO_OFFER_PATH =
+        STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/respond";
 
     // Gestionnaire de stages
     public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";

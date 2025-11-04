@@ -205,6 +205,8 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "salary": "Salary",
+    "thereIs": "There is ",
+    "applicationsOnThisInternshipOffer": " applications on this internship offer",
     "apply": "Apply",
     "deadline": "Deadline",
     "weeks": "weeks",
@@ -247,7 +249,7 @@
     "student": "Student",
     "rejectionReason": "Reason of rejection",
     "uploadedAt": "Uploaded at",
-    "internshipApplications" : {
+    "internshipApplications": {
       "sortAndFilter": "Sort / Filter",
       "goBack": "Go back",
       "noCandidaturesFound": "No applications received for this offer.",

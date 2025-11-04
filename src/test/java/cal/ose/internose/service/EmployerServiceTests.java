@@ -489,6 +489,124 @@ public class EmployerServiceTests {
         }
 
         @Test
+        @DisplayName("Test de la méthode updateApplicationStatus() - accepter candidature")
+        public void testUpdateApplicationStatus_Approve() {
+                // Arrange
+                Long internshipOfferID = 1L;
+                Long studentID = 1L;
+
+                InternshipOffer internshipOffer = InternshipOffer.builder().id(internshipOfferID).build();
+                Student student = Student.builder().id(studentID).build();
+                StudentApplication application = StudentApplication.builder()
+                                .id(1L)
+                                .student(student)
+                                .internshipOffer(internshipOffer)
+                                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
+                                .build();
+
+                when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+                when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                    any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                    .thenReturn(List.of(application));
+                when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+                // Act
+                employerService.updateApplicationStatus(
+                    internshipOfferID,
+                    studentID,
+                    StudentApplication.ApplicationStatus.APPROVED,
+                    null
+                );
+
+                // Assert
+                verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+                assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+        }
+
+        @Test
+        @DisplayName("Test de la méthode updateApplicationStatus() - refuser candidature")
+        public void testUpdateApplicationStatus_Reject() {
+                // Arrange
+                Long internshipOfferID = 1L;
+                Long studentID = 1L;
+                String rejectionReason = "Ne répond pas aux critères";
+
+                InternshipOffer internshipOffer = InternshipOffer.builder().id(internshipOfferID).build();
+                Student student = Student.builder().id(studentID).build();
+                StudentApplication application = StudentApplication.builder()
+                                .id(1L)
+                                .student(student)
+                                .internshipOffer(internshipOffer)
+                                .applicationStatus(StudentApplication.ApplicationStatus.PENDING)
+                                .build();
+
+                when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+                when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                    any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                    .thenReturn(List.of(application));
+                when(studentApplicationDAO.save(any(StudentApplication.class))).thenReturn(application);
+
+                // Act
+                employerService.updateApplicationStatus(
+                    internshipOfferID,
+                    studentID,
+                    StudentApplication.ApplicationStatus.REJECTED,
+                    rejectionReason
+                );
+
+                // Assert
+                verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
+                assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.REJECTED);
+        }
+
+        @Test
+        @DisplayName("Test de la méthode updateApplicationStatus() - offre non trouvée")
+        public void testUpdateApplicationStatus_OfferNotFound() {
+                // Arrange
+                Long internshipOfferID = 999L;
+                Long studentID = 1L;
+
+                when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.empty());
+
+                // Act & Assert
+                assertThrows(
+                                NoSuchElementException.class,
+                                () -> employerService.updateApplicationStatus(
+                                    internshipOfferID,
+                                    studentID,
+                                    StudentApplication.ApplicationStatus.APPROVED,
+                                    null
+                                ));
+                verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
+        }
+
+        @Test
+        @DisplayName("Test de la méthode updateApplicationStatus() - candidature non trouvée")
+        public void testUpdateApplicationStatus_ApplicationNotFound() {
+                // Arrange
+                Long internshipOfferID = 1L;
+                Long studentID = 999L;
+
+                InternshipOffer internshipOffer = InternshipOffer.builder().id(internshipOfferID).build();
+
+                when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
+                when(studentApplicationDAO.findAllByInternshipOfferWithOptionalFilters(
+                    any(InternshipOffer.class), eq(null), eq(null), eq(null)))
+                    .thenReturn(new ArrayList<>());
+
+                // Act & Assert
+                assertThrows(
+                                NoSuchElementException.class,
+                                () -> employerService.updateApplicationStatus(
+                                    internshipOfferID,
+                                    studentID,
+                                    StudentApplication.ApplicationStatus.APPROVED,
+                                    null
+                                ));
+                verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
+        }
+
+        @Test
         @DisplayName("Test approver une application happy day scenario")
         public void testApproveApplication() {
             // Arrange
