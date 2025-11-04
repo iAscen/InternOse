@@ -50,6 +50,8 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                     <option value="pending" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
                                     <option value="approved" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
                                     <option value="rejected" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
+                                    <option value="rejected_by_student" className="text-gray-900 bg-white">{t('im.rejectedByStudent')}</option>
+                                    <option value="accepted_by_student" className="text-gray-900 bg-white">{t('im.acceptedByStudent')}</option>
                                 </select>
                             </div>
                             <FormInput
