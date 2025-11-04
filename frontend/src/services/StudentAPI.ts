@@ -398,6 +398,8 @@ class StudentAPI {
       let url = buildFullApiUrl(API_PATHS.STUDENT.RESPOND_TO_OFFER) + `?studentID=${studentId}`;
       url = url.replace(":internshipOfferID", internshipOfferID.toString())
 
+      console.log("🔍 respondToOffer URL: ", url)
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -411,16 +413,19 @@ class StudentAPI {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('🔍 Apply result:', result);
+        console.log('🔍 respondToOffer result:', result);
         return {
           success: true,
           data: result
         };
       } else {
         const errorData = await response.json()
+        const errorMessage = errorData.message || 'Erreur lors de la reponse a l\'offre de stage.'
+
+        console.log('🔍 respondToOffer errorMessage:', errorMessage);
         return {
           success: false,
-          error: errorData.message || 'Erreur lors de la reponse a l\'offre de stage.'
+          error: errorMessage
         };
       }
     } catch (error) {

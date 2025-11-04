@@ -5,7 +5,8 @@ import type {
   ApiResponse,
   Cv,
   CreateInterviewInvitationRequest,
-  InterviewInvitation
+  InterviewInvitation,
+  UnseenApplicationsCount
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -345,6 +346,88 @@ class EmployerAPI {
       return {
         success: false,
         error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
+
+   async getApplicationsCountUnseen(offerID: number): Promise<ApiResponse<UnseenApplicationsCount>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.EMPLOYER.APPLICATIONS_COUNT_UNSEEN)
+      url.replace("offerID", offerID.toString())
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const unseenApplicationsCount = await response.json();
+        return {
+          success: true,
+          data: unseenApplicationsCount,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du compte des applications',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async makeApplicationsSeen(offerID: number) {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.EMPLOYER.APPLICATIONS_MAKE_SEEN)
+      url.replace("offerID", offerID.toString())
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        return {
+          success: true
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la modification des applications',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
       };
     }
   }

@@ -96,3 +96,8 @@ export interface CreateInterviewInvitationRequest {
   location?: string;
   message?: string;
 }
+
+export interface UnseenApplicationsCount {
+  studentsWhoRejectedTheOffer: number,
+  studentsWhoAcceptedTheOffer: number
+}
