@@ -2,6 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.Interview;
 import cal.ose.internose.modele.StudentApplication;
+import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EmployerController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -524,5 +526,83 @@ public class EmployerControllerTests {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         String responseBody = mvcResult.getResponse().getContentAsString();
         assertThat(responseBody).contains("Mauvais statut");
+    }
+
+    @Test
+    @DisplayName("TEST de GET /api/employer/{offerID}/applications/count-unseen - Execution normale")
+    public void testGetApplicationsCountUnseen_Normal() throws Exception {
+        long offerId = 1L;
+        Map<String, Integer> unseenCounts = Map.of(
+            "studentsWhoRejectedTheOffer", 3,
+            "studentsWhoAcceptedTheOffer", 5
+        );
+
+        when(employerService.countUnseenApplications(offerId)).thenReturn(unseenCounts);
+
+        var mvcResult = mockMvc.perform(
+                get(Paths.EMPLOYER_APPLICATIONS_COUNT_UNSEEN_PATH, offerId)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody)
+            .isEqualTo("{\"studentsWhoRejectedTheOffer\": 3, \"studentsWhoAcceptedTheOffer\": 5}");
+    }
+
+    @Test
+    @DisplayName("Test de GET /api/employer/{offerID}/applications/count-unseen - offre n'existe pas")
+    public void testGetApplicationsCountUnseen_NotFound() throws Exception {
+        long offerID = 1L;
+        when(employerService.countUnseenApplications(offerID))
+            .thenThrow(new NoSuchElementException("Offer not found"));
+
+        var mvcResult = mockMvc.perform(
+                get(Paths.EMPLOYER_APPLICATIONS_COUNT_UNSEEN_PATH, offerID)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody)
+            .isEqualTo("{\"message\": \"Offer not found\"}");
+    }
+
+    @Test
+    @DisplayName("TEST de PUT /api/employer/{offerID}/applications/make-seen - Execution normale")
+    public void testMakeApplicationsSeen_Normal() throws Exception {
+        long offerId = 1L;
+
+        doNothing().when(employerService).makeApplicationsSeen(offerId);
+
+        var mvcResult = mockMvc.perform(
+                put(Paths.EMPLOYER_APPLICATIONS_MAKE_SEEN, offerId)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+
+        assertThat(mvcResult.getResponse().getContentAsString()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Test de PUT /api/employer/{offerID}/applications/make-seen - offre non trouvee")
+    public void testMakeApplicationsSeen_OfferNotFound() throws Exception {
+        long offerId = 1L;
+
+        doThrow(new NoSuchElementException("Offer not found"))
+            .when(employerService).makeApplicationsSeen(offerId);
+
+        var mvcResult = mockMvc.perform(
+                put(Paths.EMPLOYER_APPLICATIONS_MAKE_SEEN, offerId)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(responseBody).isEqualTo("{\"message\": \"Offer not found\"}");
     }
 }
