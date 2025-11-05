@@ -9,6 +9,7 @@ import FilterButton from "./FilterButton";
 import FilterMenuCvs from "./FilterMenuCvs";
 import SortMenuApplications from "./SortMenuApplications";
 import { useClickOutside } from "~/hooks/useClickOutside";
+import InternshipContractModal from "~/components/dashboard/InternshipContractModal";
 
 
 interface InternshipCandidatesProps {
@@ -32,6 +33,8 @@ export default function InternshipApplications({
 	const [showSortMenuApplications, setShowSortMenuApplications] = useState(false);
     const [showFilterMenuApplications, setShowFilterMenuApplications] = useState(false);
 	const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [showContractModal, setShowContractModal] = useState(false);
+  const [studentForContract, setStudentForContract] = useState<Cv | null>(null);
 	const [studentToInvite, setStudentToInvite] = useState<Cv | null>(null);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const {t} = useTranslation()
@@ -139,6 +142,41 @@ export default function InternshipApplications({
 		setSuccessMessage(null);
 	};
 
+  const handleAgreement = (application: Cv, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setStudentForContract(application);
+    setShowContractModal(true);
+    setSuccessMessage(null);
+  }
+
+  const handleContractSubmit = async (contractData: any) => {
+    try {
+      // TODO: Call API to create contract
+      console.log('Contract data:', contractData);
+
+      setSuccessMessage('Contrat de stage créé avec succès');
+      setShowContractModal(false);
+      setStudentForContract(null);
+
+      // Rafraîchir la liste des candidatures
+      if (isInternshipManager) {
+        fetchStudentApplications('ACCEPTED_BY_STUDENT', null, null, null);
+      } else {
+        fetchStudentApplications(null, null, null, null);
+      }
+
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (error) {
+      console.error('Error creating contract:', error);
+      setErrorMessage('Erreur lors de la création du contrat');
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+    }
+  };
+
 	const handleInvitationSent = (invitation: CreateInterviewInvitationRequest) => {
 		setSuccessMessage(t('interviewInvitation.success'));
 		// Rafraîchir la liste des candidatures pour mettre à jour le statut
@@ -175,7 +213,8 @@ export default function InternshipApplications({
 					<div className="bg-white rounded-lg shadow-md text-gray-900">
 						<div className="flex px-6 py-4 border-b border-gray-200">
 							<h2 className="text-xl font-semibold text-gray-900">{(internship.title || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
-							{/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
+              {/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
+              {/*  TODO remove filter and sort buttons if isInternshipManager*/}
 							<div className="flex ml-auto items-center space-x-4 text-gray-900">
 								<div className="relative" ref={sortMenuRef}>
 									<SortButton onClick={() => {
@@ -239,14 +278,24 @@ export default function InternshipApplications({
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										{(application.applicationStatus === 'PENDING') && (
+										{(application.applicationStatus === 'PENDING') ? (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
 											>
 												{t('dashboard.internshipApplications.inviteToInterview')}
 											</button>
-										)}
+										) : (application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager) && (
+                      <button
+                        onClick={(e) => handleAgreement(application, e)}
+                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                       {/* TODO i18n*/}
+                       internshipApplications.CreateEntenteStage
+                      </button>
+                    )
+
+                    }
 										<span>
                       {/*TODO remettre ceci quand terminé*/}
 											{/*{!isInternshipManager && getStatusBadge(application)}*/}
@@ -298,6 +347,24 @@ export default function InternshipApplications({
 				onInvitationSent={handleInvitationSent}
 			/>
 		)}
+
+    {/* Modal de création de contrat de stage */}
+    {studentForContract && showContractModal && (
+      <InternshipContractModal
+        student={studentForContract}
+        studentId={studentForContract.id}
+        internshipOfferId={internship.id}
+        internshipOffer={internship}
+        onSubmit={handleContractSubmit}
+        onCancel={() => {
+          setShowContractModal(false);
+          setStudentForContract(null);
+        }}
+      />
+
+    )}
+
 		</>
 	)
 }
+
