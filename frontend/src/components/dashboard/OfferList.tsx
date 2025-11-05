@@ -326,7 +326,13 @@ export default function OfferList({
                       )}
                       {!isEmployer && !isStudent && offer.verificationStatus === 'APPROVED' && (
                         <button className="inline-flex items-center px-3 py-1 text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 rounded-md transition-colors"
-                                onClick={() => testButton(offer)}>
+                                // onClick={() => testButton(offer)}
+                                onClick={() => {
+                                  if (offer.verificationStatus === 'APPROVED' && selectOffer) {
+                                    selectOffer(offer);
+                                  }
+                                }}
+                        >
                           im.agreement {/*TODO i18n */}
                         </button>
                       )}
