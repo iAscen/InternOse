@@ -1,16 +1,16 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.VerificationStatus;
-import cal.ose.internose.modele.Credentials;
-import cal.ose.internose.modele.UserRole;
-import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.TestPaths;
+import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -25,9 +25,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -468,4 +470,127 @@ class InternshipManagerControllerTest {
          String responseContent = mvcResult.getResponse().getContentAsString();
          assertThat(responseContent).contains("Erreur de service");
      }
+
+     @Test
+     void createInternshipContract_Conflict() throws Exception {
+        // Arrange
+         doThrow(InternshipOfferNotAcceptedByStudentException.class)
+             .when(internshipManagerService)
+             .createInternshipContract(any(CreateInternshipContractDTO.class));
+
+         CreateInternshipContractDTO createInternshipContractDTO = new CreateInternshipContractDTO();
+
+         // Act
+         MvcResult mvcResult = mockMvc.perform(
+                 post(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .content(objectMapper.writeValueAsString(createInternshipContractDTO)))
+             .andReturn();
+
+         // Assert
+         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+     }
+
+    @Test
+    void createInternshipContract_NotFound() throws Exception {
+        // Arrange
+        doThrow(NoSuchElementException.class)
+            .when(internshipManagerService)
+            .createInternshipContract(any(CreateInternshipContractDTO.class));
+
+        CreateInternshipContractDTO createInternshipContractDTO = new CreateInternshipContractDTO();
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createInternshipContractDTO)))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void createInternshipContract_BadRequest() throws Exception {
+        // Arrange
+        doThrow(RuntimeException.class)
+            .when(internshipManagerService)
+            .createInternshipContract(any(CreateInternshipContractDTO.class));
+
+        CreateInternshipContractDTO createInternshipContractDTO = new CreateInternshipContractDTO();
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createInternshipContractDTO)))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void createInternshipContract_Created() throws Exception {
+        // Arrange
+        doNothing()
+            .when(internshipManagerService).createInternshipContract(any(CreateInternshipContractDTO.class));
+
+        CreateInternshipContractDTO createInternshipContractDTO = new CreateInternshipContractDTO();
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createInternshipContractDTO)))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
+    }
+
+    @Test()
+    void findAllInternshipContracts_ReturnListOfContracts() throws Exception {
+        // Arrange
+        InternshipContractDTO internshipContractDTO1 = new InternshipContractDTO();
+        internshipContractDTO1.setId(1L);
+
+        InternshipContractDTO internshipContractDTO2 = new InternshipContractDTO();
+        internshipContractDTO2.setId(2L);
+
+        when(internshipManagerService.findAllInternshipContracts()).thenReturn(List.of(
+            internshipContractDTO1, internshipContractDTO2
+        ));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            get(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+        ).andReturn();
+
+        List<InternshipContractDTO> internshipContractDTOS = objectMapper.readValue(
+            mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+            }
+        );
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(internshipContractDTOS.getFirst().getId()).isEqualTo(1L);
+    }
+
+    @Test()
+    void findAllInternshipContracts_BadRequest() throws Exception {
+        // Arrange
+        doThrow(NoSuchElementException.class)
+            .when(internshipManagerService)
+            .findAllInternshipContracts();
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            get(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+        ).andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
 }
