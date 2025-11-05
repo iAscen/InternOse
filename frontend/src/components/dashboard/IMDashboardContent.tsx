@@ -380,7 +380,9 @@ export default function IMDashboardContent() {
 
                     } {
                   selectedOffer &&
-                    <InternshipApplications setSelectedOffer={setSelectedOffer}
+                    <InternshipApplications
+                        isInternshipManager={true}
+                        setSelectedOffer={setSelectedOffer}
                                             internship={selectedOffer} countNumberOfUnseenApplications={countNumberOfUnseenApplications} offers={allOffers}></InternshipApplications>
                 }
 

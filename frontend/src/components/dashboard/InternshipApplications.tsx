@@ -12,13 +12,20 @@ import { useClickOutside } from "~/hooks/useClickOutside";
 
 
 interface InternshipCandidatesProps {
+  isInternshipManager: boolean;
 		setSelectedOffer: Dispatch<SetStateAction<InternshipOffer | null>>
     internship: InternshipOffer
 	countNumberOfUnseenApplications?: (offers: InternshipOffer[]) => Promise<void>
 	offers?: InternshipOffer[]
 }
 
-export default function InternshipApplications({setSelectedOffer, internship, countNumberOfUnseenApplications, offers}: InternshipCandidatesProps) {
+export default function InternshipApplications({
+  isInternshipManager = false,
+ setSelectedOffer,
+ internship,
+ countNumberOfUnseenApplications,
+ offers
+}: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [selectedApplication, setSelectedApplication] = useState<Cv | null>(null)
@@ -42,7 +49,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 	useClickOutside(filterMenuRef, () => {
 		setShowFilterMenuApplications(false);
 	});
-	
+
 	const makeApplicationsSeen = async () => {
 		await employerAPI.makeApplicationsSeen(internship.id)
 		if (offers && countNumberOfUnseenApplications)
@@ -50,7 +57,10 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 	}
 
 	useEffect(() => {
-		fetchStudentApplications(null, null, null, null);
+		if (isInternshipManager)
+      fetchStudentApplications('ACCEPTED_BY_STUDENT', null, null, null);
+    else
+      fetchStudentApplications(null, null, null, null);
 
 		return () => {
 			if (cleanupRuns.current > 0) {
@@ -159,7 +169,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 			</button>
 
 			{
-			errorMessage == null && 
+			errorMessage == null &&
 			<>
 				<div>
 					<div className="bg-white rounded-lg shadow-md text-gray-900">
@@ -200,7 +210,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 					</div>
 
 					{selectedApplication && errorMessage == null && (
-							
+
 								<ApplicationValidationModal
                   isPending={selectedApplication.applicationStatus === 'PENDING'}
 									cv={selectedApplication}
@@ -219,7 +229,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 									}}
 								/>
 							)}
-					
+
 					<div className="mt-1">
 						{applications.map((application, index) => {
 							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg relative rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100 cursor-pointer">
@@ -239,7 +249,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 										)}
 										<span>
 											{getStatusBadge(application)}
-										</span>	
+										</span>
 									</div>
 								</div>
 								<div className="mb-2">
@@ -251,7 +261,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 									<p className="text-sm text-gray-700 leading-relaxed">{application.applicationDate ? getDateWithoutTime(application.applicationDate) : 'Date non disponible'}</p>
               					</div>
 							</div>
-						
+
 						})}
 					</div>
 
