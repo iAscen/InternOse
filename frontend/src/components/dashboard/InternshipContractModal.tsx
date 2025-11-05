@@ -51,22 +51,18 @@ export default function InternshipContractModal({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validate start date
     if (!formData.startDate) {
       newErrors.startDate = 'La date de début est requise';
     }
 
-    // Validate end date
     if (!formData.endDate) {
       newErrors.endDate = 'La date de fin est requise';
     }
 
-    // Check if end date is after start date
     if (formData.startDate && formData.endDate && formData.startDate >= formData.endDate) {
       newErrors.endDate = 'La date de fin doit être après la date de début';
     }
 
-    // Validate weekly hours
     if (!formData.weeklyHours) {
       newErrors.weeklyHours = 'Les heures hebdomadaires sont requises';
     } else if (parseInt(formData.weeklyHours) <= 0) {
@@ -75,38 +71,32 @@ export default function InternshipContractModal({
       newErrors.weeklyHours = 'Les heures hebdomadaires ne peuvent pas dépasser 168';
     }
 
-    // Validate tasks
     if (!formData.tasks.trim()) {
       newErrors.tasks = 'Les tâches sont requises';
     } else if (formData.tasks.length > 1000) {
       newErrors.tasks = 'Les tâches ne peuvent pas dépasser 1000 caractères';
     }
 
-    // Validate educational objectives
     if (!formData.educationalObjectives.trim()) {
       newErrors.educationalObjectives = 'Les objectifs éducatifs sont requis';
     } else if (formData.educationalObjectives.length > 1000) {
       newErrors.educationalObjectives = 'Les objectifs éducatifs ne peuvent pas dépasser 1000 caractères';
     }
 
-    // Validate supervisor name
     if (!formData.supervisorName.trim()) {
       newErrors.supervisorName = 'Le nom du superviseur est requis';
     }
 
-    // Validate supervisor title
     if (!formData.supervisorTitle.trim()) {
       newErrors.supervisorTitle = 'Le titre du superviseur est requis';
     }
 
-    // Validate supervisor email
     if (!formData.supervisorEmail.trim()) {
       newErrors.supervisorEmail = "L'email du superviseur est requis";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.supervisorEmail)) {
       newErrors.supervisorEmail = "L'email est invalide";
     }
 
-    // Validate supervisor phone
     if (!formData.supervisorPhone.trim()) {
       newErrors.supervisorPhone = 'Le téléphone du superviseur est requis';
     } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.supervisorPhone)) {
@@ -118,14 +108,13 @@ export default function InternshipContractModal({
   };
 
   const handleInputChange = (field: keyof InternshipContractModalData, value: string) => {
-    // Limit text fields to 1000 characters
+    // limit 1000 characters
     if ((field === 'tasks' || field === 'educationalObjectives') && value.length > 1000) {
       return;
     }
 
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // Clear error for this field
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -163,7 +152,7 @@ export default function InternshipContractModal({
         await onSubmit(contractData);
       }
 
-      // Reset form
+      // reset form
       setFormData({
         startDate: '',
         endDate: '',
@@ -255,12 +244,11 @@ export default function InternshipContractModal({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Period Section */}
               <div className="bg-gray-50 p-5 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Période du stage</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Start Date */}
+                  {/* date debut */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Date de début <span className="text-red-500">*</span>
@@ -284,7 +272,7 @@ export default function InternshipContractModal({
                     )}
                   </div>
 
-                  {/* End Date */}
+                  {/* date fin */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Date de fin <span className="text-red-500">*</span>
@@ -308,7 +296,7 @@ export default function InternshipContractModal({
                     )}
                   </div>
 
-                  {/* Weekly Hours */}
+                  {/* heures hebdomadaires */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Heures hebdomadaires <span className="text-red-500">*</span>
@@ -336,7 +324,7 @@ export default function InternshipContractModal({
                 </div>
               </div>
 
-              {/* Tasks Section */}
+              {/* section taches */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tâches du stage <span className="text-red-500">*</span>
@@ -367,7 +355,7 @@ export default function InternshipContractModal({
                 </div>
               </div>
 
-              {/* Educational Objectives Section */}
+              {/* section objectifs */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Objectifs éducatifs <span className="text-red-500">*</span>
@@ -398,12 +386,11 @@ export default function InternshipContractModal({
                 </div>
               </div>
 
-              {/* Supervisor Section */}
+              {/* section superviseur */}
               <div className="bg-gray-50 p-5 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du superviseur</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Supervisor Name */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nom complet <span className="text-red-500">*</span>
@@ -427,7 +414,6 @@ export default function InternshipContractModal({
                     )}
                   </div>
 
-                  {/* Supervisor Title */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Titre/Poste <span className="text-red-500">*</span>
@@ -451,7 +437,6 @@ export default function InternshipContractModal({
                     )}
                   </div>
 
-                  {/* Supervisor Email */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email <span className="text-red-500">*</span>
@@ -475,7 +460,6 @@ export default function InternshipContractModal({
                     )}
                   </div>
 
-                  {/* Supervisor Phone */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Téléphone <span className="text-red-500">*</span>
@@ -501,7 +485,6 @@ export default function InternshipContractModal({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
