@@ -154,7 +154,7 @@ export default function InternshipApplications({setSelectedOffer, internship, co
 				</div>
 			}
 
-			<button onClick={() => setSelectedOffer(null)} className="text-white bg-red-600 mb-1 p-2 shadow-md rounded-sm cursor-pointer hover:scale-110">
+			<button onClick={() => setSelectedOffer(null)} className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
 				{t('dashboard.internshipApplications.goBack')}
 			</button>
 
