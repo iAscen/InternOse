@@ -180,11 +180,11 @@ public class InternOSEApplication {
                     .build()
                 );
 
-                // Employer accepts students
+                // Employeur accepte étudiant
                 employerService.reviewApplication(1L, 2L, true, "");
                 employerService.reviewApplication(1L, 5L, true, "");
                 
-                // Students respond to approved offer
+                // Réponse étudiant aux offres
                 studentService.respondToApprovedOffer(5L, 1L, false);
                 studentService.respondToApprovedOffer(2L, 1L, true);
 
