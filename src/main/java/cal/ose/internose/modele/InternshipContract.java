@@ -29,7 +29,7 @@ public class InternshipContract {
     private String supervisorEmail;
     private String supervisorPhone;
     @Column(columnDefinition = "BYTEA")
-    private byte[] InternshipAgreementFileData;
+    private byte[] internshipAgreementFileData;
     @ManyToOne
     private Student student;
     @ManyToOne
