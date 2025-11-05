@@ -1,14 +1,17 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
-import cal.ose.internose.modele.VerificationStatus;
+import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
+import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,8 @@ import java.util.List;
 public class InternshipManagerService {
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentDAO studentDAO;
+    private final StudentApplicationDAO studentApplicationDAO;
+    private final InternshipContractDAO internshipContractDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -105,4 +110,38 @@ public class InternshipManagerService {
 
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
+
+    public void createInternshipContract(CreateInternshipContractDTO createInternshipContractDTO) {
+        Student student = studentDAO.findById(createInternshipContractDTO.getStudentId()).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(createInternshipContractDTO.getInternshipOfferId()).orElseThrow();
+
+        StudentApplication studentApplication = studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow();
+
+        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
+            throw new InternshipOfferNotAcceptedByStudentException();
+        }
+
+        if (internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer).isPresent()) {
+            throw new InternshipContractAlreadyExistsException();
+        }
+
+        InternshipContract internshipContract = InternshipContract.builder()
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .employer(internshipOffer.getEmployer()) // assuming offer already knows employer
+            .startDate(createInternshipContractDTO.getStartDate())
+            .endDate(createInternshipContractDTO.getEndDate())
+            .weeklyHours(createInternshipContractDTO.getWeeklyHours())
+            .tasks(createInternshipContractDTO.getTasks())
+            .educationalObjectives(createInternshipContractDTO.getEducationalObjectives())
+            .supervisorName(createInternshipContractDTO.getSupervisorName())
+            .supervisorTitle(createInternshipContractDTO.getSupervisorTitle())
+            .supervisorEmail(createInternshipContractDTO.getSupervisorEmail())
+            .supervisorPhone(createInternshipContractDTO.getSupervisorPhone())
+            .build();
+
+        internshipContractDAO.save(internshipContract);
+    }
+
 }
