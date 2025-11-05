@@ -1,10 +1,15 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
+import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
+import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -126,6 +132,31 @@ public class InternshipManagerController {
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(verifiedStudentResumeDetails));
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @GetMapping(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+    public ResponseEntity<String> findAllInternships() {
+        try {
+            List<InternshipContractDTO> internshipContractDTOs = internshipManagerService.findAllInternshipContracts();
+
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipContractDTOs));
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST,  "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PostMapping(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
+    public ResponseEntity<String> createInternshipContract(@RequestBody CreateInternshipContractDTO createInternshipContractDTO) {
+        try {
+            internshipManagerService.createInternshipContract(createInternshipContractDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, e.getMessage());
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
