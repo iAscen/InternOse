@@ -159,6 +159,27 @@ public class InternshipManagerController {
         }
     }
 
+// TODO Décider de garder ou enlever
+    // temporaire
+//    @GetMapping(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_DOWNLOAD_PATH)
+//    public ResponseEntity<?> downloadContract(@RequestParam Long internshipContractID) {
+//        try {
+////            StudentDTO studentDTO = studentService.getStudentByID(studentID);
+//            InternshipContractDTO internshipContractDTO = internshipManagerService.findInternshipContractByID(internshipContractID);
+//            byte[] resumeData = internshipContractDTO.getInternshipAgreementFileData();
+//            ByteArrayResource byteArrayResource = new ByteArrayResource(resumeData);
+//
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//            httpHeaders.setContentDisposition(ContentDisposition.attachment().filename("a2f").build());
+//            httpHeaders.setContentLength(resumeData.length);
+//
+//            return ResponseEntity.ok().headers(httpHeaders).body(byteArrayResource);
+//        } catch (Exception e) {
+//            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+//        }
+//    }
+
     private List<String> getStudentResumeDetails(StudentDTO studentDTO) {
         return List.of(
             studentDTO.getResumeVerificationStatus() != null ? studentDTO.getResumeVerificationStatus().toString() : "",

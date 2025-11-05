@@ -46,4 +46,6 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH = INTERNSHIP_MANAGER_RESUME_PATH + "/download";
     public static final String INTERNSHIP_MANAGER_VERIFY_RESUME_PATH = INTERNSHIP_MANAGER_RESUME_PATH + "/verify";
     public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/contracts";
+    // TODO Décider de garder ou enlever
+//    public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_DOWNLOAD_PATH = INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH + "/download";
 }

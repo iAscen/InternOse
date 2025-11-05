@@ -1,5 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
+import cal.ose.internose.modele.InternshipContract;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +24,26 @@ public class InternshipContractDTO {
     private String supervisorTitle;
     private String supervisorEmail;
     private String supervisorPhone;
-    private byte[] internshipAgreementFileData;
+    // TODO Décider de garder ou enlever
+//    private String internshipAgreementFileName;
+//    private String internshipAgreementFileType;
+//    private byte[] internshipAgreementFileData;
+
+    public static InternshipContractDTO fromEntity(InternshipContract internshipContract) {
+        return InternshipContractDTO.builder()
+            .id(internshipContract.getId())
+            .startDate(internshipContract.getStartDate())
+            .endDate(internshipContract.getEndDate())
+            .weeklyHours(internshipContract.getWeeklyHours())
+            .tasks(internshipContract.getTasks())
+            .educationalObjectives(internshipContract.getEducationalObjectives())
+            .supervisorName(internshipContract.getSupervisorName())
+            .supervisorTitle(internshipContract.getSupervisorTitle())
+            .supervisorEmail(internshipContract.getSupervisorEmail())
+            .supervisorPhone(internshipContract.getSupervisorPhone())
+//            .internshipAgreementFileName(internshipContract.getInternshipAgreementFileName())
+//            .internshipAgreementFileType(internshipContract.getInternshipAgreementFileType())
+//            .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
+            .build();
+    }
 }

@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -144,11 +143,12 @@ public class InternshipManagerService {
             .supervisorPhone(createInternshipContractDTO.getSupervisorPhone())
             .build();
 
-        byte[] internshipAgreementPDF = PdfGenerator.generateAgreementPdf(internshipContract);
-
-        internshipContract.setInternshipAgreementFileData(
-            internshipAgreementPDF
-        );
+        // TODO Décider de garder ou enlever
+//        byte[] internshipAgreementPDF = PdfGenerator.generateAgreementPdf(internshipContract);
+//
+//        internshipContract.setInternshipAgreementFileData(
+//            internshipAgreementPDF
+//        );
 
         internshipContractDAO.save(internshipContract);
     }
@@ -170,9 +170,15 @@ public class InternshipManagerService {
                     .startDate(internshipContract.getStartDate())
                     .endDate(internshipContract.getEndDate())
                     .educationalObjectives(internshipContract.getEducationalObjectives())
-                    .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
+                    // TODO Décider de garder ou enlever
+//                    .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
                     .build()
         ).toList();
     }
+    // TODO Décider de garder ou enlever
+//    public InternshipContractDTO findInternshipContractByID(Long id) {
+//        InternshipContract internshipContract = internshipContractDAO.findById(id).orElseThrow();
+//        return InternshipContractDTO.fromEntity(internshipContract);
+//    }
 
 }
