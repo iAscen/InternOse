@@ -6,6 +6,7 @@ import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
@@ -18,6 +19,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -149,6 +151,28 @@ public class InternshipManagerService {
         );
 
         internshipContractDAO.save(internshipContract);
+    }
+
+    public List<InternshipContractDTO> findAllInternshipContracts() {
+        List<InternshipContract> internshipContracts = internshipContractDAO.findAll();
+
+        return internshipContracts.stream()
+            .map(
+            (internshipContract) ->
+                InternshipContractDTO.builder()
+                    .id(internshipContract.getId())
+                    .tasks(internshipContract.getTasks())
+                    .supervisorEmail(internshipContract.getSupervisorEmail())
+                    .supervisorPhone(internshipContract.getSupervisorPhone())
+                    .supervisorName(internshipContract.getSupervisorName())
+                    .supervisorTitle(internshipContract.getSupervisorTitle())
+                    .weeklyHours(internshipContract.getWeeklyHours())
+                    .startDate(internshipContract.getStartDate())
+                    .endDate(internshipContract.getEndDate())
+                    .educationalObjectives(internshipContract.getEducationalObjectives())
+                    .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
+                    .build()
+        ).toList();
     }
 
 }

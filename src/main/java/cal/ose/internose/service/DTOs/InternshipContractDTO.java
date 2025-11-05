@@ -23,5 +23,5 @@ public class InternshipContractDTO {
     private String supervisorTitle;
     private String supervisorEmail;
     private String supervisorPhone;
-    private byte[] InternshipAgreementFileData;
+    private byte[] internshipAgreementFileData;
 }
