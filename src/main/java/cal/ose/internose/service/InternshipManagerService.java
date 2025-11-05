@@ -12,6 +12,7 @@ import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsExcep
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
+import cal.ose.internose.utilities.PdfGenerator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -129,7 +130,7 @@ public class InternshipManagerService {
         InternshipContract internshipContract = InternshipContract.builder()
             .student(student)
             .internshipOffer(internshipOffer)
-            .employer(internshipOffer.getEmployer()) // assuming offer already knows employer
+            .employer(internshipOffer.getEmployer())
             .startDate(createInternshipContractDTO.getStartDate())
             .endDate(createInternshipContractDTO.getEndDate())
             .weeklyHours(createInternshipContractDTO.getWeeklyHours())
@@ -140,6 +141,12 @@ public class InternshipManagerService {
             .supervisorEmail(createInternshipContractDTO.getSupervisorEmail())
             .supervisorPhone(createInternshipContractDTO.getSupervisorPhone())
             .build();
+
+        byte[] internshipAgreementPDF = PdfGenerator.generateAgreementPdf(internshipContract);
+
+        internshipContract.setInternshipAgreementFileData(
+            internshipAgreementPDF
+        );
 
         internshipContractDAO.save(internshipContract);
     }

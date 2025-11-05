@@ -182,8 +182,25 @@ public class InternOSEApplication {
                 employerService.reviewApplication(1L, 2L, true, "");
                 employerService.reviewApplication(1L, 5L, true, "");
                 
-                // Student responds to approved offer
+                // Students respond to approved offer
                 studentService.respondToApprovedOffer(5L, 1L, false);
+                studentService.respondToApprovedOffer(2L, 1L, true);
+
+                CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
+                    .studentId(2L)
+                    .internshipOfferId(1L)
+                    .startDate(LocalDate.of(2026, 1, 15))
+                    .endDate(LocalDate.of(2026, 4, 15))
+                    .weeklyHours(35)
+                    .tasks("Développement d’applications web en Java et Angular.")
+                    .educationalObjectives("Appliquer les connaissances acquises en programmation et apprendre le travail en équipe.")
+                    .supervisorName("Jean Tremblay")
+                    .supervisorTitle("Chef d’équipe développement")
+                    .supervisorEmail("jean.tremblay@entreprise.ca")
+                    .supervisorPhone("514-555-1234")
+                    .build();
+
+                internshipManagerService.createInternshipContract(dto);
             }
         };
     }
