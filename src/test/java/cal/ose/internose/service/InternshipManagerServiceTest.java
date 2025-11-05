@@ -1,11 +1,15 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.VerificationStatus;
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
+import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
+import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,6 +32,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class InternshipManagerServiceTest {
+    @Mock
+    private StudentApplicationDAO studentApplicationDAO;
+    @Mock
+    private InternshipContractDAO internshipContractDAO;
     @Mock
     private InternshipOfferDAO internshipOfferDAO;
     @Mock
@@ -352,5 +361,130 @@ class InternshipManagerServiceTest {
         assertThat(student.getResumeVerifiedDate()).isNotNull();
         assertThat(student.getResumeRejectionReason()).isNull(); // Doit être null pour approbation
         verify(studentDAO, times(1)).save(student);
+    }
+
+    @Test
+    @DisplayName("Test de la methode createInternshipContract() - Offre de stage non-acceptee")
+    public void testCreateInternshipContract_OffreDeStageNonAcceptee() {
+        //Arrange
+        InternshipOffer internshipOffer = new InternshipOffer();
+        Student student = new Student();
+
+        CreateInternshipContractDTO createInternshipContractDTO =
+            CreateInternshipContractDTO.builder()
+                .internshipOfferId(1L)
+                    .studentId(1L)
+                        .build();
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.APPROVED).build()));
+
+        // Act && Assert
+        assertThrows(InternshipOfferNotAcceptedByStudentException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
+    }
+
+    @Test
+    @DisplayName("Test de la methode createInternshipContract() - Contrat existe deja")
+    public void testCreateInternshipContract_ContractAlreadyExists() {
+        //Arrange
+        InternshipOffer internshipOffer = new InternshipOffer();
+        Student student = new Student();
+
+        CreateInternshipContractDTO createInternshipContractDTO =
+            CreateInternshipContractDTO.builder()
+                .internshipOfferId(1L)
+                .studentId(1L)
+                .build();
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT).build()));
+
+        when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenThrow(InternshipContractAlreadyExistsException.class);
+        // Act && Assert
+        assertThrows(InternshipContractAlreadyExistsException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
+    }
+
+    @Test
+    @DisplayName("Test de la methode createInternshipContract() - Execution normale")
+    void testCreateInternshipContract_NormalExecution() {
+        // Arrange
+        CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
+            .studentId(1L)
+            .internshipOfferId(1L)
+            .startDate(LocalDate.of(2026,1,15))
+            .endDate(LocalDate.of(2026,4,15))
+            .weeklyHours(35)
+            .tasks("Développement")
+            .educationalObjectives("Appliquer les connaissances")
+            .supervisorName("Jean Tremblay")
+            .supervisorTitle("Team Lead")
+            .supervisorEmail("jean@company.com")
+            .supervisorPhone("514-555-1234")
+            .build();
+
+        Student student = new Student();
+        student.setFirstName("Jean");
+        student.setLastName("Tremblay");
+
+        InternshipOffer offer = new InternshipOffer();
+        offer.setTitle("Software Dev");
+
+        Employer employer = Employer.builder()
+            .company("RD")
+            .build();
+
+        offer.setEmployer(employer);
+
+        StudentApplication application = new StudentApplication();
+        application.setApplicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT);
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(offer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, offer))
+            .thenReturn(Optional.of(application));
+        when(internshipContractDAO.findByStudentAndInternshipOffer(student, offer))
+            .thenReturn(Optional.empty());
+
+        // Act
+        internshipManagerService.createInternshipContract(dto);
+
+        // Assert
+        ArgumentCaptor<InternshipContract> contractCaptor = ArgumentCaptor.forClass(InternshipContract.class);
+        verify(internshipContractDAO).save(contractCaptor.capture());
+
+        InternshipContract savedContract = contractCaptor.getValue();
+        assertEquals(student, savedContract.getStudent());
+        assertNotNull(savedContract.getInternshipOffer());
+        assertEquals("Software Dev", savedContract.getInternshipOffer().getTitle());
+    }
+
+    @Test
+    @DisplayName("Test de la methode findAllInternshipContracts()")
+    public void testFindAllInternshipContracts() {
+        //Arrange
+        InternshipContract internshipContract1 = InternshipContract.builder()
+            .id(1L)
+            .build();
+
+        InternshipContract internshipContract2 = InternshipContract.builder()
+            .id(2L)
+            .build();
+
+        when(internshipContractDAO.findAll()).thenReturn(
+            List.of(
+                internshipContract1, internshipContract2
+            )
+        );
+
+        //Act
+        List<InternshipContractDTO> internshipContractDTOS = internshipManagerService.findAllInternshipContracts();
+
+        //Assert
+        assertEquals(2, internshipContractDTOS.size());
+        assertEquals(1L, internshipContractDTOS.getFirst().getId());
     }
 }
