@@ -1,4 +1,4 @@
-import {useEffect, useState, type Dispatch, type SetStateAction} from 'react';
+import {useEffect, useState, type Dispatch, type MouseEventHandler, type SetStateAction} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {InternshipOffer, UnseenApplicationsCount} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
@@ -6,7 +6,7 @@ import ApplyOfferModal from './ApplyOfferModal';
 import {studentAPI} from '~/services/StudentAPI';
 import {userAPI} from '~/services/UserAPI';
 import RespondToOfferModal from './RespondToOfferModal';
-import { employerAPI } from '~/services/EmployerAPI';
+import {employerAPI} from '~/services/EmployerAPI';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -44,7 +44,7 @@ export default function OfferList({
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [selectedOfferToRespond, setSelectedOfferToRespond] = useState<InternshipOffer | null>(null);
   const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
-  const [error, setError] = useState<string | null>(null) 
+  const [error, setError] = useState<string | null>(null)
 
   const rejectedUnseenApplicationsLargerThanZero = (offerId: number) => {
     if (unseenApplicationsCount) {
@@ -72,7 +72,7 @@ export default function OfferList({
       setSelectedOfferToRespond(null);
       // Afficher un message de succès
       setSuccessMessage(
-        acceptOffer 
+        acceptOffer
           ? t('dashboard.acceptOfferSuccessMessage')
           : t('dashboard.refuseOfferSuccessMessage')
       );
@@ -150,6 +150,11 @@ export default function OfferList({
     setSelectedOfferToApply(null);
     setApplyError('');
   };
+
+  const testButton = (offer: InternshipOffer) => {
+    console.log('test')
+    console.log(offer)
+  }
 
   const getStatusBadge = (offer: InternshipOffer) => {
     if (isStudent) {
@@ -317,6 +322,12 @@ export default function OfferList({
                                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                           </svg>
                           {t('im.validateOffer')}
+                        </button>
+                      )}
+                      {!isEmployer && !isStudent && offer.verificationStatus === 'APPROVED' && (
+                        <button className="inline-flex items-center px-3 py-1 text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 rounded-md transition-colors"
+                                onClick={() => testButton(offer)}>
+                          im.agreement {/*TODO i18n */}
                         </button>
                       )}
                       {isStudent && offer.verificationStatus === 'APPROVED' && (
