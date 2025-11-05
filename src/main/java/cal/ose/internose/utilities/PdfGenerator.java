@@ -22,7 +22,7 @@ public class PdfGenerator {
 
             document.add(new Paragraph("Entente de stage").setBold().setFontSize(18));
             document.add(new Paragraph("Étudiant: " + contract.getStudent().getFirstName() + " " + contract.getStudent().getLastName()));
-            document.add(new Paragraph("Employeur: " + contract.getEmployer().getFirstName() + " " + contract.getEmployer().getCompany()));
+            document.add(new Paragraph("Employeur: " + contract.getEmployer().getCompany()));
             document.add(new Paragraph("Offre de stage: " + contract.getInternshipOffer().getTitle()));
             document.add(new Paragraph("Période: " +
                 contract.getStartDate().format(formatter) + " - " +

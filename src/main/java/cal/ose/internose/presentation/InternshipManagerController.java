@@ -9,7 +9,6 @@ import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -136,7 +135,7 @@ public class InternshipManagerController {
     }
 
     @GetMapping(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
-    public ResponseEntity<String> findAllInternships() {
+    public ResponseEntity<String> findAllInternshipContracts() {
         try {
             List<InternshipContractDTO> internshipContractDTOs = internshipManagerService.findAllInternshipContracts();
 
