@@ -248,7 +248,9 @@ export default function InternshipApplications({
 											</button>
 										)}
 										<span>
-											{getStatusBadge(application)}
+                      {/*TODO remettre ceci quand terminé*/}
+											{/*{!isInternshipManager && getStatusBadge(application)}*/}
+                      {getStatusBadge(application)}
 										</span>
 									</div>
 								</div>
@@ -267,11 +269,19 @@ export default function InternshipApplications({
 
 				</div>
 
-				{applications.length == 0 && errorMessage == null &&
-					<div className="text-center text-gray-900 mt-2">
-						{t('dashboard.internshipApplications.noCandidaturesFound')}
-					</div>
-				}
+        {applications.length === 0 && errorMessage == null && (
+          !isInternshipManager ? (
+            <div className="text-center text-gray-900 mt-2">
+              {t('dashboard.internshipApplications.noCandidaturesFound')}
+            </div>
+          ) : (
+            <div className="text-center text-gray-900 mt-2">
+              {/*TODO i18n*/}
+              {/*Aucune candidature acceptée pour le moment*/}
+              internshipApplications.noCandidaturesAcceptedFound
+            </div>
+          )
+        )}
 			</>
 		}
 
