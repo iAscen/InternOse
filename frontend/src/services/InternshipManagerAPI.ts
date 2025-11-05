@@ -65,7 +65,7 @@ class InternshipManagerAPI {
       // No query parameters - fetch all CVs
       const url = buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.STUDENTS_CVS);
       console.log('🔍 Fetching CVs from:', url);
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -75,7 +75,7 @@ class InternshipManagerAPI {
       });
 
       console.log('🔍 CVs response status:', response.status);
-      
+
       if (response.ok) {
         const body = await response.json();
         console.log('🔍 CVs response data:', body);
@@ -174,12 +174,12 @@ class InternshipManagerAPI {
         // Check if the response is JSON (Base64) or raw blob
         const contentType = response.headers.get('content-type');
         console.log('🔍 CV download content-type:', contentType);
-        
+
         if (contentType && contentType.includes('application/json')) {
           // Backend returns JSON with Base64 encoded data
           const jsonData = await response.json();
           console.log('🔍 CV download JSON response:', jsonData);
-          
+
           // The backend might return the bytes as an array or base64 string
           let base64String;
           if (typeof jsonData === 'string') {
@@ -192,7 +192,7 @@ class InternshipManagerAPI {
           } else {
             throw new Error('Invalid response format from server');
           }
-          
+
           // Convert base64 to blob
           const binaryString = atob(base64String);
           const bytes = new Uint8Array(binaryString.length);
@@ -200,7 +200,7 @@ class InternshipManagerAPI {
             bytes[i] = binaryString.charCodeAt(i);
           }
           const blob = new Blob([bytes], { type: 'application/pdf' });
-          
+
           return {
             success: true,
             data: blob
@@ -379,6 +379,61 @@ class InternshipManagerAPI {
         return {
           success: false,
           error: errorMessage,
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+  async createInternshipContract(contractData: any): Promise<ApiResponse<string>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // const contractData = {
+      //   studentId: '',
+      //   internshipOfferId: '',
+      //   startDate: '', // These should be passed as parameters or handled differently
+      //   endDate: '',
+      //   weeklyHours: '',
+      //   tasks: '',
+      //   educationalObjectives: '',
+      //   supervisorName: '',
+      //   supervisorTitle: '',
+      //   supervisorEmail: '',
+      //   supervisorPhone: ''
+      // };
+
+      console.log("imma kill you RIGHT NOW", contractData)
+
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.CONTRACTS), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contractData),
+      });
+
+      if (response.ok) {
+        return {
+          success: true,
+          data: 'Contrat créé avec succès',
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erreur lors de la création du contrat',
         };
       }
     } catch (error) {

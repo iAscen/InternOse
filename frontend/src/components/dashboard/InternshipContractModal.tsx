@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type {Cv, InternshipOffer} from "~/interfaces";
 
 interface InternshipContractModalData {
+  studentId?: number;
+  internshipOfferId: number;
   startDate: string;
   endDate: string;
   weeklyHours: string;
@@ -17,8 +19,8 @@ interface InternshipContractModalData {
 interface InternshipContractModalProps {
   student: Cv;
   internshipOffer: InternshipOffer;
-  studentId?: number;
-  internshipOfferId?: number;
+  studentId?: number; // remove
+  internshipOfferId?: number; //todo remove
   onSubmit?: (data: any) => void;
   onCancel?: () => void;
 }
@@ -34,6 +36,8 @@ export default function InternshipContractModal({
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState<InternshipContractModalData>({
+    studentId: student.id,
+    internshipOfferId: internshipOffer.id,
     startDate: '',
     endDate: '',
     weeklyHours: '',
@@ -154,6 +158,8 @@ export default function InternshipContractModal({
 
       // reset form
       setFormData({
+        studentId: student.id,
+        internshipOfferId: internshipOffer.id,
         startDate: '',
         endDate: '',
         weeklyHours: '',
@@ -175,6 +181,8 @@ export default function InternshipContractModal({
 
   const handleCancel = () => {
     setFormData({
+      studentId: student.id,
+      internshipOfferId: internshipOffer.id,
       startDate: '',
       endDate: '',
       weeklyHours: '',

@@ -10,6 +10,7 @@ import FilterMenuCvs from "./FilterMenuCvs";
 import SortMenuApplications from "./SortMenuApplications";
 import { useClickOutside } from "~/hooks/useClickOutside";
 import InternshipContractModal from "~/components/dashboard/InternshipContractModal";
+import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
 
 
 interface InternshipCandidatesProps {
@@ -153,6 +154,7 @@ export default function InternshipApplications({
     try {
       // TODO: Call API to create contract
       console.log('Contract data:', contractData);
+      internshipManagerAPI.createInternshipContract(contractData)
 
       setSuccessMessage('Contrat de stage créé avec succès');
       setShowContractModal(false);
