@@ -13,7 +13,6 @@ import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsExcep
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
-import cal.ose.internose.utilities.PdfGenerator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -141,6 +140,9 @@ public class InternshipManagerService {
             .supervisorTitle(createInternshipContractDTO.getSupervisorTitle())
             .supervisorEmail(createInternshipContractDTO.getSupervisorEmail())
             .supervisorPhone(createInternshipContractDTO.getSupervisorPhone())
+            .isSignedStudent(false)
+            .isSignedEmployer(false)
+            .isSignedInternshipManager(false)
             .build();
 
         // TODO Décider de garder ou enlever
@@ -172,6 +174,9 @@ public class InternshipManagerService {
                     .educationalObjectives(internshipContract.getEducationalObjectives())
                     // TODO Décider de garder ou enlever
 //                    .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
+                    .isSignedStudent(internshipContract.getIsSignedStudent())
+                    .isSignedEmployer(internshipContract.getIsSignedEmployer())
+                    .isSignedInternshipManager(internshipContract.getIsSignedInternshipManager())
                     .build()
         ).toList();
     }

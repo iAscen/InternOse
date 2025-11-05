@@ -32,6 +32,10 @@ public class InternshipContract {
     private String internshipAgreementFileType;
     @Column(columnDefinition = "BYTEA")
     private byte[] internshipAgreementFileData;*/
+    private Boolean isSignedStudent;
+    private Boolean isSignedEmployer;
+    private Boolean isSignedInternshipManager;
+
     @ManyToOne
     private Student student;
     @ManyToOne

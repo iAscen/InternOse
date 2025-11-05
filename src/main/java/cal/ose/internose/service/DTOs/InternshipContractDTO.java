@@ -28,6 +28,9 @@ public class InternshipContractDTO {
 //    private String internshipAgreementFileName;
 //    private String internshipAgreementFileType;
 //    private byte[] internshipAgreementFileData;
+    private Boolean isSignedStudent;
+    private Boolean isSignedEmployer;
+    private Boolean isSignedInternshipManager;
 
     public static InternshipContractDTO fromEntity(InternshipContract internshipContract) {
         return InternshipContractDTO.builder()
