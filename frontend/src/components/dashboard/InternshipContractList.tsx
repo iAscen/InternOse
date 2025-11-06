@@ -117,6 +117,7 @@ export default function InternshipContractList({
         <InternshipContractDetailsModal
           contract={selectedContract}
           onClose={() => setSelectedContract(null)}
+          onContractUpdate={onContractUpdate}
         />
       )}
     </>

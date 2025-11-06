@@ -450,6 +450,9 @@
     "fullySigned": "Entièrement signée",
     "noContracts": "Aucune entente disponible",
     "generalInformation": "Informations générales",
-    "viewContract": "Voir l'entente"
+    "viewContract": "Voir l'entente",
+    "sign": "Signer",
+    "signing": "Signature en cours...",
+    "signError": "Erreur lors de la signature de l'entente"
   }
 }

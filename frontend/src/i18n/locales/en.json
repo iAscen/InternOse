@@ -449,6 +449,9 @@
     "fullySigned": "Fully signed",
     "noContracts": "No contracts available",
     "generalInformation": "General Information",
-    "viewContract": "View Contract"
+    "viewContract": "View Contract",
+    "sign": "Sign",
+    "signing": "Signing...",
+    "signError": "Error signing the contract"
   }
 }

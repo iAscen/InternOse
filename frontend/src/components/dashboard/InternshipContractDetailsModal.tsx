@@ -1,21 +1,58 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipContract } from '~/interfaces';
+import { userAPI } from '~/services/UserAPI';
+import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
 
 interface InternshipContractDetailsModalProps {
   contract: InternshipContract;
   onClose: () => void;
+  onContractUpdate?: () => void;
 }
 
 export default function InternshipContractDetailsModal({
   contract,
-  onClose
+  onClose,
+  onContractUpdate
 }: InternshipContractDetailsModalProps) {
   const { t } = useTranslation();
+  const [isSigning, setIsSigning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const userRole = userAPI.getUserRole();
+  const isInternshipManager = userRole === 'INTERNSHIP_MANAGER';
+  const canSign = isInternshipManager && !contract.isSignedInternshipManager;
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  const handleSignContract = async () => {
+    if (!canSign) return;
+    
+    setIsSigning(true);
+    setError(null);
+    
+    try {
+      const response = await internshipManagerAPI.signContract(contract.id);
+      
+      if (response.success) {
+        // Appeler le callback pour mettre à jour la liste des contrats
+        if (onContractUpdate) {
+          onContractUpdate();
+        }
+        // Fermer le modal après signature réussie
+        onClose();
+      } else {
+        setError(response.error || t('internshipContract.signError'));
+      }
+    } catch (err) {
+      setError(t('internshipContract.signError'));
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   return (
@@ -141,7 +178,34 @@ export default function InternshipContractDetailsModal({
             </div>
           </div>
 
-          <div className="flex justify-end mt-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 mt-6">
+            {canSign && (
+              <button
+                onClick={handleSignContract}
+                disabled={isSigning}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isSigning ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    {t('internshipContract.signing')}
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    {t('internshipContract.sign')}
+                  </>
+                )}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"

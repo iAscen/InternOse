@@ -472,6 +472,49 @@ class InternshipManagerAPI {
       };
     }
   }
+
+  // Signer une entente de stage (Gestionnaire de stages)
+  async signContract(contractId: number): Promise<ApiResponse<string>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // TODO: Le backend devra implémenter cette route
+      // Pour l'instant, on prépare l'appel API qui sera connecté plus tard
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.CONTRACTS) + `/${contractId}/sign`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        return {
+          success: true,
+          data: responseData.message || 'Entente signée avec succès',
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erreur lors de la signature de l\'entente',
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
 }
 
 export const internshipManagerAPI = new InternshipManagerAPI();

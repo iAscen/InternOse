@@ -500,6 +500,19 @@ export default function OfferList({
           <InternshipContractDetailsModal
             contract={selectedContract}
             onClose={() => setSelectedContract(null)}
+            onContractUpdate={async () => {
+              // Recharger le contrat après signature
+              if (selectedContract.internshipOfferId) {
+                try {
+                  const response = await studentAPI.getInternshipContract(selectedContract.internshipOfferId);
+                  if (response.success && response.data) {
+                    setSelectedContract(response.data);
+                  }
+                } catch (error) {
+                  console.error('Error reloading contract:', error);
+                }
+              }
+            }}
           />
         )}
       </div>
