@@ -191,12 +191,11 @@ public class InternOSEApplication {
 
                 // Accepter quelques candidatures en avance
                 employerService.reviewApplication(1L, 2L, true, "");
-                employerService.reviewApplication(1L, 5L, true, "");
                 employerService.reviewApplication(5L, 5L, true, "");
 
                 // Accepter quelques offres de stage en avance
                 studentService.respondToApprovedOffer(2L, 1L, true);
-                studentService.respondToApprovedOffer(5L, 1L, true);
+                studentService.respondToApprovedOffer(5L, 5L, true);
 
                 // Créer une entente de stage en avance
                 InternshipContractDTO internshipContractDTO = InternshipContractDTO.builder()
