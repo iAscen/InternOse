@@ -21,7 +21,8 @@ export const API_PATHS = {
     INTERVIEWS: '/employer/interviews',
     SCHEDULE_INTERVIEW: '/employer/interviews',
     APPLICATIONS_COUNT_UNSEEN: '/employer/:offerID/applications/count-unseen',
-    APPLICATIONS_MAKE_SEEN: '/employer/:offerID/applications/make-seen'
+    APPLICATIONS_MAKE_SEEN: '/employer/:offerID/applications/make-seen',
+    CONTRACT: '/employer/internship-offers/student-applications/{studentID}/contract'
   },
   
   // Étudiant
@@ -34,7 +35,8 @@ export const API_PATHS = {
     INTERNSHIP_OFFER_DETAILS: '/student/internship-offers/{offerID}',
     APPLY_INTERNSHIP: '/student/internship-offers/{offerID}/apply-to-internship',
     APPLICATIONS: '/student/applications',
-    RESPOND_TO_OFFER: '/student/internship-offers/:internshipOfferID/respond'
+    RESPOND_TO_OFFER: '/student/internship-offers/:internshipOfferID/respond',
+    CONTRACT: '/student/internship-offers/{offerID}/contract'
   },
   
   // Gestionnaire de stages

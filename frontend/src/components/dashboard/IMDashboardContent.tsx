@@ -18,6 +18,9 @@ import { useClickOutside } from "~/hooks/useClickOutside";
 import { filterInternshipOffers, sortInternshipOffers, filterCvs, sortCvs } from "~/utils/filterUtils";
 import InternshipApplications from "~/components/dashboard/InternshipApplications";
 import {employerAPI} from "~/services/EmployerAPI";
+import InternshipContractList from "~/components/dashboard/InternshipContractList";
+import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
+import type { InternshipContract } from "~/interfaces";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -39,6 +42,8 @@ export default function IMDashboardContent() {
     const [cvSortBy, setCvSortBy] = useState<string>('');
     const [cvSortOrder, setCvSortOrder] = useState<string>('asc');
     const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
+    const [contracts, setContracts] = useState<InternshipContract[]>([]);
+    const [showContracts, setShowContracts] = useState(false);
 
 
     // Refs pour les dropdowns
@@ -160,6 +165,22 @@ export default function IMDashboardContent() {
         }
     }
 
+    const loadContracts = async () => {
+        try {
+            setLoading(true);
+            const response = await internshipManagerAPI.getAllInternshipContracts();
+            if (response.success && response.data) {
+                setContracts(response.data);
+            } else {
+                setError(response.error || t('dashboard.loadingError'));
+            }
+        } catch (err) {
+            setError(t('dashboard.serverError'));
+        } finally {
+            setLoading(false);
+        }
+    }
+
     // Apply filters and sorting to offers
     useEffect(() => {
         let filtered = allOffers;
@@ -208,6 +229,7 @@ export default function IMDashboardContent() {
     useEffect(() => {
         loadOffers();
         loadCvs();
+        loadContracts();
     }, []);
 
     const selectOffer = (offer: InternshipOffer) => {
@@ -237,7 +259,7 @@ export default function IMDashboardContent() {
                             {error}
                         </div>
                     )}
-                    {selectedOffer == null && (
+                    {selectedOffer == null && !showContracts && (
                       <>
                         {/* Statistiques */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -273,6 +295,28 @@ export default function IMDashboardContent() {
                             bgColor="bg-red-100"
                             iconColor="text-red-600"
                           />
+                        </div>
+
+                        {/* Section "Ententes de stage" */}
+                        <div className="bg-white rounded-lg shadow-md mb-8 p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <h2 className="text-xl font-semibold text-gray-900">
+                              {t("im.internshipContractsSection")}
+                            </h2>
+                            <button
+                              onClick={() => setShowContracts(true)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                            >
+                              {t("im.viewContracts")}
+                            </button>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {contracts.length === 0 ? (
+                              <p>{t("im.noContracts")}</p>
+                            ) : (
+                              <p>{t("im.contractsCount", { count: contracts.length })}</p>
+                            )}
+                          </div>
                         </div>
 
                         {/* Section "Offres de stages des employeurs" */}
@@ -322,6 +366,7 @@ export default function IMDashboardContent() {
                             isEmployer={false}
                             loading={loading}
                             offers={filteredOffers}
+                            numbersOfApplications={[]}
                             onOfferValidation={() => loadOffers()}
                           />
                         </div>
@@ -376,15 +421,39 @@ export default function IMDashboardContent() {
                           }
                         </div>
                       </>
-                    )
+                    ) }
 
-                    } {
-                  selectedOffer &&
-                    <InternshipApplications
-                        isInternshipManager={true}
-                        setSelectedOffer={setSelectedOffer}
-                                            internship={selectedOffer} countNumberOfUnseenApplications={countNumberOfUnseenApplications} offers={allOffers}></InternshipApplications>
-                }
+                    {showContracts && (
+                      <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                          <h2 className="text-xl font-semibold text-gray-900">
+                            {t("im.internshipContractsSection")}
+                          </h2>
+                          <button
+                            onClick={() => setShowContracts(false)}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+                          >
+                            {t("common.back")}
+                          </button>
+                        </div>
+                        <InternshipContractList
+                          contracts={contracts}
+                          loading={loading}
+                          onContractUpdate={loadContracts}
+                        />
+                      </div>
+                    )}
+
+                    {selectedOffer && !showContracts &&
+                      <InternshipApplications
+                          isInternshipManager={true}
+                          setSelectedOffer={setSelectedOffer}
+                          internship={selectedOffer} 
+                          countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
+                          offers={allOffers}
+                          onContractCreated={loadContracts}
+                      ></InternshipApplications>
+                    }
 
                 </div>
             </div>

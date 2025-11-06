@@ -2,11 +2,13 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
+    private final InternshipManagerService internshipManagerService;
     private final ObjectMapper objectMapper;
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
@@ -190,6 +193,22 @@ public class EmployerController {
         } catch (NoSuchElementException e) {
             String errorJson = String.format("{\"message\": \"%s\"}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorJson);
+        }
+    }
+
+    @GetMapping(Paths.EMPLOYER_CONTRACT_PATH)
+    public ResponseEntity<String> getInternshipContract(
+        @RequestParam Long employerID,
+        @RequestParam Long internshipOfferID,
+        @PathVariable Long studentID
+    ) {
+        try {
+            InternshipContractDTO contract = internshipManagerService.findContractByEmployerAndOffer(employerID, internshipOfferID, studentID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(contract));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 

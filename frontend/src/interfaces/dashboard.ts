@@ -102,3 +102,26 @@ export interface UnseenApplicationsCount {
   studentsWhoRejectedTheOffer: number,
   studentsWhoAcceptedTheOffer: number
 }
+
+export interface InternshipContract {
+  id: number;
+  startDate: string; // Format ISO: "2024-01-15"
+  endDate: string;   // Format ISO: "2024-04-15"
+  weeklyHours: number;
+  tasks: string;
+  educationalObjectives: string;
+  supervisorName: string;
+  supervisorTitle: string;
+  supervisorEmail: string;
+  supervisorPhone: string;
+  isSignedStudent: boolean;
+  isSignedEmployer: boolean;
+  isSignedInternshipManager: boolean;
+  studentId?: number;
+  studentFirstName?: string;
+  studentLastName?: string;
+  employerId?: number;
+  employerCompany?: string;
+  internshipOfferId?: number;
+  internshipOfferTitle?: string;
+}

@@ -1,7 +1,8 @@
 // Service API pour les étudiants
 import type {
   InternshipOffer,
-  ApiResponse
+  ApiResponse,
+  InternshipContract
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -425,6 +426,57 @@ class StudentAPI {
         return {
           success: false,
           error: errorMessage
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
+
+  // Récupérer l'entente de stage pour une offre spécifique
+  async getInternshipContract(offerId: number): Promise<ApiResponse<InternshipContract>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Non authentifié'
+        };
+      }
+
+      const studentId = await userAPI.getStudentIdFromJWT();
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'étudiant'
+        };
+      }
+
+      const url = buildFullApiUrl(API_PATHS.STUDENT.CONTRACT, { offerID: String(offerId) }) + `?studentID=${studentId}`;
+      console.log('🔍 Fetching contract from:', url);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const contract = await response.json();
+        return {
+          success: true,
+          data: contract
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la récupération du contrat'
         };
       }
     } catch (error) {

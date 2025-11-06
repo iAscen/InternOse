@@ -1,6 +1,7 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.EmployerDAO;
 import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -29,6 +31,7 @@ public class InternshipManagerService {
     private final StudentDAO studentDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
+    private final EmployerDAO employerDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -147,13 +150,6 @@ public class InternshipManagerService {
 
         studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_CONTRACT);
 
-        // TODO Décider de garder ou enlever
-//        byte[] internshipAgreementPDF = PdfGenerator.generateAgreementPdf(internshipContract);
-//
-//        internshipContract.setInternshipAgreementFileData(
-//            internshipAgreementPDF
-//        );
-
         studentApplicationDAO.save(studentApplication);
         internshipContractDAO.save(internshipContract);
     }
@@ -175,18 +171,87 @@ public class InternshipManagerService {
                     .startDate(internshipContract.getStartDate())
                     .endDate(internshipContract.getEndDate())
                     .educationalObjectives(internshipContract.getEducationalObjectives())
-                    // TODO Décider de garder ou enlever
-//                    .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
                     .isSignedStudent(internshipContract.getIsSignedStudent())
                     .isSignedEmployer(internshipContract.getIsSignedEmployer())
                     .isSignedInternshipManager(internshipContract.getIsSignedInternshipManager())
+                    .studentId(internshipContract.getStudent() != null ? internshipContract.getStudent().getId() : null)
+                    .studentFirstName(internshipContract.getStudent() != null ? internshipContract.getStudent().getFirstName() : null)
+                    .studentLastName(internshipContract.getStudent() != null ? internshipContract.getStudent().getLastName() : null)
+                    .employerId(internshipContract.getEmployer() != null ? internshipContract.getEmployer().getId() : null)
+                    .employerCompany(internshipContract.getEmployer() != null ? internshipContract.getEmployer().getCompany() : null)
+                    .internshipOfferId(internshipContract.getInternshipOffer() != null ? internshipContract.getInternshipOffer().getId() : null)
+                    .internshipOfferTitle(internshipContract.getInternshipOffer() != null ? internshipContract.getInternshipOffer().getTitle() : null)
                     .build()
         ).toList();
     }
-    // TODO Décider de garder ou enlever
-//    public InternshipContractDTO findInternshipContractByID(Long id) {
-//        InternshipContract internshipContract = internshipContractDAO.findById(id).orElseThrow();
-//        return InternshipContractDTO.fromEntity(internshipContract);
-//    }
+
+    public InternshipContractDTO findContractByStudentAndOffer(Long studentId, Long internshipOfferId) {
+        Student student = studentDAO.findById(studentId).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId).orElseThrow();
+        
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+        
+        return InternshipContractDTO.builder()
+            .id(contract.getId())
+            .tasks(contract.getTasks())
+            .supervisorEmail(contract.getSupervisorEmail())
+            .supervisorPhone(contract.getSupervisorPhone())
+            .supervisorName(contract.getSupervisorName())
+            .supervisorTitle(contract.getSupervisorTitle())
+            .weeklyHours(contract.getWeeklyHours())
+            .startDate(contract.getStartDate())
+            .endDate(contract.getEndDate())
+            .educationalObjectives(contract.getEducationalObjectives())
+            .isSignedStudent(contract.getIsSignedStudent())
+            .isSignedEmployer(contract.getIsSignedEmployer())
+            .isSignedInternshipManager(contract.getIsSignedInternshipManager())
+            .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
+            .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
+            .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
+            .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
+            .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
+            .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
+            .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
+            .build();
+    }
+
+    public InternshipContractDTO findContractByEmployerAndOffer(Long employerId, Long internshipOfferId, Long studentId) {
+        // Vérifier que l'employeur existe
+        employerDAO.findById(employerId).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId).orElseThrow();
+        Student student = studentDAO.findById(studentId).orElseThrow();
+        
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cette offre et cet étudiant"));
+        
+        // Vérifier que l'employeur correspond bien au contrat
+        if (contract.getEmployer() == null || !contract.getEmployer().getId().equals(employerId)) {
+            throw new NoSuchElementException("Contrat non trouvé pour cet employeur");
+        }
+        
+        return InternshipContractDTO.builder()
+            .id(contract.getId())
+            .tasks(contract.getTasks())
+            .supervisorEmail(contract.getSupervisorEmail())
+            .supervisorPhone(contract.getSupervisorPhone())
+            .supervisorName(contract.getSupervisorName())
+            .supervisorTitle(contract.getSupervisorTitle())
+            .weeklyHours(contract.getWeeklyHours())
+            .startDate(contract.getStartDate())
+            .endDate(contract.getEndDate())
+            .educationalObjectives(contract.getEducationalObjectives())
+            .isSignedStudent(contract.getIsSignedStudent())
+            .isSignedEmployer(contract.getIsSignedEmployer())
+            .isSignedInternshipManager(contract.getIsSignedInternshipManager())
+            .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
+            .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
+            .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
+            .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
+            .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
+            .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
+            .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
+            .build();
+    }
 
 }

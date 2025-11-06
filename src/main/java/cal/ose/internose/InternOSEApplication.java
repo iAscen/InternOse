@@ -17,8 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -203,8 +201,6 @@ public class InternOSEApplication {
                     .build();
 
                 internshipManagerService.createInternshipContract(dto);
-
-                List<InternshipContractDTO> internshipContractDTOs = internshipManagerService.findAllInternshipContracts();
             }
         };
     }

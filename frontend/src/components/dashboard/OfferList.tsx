@@ -1,12 +1,13 @@
 import {useEffect, useState, type Dispatch, type SetStateAction} from 'react';
 import {useTranslation} from 'react-i18next';
-import type {InternshipOffer, UnseenApplicationsCount} from '~/interfaces';
+import type {InternshipOffer, UnseenApplicationsCount, InternshipContract} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
 import ApplyOfferModal from './ApplyOfferModal';
 import {studentAPI} from '~/services/StudentAPI';
 import {userAPI} from '~/services/UserAPI';
 import RespondToOfferModal from './RespondToOfferModal';
 import {employerAPI} from '~/services/EmployerAPI';
+import InternshipContractDetailsModal from './InternshipContractDetailsModal';
 
 interface OfferListProps {
   isStudent: boolean;
@@ -45,6 +46,8 @@ export default function OfferList({
   const [selectedOfferToRespond, setSelectedOfferToRespond] = useState<InternshipOffer | null>(null);
   const [confirmationType, setConfirmationType] = useState<'REJECT_OFFER' | 'ACCEPT_OFFER'>('REJECT_OFFER')
   const [error, setError] = useState<string | null>(null)
+  const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
+  const [loadingContract, setLoadingContract] = useState(false);
 
   const rejectedUnseenApplicationsLargerThanZero = (offerId: number) => {
     if (unseenApplicationsCount) {
@@ -92,6 +95,26 @@ export default function OfferList({
       setTimeout(() => {
         setError(null);
       }, 3000);
+    }
+  }
+
+  const handleViewContract = async (offer: InternshipOffer) => {
+    if (!offer.id) return;
+    
+    setLoadingContract(true);
+    try {
+      const response = await studentAPI.getInternshipContract(offer.id);
+      if (response.success && response.data) {
+        setSelectedContract(response.data);
+      } else {
+        setError(response.error || t('internshipContract.errors.loadError'));
+        setTimeout(() => setError(null), 3000);
+      }
+    } catch (error) {
+      setError(t('internshipContract.errors.loadError'));
+      setTimeout(() => setError(null), 3000);
+    } finally {
+      setLoadingContract(false);
     }
   }
 
@@ -413,6 +436,15 @@ export default function OfferList({
                               {t("common.refuse")}
                           </button>
                       </div>}
+                  {offer.applicationStatus === "PENDING_CONTRACT" && isStudent && <div className="flex gap-1 mt-4 ms-auto text-sm">
+                          <button 
+                            onClick={() => handleViewContract(offer)} 
+                            disabled={loadingContract}
+                            className="rounded-sm px-2 bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {loadingContract ? t('common.loading') : t('internshipContract.viewContract')}
+                          </button>
+                      </div>}
                 </div>
                 {/* Affichage de la raison de rejet si applicable */}
                 {offer.verificationStatus === 'REJECTED' && offer.rejectionReason && (
@@ -463,6 +495,13 @@ export default function OfferList({
                             mode={confirmationType}
                             onClose={() => setSelectedOfferToRespond(null)}
                             onSubmit={() => respondToOffer(selectedOfferToRespond, confirmationType === "ACCEPT_OFFER")}></RespondToOfferModal>}
+        
+        {selectedContract && (
+          <InternshipContractDetailsModal
+            contract={selectedContract}
+            onClose={() => setSelectedContract(null)}
+          />
+        )}
       </div>
     </>
   );

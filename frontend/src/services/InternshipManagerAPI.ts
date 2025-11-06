@@ -2,7 +2,8 @@
 import type {
   InternshipOffer,
   ApiResponse,
-  Cv
+  Cv,
+  InternshipContract
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -399,20 +400,6 @@ class InternshipManagerAPI {
         };
       }
 
-      // const contractData = {
-      //   studentId: '',
-      //   internshipOfferId: '',
-      //   startDate: '', // These should be passed as parameters or handled differently
-      //   endDate: '',
-      //   weeklyHours: '',
-      //   tasks: '',
-      //   educationalObjectives: '',
-      //   supervisorName: '',
-      //   supervisorTitle: '',
-      //   supervisorEmail: '',
-      //   supervisorPhone: ''
-      // };
-
       console.log("imma kill you RIGHT NOW", contractData)
 
       const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.CONTRACTS), {
@@ -434,6 +421,47 @@ class InternshipManagerAPI {
         return {
           success: false,
           error: errorData.message || errorData.error || 'Erreur lors de la création du contrat',
+        };
+      }
+    } catch (error) {
+      console.error('🔍 Network error:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  // Récupérer toutes les ententes de stage
+  async getAllInternshipContracts(): Promise<ApiResponse<InternshipContract[]>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.CONTRACTS), {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const contracts = await response.json();
+        return {
+          success: true,
+          data: contracts,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erreur lors du chargement des ententes',
         };
       }
     } catch (error) {

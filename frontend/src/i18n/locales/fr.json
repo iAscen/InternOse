@@ -198,8 +198,13 @@
     "fileType": "Type de fichier",
     "uploadedAt": "Téléversé le",
     "currentStatus": "Statut actuel",
-    "pendingContract": "En attente de contrat",
-    "contract": "Entente de stage"
+    "pendingContract": "En attente de signatures",
+    "contract": "Entente de stage",
+    "internshipContractsSection": "Ententes de stage",
+    "viewContracts": "Voir les ententes",
+    "viewContract": "Voir l'entente",
+    "noContracts": "Aucune entente créée pour le moment",
+    "contractsCount": "{{count}} entente(s) créée(s)"
   },
   "internship": {
     "title": "Titre du stage",
@@ -430,6 +435,21 @@
       "supervisorPhoneRequired": "Le téléphone du superviseur est requis",
       "supervisorPhoneInvalid": "Le numéro de téléphone est invalide",
       "createFailed": "Erreur lors de la création du contrat"
-    }
+    },
+    "contractTitle": "Entente #{{id}}",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "period": "Période",
+    "hoursPerWeek": "heures/semaine",
+    "supervisor": "Superviseur de stage",
+    "signatures": "Signatures",
+    "internshipManager": "Gestionnaire de stages",
+    "signed": "Signé",
+    "notSigned": "Non signé",
+    "pendingSignatures": "En attente de signatures",
+    "fullySigned": "Entièrement signée",
+    "noContracts": "Aucune entente disponible",
+    "generalInformation": "Informations générales",
+    "viewContract": "Voir l'entente"
   }
 }

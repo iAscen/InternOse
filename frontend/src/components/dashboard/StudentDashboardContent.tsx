@@ -147,7 +147,10 @@ export default function StudentDashboardContent() {
           app.applicationStatus === 'PENDING_INTERVIEW' || app.applicationStatus === 'pending_interview'
         ).length;
         const approvedApplications = applications.filter(app => 
-          app.applicationStatus === 'ACCEPTED' || app.applicationStatus === 'accepted'
+          app.applicationStatus === 'ACCEPTED' || 
+          app.applicationStatus === 'accepted' ||
+          app.applicationStatus === 'ACCEPTED_BY_STUDENT' ||
+          app.applicationStatus === 'accepted_by_student'
         ).length;
         
         return {
@@ -378,10 +381,10 @@ export default function StudentDashboardContent() {
           isEmployer={false}
           loading={loading}
           offers={filteredOffers}
+          numbersOfApplications={[]}
           onOfferValidation={() => loadOffers()}
           onApplicationSuccess={handleApplicationSuccess}
           cvStatus={cvStatus}
-          appliedOffers={appliedOffers}
         />
                   </div>
               )}

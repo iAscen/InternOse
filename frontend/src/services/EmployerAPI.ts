@@ -6,7 +6,8 @@ import type {
   Cv,
   CreateInterviewInvitationRequest,
   InterviewInvitation,
-  UnseenApplicationsCount
+  UnseenApplicationsCount,
+  InternshipContract
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -427,6 +428,58 @@ class EmployerAPI {
       return {
         success: false,
         error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  // Récupérer l'entente de stage pour une offre et un étudiant spécifiques
+  async getInternshipContract(offerId: number, studentId: number): Promise<ApiResponse<InternshipContract>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      const employerId = await userAPI.getEmployerIdFromJWT();
+      if (!employerId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'employeur'
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.EMPLOYER.CONTRACT, { studentID: String(studentId) });
+      url += `?employerID=${employerId}&internshipOfferID=${offerId}`;
+      console.log('🔍 Fetching contract from:', url);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const contract = await response.json();
+        return {
+          success: true,
+          data: contract
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la récupération du contrat'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
       };
     }
   }

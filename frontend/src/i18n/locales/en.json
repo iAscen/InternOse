@@ -198,8 +198,13 @@
     "fileType": "File Type",
     "uploadedAt": "Uploaded On",
     "currentStatus": "Current Status",
-    "pendingContract": "Pending contract",
-    "contract": "Internship contract"
+    "pendingContract": "Pending signatures",
+    "contract": "Internship contract",
+    "internshipContractsSection": "Internship Contracts",
+    "viewContracts": "View Contracts",
+    "viewContract": "View Contract",
+    "noContracts": "No contracts created yet",
+    "contractsCount": "{{count}} contract(s) created"
   },
   "internship": {
     "title": "Internship Title",
@@ -429,6 +434,21 @@
       "supervisorPhoneRequired": "Supervisor phone is required",
       "supervisorPhoneInvalid": "Phone number is invalid",
       "createFailed": "Error creating contract"
-    }
+    },
+    "contractTitle": "Contract #{{id}}",
+    "student": "Student",
+    "employer": "Employer",
+    "period": "Period",
+    "hoursPerWeek": "hours/week",
+    "supervisor": "Supervisor",
+    "signatures": "Signatures",
+    "internshipManager": "Internship Manager",
+    "signed": "Signed",
+    "notSigned": "Not signed",
+    "pendingSignatures": "Pending signatures",
+    "fullySigned": "Fully signed",
+    "noContracts": "No contracts available",
+    "generalInformation": "General Information",
+    "viewContract": "View Contract"
   }
 }

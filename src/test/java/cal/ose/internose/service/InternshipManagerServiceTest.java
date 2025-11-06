@@ -460,6 +460,10 @@ class InternshipManagerServiceTest {
         assertEquals(student, savedContract.getStudent());
         assertNotNull(savedContract.getInternshipOffer());
         assertEquals("Software Dev", savedContract.getInternshipOffer().getTitle());
+        
+        // Vérifier que le statut de l'application passe à PENDING_CONTRACT
+        verify(studentApplicationDAO).save(any(StudentApplication.class));
+        assertEquals(StudentApplication.ApplicationStatus.PENDING_CONTRACT, application.getApplicationStatus());
     }
 
     @Test

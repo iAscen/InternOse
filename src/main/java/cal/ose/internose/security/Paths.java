@@ -21,6 +21,8 @@ public class Paths {
     public static final String EMPLOYER_INTERVIEWS_PATH = EMPLOYER_BASE_PATH + "/interviews";
     public static final String EMPLOYER_APPLICATIONS_COUNT_UNSEEN_PATH = EMPLOYER_BASE_PATH + "/{offerID}/applications/count-unseen";
     public static final String EMPLOYER_APPLICATIONS_MAKE_SEEN =  EMPLOYER_BASE_PATH + "/{offerID}/applications/make-seen";
+    public static final String EMPLOYER_CONTRACT_PATH =
+        EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH + "/contract";
 
     // Étudiant
     public static final String STUDENT_BASE_PATH = API_BASE_PATH + "/student";
@@ -34,6 +36,8 @@ public class Paths {
     public static final String STUDENT_APPLICATIONS_PATH = STUDENT_BASE_PATH + "/applications";
     public static final String STUDENT_RESPOND_TO_OFFER_PATH =
         STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/respond";
+    public static final String STUDENT_CONTRACT_PATH =
+        STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/contract";
 
     // Gestionnaire de stages
     public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";
@@ -46,6 +50,4 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH = INTERNSHIP_MANAGER_RESUME_PATH + "/download";
     public static final String INTERNSHIP_MANAGER_VERIFY_RESUME_PATH = INTERNSHIP_MANAGER_RESUME_PATH + "/verify";
     public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/contracts";
-    // TODO Décider de garder ou enlever
-//    public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_DOWNLOAD_PATH = INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH + "/download";
 }

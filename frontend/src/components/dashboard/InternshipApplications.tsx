@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import type { Cv, InternshipOffer, CreateInterviewInvitationRequest } from "~/interfaces";
+import type { Cv, InternshipOffer, CreateInterviewInvitationRequest, InternshipContract } from "~/interfaces";
 import { employerAPI } from "~/services/EmployerAPI";
 import ApplicationValidationModal from "./ApplicationValidationModal";
 import InterviewInvitationModal from "./InterviewInvitationModal";
@@ -10,6 +10,7 @@ import FilterMenuCvs from "./FilterMenuCvs";
 import SortMenuApplications from "./SortMenuApplications";
 import { useClickOutside } from "~/hooks/useClickOutside";
 import InternshipContractModal from "~/components/dashboard/InternshipContractModal";
+import InternshipContractDetailsModal from "~/components/dashboard/InternshipContractDetailsModal";
 import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
 
 
@@ -19,6 +20,7 @@ interface InternshipCandidatesProps {
     internship: InternshipOffer
 	countNumberOfUnseenApplications?: (offers: InternshipOffer[]) => Promise<void>
 	offers?: InternshipOffer[]
+	onContractCreated?: () => void
 }
 
 export default function InternshipApplications({
@@ -26,7 +28,8 @@ export default function InternshipApplications({
  setSelectedOffer,
  internship,
  countNumberOfUnseenApplications,
- offers
+ offers,
+ onContractCreated
 }: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -38,6 +41,8 @@ export default function InternshipApplications({
   const [studentForContract, setStudentForContract] = useState<Cv | null>(null);
 	const [studentToInvite, setStudentToInvite] = useState<Cv | null>(null);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
+	const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
+	const [loadingContract, setLoadingContract] = useState(false);
 	const {t} = useTranslation()
 	const cleanupRuns = useRef(0)
 
@@ -153,20 +158,52 @@ export default function InternshipApplications({
     setSuccessMessage(null);
   }
 
+  const handleViewContract = async (application: Cv) => {
+    if (!internship.id || !application.id) return;
+    
+    setLoadingContract(true);
+    try {
+      const response = await employerAPI.getInternshipContract(internship.id, application.id);
+      if (response.success && response.data) {
+        setSelectedContract(response.data);
+      } else {
+        setErrorMessage(response.error || t('internshipContract.errors.loadError'));
+        setTimeout(() => setErrorMessage(null), 3000);
+      }
+    } catch (error) {
+      setErrorMessage(t('internshipContract.errors.loadError'));
+      setTimeout(() => setErrorMessage(null), 3000);
+    } finally {
+      setLoadingContract(false);
+    }
+  }
+
   const handleContractSubmit = async (contractData: any) => {
     try {
       console.log('Contract data:', contractData);
-      await internshipManagerAPI.createInternshipContract(contractData)
+      const response = await internshipManagerAPI.createInternshipContract(contractData);
+      
+      if (response.success) {
+        setSuccessMessage(t('internshipContract.createSuccess'));
+        setShowContractModal(false);
+        setStudentForContract(null);
 
-      setSuccessMessage(t('internshipContract.createSuccess'));
-      setShowContractModal(false);
-      setStudentForContract(null);
+        await fetchStudentApplications(null, null, null, null);
 
-      await fetchStudentApplications(null, null, null, null);
+        // Notifier le parent pour recharger les contrats
+        if (onContractCreated) {
+          onContractCreated();
+        }
 
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 5000);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
+      } else {
+        setErrorMessage(response.error || t('internshipContract.errors.createFailed'));
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      }
     } catch (error) {
       console.error('Error creating contract:', error);
       setErrorMessage(t('internshipContract.errors.createFailed'));
@@ -270,30 +307,47 @@ export default function InternshipApplications({
 
 					<div className="mt-1">
 						{applications.map((application, index) => {
-							return <div key={application.id || index} onClick={() => setSelectedApplication(application)} className="bg-white shadow-lg relative rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 hover:bg-gray-100 cursor-pointer">
+							// Pour le gestionnaire de stage, on ne permet pas de cliquer sur les candidatures pour les valider
+							// Le gestionnaire peut seulement créer des contrats via le bouton dédié
+							const canClick = !isInternshipManager;
+							return <div key={application.id || index} onClick={canClick ? () => setSelectedApplication(application) : undefined} className={`bg-white shadow-lg relative rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 ${canClick ? 'hover:bg-gray-100 cursor-pointer' : ''}`}>
 								{application.seenStatus && application.seenStatus === "UNSEEN" && <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-500 rounded-full" />}
 								<div className="flex">
 									<div className="text-lg font-medium text-gray-900 mb-3">
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										{(application.applicationStatus === 'PENDING' && !isInternshipManager) ? (
+										{/* Bouton pour inviter à l'entrevue (Employeur seulement) */}
+										{application.applicationStatus === 'PENDING' && !isInternshipManager && (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
 											>
 												{t('dashboard.internshipApplications.inviteToInterview')}
 											</button>
-										) : (application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager) && (
+										)}
+										{/* Bouton pour créer une entente de stage (Gestionnaire seulement) */}
+										{application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager && (
                       <button
                         onClick={(e) => handleContract(application, e)}
                         className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                        {t('dashboard.internshipApplications.createInternshipContract')}
                       </button>
-                    )
-
-                    }
+                    )}
+										{/* Bouton pour voir l'entente de stage (Employeur seulement, quand PENDING_CONTRACT) */}
+										{application.applicationStatus === 'PENDING_CONTRACT' && !isInternshipManager && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewContract(application);
+                        }}
+                        disabled={loadingContract}
+                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                       {loadingContract ? t('common.loading') : t('im.viewContract')}
+                      </button>
+                    )}
 										<span>
                       {getStatusBadge(application)}
 										</span>
@@ -351,6 +405,14 @@ export default function InternshipApplications({
         }}
       />
 
+    )}
+
+    {/* Modal pour voir les détails de l'entente */}
+    {selectedContract && (
+      <InternshipContractDetailsModal
+        contract={selectedContract}
+        onClose={() => setSelectedContract(null)}
+      />
     )}
 
 		</>

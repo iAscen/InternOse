@@ -24,13 +24,16 @@ public class InternshipContractDTO {
     private String supervisorTitle;
     private String supervisorEmail;
     private String supervisorPhone;
-    // TODO Décider de garder ou enlever
-//    private String internshipAgreementFileName;
-//    private String internshipAgreementFileType;
-//    private byte[] internshipAgreementFileData;
     private Boolean isSignedStudent;
     private Boolean isSignedEmployer;
     private Boolean isSignedInternshipManager;
+    private Long studentId;
+    private String studentFirstName;
+    private String studentLastName;
+    private Long employerId;
+    private String employerCompany;
+    private Long internshipOfferId;
+    private String internshipOfferTitle;
 
     public static InternshipContractDTO fromEntity(InternshipContract internshipContract) {
         return InternshipContractDTO.builder()
@@ -44,9 +47,6 @@ public class InternshipContractDTO {
             .supervisorTitle(internshipContract.getSupervisorTitle())
             .supervisorEmail(internshipContract.getSupervisorEmail())
             .supervisorPhone(internshipContract.getSupervisorPhone())
-//            .internshipAgreementFileName(internshipContract.getInternshipAgreementFileName())
-//            .internshipAgreementFileType(internshipContract.getInternshipAgreementFileType())
-//            .internshipAgreementFileData(internshipContract.getInternshipAgreementFileData())
             .build();
     }
 }
