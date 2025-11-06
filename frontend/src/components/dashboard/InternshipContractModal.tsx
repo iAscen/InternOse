@@ -217,8 +217,6 @@ export default function InternshipContractModal({
           </div>
           <button
             onClick={() => {
-              // setShowContractModal(false);
-              // setStudentForContract(null);
               if (onCancel) {
                 onCancel()
               }
@@ -239,6 +237,7 @@ export default function InternshipContractModal({
               </h2>
               <p className="text-gray-600">
                 Veuillez remplir tous les champs pour créer le contrat de stage
+              {/*  todo i18n*/}
               </p>
             </div>
 
@@ -263,10 +262,10 @@ export default function InternshipContractModal({
                     </label>
                     <input
                       type="date"
-                      value={formData.startDate}
+                      value={formData.startDate || internshipOffer.startDate}
                       onChange={(e) => handleInputChange('startDate', e.target.value)}
                       min="2025-01-01"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.startDate ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -287,10 +286,10 @@ export default function InternshipContractModal({
                     </label>
                     <input
                       type="date"
-                      value={formData.endDate}
+                      value={formData.endDate || internshipOffer.endDate}
                       onChange={(e) => handleInputChange('endDate', e.target.value)}
                       min={formData.startDate || "2025-01-01"}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.endDate ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -316,7 +315,7 @@ export default function InternshipContractModal({
                       min="1"
                       max="168"
                       placeholder="40"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.weeklyHours ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -342,7 +341,7 @@ export default function InternshipContractModal({
                   onChange={(e) => handleInputChange('tasks', e.target.value)}
                   placeholder="Décrivez les tâches et responsabilités du stagiaire..."
                   rows={5}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
+                  className={`text-black w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
                     errors.tasks ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
@@ -373,7 +372,7 @@ export default function InternshipContractModal({
                   onChange={(e) => handleInputChange('educationalObjectives', e.target.value)}
                   placeholder="Décrivez les objectifs d'apprentissage et compétences à développer..."
                   rows={5}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
+                  className={`text-black w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
                     errors.educationalObjectives ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
@@ -408,7 +407,7 @@ export default function InternshipContractModal({
                       value={formData.supervisorName}
                       onChange={(e) => handleInputChange('supervisorName', e.target.value)}
                       placeholder="Jean Tremblay"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorName ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -431,7 +430,7 @@ export default function InternshipContractModal({
                       value={formData.supervisorTitle}
                       onChange={(e) => handleInputChange('supervisorTitle', e.target.value)}
                       placeholder="Ingénieur principal"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorTitle ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -454,7 +453,7 @@ export default function InternshipContractModal({
                       value={formData.supervisorEmail}
                       onChange={(e) => handleInputChange('supervisorEmail', e.target.value)}
                       placeholder="jean.tremblay@example.com"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorEmail ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
@@ -477,7 +476,7 @@ export default function InternshipContractModal({
                       value={formData.supervisorPhone}
                       onChange={(e) => handleInputChange('supervisorPhone', e.target.value)}
                       placeholder="514-555-0123"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                      className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorPhone ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
