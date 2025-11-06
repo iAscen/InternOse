@@ -197,7 +197,9 @@
     "fileName": "File Name",
     "fileType": "File Type",
     "uploadedAt": "Uploaded On",
-    "currentStatus": "Current Status"
+    "currentStatus": "Current Status",
+    "pendingContract": "Pending contract",
+    "agreement": "Internship agreement"
   },
   "internship": {
     "title": "Internship Title",
@@ -282,7 +284,9 @@
       "validationSuccess": "Application updated successfully!",
       "validationError": "Error validating application",
       "missingIds": "Error: Missing IDs",
-      "serverError": "Server connection error"
+      "serverError": "Server connection error",
+      "createInternshipAgreement": "Create internship agreement",
+      "noCandidaturesAcceptedFound": "No accepted applications yet"
     }
   },
   "errors": {
@@ -380,6 +384,51 @@
       "locationRequired": "Interview location is required",
       "meetingLinkRequired": "Meeting link is required",
       "sendFailed": "Error sending invitation. Please try again."
+    }
+  },
+  "internshipContract": {
+    "title": "Internship Contract",
+    "subtitle": "Student: {{studentName}} | Offer: {{offerTitle}}",
+    "description": "Please fill in all fields to create the internship contract",
+    "internshipPeriod": "Internship Period",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "weeklyHours": "Weekly Hours",
+    "weeklyHoursPlaceholder": "40",
+    "tasks": "Internship Tasks",
+    "tasksPlaceholder": "Describe the intern's tasks and responsibilities...",
+    "educationalObjectives": "Educational Objectives",
+    "educationalObjectivesPlaceholder": "Describe the learning objectives and skills to develop...",
+    "supervisorInfo": "Supervisor Information",
+    "supervisorName": "Full Name",
+    "supervisorNamePlaceholder": "John Doe",
+    "supervisorTitle": "Title/Position",
+    "supervisorTitlePlaceholder": "Senior Engineer",
+    "supervisorEmail": "Email",
+    "supervisorEmailPlaceholder": "john.doe@example.com",
+    "supervisorPhone": "Phone",
+    "supervisorPhonePlaceholder": "514-555-0123",
+    "createContract": "Create Contract",
+    "creating": "Creating...",
+    "createSuccess": "Internship contract created successfully",
+    "errors": {
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "endDateAfterStart": "End date must be after start date",
+      "weeklyHoursRequired": "Weekly hours are required",
+      "weeklyHoursPositive": "Weekly hours must be greater than 0",
+      "weeklyHoursMax": "Weekly hours cannot exceed 168",
+      "tasksRequired": "Tasks are required",
+      "tasksMaxLength": "Tasks cannot exceed 1000 characters",
+      "educationalObjectivesRequired": "Educational objectives are required",
+      "educationalObjectivesMaxLength": "Educational objectives cannot exceed 1000 characters",
+      "supervisorNameRequired": "Supervisor name is required",
+      "supervisorTitleRequired": "Supervisor title is required",
+      "supervisorEmailRequired": "Supervisor email is required",
+      "supervisorEmailInvalid": "Email is invalid",
+      "supervisorPhoneRequired": "Supervisor phone is required",
+      "supervisorPhoneInvalid": "Phone number is invalid",
+      "createFailed": "Error creating contract"
     }
   }
 }

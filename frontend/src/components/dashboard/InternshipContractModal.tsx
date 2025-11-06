@@ -56,55 +56,55 @@ export default function InternshipContractModal({
     const newErrors: Record<string, string> = {};
 
     if (!formData.startDate) {
-      newErrors.startDate = 'La date de début est requise';
+      newErrors.startDate = t('internshipContract.errors.startDateRequired');
     }
 
     if (!formData.endDate) {
-      newErrors.endDate = 'La date de fin est requise';
+      newErrors.endDate = t('internshipContract.errors.endDateRequired');
     }
 
     if (formData.startDate && formData.endDate && formData.startDate >= formData.endDate) {
-      newErrors.endDate = 'La date de fin doit être après la date de début';
+      newErrors.endDate = t('internshipContract.errors.endDateAfterStart');
     }
 
     if (!formData.weeklyHours) {
-      newErrors.weeklyHours = 'Les heures hebdomadaires sont requises';
+      newErrors.weeklyHours = t('internshipContract.errors.weeklyHoursRequired');
     } else if (parseInt(formData.weeklyHours) <= 0) {
-      newErrors.weeklyHours = 'Les heures hebdomadaires doivent être supérieures à 0';
+      newErrors.weeklyHours = t('internshipContract.errors.weeklyHoursPositive');
     } else if (parseInt(formData.weeklyHours) > 168) {
-      newErrors.weeklyHours = 'Les heures hebdomadaires ne peuvent pas dépasser 168';
+      newErrors.weeklyHours = t('internshipContract.errors.weeklyHoursMax');
     }
 
     if (!formData.tasks.trim()) {
-      newErrors.tasks = 'Les tâches sont requises';
+      newErrors.tasks = t('internshipContract.errors.tasksRequired');
     } else if (formData.tasks.length > 1000) {
-      newErrors.tasks = 'Les tâches ne peuvent pas dépasser 1000 caractères';
+      newErrors.tasks = t('internshipContract.errors.tasksMaxLength');
     }
 
     if (!formData.educationalObjectives.trim()) {
-      newErrors.educationalObjectives = 'Les objectifs éducatifs sont requis';
+      newErrors.educationalObjectives = t('internshipContract.errors.educationalObjectivesRequired');
     } else if (formData.educationalObjectives.length > 1000) {
-      newErrors.educationalObjectives = 'Les objectifs éducatifs ne peuvent pas dépasser 1000 caractères';
+      newErrors.educationalObjectives = t('internshipContract.errors.educationalObjectivesMaxLength');
     }
 
     if (!formData.supervisorName.trim()) {
-      newErrors.supervisorName = 'Le nom du superviseur est requis';
+      newErrors.supervisorName = t('internshipContract.errors.supervisorNameRequired');
     }
 
     if (!formData.supervisorTitle.trim()) {
-      newErrors.supervisorTitle = 'Le titre du superviseur est requis';
+      newErrors.supervisorTitle = t('internshipContract.errors.supervisorTitleRequired');
     }
 
     if (!formData.supervisorEmail.trim()) {
-      newErrors.supervisorEmail = "L'email du superviseur est requis";
+      newErrors.supervisorEmail = t('internshipContract.errors.supervisorEmailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.supervisorEmail)) {
-      newErrors.supervisorEmail = "L'email est invalide";
+      newErrors.supervisorEmail = t('internshipContract.errors.supervisorEmailInvalid');
     }
 
     if (!formData.supervisorPhone.trim()) {
-      newErrors.supervisorPhone = 'Le téléphone du superviseur est requis';
+      newErrors.supervisorPhone = t('internshipContract.errors.supervisorPhoneRequired');
     } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.supervisorPhone)) {
-      newErrors.supervisorPhone = 'Le numéro de téléphone est invalide';
+      newErrors.supervisorPhone = t('internshipContract.errors.supervisorPhoneInvalid');
     }
 
     setErrors(newErrors);
@@ -210,9 +210,12 @@ export default function InternshipContractModal({
 
         <div className="sticky top-0 bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Contrat de Stage</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('internshipContract.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Étudiant: {student.firstName} {student.lastName} | Offre: {internshipOffer.title}
+              {t('internshipContract.subtitle', {
+                studentName: `${student.firstName} ${student.lastName}`,
+                offerTitle: internshipOffer.title
+              })}
             </p>
           </div>
           <button
@@ -233,11 +236,10 @@ export default function InternshipContractModal({
           <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Contrat de Stage
+                {t('internshipContract.title')}
               </h2>
               <p className="text-gray-600">
-                Veuillez remplir tous les champs pour créer le contrat de stage
-              {/*  todo i18n*/}
+                {t('internshipContract.description')}
               </p>
             </div>
 
@@ -252,13 +254,13 @@ export default function InternshipContractModal({
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="bg-gray-50 p-5 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Période du stage</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipContract.internshipPeriod')}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* date debut */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date de début <span className="text-red-500">*</span>
+                      {t('internshipContract.startDate')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -282,7 +284,7 @@ export default function InternshipContractModal({
                   {/* date fin */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date de fin <span className="text-red-500">*</span>
+                      {t('internshipContract.endDate')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -306,7 +308,7 @@ export default function InternshipContractModal({
                   {/* heures hebdomadaires */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Heures hebdomadaires <span className="text-red-500">*</span>
+                      {t('internshipContract.weeklyHours')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -314,7 +316,7 @@ export default function InternshipContractModal({
                       onChange={(e) => handleInputChange('weeklyHours', e.target.value)}
                       min="1"
                       max="168"
-                      placeholder="40"
+                      placeholder={t('internshipContract.weeklyHoursPlaceholder')}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.weeklyHours ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
@@ -334,12 +336,12 @@ export default function InternshipContractModal({
               {/* section taches */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tâches du stage <span className="text-red-500">*</span>
+                  {t('internshipContract.tasks')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={formData.tasks}
                   onChange={(e) => handleInputChange('tasks', e.target.value)}
-                  placeholder="Décrivez les tâches et responsabilités du stagiaire..."
+                  placeholder={t('internshipContract.tasksPlaceholder')}
                   rows={5}
                   className={`text-black w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
                     errors.tasks ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
@@ -365,12 +367,12 @@ export default function InternshipContractModal({
               {/* section objectifs */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Objectifs éducatifs <span className="text-red-500">*</span>
+                  {t('internshipContract.educationalObjectives')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={formData.educationalObjectives}
                   onChange={(e) => handleInputChange('educationalObjectives', e.target.value)}
-                  placeholder="Décrivez les objectifs d'apprentissage et compétences à développer..."
+                  placeholder={t('internshipContract.educationalObjectivesPlaceholder')}
                   rows={5}
                   className={`text-black w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${
                     errors.educationalObjectives ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
@@ -395,18 +397,18 @@ export default function InternshipContractModal({
 
               {/* section superviseur */}
               <div className="bg-gray-50 p-5 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du superviseur</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipContract.supervisorInfo')}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom complet <span className="text-red-500">*</span>
+                      {t('internshipContract.supervisorName')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={formData.supervisorName}
                       onChange={(e) => handleInputChange('supervisorName', e.target.value)}
-                      placeholder="Jean Tremblay"
+                      placeholder={t('internshipContract.supervisorNamePlaceholder')}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorName ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
@@ -423,13 +425,13 @@ export default function InternshipContractModal({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Titre/Poste <span className="text-red-500">*</span>
+                      {t('internshipContract.supervisorTitle')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={formData.supervisorTitle}
                       onChange={(e) => handleInputChange('supervisorTitle', e.target.value)}
-                      placeholder="Ingénieur principal"
+                      placeholder={t('internshipContract.supervisorTitlePlaceholder')}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorTitle ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
@@ -446,13 +448,13 @@ export default function InternshipContractModal({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email <span className="text-red-500">*</span>
+                      {t('internshipContract.supervisorEmail')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
                       value={formData.supervisorEmail}
                       onChange={(e) => handleInputChange('supervisorEmail', e.target.value)}
-                      placeholder="jean.tremblay@example.com"
+                      placeholder={t('internshipContract.supervisorEmailPlaceholder')}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorEmail ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
@@ -469,13 +471,13 @@ export default function InternshipContractModal({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Téléphone <span className="text-red-500">*</span>
+                      {t('internshipContract.supervisorPhone')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
                       value={formData.supervisorPhone}
                       onChange={(e) => handleInputChange('supervisorPhone', e.target.value)}
-                      placeholder="514-555-0123"
+                      placeholder={t('internshipContract.supervisorPhonePlaceholder')}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.supervisorPhone ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
@@ -499,7 +501,7 @@ export default function InternshipContractModal({
                   disabled={isSubmitting}
                   className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Annuler
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -512,14 +514,14 @@ export default function InternshipContractModal({
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Création en cours...
+                      {t('internshipContract.creating')}
                     </>
                   ) : (
                     <>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      Créer le contrat
+                      {t('internshipContract.createContract')}
                     </>
                   )}
                 </button>
@@ -535,4 +537,3 @@ export default function InternshipContractModal({
 
   );
 }
-

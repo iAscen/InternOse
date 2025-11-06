@@ -197,7 +197,9 @@
     "fileName": "Nom du fichier",
     "fileType": "Type de fichier",
     "uploadedAt": "Téléversé le",
-    "currentStatus": "Statut actuel"
+    "currentStatus": "Statut actuel",
+    "pendingContract": "En attente de contrat",
+    "agreement": "Entente de stage"
   },
   "internship": {
     "title": "Titre du stage",
@@ -279,6 +281,9 @@
       "rejectionCommentPlaceholder": "Expliquez pourquoi cette candidature est refusée (optionnel)",
       "alreadyProcessed": "Cette candidature a déjà été traitée.",
       "alreadyProcessedMessage": "Cette candidature a déjà été traitée et ne peut pas être modifiée.",
+      "dateUnavailable": "Date non disponible",
+      "createInternshipAgreement": "Créer entente de stage",
+      "noCandidaturesAcceptedFound": "Aucune candidature acceptée pour le moment",
       "validationSuccess": "Candidature mise à jour avec succès !",
       "validationError": "Erreur lors de la validation de la candidature",
       "missingIds": "Erreur : IDs manquants",
@@ -380,6 +385,51 @@
       "locationRequired": "Le lieu de l'entrevue est requis",
       "meetingLinkRequired": "Le lien de réunion est requis",
       "sendFailed": "Erreur lors de l'envoi de la convocation. Veuillez réessayer."
+    }
+  },
+  "internshipContract": {
+    "title": "Contrat de Stage",
+    "subtitle": "Étudiant: {{studentName}} | Offre: {{offerTitle}}",
+    "description": "Veuillez remplir tous les champs pour créer le contrat de stage",
+    "internshipPeriod": "Période du stage",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "weeklyHours": "Heures hebdomadaires",
+    "weeklyHoursPlaceholder": "40",
+    "tasks": "Tâches du stage",
+    "tasksPlaceholder": "Décrivez les tâches et responsabilités du stagiaire...",
+    "educationalObjectives": "Objectifs éducatifs",
+    "educationalObjectivesPlaceholder": "Décrivez les objectifs d'apprentissage et compétences à développer...",
+    "supervisorInfo": "Informations du superviseur",
+    "supervisorName": "Nom complet",
+    "supervisorNamePlaceholder": "Jean Tremblay",
+    "supervisorTitle": "Titre/Poste",
+    "supervisorTitlePlaceholder": "Ingénieur principal",
+    "supervisorEmail": "Email",
+    "supervisorEmailPlaceholder": "jean.tremblay@example.com",
+    "supervisorPhone": "Téléphone",
+    "supervisorPhonePlaceholder": "514-555-0123",
+    "createContract": "Créer le contrat",
+    "creating": "Création en cours...",
+    "createSuccess": "Contrat de stage créé avec succès",
+    "errors": {
+      "startDateRequired": "La date de début est requise",
+      "endDateRequired": "La date de fin est requise",
+      "endDateAfterStart": "La date de fin doit être après la date de début",
+      "weeklyHoursRequired": "Les heures hebdomadaires sont requises",
+      "weeklyHoursPositive": "Les heures hebdomadaires doivent être supérieures à 0",
+      "weeklyHoursMax": "Les heures hebdomadaires ne peuvent pas dépasser 168",
+      "tasksRequired": "Les tâches sont requises",
+      "tasksMaxLength": "Les tâches ne peuvent pas dépasser 1000 caractères",
+      "educationalObjectivesRequired": "Les objectifs éducatifs sont requis",
+      "educationalObjectivesMaxLength": "Les objectifs éducatifs ne peuvent pas dépasser 1000 caractères",
+      "supervisorNameRequired": "Le nom du superviseur est requis",
+      "supervisorTitleRequired": "Le titre du superviseur est requis",
+      "supervisorEmailRequired": "L'email du superviseur est requis",
+      "supervisorEmailInvalid": "L'email est invalide",
+      "supervisorPhoneRequired": "Le téléphone du superviseur est requis",
+      "supervisorPhoneInvalid": "Le numéro de téléphone est invalide",
+      "createFailed": "Erreur lors de la création du contrat"
     }
   }
 }

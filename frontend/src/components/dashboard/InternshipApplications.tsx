@@ -61,10 +61,7 @@ export default function InternshipApplications({
 	}
 
 	useEffect(() => {
-		if (isInternshipManager)
-      fetchStudentApplications('ACCEPTED_BY_STUDENT', null, null, null);
-    else
-      fetchStudentApplications(null, null, null, null);
+    fetchStudentApplications(null, null, null, null);
 
 		return () => {
 			if (cleanupRuns.current > 0) {
@@ -129,9 +126,7 @@ export default function InternshipApplications({
 	} else if (application.applicationStatus === 'PENDING_CONTRACT') {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full g-blue-100 text-blue-800">
-          {/*{t('im.acceptedByStudent')}*/}
-          {/*TODO i18n*/}
-          im.pendingContract
+          {t('im.pendingContract')}
         </span>
       );
   }
@@ -163,7 +158,7 @@ export default function InternshipApplications({
       console.log('Contract data:', contractData);
       await internshipManagerAPI.createInternshipContract(contractData)
 
-      setSuccessMessage('Contrat de stage créé avec succès');
+      setSuccessMessage(t('internshipContract.createSuccess'));
       setShowContractModal(false);
       setStudentForContract(null);
 
@@ -174,7 +169,7 @@ export default function InternshipApplications({
       }, 5000);
     } catch (error) {
       console.error('Error creating contract:', error);
-      setErrorMessage('Erreur lors de la création du contrat');
+      setErrorMessage(t('internshipContract.errors.createFailed'));
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -282,7 +277,7 @@ export default function InternshipApplications({
 										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
 									</div>
 									<div className="ml-auto flex items-center space-x-2">
-										{(application.applicationStatus === 'PENDING') ? (
+										{(application.applicationStatus === 'PENDING' && !isInternshipManager) ? (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -294,15 +289,12 @@ export default function InternshipApplications({
                         onClick={(e) => handleAgreement(application, e)}
                         className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                       {/* TODO i18n*/}
-                       internshipApplications.CreateEntenteStage
+                       {t('dashboard.internshipApplications.createInternshipAgreement')}
                       </button>
                     )
 
                     }
 										<span>
-                      {/*TODO remettre ceci quand terminé*/}
-											{/*{!isInternshipManager && getStatusBadge(application)}*/}
                       {getStatusBadge(application)}
 										</span>
 									</div>
@@ -312,8 +304,8 @@ export default function InternshipApplications({
 									<p className="text-sm text-gray-700 leading-relaxed">{(application.institution || t("dashboard.internshipApplications.notSpecified")) + " - " + (application.program || t("dashboard.internshipApplications.notSpecified"))}</p>
               					</div>
 								<div>
-									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>
-									<p className="text-sm text-gray-700 leading-relaxed">{application.applicationDate ? getDateWithoutTime(application.applicationDate) : 'Date non disponible'}</p>
+                      <h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>
+                      <p className="text-sm text-gray-700 leading-relaxed">{application.applicationDate ? getDateWithoutTime(application.applicationDate) : t('dashboard.internshipApplications.dateUnavailable')}</p>
               					</div>
 							</div>
 
@@ -323,17 +315,10 @@ export default function InternshipApplications({
 				</div>
 
         {applications.length === 0 && errorMessage == null && (
-          !isInternshipManager ? (
-            <div className="text-center text-gray-900 mt-2">
-              {t('dashboard.internshipApplications.noCandidaturesFound')}
-            </div>
-          ) : (
-            <div className="text-center text-gray-900 mt-2">
-              {/*TODO i18n*/}
-              {/*Aucune candidature acceptée pour le moment*/}
-              internshipApplications.noCandidaturesAcceptedFound
-            </div>
-          )
+          <div className="text-center text-gray-900 mt-2">
+            {t('dashboard.internshipApplications.noCandidaturesFound')}
+          </div>
+
         )}
 			</>
 		}

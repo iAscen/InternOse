@@ -333,7 +333,7 @@ export default function OfferList({
                                   }
                                 }}
                         >
-                          im.agreement {/*TODO i18n */}
+                          {t('im.agreement')}
                         </button>
                       )}
                       {isStudent && offer.verificationStatus === 'APPROVED' && (
@@ -361,7 +361,7 @@ export default function OfferList({
                                   ? 'Candidature acceptée'
                                   : offer.applicationStatus === 'ACCEPTED_BY_STUDENT'
                                       ? 'Offre de stage acceptée'
-                                      : offer.applicationStatus === 'REJECTED' || offer.applicationStatus === "REJECTED_BY_STUDENT"
+                                      : offer.applicationStatus === 'REJECTED' || offer.applicationStatus === 'REJECTED_BY_STUDENT'
                                         ? 'Candidature refusée'
                                         : 'Candidature envoyée'
                               }
