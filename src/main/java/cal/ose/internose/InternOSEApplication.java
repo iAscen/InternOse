@@ -185,7 +185,7 @@ public class InternOSEApplication {
                 employerService.reviewApplication(1L, 5L, true, "");
                 
                 // Réponse étudiant aux offres
-                studentService.respondToApprovedOffer(5L, 1L, false);
+                studentService.respondToApprovedOffer(5L, 1L, true);
                 studentService.respondToApprovedOffer(2L, 1L, true);
 
                 CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
