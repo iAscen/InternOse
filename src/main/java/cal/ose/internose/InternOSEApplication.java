@@ -176,13 +176,21 @@ public class InternOSEApplication {
                 studentService.applyToInternshipOffer(2L, 1L);
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
+                studentService.applyToInternshipOffer(4L, 5L);
                 studentService.applyToInternshipOffer(5L, 5L);
 
                 // Planifier quelques entrevues en avance
                 employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
-                    .interviewDate(LocalDateTime.of(2025, 12, 1, 14, 30))
+                    .interviewDate(LocalDateTime.of(2025, 12, 1, 15, 30))
                     .interviewMode(Interview.InterviewMode.ONLINE)
                     .location("https://zoom.us/meeting")
+                    .personalizedMessage("Nous sommes ravis de vous rencontrer")
+                    .build()
+                );
+                employerService.scheduleInterview(5L, 4L, InterviewDTO.builder()
+                    .interviewDate(LocalDateTime.of(2025, 12, 1, 13, 30))
+                    .interviewMode(Interview.InterviewMode.IN_PERSON)
+                    .location("129, rue Rideau")
                     .personalizedMessage("Nous sommes ravis de vous rencontrer")
                     .build()
                 );
@@ -196,6 +204,7 @@ public class InternOSEApplication {
 
                 // Accepter quelques candidatures en avance
                 employerService.reviewApplication(1L, 2L, true, "");
+                employerService.reviewApplication(5L, 4L, true, "");
                 employerService.reviewApplication(5L, 5L, true, "");
 
                 // Accepter quelques offres de stage en avance
