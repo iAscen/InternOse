@@ -126,7 +126,15 @@ export default function InternshipApplications({
           {t('im.acceptedByStudent')}
         </span>
       );
-	}
+	} else if (application.applicationStatus === 'PENDING_CONTRACT') {
+      return (
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full g-blue-100 text-blue-800">
+          {/*{t('im.acceptedByStudent')}*/}
+          {/*TODO i18n*/}
+          im.pendingContract
+        </span>
+      );
+  }
 	else {
       return (
         <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -153,18 +161,13 @@ export default function InternshipApplications({
   const handleContractSubmit = async (contractData: any) => {
     try {
       console.log('Contract data:', contractData);
-      internshipManagerAPI.createInternshipContract(contractData)
+      await internshipManagerAPI.createInternshipContract(contractData)
 
       setSuccessMessage('Contrat de stage créé avec succès');
       setShowContractModal(false);
       setStudentForContract(null);
 
-      // Rafraîchir la liste des candidatures
-      if (isInternshipManager) {
-        fetchStudentApplications('ACCEPTED_BY_STUDENT', null, null, null);
-      } else {
-        fetchStudentApplications(null, null, null, null);
-      }
+      await fetchStudentApplications(null, null, null, null);
 
       setTimeout(() => {
         setSuccessMessage(null);
@@ -215,7 +218,6 @@ export default function InternshipApplications({
 						<div className="flex px-6 py-4 border-b border-gray-200">
 							<h2 className="text-xl font-semibold text-gray-900">{(internship.title || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
               {/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
-              {!isInternshipManager && (
                 <div className="flex ml-auto items-center space-x-4 text-gray-900">
                   <div className="relative" ref={sortMenuRef}>
                     <SortButton onClick={() => {
@@ -246,7 +248,6 @@ export default function InternshipApplications({
                     }
                   </div>
                 </div>
-              )}
 
 						</div>
 					</div>

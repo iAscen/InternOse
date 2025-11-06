@@ -145,6 +145,8 @@ public class InternshipManagerService {
             .isSignedInternshipManager(false)
             .build();
 
+        studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_CONTRACT);
+
         // TODO Décider de garder ou enlever
 //        byte[] internshipAgreementPDF = PdfGenerator.generateAgreementPdf(internshipContract);
 //
@@ -152,6 +154,7 @@ public class InternshipManagerService {
 //            internshipAgreementPDF
 //        );
 
+        studentApplicationDAO.save(studentApplication);
         internshipContractDAO.save(internshipContract);
     }
 

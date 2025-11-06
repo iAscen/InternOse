@@ -41,6 +41,7 @@ public class StudentApplication {
         APPROVED,
         REJECTED,
         ACCEPTED_BY_STUDENT,
-        REJECTED_BY_STUDENT
+        REJECTED_BY_STUDENT,
+        PENDING_CONTRACT
     }
 }
