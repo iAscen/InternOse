@@ -1,4 +1,4 @@
-import {useEffect, useState, type Dispatch, type MouseEventHandler, type SetStateAction} from 'react';
+import {useEffect, useState, type Dispatch, type SetStateAction} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {InternshipOffer, UnseenApplicationsCount} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
@@ -150,11 +150,6 @@ export default function OfferList({
     setSelectedOfferToApply(null);
     setApplyError('');
   };
-
-  const testButton = (offer: InternshipOffer) => {
-    console.log('test')
-    console.log(offer)
-  }
 
   const getStatusBadge = (offer: InternshipOffer) => {
     if (isStudent) {

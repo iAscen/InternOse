@@ -103,7 +103,7 @@ export default function InternshipContractModal({
 
     if (!formData.supervisorPhone.trim()) {
       newErrors.supervisorPhone = t('internshipContract.errors.supervisorPhoneRequired');
-    } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.supervisorPhone)) {
+    } else if (!/^[\d\s\-+()]+$/.test(formData.supervisorPhone)) {
       newErrors.supervisorPhone = t('internshipContract.errors.supervisorPhoneInvalid');
     }
 
