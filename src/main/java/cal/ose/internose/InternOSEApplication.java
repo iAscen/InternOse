@@ -1,7 +1,6 @@
 package cal.ose.internose;
 
 import cal.ose.internose.modele.Interview;
-import cal.ose.internose.modele.VerificationStatus;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
@@ -148,7 +147,7 @@ public class InternOSEApplication {
                         .address("Kahnawake, Québec")
                         .build()
                 );
-                InternshipOfferDTO iodto = employerService.createInternshipOffer(
+                employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
                         .title("Architecte")
