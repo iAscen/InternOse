@@ -1,7 +1,6 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -12,11 +11,7 @@ import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentE
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
@@ -146,16 +141,16 @@ public class InternshipManagerController {
     }
 
     @PostMapping(Paths.INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH)
-    public ResponseEntity<String> createInternshipContract(@RequestBody CreateInternshipContractDTO createInternshipContractDTO) {
+    public ResponseEntity<String> createInternshipContract(@RequestBody InternshipContractDTO InternshipContractDTO) {
         try {
-            internshipManagerService.createInternshipContract(createInternshipContractDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
-            return getResponseEntity(HttpStatus.CONFLICT, e.getMessage());
+            internshipManagerService.createInternshipContract(InternshipContractDTO);
+            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(InternshipContractDTO));
         } catch (NoSuchElementException e) {
-            return getResponseEntity(HttpStatus.NOT_FOUND, e.getMessage());
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 

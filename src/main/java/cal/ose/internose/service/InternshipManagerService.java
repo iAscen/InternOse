@@ -1,19 +1,14 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.EmployerDAO;
-import cal.ose.internose.persistance.InternshipContractDAO;
-import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
-import cal.ose.internose.persistance.StudentDAO;
-import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
+import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
+import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
-import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -115,7 +110,7 @@ public class InternshipManagerService {
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
 
-    public void createInternshipContract(CreateInternshipContractDTO createInternshipContractDTO) {
+    public void createInternshipContract(InternshipContractDTO createInternshipContractDTO) {
         Student student = studentDAO.findById(createInternshipContractDTO.getStudentId()).orElseThrow();
         InternshipOffer internshipOffer = internshipOfferDAO.findById(createInternshipContractDTO.getInternshipOfferId()).orElseThrow();
 
@@ -291,5 +286,4 @@ public class InternshipManagerService {
             .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
             .build();
     }
-
 }

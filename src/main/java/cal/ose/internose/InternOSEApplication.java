@@ -199,7 +199,7 @@ public class InternOSEApplication {
                 studentService.respondToApprovedOffer(5L, 1L, true);
 
                 // Créer une entente de stage en avance
-                CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
+                InternshipContractDTO internshipContractDTO = InternshipContractDTO.builder()
                     .studentId(2L)
                     .internshipOfferId(1L)
                     .startDate(LocalDate.of(2026, 1, 15))
@@ -212,7 +212,7 @@ public class InternOSEApplication {
                     .supervisorEmail("jean.tremblay@entreprise.qc.ca")
                     .supervisorPhone("514-555-1234")
                     .build();
-                internshipManagerService.createInternshipContract(dto);
+                internshipManagerService.createInternshipContract(internshipContractDTO);
             }
         };
     }

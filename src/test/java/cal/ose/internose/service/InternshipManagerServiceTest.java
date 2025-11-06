@@ -5,7 +5,6 @@ import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
-import cal.ose.internose.service.DTOs.CreateInternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
@@ -276,7 +275,7 @@ class InternshipManagerServiceTest {
         try {
             internshipManagerService.verifyResume(studentId, true, null);
             assertThat(false).isTrue(); // Ne devrait pas arriver ici
-        }  catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             assertThat(e.getMessage()).isEqualTo("No value present");
         } catch (NoResumeUploadedException e) {
             assertThat(e.getMessage()).isEqualTo("Cet.te étudiant.e n'a pas encore téléversé.e son CV.");
@@ -370,11 +369,11 @@ class InternshipManagerServiceTest {
         InternshipOffer internshipOffer = new InternshipOffer();
         Student student = new Student();
 
-        CreateInternshipContractDTO createInternshipContractDTO =
-            CreateInternshipContractDTO.builder()
+        InternshipContractDTO createInternshipContractDTO =
+            InternshipContractDTO.builder()
                 .internshipOfferId(1L)
-                    .studentId(1L)
-                        .build();
+                .studentId(1L)
+                .build();
 
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
         when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
@@ -392,8 +391,8 @@ class InternshipManagerServiceTest {
         InternshipOffer internshipOffer = new InternshipOffer();
         Student student = new Student();
 
-        CreateInternshipContractDTO createInternshipContractDTO =
-            CreateInternshipContractDTO.builder()
+        InternshipContractDTO createInternshipContractDTO =
+            InternshipContractDTO.builder()
                 .internshipOfferId(1L)
                 .studentId(1L)
                 .build();
@@ -412,11 +411,11 @@ class InternshipManagerServiceTest {
     @DisplayName("Test de la methode createInternshipContract() - Execution normale")
     void testCreateInternshipContract_NormalExecution() {
         // Arrange
-        CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
+        InternshipContractDTO dto = InternshipContractDTO.builder()
             .studentId(1L)
             .internshipOfferId(1L)
-            .startDate(LocalDate.of(2026,1,15))
-            .endDate(LocalDate.of(2026,4,15))
+            .startDate(LocalDate.of(2026, 1, 15))
+            .endDate(LocalDate.of(2026, 4, 15))
             .weeklyHours(35)
             .tasks("Développement")
             .educationalObjectives("Appliquer les connaissances")
@@ -460,7 +459,7 @@ class InternshipManagerServiceTest {
         assertEquals(student, savedContract.getStudent());
         assertNotNull(savedContract.getInternshipOffer());
         assertEquals("Software Dev", savedContract.getInternshipOffer().getTitle());
-        
+
         // Vérifier que le statut de l'application passe à PENDING_CONTRACT
         verify(studentApplicationDAO).save(any(StudentApplication.class));
         assertEquals(StudentApplication.ApplicationStatus.PENDING_CONTRACT, application.getApplicationStatus());
@@ -570,7 +569,7 @@ class InternshipManagerServiceTest {
         when(internshipContractDAO.findById(contractId)).thenReturn(Optional.of(contract));
 
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, 
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
             () -> internshipManagerService.signContract(contractId));
         assertEquals("Ce contrat a déjà été signé par le gestionnaire de stages", exception.getMessage());
         verify(internshipContractDAO, times(1)).findById(contractId);
