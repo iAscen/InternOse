@@ -52,15 +52,10 @@ public class InternOSEApplication {
                         .lastName("A.")
                         .email("alice@gmail.com")
                         .password("Password123!")
-                        .program("420.B0")
+                        .program("420.B0 - Techniques de l'informatique")
                         .institution("AL")
                         .build()
                 );
-
-                // Téléverser et approuver un CV fictif
-                MultipartFile dummyResume = DummyMultipartFile.createDummyResume("utilities/DummyResume.pdf");
-                studentService.uploadResume(2L, dummyResume);
-                internshipManagerService.verifyResume(2L, true, "");
                 userService.registerInternshipManager(
                     InternshipManagerDTO.builder()
                         .firstName("Bob")
@@ -69,12 +64,18 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
+
+                // Téléverser et approuver un CV fictif
+                MultipartFile dummyResume = DummyMultipartFile.createDummyResume("utilities/DummyResume.pdf");
+                studentService.uploadResume(2L, dummyResume);
+                internshipManagerService.verifyResume(2L, true, "");
+
                 userService.registerStudent(
                     StudentDTO.builder()
-                        .firstName("Charles")
-                        .lastName("C.")
-                        .email("charles@gmail.com")
-                        .program("420.B0")
+                        .firstName("Amine")
+                        .lastName("A.")
+                        .email("amine@gmail.com")
+                        .program("420.B0 - Techniques de l'informatique")
                         .institution("AL")
                         .password("Password123!")
                         .build()
@@ -83,10 +84,10 @@ public class InternOSEApplication {
                 internshipManagerService.verifyResume(4L, true, "");
                 userService.registerStudent(
                     StudentDTO.builder()
-                        .firstName("Dan")
-                        .lastName("D.")
-                        .email("dan@gmail.com")
-                        .program("322.A1")
+                        .firstName("Walid")
+                        .lastName("W.")
+                        .email("walid@gmail.com")
+                        .program("410.A1 - Gestion des opérations et de la chaîne logistique")
                         .institution("VM")
                         .password("Password123!")
                         .build()
@@ -100,7 +101,7 @@ public class InternOSEApplication {
                     InternshipOfferDTO.builder()
                         .title("Développeur Kotlin")
                         .description("Développer des applications mobiles pour Android")
-                        .program("420.B0")
+                        .program("420.B0 - Techniques de l'informatique")
                         .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 2, 19))
                         .duration(8)
@@ -113,7 +114,7 @@ public class InternOSEApplication {
                     InternshipOfferDTO.builder()
                         .title("Développeur Swift")
                         .description("Développer des applications mobiles pour iOS")
-                        .program("420.B0")
+                        .program("420.B0 - Techniques de l'informatique")
                         .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 3, 1))
                         .duration(8)
@@ -126,7 +127,7 @@ public class InternOSEApplication {
                     InternshipOfferDTO.builder()
                         .title("Concepteur UI/UX")
                         .description("Concevoir des expériences utilisateur")
-                        .program("420.B0")
+                        .program("420.B0 - Techniques de l'informatique")
                         .requiredSkills("DEC en Technique de l'Informatique")
                         .startDate(LocalDate.of(2026, 1, 29))
                         .duration(8)
@@ -139,7 +140,7 @@ public class InternOSEApplication {
                     InternshipOfferDTO.builder()
                         .title("Ingénieur électrique")
                         .description("Construire et travailler sur des mécanismes électriques")
-                        .program("243.D0")
+                        .program("243.D0 - Technologie du génie électrique: automatisation et contrôle")
                         .requiredSkills("DEC en Technique du génie électrique: automatisation et contrôle")
                         .startDate(LocalDate.of(2026, 2, 26))
                         .duration(8)
@@ -152,7 +153,7 @@ public class InternOSEApplication {
                     InternshipOfferDTO.builder()
                         .title("Architecte")
                         .description("Planifier la construction des bâtiments")
-                        .program("221.A0")
+                        .program("221.A0 - Technologie de l'architecture")
                         .requiredSkills("DEC en Technologie de l'architecture")
                         .startDate(LocalDate.of(2027, 1, 27))
                         .duration(8)
@@ -161,15 +162,18 @@ public class InternOSEApplication {
                         .build()
                 );
 
+                // Approuver quelques offres de stage en avance
                 internshipManagerService.verifyInternshipOffer(1L, true, "");
                 internshipManagerService.verifyInternshipOffer(4L, true, "");
                 internshipManagerService.verifyInternshipOffer(5L, true, "");
 
+                // Ajouter quelques candidatures aux offres de stage en avance
                 studentService.applyToInternshipOffer(2L, 1L);
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
                 studentService.applyToInternshipOffer(5L, 5L);
 
+                // Planifier quelques entrevues en avance
                 employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
                     .interviewDate(LocalDateTime.of(2025, 12, 1, 14, 30))
                     .interviewMode(Interview.InterviewMode.ONLINE)
@@ -185,28 +189,29 @@ public class InternOSEApplication {
                     .build()
                 );
 
+                // Accepter quelques candidatures en avance
                 employerService.reviewApplication(1L, 2L, true, "");
                 employerService.reviewApplication(1L, 5L, true, "");
                 employerService.reviewApplication(5L, 5L, true, "");
 
-                // Réponse étudiant aux offres
+                // Accepter quelques offres de stage en avance
                 studentService.respondToApprovedOffer(2L, 1L, true);
                 studentService.respondToApprovedOffer(5L, 1L, true);
 
+                // Créer une entente de stage en avance
                 CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
                     .studentId(2L)
                     .internshipOfferId(1L)
                     .startDate(LocalDate.of(2026, 1, 15))
                     .endDate(LocalDate.of(2026, 4, 15))
                     .weeklyHours(35)
-                    .tasks("Développement d’applications web en Java et Angular.")
+                    .tasks("Développement des applications web avec Java et Angular.")
                     .educationalObjectives("Appliquer les connaissances acquises en programmation et apprendre le travail en équipe.")
                     .supervisorName("Jean Tremblay")
-                    .supervisorTitle("Chef d’équipe développement")
-                    .supervisorEmail("jean.tremblay@entreprise.ca")
+                    .supervisorTitle("Chef de l’équipe des programmeurs")
+                    .supervisorEmail("jean.tremblay@entreprise.qc.ca")
                     .supervisorPhone("514-555-1234")
                     .build();
-
                 internshipManagerService.createInternshipContract(dto);
             }
         };
