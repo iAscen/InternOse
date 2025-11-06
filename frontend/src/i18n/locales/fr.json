@@ -199,7 +199,7 @@
     "uploadedAt": "Téléversé le",
     "currentStatus": "Statut actuel",
     "pendingContract": "En attente de contrat",
-    "agreement": "Entente de stage"
+    "contract": "Entente de stage"
   },
   "internship": {
     "title": "Titre du stage",
@@ -282,7 +282,7 @@
       "alreadyProcessed": "Cette candidature a déjà été traitée.",
       "alreadyProcessedMessage": "Cette candidature a déjà été traitée et ne peut pas être modifiée.",
       "dateUnavailable": "Date non disponible",
-      "createInternshipAgreement": "Créer entente de stage",
+      "createInternshipContract": "Créer une entente de stage",
       "noCandidaturesAcceptedFound": "Aucune candidature acceptée pour le moment",
       "validationSuccess": "Candidature mise à jour avec succès !",
       "validationError": "Erreur lors de la validation de la candidature",

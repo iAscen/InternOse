@@ -333,7 +333,7 @@ export default function OfferList({
                                   }
                                 }}
                         >
-                          {t('im.agreement')}
+                          {t('im.contract')}
                         </button>
                       )}
                       {isStudent && offer.verificationStatus === 'APPROVED' && (

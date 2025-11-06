@@ -199,7 +199,7 @@
     "uploadedAt": "Uploaded On",
     "currentStatus": "Current Status",
     "pendingContract": "Pending contract",
-    "agreement": "Internship agreement"
+    "contract": "Internship contract"
   },
   "internship": {
     "title": "Internship Title",
@@ -285,7 +285,7 @@
       "validationError": "Error validating application",
       "missingIds": "Error: Missing IDs",
       "serverError": "Server connection error",
-      "createInternshipAgreement": "Create internship agreement",
+      "createInternshipContract": "Create internship contract",
       "noCandidaturesAcceptedFound": "No accepted applications yet"
     }
   },

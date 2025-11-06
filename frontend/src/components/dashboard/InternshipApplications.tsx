@@ -146,7 +146,7 @@ export default function InternshipApplications({
 		setSuccessMessage(null);
 	};
 
-  const handleAgreement = (application: Cv, e: React.MouseEvent) => {
+  const handleContract = (application: Cv, e: React.MouseEvent) => {
     e.stopPropagation();
     setStudentForContract(application);
     setShowContractModal(true);
@@ -286,10 +286,10 @@ export default function InternshipApplications({
 											</button>
 										) : (application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager) && (
                       <button
-                        onClick={(e) => handleAgreement(application, e)}
+                        onClick={(e) => handleContract(application, e)}
                         className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                       {t('dashboard.internshipApplications.createInternshipAgreement')}
+                       {t('dashboard.internshipApplications.createInternshipContract')}
                       </button>
                     )
 
