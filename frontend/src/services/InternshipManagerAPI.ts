@@ -484,8 +484,6 @@ class InternshipManagerAPI {
         };
       }
 
-      // TODO: Le backend devra implémenter cette route
-      // Pour l'instant, on prépare l'appel API qui sera connecté plus tard
       const response = await fetch(buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.CONTRACTS) + `/${contractId}/sign`, {
         method: 'POST',
         headers: {

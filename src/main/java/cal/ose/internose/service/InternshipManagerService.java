@@ -254,4 +254,42 @@ public class InternshipManagerService {
             .build();
     }
 
+    public InternshipContractDTO signContract(Long contractId) {
+        InternshipContract contract = internshipContractDAO.findById(contractId)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé"));
+        
+        // Vérifier que le contrat n'est pas déjà signé par le gestionnaire
+        if (contract.getIsSignedInternshipManager()) {
+            throw new IllegalStateException("Ce contrat a déjà été signé par le gestionnaire de stages");
+        }
+        
+        // Signer le contrat
+        contract.setIsSignedInternshipManager(true);
+        internshipContractDAO.save(contract);
+        
+        // Retourner le DTO mis à jour
+        return InternshipContractDTO.builder()
+            .id(contract.getId())
+            .tasks(contract.getTasks())
+            .supervisorEmail(contract.getSupervisorEmail())
+            .supervisorPhone(contract.getSupervisorPhone())
+            .supervisorName(contract.getSupervisorName())
+            .supervisorTitle(contract.getSupervisorTitle())
+            .weeklyHours(contract.getWeeklyHours())
+            .startDate(contract.getStartDate())
+            .endDate(contract.getEndDate())
+            .educationalObjectives(contract.getEducationalObjectives())
+            .isSignedStudent(contract.getIsSignedStudent())
+            .isSignedEmployer(contract.getIsSignedEmployer())
+            .isSignedInternshipManager(contract.getIsSignedInternshipManager())
+            .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
+            .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
+            .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
+            .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
+            .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
+            .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
+            .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
+            .build();
+    }
+
 }

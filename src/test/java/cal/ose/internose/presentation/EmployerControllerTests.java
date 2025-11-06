@@ -6,6 +6,7 @@ import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.security.Paths;
@@ -45,6 +46,9 @@ public class EmployerControllerTests {
 
         @MockitoBean
         private EmployerService employerService;
+
+        @MockitoBean
+        private InternshipManagerService internshipManagerService;
 
         @Test
         @DisplayName("Test de GET /api/employer/internship-offers")

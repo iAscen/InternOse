@@ -491,4 +491,89 @@ class InternshipManagerServiceTest {
         assertEquals(2, internshipContractDTOS.size());
         assertEquals(1L, internshipContractDTOS.getFirst().getId());
     }
+
+    @Test
+    @DisplayName("Test de la methode signContract() - Execution normale")
+    void testSignContract_NormalExecution() {
+        // Arrange
+        Long contractId = 1L;
+        InternshipContract contract = InternshipContract.builder()
+            .id(contractId)
+            .isSignedStudent(true)
+            .isSignedEmployer(true)
+            .isSignedInternshipManager(false) // Pas encore signé par le gestionnaire
+            .startDate(LocalDate.of(2026, 1, 15))
+            .endDate(LocalDate.of(2026, 4, 15))
+            .weeklyHours(35)
+            .tasks("Développement")
+            .educationalObjectives("Appliquer les connaissances")
+            .supervisorName("Jean Tremblay")
+            .supervisorTitle("Team Lead")
+            .supervisorEmail("jean@company.com")
+            .supervisorPhone("514-555-1234")
+            .build();
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Jean");
+        student.setLastName("Tremblay");
+        contract.setStudent(student);
+
+        InternshipOffer offer = new InternshipOffer();
+        offer.setId(1L);
+        offer.setTitle("Software Dev");
+        contract.setInternshipOffer(offer);
+
+        Employer employer = Employer.builder()
+            .id(1L)
+            .company("RD")
+            .build();
+        contract.setEmployer(employer);
+
+        when(internshipContractDAO.findById(contractId)).thenReturn(Optional.of(contract));
+        when(internshipContractDAO.save(any(InternshipContract.class))).thenReturn(contract);
+
+        // Act
+        InternshipContractDTO result = internshipManagerService.signContract(contractId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(contractId, result.getId());
+        assertTrue(result.getIsSignedInternshipManager());
+        verify(internshipContractDAO, times(1)).findById(contractId);
+        verify(internshipContractDAO, times(1)).save(contract);
+    }
+
+    @Test
+    @DisplayName("Test de la methode signContract() - Contrat non trouve")
+    void testSignContract_ContractNotFound() {
+        // Arrange
+        Long contractId = 999L;
+        when(internshipContractDAO.findById(contractId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> internshipManagerService.signContract(contractId));
+        verify(internshipContractDAO, times(1)).findById(contractId);
+        verify(internshipContractDAO, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test de la methode signContract() - Contrat deja signe")
+    void testSignContract_AlreadySigned() {
+        // Arrange
+        Long contractId = 1L;
+        InternshipContract contract = InternshipContract.builder()
+            .id(contractId)
+            .isSignedInternshipManager(true) // Déjà signé
+            .build();
+
+        when(internshipContractDAO.findById(contractId)).thenReturn(Optional.of(contract));
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, 
+            () -> internshipManagerService.signContract(contractId));
+        assertEquals("Ce contrat a déjà été signé par le gestionnaire de stages", exception.getMessage());
+        verify(internshipContractDAO, times(1)).findById(contractId);
+        verify(internshipContractDAO, never()).save(any());
+    }
 }

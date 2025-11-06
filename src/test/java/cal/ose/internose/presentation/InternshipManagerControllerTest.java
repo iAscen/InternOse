@@ -593,4 +593,87 @@ class InternshipManagerControllerTest {
         // Assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
+
+    @Test
+    void signContract_Success() throws Exception {
+        // Arrange
+        Long contractId = 1L;
+        InternshipContractDTO signedContract = new InternshipContractDTO();
+        signedContract.setId(contractId);
+        signedContract.setIsSignedInternshipManager(true);
+
+        when(internshipManagerService.signContract(contractId)).thenReturn(signedContract);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH.replace("{contractId}", String.valueOf(contractId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        InternshipContractDTO result = objectMapper.readValue(
+            mvcResult.getResponse().getContentAsString(),
+            InternshipContractDTO.class
+        );
+        assertThat(result.getId()).isEqualTo(contractId);
+        assertThat(result.getIsSignedInternshipManager()).isTrue();
+    }
+
+    @Test
+    void signContract_NotFound() throws Exception {
+        // Arrange
+        Long contractId = 999L;
+        when(internshipManagerService.signContract(contractId))
+            .thenThrow(new NoSuchElementException("Contrat non trouvé"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH.replace("{contractId}", String.valueOf(contractId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Contrat non trouvé");
+    }
+
+    @Test
+    void signContract_AlreadySigned() throws Exception {
+        // Arrange
+        Long contractId = 1L;
+        when(internshipManagerService.signContract(contractId))
+            .thenThrow(new IllegalStateException("Ce contrat a déjà été signé par le gestionnaire de stages"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH.replace("{contractId}", String.valueOf(contractId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Ce contrat a déjà été signé par le gestionnaire de stages");
+    }
+
+    @Test
+    void signContract_BadRequest() throws Exception {
+        // Arrange
+        Long contractId = 1L;
+        when(internshipManagerService.signContract(contractId))
+            .thenThrow(new RuntimeException("Erreur lors de la signature"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH.replace("{contractId}", String.valueOf(contractId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Erreur lors de la signature");
+    }
 }
