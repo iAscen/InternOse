@@ -125,7 +125,7 @@ export default function InternshipApplications({
       );
 	} else if (application.applicationStatus === 'PENDING_CONTRACT') {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full g-blue-100 text-blue-800">
+        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
           {t('im.pendingContract')}
         </span>
       );
