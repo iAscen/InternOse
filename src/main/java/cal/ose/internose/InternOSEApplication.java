@@ -7,6 +7,8 @@ import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.utilities.DummyMultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +21,9 @@ import java.time.LocalDateTime;
 
 @SpringBootApplication
 public class InternOSEApplication {
+    // Utilisez ce logger à la place des System.out.println()
+    public static final Logger LOGGER = LoggerFactory.getLogger("InternOSE-logger");
+
     public static void main(String[] args) {
         SpringApplication.run(InternOSEApplication.class, args);
     }
@@ -66,7 +71,7 @@ public class InternOSEApplication {
                 );
 
                 // Téléverser et approuver un CV fictif
-                MultipartFile dummyResume = DummyMultipartFile.createDummyResume("utilities/DummyResume.pdf");
+                MultipartFile dummyResume = DummyMultipartFile.createDummyResume();
                 studentService.uploadResume(2L, dummyResume);
                 internshipManagerService.verifyResume(2L, true, "");
 
