@@ -17,8 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -59,6 +57,7 @@ public class InternOSEApplication {
                         .institution("AL")
                         .build()
                 );
+
                 // Téléverser et approuver un CV fictif
                 MultipartFile dummyResume = DummyMultipartFile.createDummyResume("utilities/DummyResume.pdf");
                 studentService.uploadResume(2L, dummyResume);
@@ -97,7 +96,7 @@ public class InternOSEApplication {
                 internshipManagerService.verifyResume(5L, true, "");
 
                 // Créer quelques offres de stage en avance
-                InternshipOfferDTO kotlinDev = employerService.createInternshipOffer(
+                employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
                         .title("Développeur Kotlin")
@@ -110,7 +109,6 @@ public class InternOSEApplication {
                         .address("Laval, Québec")
                         .build()
                 );
-                kotlinDev.setVerificationStatus(VerificationStatus.APPROVED);
                 employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
@@ -150,7 +148,7 @@ public class InternOSEApplication {
                         .address("Kahnawake, Québec")
                         .build()
                 );
-                employerService.createInternshipOffer(
+                InternshipOfferDTO iodto = employerService.createInternshipOffer(
                     1L,
                     InternshipOfferDTO.builder()
                         .title("Architecte")
@@ -164,28 +162,33 @@ public class InternOSEApplication {
                         .build()
                 );
 
-                internshipManagerService.verifyInternshipOffer(5L, true, "");
-                internshipManagerService.verifyInternshipOffer(4L, true, "");
                 internshipManagerService.verifyInternshipOffer(1L, true, "");
+                internshipManagerService.verifyInternshipOffer(4L, true, "");
+                internshipManagerService.verifyInternshipOffer(5L, true, "");
 
+                studentService.applyToInternshipOffer(2L, 1L);
                 studentService.applyToInternshipOffer(4L, 1L);
                 studentService.applyToInternshipOffer(5L, 1L);
-                studentService.applyToInternshipOffer(2L, 1L);
+                studentService.applyToInternshipOffer(5L, 5L);
 
                 employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
-                    .interviewDate(LocalDateTime.of(2024, 12, 15, 14, 30))
+                    .interviewDate(LocalDateTime.of(2025, 12, 1, 14, 30))
                     .interviewMode(Interview.InterviewMode.ONLINE)
                     .location("https://zoom.us/meeting")
                     .personalizedMessage("Nous sommes ravis de vous rencontrer")
                     .build()
                 );
+                employerService.scheduleInterview(1L, 5L, InterviewDTO.builder()
+                    .interviewDate(LocalDateTime.of(2025, 12, 1, 14, 30))
+                    .interviewMode(Interview.InterviewMode.IN_PERSON)
+                    .location("129, rue Rideau")
+                    .personalizedMessage("Nous sommes ravis de vous rencontrer")
+                    .build()
+                );
 
-                // Employeur accepte étudiant
                 employerService.reviewApplication(1L, 2L, true, "");
-                employerService.reviewApplication(1L, 5L, true, "");
-                
-                // Réponse étudiant aux offres
-                studentService.respondToApprovedOffer(5L, 1L, false);
+                employerService.reviewApplication(5L, 5L, true, "");
+
                 studentService.respondToApprovedOffer(2L, 1L, true);
 
                 CreateInternshipContractDTO dto = CreateInternshipContractDTO.builder()
@@ -203,8 +206,6 @@ public class InternOSEApplication {
                     .build();
 
                 internshipManagerService.createInternshipContract(dto);
-
-                List<InternshipContractDTO> internshipContractDTOs = internshipManagerService.findAllInternshipContracts();
             }
         };
     }
