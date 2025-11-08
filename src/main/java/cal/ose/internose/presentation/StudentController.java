@@ -161,6 +161,23 @@ public class StudentController {
         }
     }
 
+    @PostMapping(Paths.STUDENT_SIGN_CONTRACT_PATH)
+    public ResponseEntity<String> signInternshipContract(
+        @RequestParam Long studentID,
+        @PathVariable Long internshipOfferID
+    ) {
+        try {
+            InternshipContractDTO signedContract = internshipManagerService.signContractByStudent(studentID, internshipOfferID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }

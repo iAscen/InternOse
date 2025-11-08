@@ -38,6 +38,8 @@ public class Paths {
         STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/respond";
     public static final String STUDENT_CONTRACT_PATH =
         STUDENT_INTERNSHIP_OFFER_DETAILS_PATH + "/contract";
+    public static final String STUDENT_SIGN_CONTRACT_PATH =
+        STUDENT_CONTRACT_PATH + "/sign";
 
     // Gestionnaire de stages
     public static final String INTERNSHIP_MANAGER_BASE_PATH = API_BASE_PATH + "/internship-manager";

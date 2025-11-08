@@ -153,31 +153,8 @@ public class InternshipManagerService {
         List<InternshipContract> internshipContracts = internshipContractDAO.findAll();
 
         return internshipContracts.stream()
-            .map(
-            (internshipContract) ->
-                InternshipContractDTO.builder()
-                    .id(internshipContract.getId())
-                    .tasks(internshipContract.getTasks())
-                    .supervisorEmail(internshipContract.getSupervisorEmail())
-                    .supervisorPhone(internshipContract.getSupervisorPhone())
-                    .supervisorName(internshipContract.getSupervisorName())
-                    .supervisorTitle(internshipContract.getSupervisorTitle())
-                    .weeklyHours(internshipContract.getWeeklyHours())
-                    .startDate(internshipContract.getStartDate())
-                    .endDate(internshipContract.getEndDate())
-                    .educationalObjectives(internshipContract.getEducationalObjectives())
-                    .isSignedStudent(internshipContract.getIsSignedStudent())
-                    .isSignedEmployer(internshipContract.getIsSignedEmployer())
-                    .isSignedInternshipManager(internshipContract.getIsSignedInternshipManager())
-                    .studentId(internshipContract.getStudent() != null ? internshipContract.getStudent().getId() : null)
-                    .studentFirstName(internshipContract.getStudent() != null ? internshipContract.getStudent().getFirstName() : null)
-                    .studentLastName(internshipContract.getStudent() != null ? internshipContract.getStudent().getLastName() : null)
-                    .employerId(internshipContract.getEmployer() != null ? internshipContract.getEmployer().getId() : null)
-                    .employerCompany(internshipContract.getEmployer() != null ? internshipContract.getEmployer().getCompany() : null)
-                    .internshipOfferId(internshipContract.getInternshipOffer() != null ? internshipContract.getInternshipOffer().getId() : null)
-                    .internshipOfferTitle(internshipContract.getInternshipOffer() != null ? internshipContract.getInternshipOffer().getTitle() : null)
-                    .build()
-        ).toList();
+            .map(this::mapContractToDTO)
+            .toList();
     }
 
     public InternshipContractDTO findContractByStudentAndOffer(Long studentId, Long internshipOfferId) {
@@ -187,28 +164,7 @@ public class InternshipManagerService {
         InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
             .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
         
-        return InternshipContractDTO.builder()
-            .id(contract.getId())
-            .tasks(contract.getTasks())
-            .supervisorEmail(contract.getSupervisorEmail())
-            .supervisorPhone(contract.getSupervisorPhone())
-            .supervisorName(contract.getSupervisorName())
-            .supervisorTitle(contract.getSupervisorTitle())
-            .weeklyHours(contract.getWeeklyHours())
-            .startDate(contract.getStartDate())
-            .endDate(contract.getEndDate())
-            .educationalObjectives(contract.getEducationalObjectives())
-            .isSignedStudent(contract.getIsSignedStudent())
-            .isSignedEmployer(contract.getIsSignedEmployer())
-            .isSignedInternshipManager(contract.getIsSignedInternshipManager())
-            .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
-            .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
-            .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
-            .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
-            .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
-            .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
-            .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
-            .build();
+        return mapContractToDTO(contract);
     }
 
     public InternshipContractDTO findContractByEmployerAndOffer(Long employerId, Long internshipOfferId, Long studentId) {
@@ -220,33 +176,11 @@ public class InternshipManagerService {
         InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
             .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cette offre et cet étudiant"));
         
-        // Vérifier que l'employeur correspond bien au contrat
         if (contract.getEmployer() == null || !contract.getEmployer().getId().equals(employerId)) {
             throw new NoSuchElementException("Contrat non trouvé pour cet employeur");
         }
         
-        return InternshipContractDTO.builder()
-            .id(contract.getId())
-            .tasks(contract.getTasks())
-            .supervisorEmail(contract.getSupervisorEmail())
-            .supervisorPhone(contract.getSupervisorPhone())
-            .supervisorName(contract.getSupervisorName())
-            .supervisorTitle(contract.getSupervisorTitle())
-            .weeklyHours(contract.getWeeklyHours())
-            .startDate(contract.getStartDate())
-            .endDate(contract.getEndDate())
-            .educationalObjectives(contract.getEducationalObjectives())
-            .isSignedStudent(contract.getIsSignedStudent())
-            .isSignedEmployer(contract.getIsSignedEmployer())
-            .isSignedInternshipManager(contract.getIsSignedInternshipManager())
-            .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
-            .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
-            .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
-            .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
-            .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
-            .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
-            .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
-            .build();
+        return mapContractToDTO(contract);
     }
 
     public InternshipContractDTO signContract(Long contractId) {
@@ -258,11 +192,44 @@ public class InternshipManagerService {
             throw new IllegalStateException("Ce contrat a déjà été signé par le gestionnaire de stages");
         }
         
-        // Signer le contrat
         contract.setIsSignedInternshipManager(true);
         internshipContractDAO.save(contract);
         
-        // Retourner le DTO mis à jour
+        return mapContractToDTO(contract);
+    }
+
+    public InternshipContractDTO signContractByStudent(Long studentId, Long internshipOfferId) {
+        Student student = studentDAO.findById(studentId)
+            .orElseThrow(() -> new NoSuchElementException("Étudiant non trouvé"));
+        
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId)
+            .orElseThrow(() -> new NoSuchElementException("Offre de stage non trouvée"));
+        
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+        
+        if (contract.getIsSignedStudent()) {
+            throw new IllegalStateException("Ce contrat a déjà été signé par l'étudiant");
+        }
+        
+        validateContractCompleteness(contract);
+        
+        contract.setIsSignedStudent(true);
+        internshipContractDAO.save(contract);
+        
+        return mapContractToDTO(contract);
+    }
+
+    private void validateContractCompleteness(InternshipContract contract) {
+        if (contract.getStartDate() == null || contract.getEndDate() == null || 
+            contract.getTasks() == null || contract.getTasks().trim().isEmpty() ||
+            contract.getEducationalObjectives() == null || contract.getEducationalObjectives().trim().isEmpty() ||
+            contract.getSupervisorName() == null || contract.getSupervisorName().trim().isEmpty()) {
+            throw new IllegalStateException("Le contrat est incomplet. Certaines sections doivent être validées par le gestionnaire.");
+        }
+    }
+
+    private InternshipContractDTO mapContractToDTO(InternshipContract contract) {
         return InternshipContractDTO.builder()
             .id(contract.getId())
             .tasks(contract.getTasks())
