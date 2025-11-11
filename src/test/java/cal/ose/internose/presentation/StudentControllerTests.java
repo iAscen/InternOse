@@ -9,6 +9,7 @@ import cal.ose.internose.security.Paths;
 import cal.ose.internose.TestPaths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.StudentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -550,4 +551,100 @@ public class StudentControllerTests {
         String responseBody = mvcResult.getResponse().getContentAsString();
         assertThat(responseBody).contains("expiré");
     }
+    
+    @Test
+    @DisplayName("POST /api/student/internship-offers/{internshipOfferID}/contract/sign - succès")
+    public void signInternshipContract_Success() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 10L;
+        InternshipContractDTO signedContract = new InternshipContractDTO();
+        signedContract.setId(123L);
+        signedContract.setIsSignedStudent(true);
+
+        when(studentService.signContract(studentID, internshipOfferID)).thenReturn(signedContract);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.STUDENT_SIGN_CONTRACT_PATH.replace("{internshipOfferID}", String.valueOf(internshipOfferID)))
+                    .param("studentID", String.valueOf(studentID))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        InternshipContractDTO result = objectMapper.readValue(
+            mvcResult.getResponse().getContentAsString(),
+            InternshipContractDTO.class
+        );
+        assertThat(result.getId()).isEqualTo(123L);
+        assertThat(result.getIsSignedStudent()).isTrue();
+    }
+
+    @Test
+    @DisplayName("POST /api/student/internship-offers/{internshipOfferID}/contract/sign - contrat non trouvé")
+    public void signInternshipContract_NotFound() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 999L;
+        when(studentService.signContract(studentID, internshipOfferID))
+            .thenThrow(new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.STUDENT_SIGN_CONTRACT_PATH.replace("{internshipOfferID}", String.valueOf(internshipOfferID)))
+                    .param("studentID", String.valueOf(studentID))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Contrat non trouvé");
+    }
+
+    @Test
+    @DisplayName("POST /api/student/internship-offers/{internshipOfferID}/contract/sign - contrat déjà signé par l'étudiant")
+    public void signInternshipContract_AlreadySigned() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 10L;
+        when(studentService.signContract(studentID, internshipOfferID))
+            .thenThrow(new IllegalStateException("Ce contrat a déjà été signé par l'étudiant"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.STUDENT_SIGN_CONTRACT_PATH.replace("{internshipOfferID}", String.valueOf(internshipOfferID)))
+                    .param("studentID", String.valueOf(studentID))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("déjà été signé");
+    }
+
+    @Test
+    @DisplayName("POST /api/student/internship-offers/{internshipOfferID}/contract/sign - erreur de requête")
+    public void signInternshipContract_BadRequest() throws Exception {
+        // Arrange
+        Long studentID = 1L;
+        Long internshipOfferID = 10L;
+        when(studentService.signContract(studentID, internshipOfferID))
+            .thenThrow(new RuntimeException("Erreur lors de la signature"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.STUDENT_SIGN_CONTRACT_PATH.replace("{internshipOfferID}", String.valueOf(internshipOfferID)))
+                    .param("studentID", String.valueOf(studentID))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        assertThat(responseContent).contains("Erreur lors de la signature");
+    }
+    
 }

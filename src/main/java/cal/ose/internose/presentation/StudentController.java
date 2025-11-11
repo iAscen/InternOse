@@ -25,7 +25,6 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class StudentController {
     private final StudentService studentService;
-    private final InternshipManagerService internshipManagerService;
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -152,7 +151,7 @@ public class StudentController {
         @PathVariable Long internshipOfferID
     ) {
         try {
-            InternshipContractDTO contract = internshipManagerService.findContractByStudentAndOffer(studentID, internshipOfferID);
+            InternshipContractDTO contract = studentService.findContractByStudentAndOffer(studentID, internshipOfferID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(contract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
@@ -167,7 +166,7 @@ public class StudentController {
         @PathVariable Long internshipOfferID
     ) {
         try {
-            InternshipContractDTO signedContract = internshipManagerService.signContractByStudent(studentID, internshipOfferID);
+            InternshipContractDTO signedContract = studentService.signContract(studentID, internshipOfferID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
