@@ -1,12 +1,11 @@
 package cal.ose.internose.service;
 
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Student;
-import cal.ose.internose.modele.StudentApplication;
-import cal.ose.internose.modele.VerificationStatus;
+import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
@@ -31,6 +30,7 @@ import java.util.Optional;
 public class StudentService {
     private final StudentDAO studentDAO;
     private final InternshipOfferDAO internshipOfferDAO;
+    private final InternshipContractDAO internshipContractDAO;
     private final StudentApplicationDAO studentApplicationDAO;
 
     public Optional<Student> uploadResume(Long studentID, MultipartFile resumeFile) throws IOException {
@@ -230,5 +230,36 @@ public class StudentService {
 
         studentApplication.setSeenStatus(StudentApplication.SeenStatus.UNSEEN);
         studentApplicationDAO.save(studentApplication);
+    }
+
+
+    public InternshipContractDTO findContractByStudentAndOffer(Long studentId, Long internshipOfferId) {
+        Student student = studentDAO.findById(studentId).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId).orElseThrow();
+
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+
+        return InternshipContractDTO.fromEntity(contract);
+    }
+
+    public InternshipContractDTO signContract(Long studentId, Long internshipOfferId) {
+        Student student = studentDAO.findById(studentId)
+            .orElseThrow(() -> new NoSuchElementException("Étudiant non trouvé"));
+
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId)
+            .orElseThrow(() -> new NoSuchElementException("Offre de stage non trouvée"));
+
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+
+        if (contract.getIsSignedStudent()) {
+            throw new IllegalStateException("Ce contrat a déjà été signé par l'étudiant");
+        }
+
+        contract.setIsSignedStudent(true);
+        internshipContractDAO.save(contract);
+
+        return InternshipContractDTO.fromEntity(contract);
     }
 }

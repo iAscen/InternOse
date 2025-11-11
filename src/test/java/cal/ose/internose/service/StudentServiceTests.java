@@ -4,8 +4,10 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,9 @@ public class StudentServiceTests {
     @Mock
     private StudentApplicationDAO studentApplicationDAO;
 
+    @Mock
+    private InternshipContractDAO internshipContractDAO;
+ 
     @InjectMocks
     private StudentService studentService;
 
@@ -50,9 +55,11 @@ public class StudentServiceTests {
         reset(studentDAO);
         reset(internshipOfferDAO);
         reset(studentApplicationDAO);
+        reset(internshipContractDAO);
         // Clear any previous interactions
         clearInvocations(studentDAO);
         clearInvocations(internshipOfferDAO);
+        clearInvocations(internshipContractDAO);
     }
 
     @Test
@@ -585,4 +592,97 @@ public class StudentServiceTests {
                 () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true));
         verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
     }
+
+    // ========== TESTS POUR signContract() DE StudentService ==========
+
+    @Test
+    @DisplayName("Test de la méthode signContract() - Exécution normale (étudiant signe)")
+    void testStudentSignContract_NormalExecution() {
+        // Arrange
+        Long studentId = 1L;
+        Long offerId = 10L;
+
+        Student student = exampleStudent();
+        student.setId(studentId);
+
+        InternshipOffer offer = createTestOffer();
+        offer.setId(offerId);
+
+        InternshipContract contract = InternshipContract.builder()
+                .id(100L)
+                .student(student)
+                .internshipOffer(offer)
+                .isSignedStudent(false)
+                .isSignedEmployer(true)
+                .isSignedInternshipManager(true)
+                .build();
+
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+        when(internshipContractDAO.findByStudentAndInternshipOffer(student, offer)).thenReturn(Optional.of(contract));
+        when(internshipContractDAO.save(any(InternshipContract.class))).thenReturn(contract);
+
+        // Act
+        InternshipContractDTO result = studentService.signContract(studentId, offerId);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(100L);
+        assertThat(result.getIsSignedStudent()).isTrue();
+        verify(studentDAO, times(1)).findById(studentId);
+        verify(internshipOfferDAO, times(1)).findById(offerId);
+        verify(internshipContractDAO, times(1)).findByStudentAndInternshipOffer(student, offer);
+        verify(internshipContractDAO, times(1)).save(contract);
+    }
+
+    @Test
+    @DisplayName("Test de la méthode signContract() - Contrat non trouvé pour l'étudiant et l'offre")
+    void testStudentSignContract_ContractNotFound() {
+        // Arrange
+        Long studentId = 1L;
+        Long offerId = 10L;
+
+        Student student = exampleStudent();
+        student.setId(studentId);
+        InternshipOffer offer = createTestOffer();
+        offer.setId(offerId);
+
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+        when(internshipContractDAO.findByStudentAndInternshipOffer(student, offer)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> studentService.signContract(studentId, offerId));
+        verify(internshipContractDAO, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test de la méthode signContract() - Contrat déjà signé par l'étudiant")
+    void testStudentSignContract_AlreadySigned() {
+        // Arrange
+        Long studentId = 1L;
+        Long offerId = 10L;
+
+        Student student = exampleStudent();
+        student.setId(studentId);
+        InternshipOffer offer = createTestOffer();
+        offer.setId(offerId);
+
+        InternshipContract contract = InternshipContract.builder()
+                .id(100L)
+                .student(student)
+                .internshipOffer(offer)
+                .isSignedStudent(true) // déjà signé par l'étudiant
+                .build();
+
+        when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+        when(internshipContractDAO.findByStudentAndInternshipOffer(student, offer)).thenReturn(Optional.of(contract));
+
+        // Act & Assert
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> studentService.signContract(studentId, offerId));
+        assertThat(ex.getMessage()).isEqualTo("Ce contrat a déjà été signé par l'étudiant");
+        verify(internshipContractDAO, never()).save(any());
+    }
+    
 }

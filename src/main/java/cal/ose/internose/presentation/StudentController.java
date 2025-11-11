@@ -25,7 +25,6 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class StudentController {
     private final StudentService studentService;
-    private final InternshipManagerService internshipManagerService;
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -152,10 +151,27 @@ public class StudentController {
         @PathVariable Long internshipOfferID
     ) {
         try {
-            InternshipContractDTO contract = internshipManagerService.findContractByStudentAndOffer(studentID, internshipOfferID);
+            InternshipContractDTO contract = studentService.findContractByStudentAndOffer(studentID, internshipOfferID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(contract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PostMapping(Paths.STUDENT_SIGN_CONTRACT_PATH)
+    public ResponseEntity<String> signInternshipContract(
+        @RequestParam Long studentID,
+        @PathVariable Long internshipOfferID
+    ) {
+        try {
+            InternshipContractDTO signedContract = studentService.signContract(studentID, internshipOfferID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
