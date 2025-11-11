@@ -230,7 +230,7 @@ public class EmployerService {
         Employer employer = employerDAO.findById(employerID)
             .orElseThrow(() -> new NoSuchElementException("Employeur non trouvé"));
         Student student = studentDAO.findById(studentID)
-            .orElseThrow(() -> new NoSuchElementException("Employeur non trouvé"));
+            .orElseThrow(() -> new NoSuchElementException("Étudiant non trouvé"));
 
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID)
             .orElseThrow(() -> new NoSuchElementException("Offre de stage non trouvée"));
@@ -238,7 +238,7 @@ public class EmployerService {
         InternshipContract contract = internshipContractDAO.findByStudentAndEmployerAndInternshipOffer(student, employer, internshipOffer)
             .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
 
-        if (contract.getIsSignedStudent()) {
+        if (contract.getIsSignedEmployer()) {
             throw new IllegalStateException("Ce contrat a déjà été signé par l'employeur");
         }
 

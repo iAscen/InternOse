@@ -212,6 +212,24 @@ public class EmployerController {
         }
     }
 
+    @PostMapping(Paths.EMPLOYER_SIGN_CONTRACT_PATH)
+    public ResponseEntity<String> signInternshipContract(
+        @RequestParam Long employerID,
+        @RequestParam Long internshipOfferID,
+        @PathVariable Long studentID
+    ) {
+        try {
+            InternshipContractDTO signedContract = employerService.signContract(studentID, internshipOfferID, employerID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
     private ResponseEntity<String> getResponseEntity(HttpStatus status, String body) {
         return ResponseEntity.status(status).body(body);
     }

@@ -23,6 +23,7 @@ public class Paths {
     public static final String EMPLOYER_APPLICATIONS_MAKE_SEEN =  EMPLOYER_BASE_PATH + "/{offerID}/applications/make-seen";
     public static final String EMPLOYER_CONTRACT_PATH =
         EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH + "/contract";
+    public static final String EMPLOYER_SIGN_CONTRACT_PATH = EMPLOYER_CONTRACT_PATH + "/sign";
 
     // Étudiant
     public static final String STUDENT_BASE_PATH = API_BASE_PATH + "/student";
