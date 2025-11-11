@@ -1,14 +1,8 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.EmployerDAO;
-import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.InterviewDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
-import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.InterviewDTO;
-import cal.ose.internose.service.DTOs.StudentApplicationDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.persistance.*;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
@@ -26,6 +20,8 @@ public class EmployerService {
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InterviewDAO interviewDAO;
+    private final InternshipContractDAO internshipContractDAO;
+    private final StudentDAO studentDAO;
 
     public List<InternshipOfferDTO> listInternshipOffers(Long employerID) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
@@ -227,5 +223,28 @@ public class EmployerService {
             }
 
         }
+    }
+
+
+    public InternshipContractDTO signContract(Long studentID, Long internshipOfferID, Long employerID) {
+        Employer employer = employerDAO.findById(employerID)
+            .orElseThrow(() -> new NoSuchElementException("Employeur non trouvé"));
+        Student student = studentDAO.findById(studentID)
+            .orElseThrow(() -> new NoSuchElementException("Employeur non trouvé"));
+
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID)
+            .orElseThrow(() -> new NoSuchElementException("Offre de stage non trouvée"));
+
+        InternshipContract contract = internshipContractDAO.findByStudentAndEmployerAndInternshipOffer(student, employer, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+
+        if (contract.getIsSignedStudent()) {
+            throw new IllegalStateException("Ce contrat a déjà été signé par l'employeur");
+        }
+
+        contract.setIsSignedEmployer(true);
+        internshipContractDAO.save(contract);
+
+        return InternshipContractDTO.fromEntity(contract);
     }
 }
