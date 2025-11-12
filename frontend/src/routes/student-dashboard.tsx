@@ -1,10 +1,10 @@
-import PageLayout from '../components/PageLayout';
+import DashboardLayout from '../components/DashboardLayout';
 import StudentDashboardContent from '../components/dashboard/StudentDashboardContent';
 
 export default function StudentDashboard() {
   return (
-    <PageLayout>
+    <DashboardLayout>
       <StudentDashboardContent />
-    </PageLayout>
+    </DashboardLayout>
   );
 }

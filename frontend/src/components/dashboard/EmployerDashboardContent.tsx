@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {useNavigate} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {userAPI} from '../../services/UserAPI';
@@ -6,21 +6,43 @@ import {dashboardService} from '../../services/dashboardService';
 import StatisticsCard from './StatisticsCard';
 import CreateOfferForm from './CreateOfferForm';
 import OfferList from './OfferList';
-import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer, UnseenApplicationsCount} from '../../interfaces';
+import DashboardSidebar from './DashboardSidebar';
+import SortButton from './SortButton';
+import SortMenuOffers from './SortMenuOffers';
+import FilterButton from './FilterButton';
+import FilterMenuOffers from './FilterMenuOffers';
+import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer, UnseenApplicationsCount, InternshipContract} from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
 import {employerAPI} from "~/services/EmployerAPI";
+import {useClickOutside} from "~/hooks/useClickOutside";
+import {filterInternshipOffers, sortInternshipOffers} from "~/utils/filterUtils";
+import InternshipContractList from './InternshipContractList';
+import {useCallback} from 'react';
 
 export default function EmployerDashboardContent() {
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const [offers, setOffers] = useState<InternshipOffer[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [allOffers, setAllOffers] = useState<InternshipOffer[]>([]);
+  const [filteredOffers, setFilteredOffers] = useState<InternshipOffer[]>([]);
+  const [filteredApprovedOffers, setFilteredApprovedOffers] = useState<InternshipOffer[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null)
-  const [numbersOfApplications, setNumbersOfApplications] = useState<number[]>([])
+  const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
+  const [numbersOfApplications, setNumbersOfApplications] = useState<Map<number, number>>(new Map());
    const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
+  const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
+  const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
+  const [offerFilters, setOfferFilters] = useState<string[]>([]);
+  const [offerSortBy, setOfferSortBy] = useState<string>('');
+  const [contracts, setContracts] = useState<InternshipContract[]>([]);
+  const [loadingContracts, setLoadingContracts] = useState(false);
+
+  // Refs pour les dropdowns
+  const sortOffersMenuRef = useRef<HTMLDivElement>(null);
+  const filterOffersMenuRef = useRef<HTMLDivElement>(null);
 
   const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
     const countsMap = new Map<number, UnseenApplicationsCount>();
@@ -37,6 +59,15 @@ export default function EmployerDashboardContent() {
     setUnseenApplicationsCount(countsMap);
   };
 
+  // Fermer les dropdowns quand on clique à l'extérieur
+  useClickOutside(sortOffersMenuRef, () => {
+    setShowSortMenuOffers(false);
+  });
+
+  useClickOutside(filterOffersMenuRef, () => {
+    setShowFilterMenuOffers(false);
+  });
+
   // Vérifier l'authentification au chargement
   useEffect(() => {
     if (!userAPI.isAuthenticated()) {
@@ -44,10 +75,105 @@ export default function EmployerDashboardContent() {
     }
   }, [navigate]);
 
+  // Réinitialiser selectedOffer quand on change d'onglet (sauf si on reste sur approved-offers)
+  useEffect(() => {
+    if (activeTab !== 'approved-offers') {
+      setSelectedOffer(null);
+    }
+  }, [activeTab]);
+
+  // Scroller vers le haut quand une offre est sélectionnée pour voir les candidatures
+  useEffect(() => {
+    if (selectedOffer && activeTab === 'approved-offers') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedOffer, activeTab]);
+
+  // Charger les contrats de l'employeur
+  const loadContracts = useCallback(async () => {
+    try {
+      setLoadingContracts(true);
+      const contractsList: InternshipContract[] = [];
+      
+      // Pour chaque offre validée (APPROVED), charger les candidatures et récupérer les contrats
+      const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      
+      if (approvedOffers.length > 0) {
+        // Charger les contrats en parallèle pour améliorer les performances
+        const contractPromises: Promise<{ contract: InternshipContract | null, offerId: number, studentId: number } | null>[] = [];
+        
+        for (const offer of approvedOffers) {
+          if (!offer.id) continue;
+          
+          try {
+            // Récupérer les candidatures pour cette offre
+            const applicationsResponse = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
+            if (applicationsResponse.success && applicationsResponse.data) {
+              // Pour chaque candidature avec statut ACCEPTED_BY_STUDENT ou PENDING_CONTRACT, charger le contrat
+              const acceptedApplications = applicationsResponse.data.filter((app: any) => 
+                app.applicationStatus === 'ACCEPTED_BY_STUDENT' || app.applicationStatus === 'PENDING_CONTRACT'
+              );
+              
+              for (const app of acceptedApplications) {
+                if (app.id && offer.id) {
+                  const studentId = app.id;
+                  const offerId = offer.id;
+                  contractPromises.push(
+                    employerAPI.getInternshipContract(offerId, studentId)
+                      .then(response => {
+                        if (response.success && response.data) {
+                          return { contract: response.data, offerId, studentId };
+                        }
+                        return null;
+                      })
+                      .catch(err => {
+                        console.log(`Contract not found for offer ${offerId}, student ${studentId}:`, err);
+                        return null;
+                      })
+                  );
+                }
+              }
+            }
+          } catch (err) {
+            console.log(`Error loading applications for offer ${offer.id}:`, err);
+          }
+        }
+        
+        const contractResults = await Promise.all(contractPromises);
+        
+        contractResults.forEach(result => {
+          if (result && result.contract) {
+            contractsList.push(result.contract);
+          }
+        });
+      }
+      
+      console.log(`📋 Loaded ${contractsList.length} contracts for employer`);
+      setContracts(contractsList);
+    } catch (error) {
+      console.error('Erreur lors du chargement des contrats:', error);
+      setContracts([]);
+    } finally {
+      setLoadingContracts(false);
+    }
+  }, [allOffers]);
+
+  // Recharger les contrats quand on change vers l'onglet "contracts" ou quand allOffers change
+  useEffect(() => {
+    if (allOffers.length > 0 && activeTab === 'contracts') {
+      loadContracts();
+    }
+  }, [activeTab, allOffers.length, loadContracts]);
+
   const selectOffer = (offer: InternshipOffer) => {
-    if (offer && offer.verificationStatus === "APPROVED")
-      setSelectedOffer(offer)
-  }
+    if (offer && offer.verificationStatus === "APPROVED") {
+      setSelectedOffer(offer);
+      // Changer vers le tab approved-offers si on n'y est pas déjà
+      if (activeTab !== 'approved-offers') {
+        setActiveTab('approved-offers');
+      }
+    }
+  };
 
   // Charger les offres existantes
   const loadOffers = async () => {
@@ -59,9 +185,9 @@ export default function EmployerDashboardContent() {
 
       if (response.success && response.data) {
         console.log('Offres chargées:', response.data);
-        setOffers(response.data);
+        setAllOffers(response.data);
         await countNumberOfApplicationsForOffers(response.data);
-        await countNumberOfUnseenApplications(response.data)
+        await countNumberOfUnseenApplications(response.data);
       } else {
         console.error('Erreur lors du chargement:', response.error);
         setError(response.error || t('dashboard.loadingError'));
@@ -74,28 +200,77 @@ export default function EmployerDashboardContent() {
     }
   };
 
+  // Apply filters and sorting to offers (PENDING only)
+  useEffect(() => {
+    // Filtrer seulement les offres PENDING ou sans statut
+    let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
+    
+    // Apply filters
+    const program = offerFilters[0];
+    const title = offerFilters[1];
+    
+    if (program || title) {
+      filtered = filterInternshipOffers(filtered, {
+        program,
+        title
+      });
+    }
+    
+    // Apply sorting
+    if (offerSortBy) {
+      filtered = sortInternshipOffers(filtered, offerSortBy, true);
+    }
+    
+    setFilteredOffers(filtered);
+  }, [allOffers, offerFilters, offerSortBy]);
+
+  // Apply filters and sorting to approved offers
+  useEffect(() => {
+    // Filtrer seulement les offres APPROVED
+    let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
+    
+    // Apply filters
+    const program = offerFilters[0];
+    const title = offerFilters[1];
+    
+    if (program || title) {
+      filtered = filterInternshipOffers(filtered, {
+        program,
+        title
+      });
+    }
+    
+    // Apply sorting
+    if (offerSortBy) {
+      filtered = sortInternshipOffers(filtered, offerSortBy, true);
+    }
+    
+    setFilteredApprovedOffers(filtered);
+  }, [allOffers, offerFilters, offerSortBy]);
+
   const countNumberOfApplicationsForOffers = async (offersList: InternshipOffer[], applicationStatus: string | null = null, program: string | null = null, institution: string | null = null, sortBy: string | null = null) => {
     const errorMes = "Erreur lors du comptage des candidatures sur vos offres de stage."
-    const numbersOfApplications: number[] = [];
+    const numbersOfApplicationsMap = new Map<number, number>();
     try {
-      for (let i = 0; i < offersList.length; i++) {
-        const offer = offersList[i]
-        let response = await employerAPI.getStudentApplicationsBy(offer.id, applicationStatus, program, institution, sortBy)
-        if (response.success) {
-          numbersOfApplications.push(response.data!.length);
-        } else {
-          setError(response.error || errorMes)
-          break
+      for (const offer of offersList) {
+        if (offer.id) {
+          let response = await employerAPI.getStudentApplicationsBy(offer.id, applicationStatus, program, institution, sortBy)
+          if (response.success) {
+            numbersOfApplicationsMap.set(offer.id, response.data!.length);
+          } else {
+            setError(response.error || errorMes)
+            break
+          }
         }
       }
-      setNumbersOfApplications(numbersOfApplications);
+      setNumbersOfApplications(numbersOfApplicationsMap);
     } catch (error) {
       setError(errorMes)
     }
   }
 
   // Calculer les statistiques
-  const stats = dashboardService.calculateStats(offers);
+  const stats = dashboardService.calculateStats(allOffers);
 
   useEffect(() => {
     loadOffers();
@@ -180,20 +355,22 @@ export default function EmployerDashboardContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* En-tête du dashboard */}
-        <div className="mb-8">
+    <div className="mx-auto flex min-h-screen w-full min-w-[320px] flex-col bg-slate-100 lg:ps-96">
+      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <main id="page-content" className="flex max-w-full flex-auto flex-col pt-20 lg:pt-0 bg-slate-100">
+        <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
+          {/* En-tête du dashboard - en dehors du conteneur blanc */}
+          <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
-              <p className="text-gray-600 mt-2">{t('dashboard.subtitle')}</p>
+                <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">{t('dashboard.subtitle')}</p>
             </div>
             <div>
-              {selectedOffer == null &&
+                {selectedOffer == null && activeTab === 'offers' &&
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="group flex items-center justify-between rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 active:border-indigo-200 active:bg-indigo-700 transition-colors"
                 >
                   {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
                 </button>
@@ -201,23 +378,27 @@ export default function EmployerDashboardContent() {
             </div>
           </div>
         </div>
+          
+          <div className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
 
         {/* Messages d'erreur et de succès */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {error}
           </div>
         )}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
             {success}
           </div>
         )}
 
+          {/* Contenu selon l'onglet actif */}
+          {activeTab === 'overview' && (
+            <>
         {/* Cartes de statistiques */}
-        {selectedOffer == null &&
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 md:gap-6">
+                <div className="sm:col-span-6 xl:col-span-3">
               <StatisticsCard
                 title={t('dashboard.totalOffers')}
                 value={stats.total}
@@ -225,6 +406,8 @@ export default function EmployerDashboardContent() {
                 bgColor="bg-blue-100"
                 iconColor="text-blue-600"
               />
+                </div>
+                <div className="sm:col-span-6 xl:col-span-3">
               <StatisticsCard
                 title={t('dashboard.pending')}
                 value={stats.pending}
@@ -232,6 +415,8 @@ export default function EmployerDashboardContent() {
                 bgColor="bg-yellow-100"
                 iconColor="text-yellow-600"
               />
+                </div>
+                <div className="sm:col-span-6 xl:col-span-3">
               <StatisticsCard
                 title={t('dashboard.validated')}
                 value={stats.approved}
@@ -239,6 +424,8 @@ export default function EmployerDashboardContent() {
                 bgColor="bg-green-100"
                 iconColor="text-green-600"
               />
+                </div>
+                <div className="sm:col-span-6 xl:col-span-3">
               <StatisticsCard
                 title={t('dashboard.rejected')}
                 value={stats.rejected}
@@ -247,28 +434,170 @@ export default function EmployerDashboardContent() {
                 iconColor="text-red-600"
               />
             </div>
+              </div>
+            </>
+          )}
 
+          {activeTab === 'offers' && (
+            <>
             {/* Formulaire de création d'offre */}
             {showCreateForm && (
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
               <CreateOfferForm
                 onSubmit={handleCreateOffer}
                 onCancel={() => setShowCreateForm(false)}
                 loading={loading}
               />
-            )}
+                </div>
+              )}
 
-            {/* Liste des offres existantes */}
-            <OfferList changeCursorIfApproved={true} selectOffer={selectOffer} isStudent={false} isEmployer={true}
-                       loading={loading} offers={offers} numbersOfApplications={numbersOfApplications} unseenApplicationsCount={unseenApplicationsCount}/>
-          </>
-        }
+              {/* Liste des offres existantes (PENDING) */}
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">{t('im.internshipOffersSection')}</h2>
+                      <p className="text-sm font-medium text-slate-500 mt-1">{t('im.internshipOffersSubtitle')}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative" ref={sortOffersMenuRef}>
+                        <SortButton onClick={() => {
+                          setShowSortMenuOffers(!showSortMenuOffers);
+                          setShowFilterMenuOffers(false);
+                        }} />
+                        {showSortMenuOffers &&
+                          <SortMenuOffers
+                            userRole="EMPLOYER"
+                            applySorting={(sortBy: string) => {
+                              setShowSortMenuOffers(false);
+                              setOfferSortBy(sortBy);
+                            }}/>
+                        }
+                      </div>
+                      <div className="relative" ref={filterOffersMenuRef}>
+                        <FilterButton onClick={() => {
+                          setShowSortMenuOffers(false);
+                          setShowFilterMenuOffers(!showFilterMenuOffers);
+                        }}/>
+                        {showFilterMenuOffers &&
+                          <FilterMenuOffers
+                            userRole="EMPLOYER"
+                            applyFilters={(filterBy: string[]) => {
+                              setShowFilterMenuOffers(false);
+                              setOfferFilters(filterBy);
+                            }}/>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <OfferList 
+                    changeCursorIfApproved={false}
+                    selectOffer={selectOffer}
+                    isStudent={false}
+                    isEmployer={true}
+                    loading={loading}
+                    offers={filteredOffers}
+                    numbersOfApplications={numbersOfApplications}
+                    unseenApplicationsCount={unseenApplicationsCount}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
-        {
-          selectedOffer &&
-          <InternshipApplications setSelectedOffer={setSelectedOffer}
-                                  internship={selectedOffer} countNumberOfUnseenApplications={countNumberOfUnseenApplications} offers={offers}></InternshipApplications>
-        }
+          {activeTab === 'approved-offers' && (
+            <>
+              {selectedOffer ? (
+                <InternshipApplications 
+                  setSelectedOffer={setSelectedOffer}
+                  internship={selectedOffer} 
+                  countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
+                  offers={allOffers}
+                  isInternshipManager={false}
+                />
+              ) : (
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  <div className="px-6 pt-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">{t('im.approvedOffers')}</h2>
+                        <p className="text-sm font-medium text-slate-500 mt-1">{t('im.approvedOffersSubtitle')}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="relative" ref={sortOffersMenuRef}>
+                          <SortButton onClick={() => {
+                            setShowSortMenuOffers(!showSortMenuOffers);
+                            setShowFilterMenuOffers(false);
+                          }} />
+                          {showSortMenuOffers &&
+                            <SortMenuOffers
+                              userRole="EMPLOYER"
+                              applySorting={(sortBy: string) => {
+                                setShowSortMenuOffers(false);
+                                setOfferSortBy(sortBy);
+                              }}/>
+                          }
+                        </div>
+                        <div className="relative" ref={filterOffersMenuRef}>
+                          <FilterButton onClick={() => {
+                            setShowSortMenuOffers(false);
+                            setShowFilterMenuOffers(!showFilterMenuOffers);
+                          }}/>
+                          {showFilterMenuOffers &&
+                            <FilterMenuOffers
+                              userRole="EMPLOYER"
+                              applyFilters={(filterBy: string[]) => {
+                                setShowFilterMenuOffers(false);
+                                setOfferFilters(filterBy);
+                              }}/>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {filteredApprovedOffers.length === 0 ? (
+                      <p className="text-sm font-medium text-slate-500 text-center py-8">
+                        {t('im.noApprovedOffers')}
+                      </p>
+                    ) : (
+                      <OfferList 
+                        changeCursorIfApproved={true}
+                        selectOffer={selectOffer}
+                        isStudent={false}
+                        isEmployer={true}
+                        loading={loading}
+                        offers={filteredApprovedOffers}
+                        numbersOfApplications={numbersOfApplications}
+                        unseenApplicationsCount={unseenApplicationsCount}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'contracts' && (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <h2 className="text-xl font-bold text-slate-900">{t('im.internshipContractsSection')}</h2>
+                <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: contracts.length })}</p>
+              </div>
+              <div className="p-6">
+                <InternshipContractList
+                  contracts={contracts}
+                  loading={loadingContracts}
+                  onContractUpdate={loadContracts}
+                />
+              </div>
+            </div>
+          )}
+          </div>
       </div>
     </main>
+    </div>
   );
 }

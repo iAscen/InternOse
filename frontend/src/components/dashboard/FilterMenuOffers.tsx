@@ -16,7 +16,6 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
     switch (userRole) {
       case 'INTERNSHIP_MANAGER':
         return {
-          status: "",
           program: "",
           title: ""
         };
@@ -58,10 +57,9 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
     e.preventDefault();
 
     if (userRole === 'INTERNSHIP_MANAGER') {
-      const status = formData.status != "" ? formData.status : undefined;
       const program = formData.program != "" ? formData.program : undefined;
       const title = formData.title != "" ? formData.title : undefined;
-      applyFilters([status, program, title]);
+      applyFilters([program, title]);
     } else if (userRole === 'STUDENT') {
       const program = formData.program != "" ? formData.program : undefined;
       const jobTitle = formData.jobTitle != "" ? formData.jobTitle : undefined;
@@ -82,23 +80,6 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
     if (userRole === 'INTERNSHIP_MANAGER') {
       return (
         <>
-          <div className="mb-3">
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-              {t('im.status')}
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status || ""}
-              onChange={handleSelectChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-            >
-              <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
-              <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-              <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
-              <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
-            </select>
-          </div>
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
           <FormInput
             className={"mb-3"}
@@ -209,8 +190,9 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[600px] overflow-y-auto">
-      <div className="p-6">
+    <div className="absolute end-0 z-10 mt-2 w-96 rounded-lg shadow-xl max-h-[600px] ltr:origin-top-right rtl:origin-top-left">
+      <div className="rounded-lg bg-white py-2.5 ring-1 ring-black/5 max-h-[600px] overflow-y-auto">
+        <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('im.filterAccordingTo')}</h3>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -226,6 +208,7 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   )

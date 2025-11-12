@@ -1,11 +1,11 @@
-import PageLayout from '../components/PageLayout';
+import DashboardLayout from '../components/DashboardLayout';
 import EmployerDashboardContent from '../components/dashboard/EmployerDashboardContent';
 
 export default function EmployerDashboard() {
   return (
-    <PageLayout>
+    <DashboardLayout>
       <EmployerDashboardContent />
-    </PageLayout>
+    </DashboardLayout>
   );
 }
 

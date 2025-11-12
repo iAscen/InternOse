@@ -27,7 +27,8 @@ export default function InternshipContractDetailsModal({
   const isEmployer = userRole === 'EMPLOYER';
   
   // Déterminer qui peut signer
-  const canSignAsManager = isInternshipManager && !contract.isSignedInternshipManager;
+  // Le gestionnaire ne peut signer que si l'étudiant ET l'employeur ont déjà signé
+  const canSignAsManager = isInternshipManager && !contract.isSignedInternshipManager && contract.isSignedStudent && contract.isSignedEmployer;
   const canSignAsStudent = isStudent && !contract.isSignedStudent;
   const canSignAsEmployer = isEmployer && !contract.isSignedEmployer;
   const canSign = canSignAsManager || canSignAsStudent || canSignAsEmployer;
@@ -94,14 +95,14 @@ export default function InternshipContractDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-lg shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 flex-shrink-0">
           <div>
             <h2 className="text-xl font-bold text-gray-900">{t('internshipContract.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -118,7 +119,7 @@ export default function InternshipContractDetailsModal({
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {t('internshipContract.generalInformation')}
@@ -220,8 +221,9 @@ export default function InternshipContractDetailsModal({
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
+        </div>
 
-          <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3 p-6 flex-shrink-0 border-t border-gray-200 bg-gray-50">
             {canSign && (
               <button
                 onClick={handleSignContract}
@@ -243,7 +245,7 @@ export default function InternshipContractDetailsModal({
                 )}
               </button>
             )}
-            {canSignAsManager && (!contract.isSignedStudent || !contract.isSignedEmployer) && (
+            {isInternshipManager && !contract.isSignedInternshipManager && (!contract.isSignedStudent || !contract.isSignedEmployer) && (
               <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
                 {t('internshipContract.waitingForSignatures') || 'En attente des signatures de l\'étudiant et de l\'employeur'}
               </div>
@@ -254,7 +256,6 @@ export default function InternshipContractDetailsModal({
             >
               {t('common.close') || 'Fermer'}
             </button>
-          </div>
         </div>
       </div>
     </div>

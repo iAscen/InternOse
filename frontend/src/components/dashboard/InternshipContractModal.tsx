@@ -35,11 +35,36 @@ export default function InternshipContractModal({
 }: InternshipContractModalProps) {
   const { t } = useTranslation();
 
+  // Fonction pour calculer la date de fin à partir de la date de début et de la durée
+  const calculateEndDate = (startDate: string, durationWeeks: number): string => {
+    if (!startDate || !durationWeeks) return '';
+    const start = new Date(startDate);
+    const end = new Date(start);
+    end.setDate(start.getDate() + (durationWeeks * 7));
+    return end.toISOString().split('T')[0];
+  };
+
+  // Initialiser avec les dates de l'offre
+  const getInitialStartDate = () => {
+    return internshipOffer.startDate || '';
+  };
+
+  const getInitialEndDate = () => {
+    if (internshipOffer.endDate) {
+      return internshipOffer.endDate;
+    }
+    // Si pas de date de fin mais qu'on a une date de début et une durée, calculer
+    if (internshipOffer.startDate && internshipOffer.duration) {
+      return calculateEndDate(internshipOffer.startDate, internshipOffer.duration);
+    }
+    return '';
+  };
+
   const [formData, setFormData] = useState<InternshipContractModalData>({
     studentId: student.id,
     internshipOfferId: internshipOffer.id,
-    startDate: '',
-    endDate: '',
+    startDate: getInitialStartDate(),
+    endDate: getInitialEndDate(),
     weeklyHours: '',
     tasks: '',
     educationalObjectives: '',
@@ -117,7 +142,17 @@ export default function InternshipContractModal({
       return;
     }
 
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      
+      // Si on change la date de début, recalculer automatiquement la date de fin
+      // en utilisant la durée de l'offre (toujours, pour garantir la cohérence)
+      if (field === 'startDate' && value && internshipOffer.duration) {
+        updated.endDate = calculateEndDate(value, internshipOffer.duration);
+      }
+      
+      return updated;
+    });
 
     if (errors[field]) {
       setErrors((prev) => {
@@ -156,12 +191,12 @@ export default function InternshipContractModal({
         await onSubmit(contractData);
       }
 
-      // reset form
+      // reset form avec les dates de l'offre
       setFormData({
         studentId: student.id,
         internshipOfferId: internshipOffer.id,
-        startDate: '',
-        endDate: '',
+        startDate: getInitialStartDate(),
+        endDate: getInitialEndDate(),
         weeklyHours: '',
         tasks: '',
         educationalObjectives: '',
@@ -183,8 +218,8 @@ export default function InternshipContractModal({
     setFormData({
       studentId: student.id,
       internshipOfferId: internshipOffer.id,
-      startDate: '',
-      endDate: '',
+      startDate: getInitialStartDate(),
+      endDate: getInitialEndDate(),
       weeklyHours: '',
       tasks: '',
       educationalObjectives: '',
@@ -201,7 +236,7 @@ export default function InternshipContractModal({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
       onClick={onCancel}
     >
 
@@ -264,13 +299,18 @@ export default function InternshipContractModal({
                     </label>
                     <input
                       type="date"
-                      value={formData.startDate || internshipOffer.startDate}
+                      value={formData.startDate}
                       onChange={(e) => handleInputChange('startDate', e.target.value)}
                       min="2025-01-01"
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                         errors.startDate ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
                     />
+                    {formData.startDate && internshipOffer.duration && (
+                      <p className="text-sm text-slate-500 mt-1">
+                        {t('internship.endDateCalculated')}
+                      </p>
+                    )}
                     {errors.startDate && (
                       <p className="text-red-500 text-sm mt-1 flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -288,7 +328,7 @@ export default function InternshipContractModal({
                     </label>
                     <input
                       type="date"
-                      value={formData.endDate || internshipOffer.endDate}
+                      value={formData.endDate}
                       onChange={(e) => handleInputChange('endDate', e.target.value)}
                       min={formData.startDate || "2025-01-01"}
                       className={`text-black w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
