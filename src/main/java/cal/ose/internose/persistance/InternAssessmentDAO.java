@@ -1,4 +1,4 @@
-﻿package cal.ose.internose.persistance;
+package cal.ose.internose.persistance;
 
 import cal.ose.internose.modele.InternAssessment;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-﻿package cal.ose.internose.modele;
+package cal.ose.internose.modele;
 
 import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import jakarta.persistence.*;

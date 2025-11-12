@@ -1,4 +1,4 @@
-﻿package cal.ose.internose.service.DTOs;
+package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.InternAssessment;
 import cal.ose.internose.modele.InternAssessment.AssessmentOptions;
