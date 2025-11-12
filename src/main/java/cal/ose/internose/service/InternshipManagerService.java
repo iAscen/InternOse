@@ -26,7 +26,6 @@ public class InternshipManagerService {
     private final StudentDAO studentDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
-    private final EmployerDAO employerDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -155,23 +154,6 @@ public class InternshipManagerService {
         return internshipContracts.stream()
             .map(InternshipContractDTO::fromEntity)
             .toList();
-    }
-
-    // TODO MET ÇA DANS EMPLOYER SERVICE PARCE QUE C'EST LE EMPLOYER CONTROLLER QUI LE CALL
-    public InternshipContractDTO findContractByEmployerAndOffer(Long employerId, Long internshipOfferId, Long studentId) {
-        // Vérifier que l'employeur existe
-        employerDAO.findById(employerId).orElseThrow();
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId).orElseThrow();
-        Student student = studentDAO.findById(studentId).orElseThrow();
-        
-        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
-            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cette offre et cet étudiant"));
-        
-        if (contract.getEmployer() == null || !contract.getEmployer().getId().equals(employerId)) {
-            throw new NoSuchElementException("Contrat non trouvé pour cet employeur");
-        }
-        
-        return InternshipContractDTO.fromEntity(contract);
     }
 
     public InternshipContractDTO signContract(Long contractId) {

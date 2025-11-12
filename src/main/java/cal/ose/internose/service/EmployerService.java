@@ -247,4 +247,20 @@ public class EmployerService {
 
         return InternshipContractDTO.fromEntity(contract);
     }
+
+    public InternshipContractDTO findContractByEmployerAndOffer(Long employerId, Long internshipOfferId, Long studentId) {
+        // Vérifier que l'employeur existe
+        employerDAO.findById(employerId).orElseThrow();
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferId).orElseThrow();
+        Student student = studentDAO.findById(studentId).orElseThrow();
+        
+        InternshipContract contract = internshipContractDAO.findByStudentAndInternshipOffer(student, internshipOffer)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé pour cette offre et cet étudiant"));
+        
+        if (contract.getEmployer() == null || !contract.getEmployer().getId().equals(employerId)) {
+            throw new NoSuchElementException("Contrat non trouvé pour cet employeur");
+        }
+        
+        return InternshipContractDTO.fromEntity(contract);
+    }
 }

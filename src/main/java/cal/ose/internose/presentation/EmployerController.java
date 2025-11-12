@@ -8,7 +8,6 @@ import cal.ose.internose.service.DTOs.InterviewDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.EmployerService;
-import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +25,6 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
-    private final InternshipManagerService internshipManagerService;
     private final ObjectMapper objectMapper;
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
@@ -203,7 +201,7 @@ public class EmployerController {
         @PathVariable Long studentID
     ) {
         try {
-            InternshipContractDTO contract = internshipManagerService.findContractByEmployerAndOffer(employerID, internshipOfferID, studentID);
+            InternshipContractDTO contract = employerService.findContractByEmployerAndOffer(employerID, internshipOfferID, studentID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(contract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
