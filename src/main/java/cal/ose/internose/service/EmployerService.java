@@ -1,14 +1,8 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.EmployerDAO;
-import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.InterviewDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
-import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.InterviewDTO;
-import cal.ose.internose.service.DTOs.StudentApplicationDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.persistance.*;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
@@ -26,6 +20,8 @@ public class EmployerService {
     private final InternshipOfferDAO internshipOfferDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InterviewDAO interviewDAO;
+    private final InternshipContractDAO internshipContractDAO;
+    private final InternAssessmentDAO internAssessmentDAO;
 
     public List<InternshipOfferDTO> listInternshipOffers(Long employerID) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
@@ -181,16 +177,13 @@ public class EmployerService {
         return StudentApplicationDTO.fromEntity(studentApplicationDAO.save(studentApplication));
     }
 
-    public Map<String, Integer> countUnseenApplications(long offerId) {
+    public Map<String, Integer> countUnseenApplications(Long offerID) {
         int studentsWhoRejectedTheOffer = 0;
         int studentsWhoAcceptedTheOffer = 0;
 
-        InternshipOffer internshipOffer = internshipOfferDAO.findById(offerId).orElseThrow(
-            () -> new NoSuchElementException("Offer with id " + offerId + " not found")
-        );
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(offerID).orElseThrow();
 
         for(StudentApplication application: studentApplicationDAO.findByInternshipOffer(internshipOffer)) {
-
             if (application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {
                 if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) {
                     studentsWhoRejectedTheOffer++;
@@ -200,7 +193,6 @@ public class EmployerService {
                     studentsWhoAcceptedTheOffer++;
                 }
             }
-
         }
 
         Map<String, Integer> unseenApplications = new HashMap<>();
@@ -210,10 +202,8 @@ public class EmployerService {
         return unseenApplications;
     }
 
-    public void makeApplicationsSeen(long offerId) {
-        InternshipOffer offer = internshipOfferDAO.findById(offerId).orElseThrow(
-            () -> new NoSuchElementException("Offer with id " + offerId + " not found")
-        );
+    public void makeApplicationsSeen(Long offerID) {
+        InternshipOffer offer = internshipOfferDAO.findById(offerID).orElseThrow();
 
         List<StudentApplication> applications = studentApplicationDAO.findByInternshipOffer(offer);
 
@@ -225,7 +215,14 @@ public class EmployerService {
                 application.setSeenStatus(StudentApplication.SeenStatus.SEEN);
                 studentApplicationDAO.save(application);
             }
-
         }
+    }
+
+    public InternAssessmentDTO saveInternAssessment(Long internshipContractID, InternAssessmentDTO internAssessmentDTO) {
+        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID).orElseThrow();
+        InternAssessment internAssessment = InternAssessment.fromDTO(internAssessmentDTO);
+        internAssessment.setInternshipContract(internshipContract);
+        internAssessment = internAssessmentDAO.save(internAssessment);
+        return InternAssessmentDTO.fromEntity(internAssessment);
     }
 }

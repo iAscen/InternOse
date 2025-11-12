@@ -39,7 +39,7 @@ public class InternAssessmentDTO {
     private String signature;
     private String signatureDate;
 
-    private static InternAssessmentDTO fromEntity(InternAssessment internAssessment) {
+    public static InternAssessmentDTO fromEntity(InternAssessment internAssessment) {
         return InternAssessmentDTO.builder()
             .studentName(internAssessment.getStudentName())
             .studentProgram(internAssessment.getStudentProgram())

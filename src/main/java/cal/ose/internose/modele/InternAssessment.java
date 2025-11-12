@@ -2,10 +2,7 @@
 
 import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Map;
 
@@ -18,10 +15,17 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 public class InternAssessment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    /**
+     * Contient l'employeur, l'étudiant et l'offre de stage de cette évaluation du stagiaire
+     */
+    @OneToOne
+    private InternshipContract internshipContract;
 
     private String studentName;
     private String studentProgram;
@@ -99,7 +103,7 @@ public class InternAssessment {
     private String signature;
     private String signatureDate;
 
-    private static InternAssessment fromDTO(InternAssessmentDTO internAssessmentDTO) {
+    public static InternAssessment fromDTO(InternAssessmentDTO internAssessmentDTO) {
         return InternAssessment.builder()
             .studentName(internAssessmentDTO.getStudentName())
             .studentProgram(internAssessmentDTO.getStudentProgram())

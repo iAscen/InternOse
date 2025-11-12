@@ -2,11 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
-import cal.ose.internose.service.DTOs.InternshipContractDTO;
-import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.DTOs.InterviewDTO;
-import cal.ose.internose.service.DTOs.StudentApplicationDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
@@ -121,32 +117,6 @@ public class EmployerController {
         }
     }
 
-    // Juste pour tester
-//    @PutMapping(Paths.EMPLOYER_UPDATE_APPLICATION_STATUS_PATH)
-//    public ResponseEntity<String> updateApplicationStatus(
-//        @PathVariable Long internshipOfferID,
-//        @PathVariable Long studentID,
-//        @RequestBody String requestBody
-//    ) {
-//        try {
-//            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(requestBody);
-//            StudentApplication.ApplicationStatus applicationStatus =
-//                StudentApplication.ApplicationStatus.valueOf(jsonNode.get("applicationStatus").asText());
-//            String rejectionReason = jsonNode.has("rejectionReason") ? jsonNode.get("rejectionReason").asText() : null;
-//
-//            employerService.updateApplicationStatus(internshipOfferID, studentID, applicationStatus, rejectionReason);
-//
-//            String message = applicationStatus == StudentApplication.ApplicationStatus.APPROVED
-//                ? "La candidature a été acceptée avec succès"
-//                : "La candidature a été refusée avec succès";
-//            return getResponseEntity(HttpStatus.OK, "{ \"message\": \"" + message + "\" }");
-//        } catch (NoSuchElementException e) {
-//            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-//        } catch (Exception e) {
-//            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
-//        }
-//    }
-
     @PutMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_STATUS_PATH)
     public ResponseEntity<String> reviewApplication(
         @PathVariable Long internshipOfferID,
@@ -209,6 +179,17 @@ public class EmployerController {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PostMapping(Paths.EMPLOYER_INTERN_ASSESSMENT_PATH)
+    public ResponseEntity<String> postInternAssessment(@RequestParam Long internshipContractID, @RequestBody String requestBody) {
+        try {
+            InternAssessmentDTO internAssessmentDTO = objectMapper.readValue(requestBody, InternAssessmentDTO.class);
+            InternAssessmentDTO savedInternAssessmentDTO = employerService.saveInternAssessment(internshipContractID, internAssessmentDTO);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(savedInternAssessmentDTO));
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\"");
         }
     }
 
