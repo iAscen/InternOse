@@ -239,7 +239,6 @@ public class StudentServiceTests {
         return List.of(student1, student2);
     }
 
-    // ========== TESTS POUR LES MÉTHODES D'OFFRES DE STAGE ==========
 
     @Test
     @DisplayName("Test de la méthode getInternshipOfferById() avec offre trouvée")
@@ -592,8 +591,6 @@ public class StudentServiceTests {
                 () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true));
         verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
     }
-
-    // ========== TESTS POUR signContract() DE StudentService ==========
 
     @Test
     @DisplayName("Test de la méthode signContract() - Exécution normale (étudiant signe)")

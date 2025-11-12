@@ -24,6 +24,7 @@ public class TestPaths {
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH;
     public static final String EMPLOYER_INTERVIEWS_PATH = Paths.EMPLOYER_INTERVIEWS_PATH;
     public static final String EMPLOYER_SCHEDULE_INTERVIEW_PATH = Paths.EMPLOYER_INTERVIEWS_PATH;
+    public static final String EMPLOYER_SIGN_CONTRACT_PATH = Paths.EMPLOYER_SIGN_CONTRACT_PATH;
 
     // Étudiant
     public static final String STUDENT_BASE_PATH = Paths.STUDENT_BASE_PATH;
@@ -104,5 +105,9 @@ public class TestPaths {
         return Paths.STUDENT_RESPOND_TO_OFFER_PATH
             .replace("{internshipOfferID}", String.valueOf(internshipOfferId))
             + "?studentID=" + studentId;
+    }
+
+    public static String buildEmployerSignContractUrl(Long studentId) {
+        return EMPLOYER_SIGN_CONTRACT_PATH.replace("{studentID}", String.valueOf(studentId));
     }
 }

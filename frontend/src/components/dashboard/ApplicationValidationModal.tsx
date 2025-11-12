@@ -40,7 +40,7 @@ export default function ApplicationValidationModal({
 
     if (response.success) {
       return { success: true };
-    } else {
+        } else {
       return {
         success: false,
         error: response.error || t('dashboard.internshipApplications.validationError')
@@ -99,7 +99,7 @@ export default function ApplicationValidationModal({
         bgColor: 'bg-red-100',
         iconColor: 'text-red-600'
       };
-    } else {
+      } else {
       return {
         label: t('im.pending'),
         color: 'bg-yellow-100 text-yellow-800',

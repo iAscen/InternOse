@@ -4,7 +4,6 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
-import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class EmployerController {
     private final EmployerService employerService;
-    private final InternshipManagerService internshipManagerService;
     private final ObjectMapper objectMapper;
 
     @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
@@ -173,10 +171,28 @@ public class EmployerController {
         @PathVariable Long studentID
     ) {
         try {
-            InternshipContractDTO contract = internshipManagerService.findContractByEmployerAndOffer(employerID, internshipOfferID, studentID);
+            InternshipContractDTO contract = employerService.findContractByEmployerAndOffer(employerID, internshipOfferID, studentID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(contract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PostMapping(Paths.EMPLOYER_SIGN_CONTRACT_PATH)
+    public ResponseEntity<String> signInternshipContract(
+        @RequestParam Long employerID,
+        @RequestParam Long internshipOfferID,
+        @PathVariable Long studentID
+    ) {
+        try {
+            InternshipContractDTO signedContract = employerService.signContract(studentID, internshipOfferID, employerID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }

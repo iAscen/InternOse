@@ -28,10 +28,6 @@ public class InternshipContract {
     private String supervisorTitle;
     private String supervisorEmail;
     private String supervisorPhone;
-/*    private String internshipAgreementFileName;
-    private String internshipAgreementFileType;
-    @Column(columnDefinition = "BYTEA")
-    private byte[] internshipAgreementFileData;*/
     private Boolean isSignedStudent;
     private Boolean isSignedEmployer;
     private Boolean isSignedInternshipManager;

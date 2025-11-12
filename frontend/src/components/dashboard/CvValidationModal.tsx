@@ -26,15 +26,15 @@ export default function CvValidationModal({
       };
     }
 
-    const response = await internshipManagerAPI.validateCv(
-      cv.id,
-      type === 'approve',
+      const response = await internshipManagerAPI.validateCv(
+        cv.id,
+        type === 'approve',
       comment
-    );
+      );
 
-    if (response.success) {
+      if (response.success) {
       return { success: true };
-    } else {
+      } else {
       return {
         success: false,
         error: response.error || 'Erreur lors de la validation du CV'
@@ -64,7 +64,7 @@ export default function CvValidationModal({
         bgColor: 'bg-red-100',
         iconColor: 'text-red-600'
       };
-    } else {
+      } else {
       return {
         label: t('im.pending'),
         color: 'bg-yellow-100 text-yellow-800',

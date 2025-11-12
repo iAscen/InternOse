@@ -3,6 +3,7 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
@@ -39,6 +40,9 @@ public class EmployerServiceTests {
 
         @Mock
         private InterviewDAO interviewDAO;
+
+        @Mock
+        private InternshipContractDAO internshipContractDAO;
 
         @InjectMocks
         private EmployerService employerService;
@@ -629,4 +633,173 @@ public class EmployerServiceTests {
                 assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
             }
         }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Exécution normale (employeur signe)")
+        void testEmployerSignContract_NormalExecution() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            Student student = studentWithResumeStatus(studentId);
+            student.setFirstName("John");
+            student.setLastName("Doe");
+
+            Employer employer = exampleEmployer();
+            employer.setId(employerId);
+
+            InternshipOffer offer = offerWithStatus(offerId);
+            offer.setTitle("Stage développeur");
+
+            InternshipContract contract = InternshipContract.builder()
+                    .id(100L)
+                    .student(student)
+                    .employer(employer)
+                    .internshipOffer(offer)
+                    .isSignedStudent(true)
+                    .isSignedEmployer(false)
+                    .isSignedInternshipManager(true)
+                    .build();
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.of(employer));
+            when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+            when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+            when(internshipContractDAO.findByStudentAndEmployerAndInternshipOffer(student, employer, offer))
+                    .thenReturn(Optional.of(contract));
+            when(internshipContractDAO.save(any(InternshipContract.class))).thenReturn(contract);
+
+            // Act
+            InternshipContractDTO result = employerService.signContract(studentId, offerId, employerId);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(100L);
+            assertThat(result.getIsSignedEmployer()).isTrue();
+            verify(employerDAO, times(1)).findById(employerId);
+            verify(studentDAO, times(1)).findById(studentId);
+            verify(internshipOfferDAO, times(1)).findById(offerId);
+            verify(internshipContractDAO, times(1)).findByStudentAndEmployerAndInternshipOffer(student, employer, offer);
+            verify(internshipContractDAO, times(1)).save(contract);
+        }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Employeur non trouvé")
+        void testEmployerSignContract_EmployerNotFound() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class,
+                    () -> employerService.signContract(studentId, offerId, employerId));
+            verify(internshipContractDAO, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Étudiant non trouvé")
+        void testEmployerSignContract_StudentNotFound() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            Employer employer = exampleEmployer();
+            employer.setId(employerId);
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.of(employer));
+            when(studentDAO.findById(studentId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class,
+                    () -> employerService.signContract(studentId, offerId, employerId));
+            verify(internshipContractDAO, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Offre de stage non trouvée")
+        void testEmployerSignContract_OfferNotFound() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            Employer employer = exampleEmployer();
+            employer.setId(employerId);
+
+            Student student = studentWithResumeStatus(studentId);
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.of(employer));
+            when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+            when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class,
+                    () -> employerService.signContract(studentId, offerId, employerId));
+            verify(internshipContractDAO, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Contrat non trouvé pour cet étudiant et cette offre")
+        void testEmployerSignContract_ContractNotFound() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            Student student = studentWithResumeStatus(studentId);
+            Employer employer = exampleEmployer();
+            employer.setId(employerId);
+            InternshipOffer offer = offerWithStatus(offerId);
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.of(employer));
+            when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+            when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+            when(internshipContractDAO.findByStudentAndEmployerAndInternshipOffer(student, employer, offer))
+                    .thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(NoSuchElementException.class,
+                    () -> employerService.signContract(studentId, offerId, employerId));
+            verify(internshipContractDAO, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode signContract() - Contrat déjà signé par l'employeur")
+        void testEmployerSignContract_AlreadySigned() {
+            // Arrange
+            Long studentId = 1L;
+            Long offerId = 10L;
+            Long employerId = 2L;
+
+            Student student = studentWithResumeStatus(studentId);
+            Employer employer = exampleEmployer();
+            employer.setId(employerId);
+            InternshipOffer offer = offerWithStatus(offerId);
+
+            InternshipContract contract = InternshipContract.builder()
+                    .id(100L)
+                    .student(student)
+                    .employer(employer)
+                    .internshipOffer(offer)
+                    .isSignedEmployer(true) // déjà signé par l'employeur
+                    .build();
+
+            when(employerDAO.findById(employerId)).thenReturn(Optional.of(employer));
+            when(studentDAO.findById(studentId)).thenReturn(Optional.of(student));
+            when(internshipOfferDAO.findById(offerId)).thenReturn(Optional.of(offer));
+            when(internshipContractDAO.findByStudentAndEmployerAndInternshipOffer(student, employer, offer))
+                    .thenReturn(Optional.of(contract));
+
+            // Act & Assert
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> employerService.signContract(studentId, offerId, employerId));
+            assertThat(ex.getMessage()).isEqualTo("Ce contrat a déjà été signé par l'employeur");
+            verify(internshipContractDAO, never()).save(any());
+        }
+
+
 }
