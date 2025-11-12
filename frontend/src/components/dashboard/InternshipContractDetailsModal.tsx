@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { InternshipContract } from '~/interfaces';
 import { userAPI } from '~/services/UserAPI';
 import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
+import { studentAPI } from '~/services/StudentAPI';
+import { employerAPI } from '~/services/EmployerAPI';
 
 interface InternshipContractDetailsModalProps {
   contract: InternshipContract;
@@ -21,7 +23,14 @@ export default function InternshipContractDetailsModal({
   
   const userRole = userAPI.getUserRole();
   const isInternshipManager = userRole === 'INTERNSHIP_MANAGER';
-  const canSign = isInternshipManager && !contract.isSignedInternshipManager;
+  const isStudent = userRole === 'STUDENT';
+  const isEmployer = userRole === 'EMPLOYER';
+  
+  // Déterminer qui peut signer
+  const canSignAsManager = isInternshipManager && !contract.isSignedInternshipManager;
+  const canSignAsStudent = isStudent && !contract.isSignedStudent;
+  const canSignAsEmployer = isEmployer && !contract.isSignedEmployer;
+  const canSign = canSignAsManager || canSignAsStudent || canSignAsEmployer;
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -36,7 +45,35 @@ export default function InternshipContractDetailsModal({
     setError(null);
     
     try {
-      const response = await internshipManagerAPI.signContract(contract.id);
+      let response;
+      
+      if (canSignAsManager) {
+        // Le gestionnaire signe en dernier - vérifier que l'étudiant et l'employeur ont signé
+        if (!contract.isSignedStudent || !contract.isSignedEmployer) {
+          setError(t('internshipContract.managerMustSignLast') || 'Le gestionnaire de stages doit signer en dernier. L\'étudiant et l\'employeur doivent signer d\'abord.');
+          setIsSigning(false);
+          return;
+        }
+        response = await internshipManagerAPI.signContract(contract.id);
+      } else if (canSignAsStudent) {
+        if (!contract.internshipOfferId) {
+          setError(t('internshipContract.missingOfferId') || 'ID de l\'offre manquant');
+          setIsSigning(false);
+          return;
+        }
+        response = await studentAPI.signContract(contract.internshipOfferId);
+      } else if (canSignAsEmployer) {
+        if (!contract.internshipOfferId || !contract.studentId) {
+          setError(t('internshipContract.missingIds') || 'Informations manquantes pour signer');
+          setIsSigning(false);
+          return;
+        }
+        response = await employerAPI.signContract(contract.internshipOfferId, contract.studentId);
+      } else {
+        setError(t('internshipContract.cannotSign') || 'Vous ne pouvez pas signer ce contrat');
+        setIsSigning(false);
+        return;
+      }
       
       if (response.success) {
         // Appeler le callback pour mettre à jour la liste des contrats
@@ -49,7 +86,7 @@ export default function InternshipContractDetailsModal({
         setError(response.error || t('internshipContract.signError'));
       }
     } catch (err) {
-      setError(t('internshipContract.signError'));
+      setError(t('internshipContract.signError') || 'Erreur lors de la signature');
     } finally {
       setIsSigning(false);
     }
@@ -194,23 +231,28 @@ export default function InternshipContractDetailsModal({
                 {isSigning ? (
                   <>
                     <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    {t('internshipContract.signing')}
+                    {t('internshipContract.signing') || 'Signature en cours...'}
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
-                    {t('internshipContract.sign')}
+                    {t('internshipContract.sign') || 'Signer l\'entente'}
                   </>
                 )}
               </button>
+            )}
+            {canSignAsManager && (!contract.isSignedStudent || !contract.isSignedEmployer) && (
+              <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                {t('internshipContract.waitingForSignatures') || 'En attente des signatures de l\'étudiant et de l\'employeur'}
+              </div>
             )}
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              {t('common.close')}
+              {t('common.close') || 'Fermer'}
             </button>
           </div>
         </div>
