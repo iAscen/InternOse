@@ -2,6 +2,7 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.modele.Interview;
 import cal.ose.internose.service.DTOs.InterviewDTO;
+import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.DTOs.StudentApplicationDTO;
@@ -540,4 +541,196 @@ public class EmployerControllerTests {
                                 objectMapper.getTypeFactory().constructCollectionType(List.class, Object.class));
                 assertThat(responseList.size()).isEqualTo(0);
         }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - succès")
+        public void signInternshipContract_Success() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 10L;
+                Long employerID = 2L;
+
+                InternshipContractDTO signedContract = InternshipContractDTO.builder()
+                                .id(123L)
+                                .studentId(studentID)
+                                .employerId(employerID)
+                                .internshipOfferId(internshipOfferID)
+                                .isSignedStudent(true)
+                                .isSignedEmployer(true)
+                                .isSignedInternshipManager(false)
+                                .build();
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenReturn(signedContract);
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+                InternshipContractDTO result = objectMapper.readValue(
+                                mvcResult.getResponse().getContentAsString(),
+                                InternshipContractDTO.class);
+                assertThat(result.getId()).isEqualTo(123L);
+                assertThat(result.getIsSignedEmployer()).isTrue();
+                assertThat(result.getStudentId()).isEqualTo(studentID);
+                assertThat(result.getEmployerId()).isEqualTo(employerID);
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - employeur non trouvé")
+        public void signInternshipContract_EmployerNotFound() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 10L;
+                Long employerID = 999L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new NoSuchElementException("Employeur non trouvé"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("Employeur non trouvé");
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - étudiant non trouvé")
+        public void signInternshipContract_StudentNotFound() throws Exception {
+                // Arrange
+                Long studentID = 999L;
+                Long internshipOfferID = 10L;
+                Long employerID = 2L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new NoSuchElementException("Étudiant non trouvé"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("Étudiant non trouvé");
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - offre non trouvée")
+        public void signInternshipContract_OfferNotFound() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 999L;
+                Long employerID = 2L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new NoSuchElementException("Offre de stage non trouvée"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("Offre de stage non trouvée");
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - contrat non trouvé")
+        public void signInternshipContract_ContractNotFound() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 10L;
+                Long employerID = 2L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new NoSuchElementException("Contrat non trouvé pour cet étudiant et cette offre"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("Contrat non trouvé");
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - contrat déjà signé par l'employeur")
+        public void signInternshipContract_AlreadySigned() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 10L;
+                Long employerID = 2L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new IllegalStateException("Ce contrat a déjà été signé par l'employeur"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("déjà été signé");
+        }
+
+        @Test
+        @DisplayName("POST /api/employer/internship-offers/student-applications/{studentID}/contract/sign - erreur de requête")
+        public void signInternshipContract_BadRequest() throws Exception {
+                // Arrange
+                Long studentID = 5L;
+                Long internshipOfferID = 10L;
+                Long employerID = 2L;
+
+                when(employerService.signContract(studentID, internshipOfferID, employerID))
+                                .thenThrow(new RuntimeException("Erreur lors de la signature"));
+
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                post(TestPaths.buildEmployerSignContractUrl(studentID))
+                                                .param("employerID", String.valueOf(employerID))
+                                                .param("internshipOfferID", String.valueOf(internshipOfferID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+                String responseContent = mvcResult.getResponse().getContentAsString();
+                assertThat(responseContent).contains("Erreur lors de la signature");
+        }
+
+
 }
