@@ -4,6 +4,7 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
+import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -198,14 +199,32 @@ public class EmployerController {
         }
     }
 
+    @GetMapping(Paths.EMPLOYER_INTERN_ASSESSMENT_PATH)
+    public ResponseEntity<String> getInternAssessment(
+        @RequestParam Long employerID, @RequestParam Long internshipContractID
+    ) {
+        try {
+            InternAssessmentDTO internAssessmentDTO = employerService.findInternAssessment(employerID, internshipContractID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internAssessmentDTO));
+        } catch (ForbiddenException e) {
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\"");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\"");
+        }
+    }
+
     @PostMapping(Paths.EMPLOYER_INTERN_ASSESSMENT_PATH)
-    public ResponseEntity<String> postInternAssessment(@RequestParam Long internshipContractID, @RequestBody String requestBody) {
+    public ResponseEntity<String> postInternAssessment(
+        @RequestParam Long employerID, @RequestParam Long internshipContractID, @RequestBody String requestBody
+    ) {
         try {
             InternAssessmentDTO internAssessmentDTO = objectMapper.readValue(requestBody, InternAssessmentDTO.class);
-            InternAssessmentDTO savedInternAssessmentDTO = employerService.saveInternAssessment(internshipContractID, internAssessmentDTO);
+            InternAssessmentDTO savedInternAssessmentDTO = employerService.saveInternAssessment(employerID, internshipContractID, internAssessmentDTO);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(savedInternAssessmentDTO));
+        } catch (ForbiddenException e) {
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\"");
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\"");
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\"");
         }
     }
 

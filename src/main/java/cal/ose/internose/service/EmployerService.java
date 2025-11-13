@@ -4,6 +4,7 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
+import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -257,11 +258,31 @@ public class EmployerService {
         return InternshipContractDTO.fromEntity(contract);
     }
 
-    public InternAssessmentDTO saveInternAssessment(Long internshipContractID, InternAssessmentDTO internAssessmentDTO) {
+    public InternAssessmentDTO findInternAssessment(Long employerID, Long internshipContractID) throws ForbiddenException {
         InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID).orElseThrow();
+        isOwnerOfInternshipContract(employerID, internshipContract);
+
+        return InternAssessmentDTO.fromEntity(internAssessmentDAO.findByInternshipContract(internshipContract));
+    }
+
+    public InternAssessmentDTO saveInternAssessment(
+        Long employerID, Long internshipContractID, InternAssessmentDTO internAssessmentDTO
+    ) throws ForbiddenException {
+        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID).orElseThrow();
+        isOwnerOfInternshipContract(employerID, internshipContract);
+
+        Optional<InternAssessment> optionalInternAssessment = Optional.ofNullable(internAssessmentDAO.findByInternshipContract(internshipContract));
+        if (optionalInternAssessment.isPresent())
+            throw new ForbiddenException("Vous ne pouvez pas modifier une évaluation du stagiaire");
+
         InternAssessment internAssessment = InternAssessment.fromDTO(internAssessmentDTO);
         internAssessment.setInternshipContract(internshipContract);
         internAssessment = internAssessmentDAO.save(internAssessment);
         return InternAssessmentDTO.fromEntity(internAssessment);
+    }
+
+    public void isOwnerOfInternshipContract(Long employerID, InternshipContract internshipContract) throws ForbiddenException {
+        if (!employerID.equals(internshipContract.getEmployer().getId()))
+            throw new ForbiddenException("Vous n'êtes pas le propriétaire de cette entente de stage!");
     }
 }
