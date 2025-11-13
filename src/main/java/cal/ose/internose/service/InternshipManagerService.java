@@ -109,7 +109,7 @@ public class InternshipManagerService {
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
 
-    public void createInternshipContract(InternshipContractDTO createInternshipContractDTO) {
+    public void createInternshipContract(InternshipContractDTO createInternshipContractDTO) throws InternshipOfferNotAcceptedByStudentException, InternshipContractAlreadyExistsException {
         Student student = studentDAO.findById(createInternshipContractDTO.getStudentId()).orElseThrow();
         InternshipOffer internshipOffer = internshipOfferDAO.findById(createInternshipContractDTO.getInternshipOfferId()).orElseThrow();
 

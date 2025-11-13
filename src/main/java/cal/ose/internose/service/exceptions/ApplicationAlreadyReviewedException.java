@@ -1,7 +1,7 @@
 package cal.ose.internose.service.exceptions;
 
-public class ApplicationAlreadyReviewedException extends RuntimeException {
+public class ApplicationAlreadyReviewedException extends Exception {
     public ApplicationAlreadyReviewedException() {
-        super("Cette application est déjà examinée.");
+        super("Cette candidature est déjà acceptée ou refusée.");
     }
 }
