@@ -1,4 +1,9 @@
+import { useTranslation } from 'react-i18next';
+
+
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="relative z-30 flex grow-0 items-center border-t border-slate-200 bg-slate-100">
       <div className="flex w-full items-center justify-between py-10 pl-8 pr-4 sm:pr-8">
@@ -19,7 +24,7 @@ export default function Footer() {
           </span>
         </div>
         <div className="text-sm font-medium text-slate-600">
-          Made by Walid, David, Kervin, Amine et Artyom
+          {t('dashboard.credits')}
         </div>
       </div>
     </footer>
