@@ -8,7 +8,8 @@ import lombok.ToString;
 public enum UserRole {
 	EMPLOYER("EMPLOYER"),
     STUDENT("STUDENT"),
-    INTERNSHIP_MANAGER("INTERNSHIP_MANAGER"),;
+    INTERNSHIP_MANAGER("INTERNSHIP_MANAGER"),
+    PROFESSOR("PROFESSOR");
 
 	private final String userRole;
 }

@@ -262,4 +262,9 @@ public class StudentService {
 
         return InternshipContractDTO.fromEntity(contract);
     }
+
+    public StudentDTO findStudentByEmail(String email) {
+        Student student = studentDAO.findByCredentials_Email(email);
+        return StudentDTO.fromEntity(student);
+    }
 }

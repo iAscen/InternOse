@@ -3,10 +3,7 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import cal.ose.internose.service.DTOs.LoginDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
@@ -44,18 +41,17 @@ public class UserService {
         registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
     }
 
-    public String registerEmployer(EmployerDTO employerDTO)
+    public void registerProfessor(ProfessorDTO professorDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
-        Employer employer = Employer.builder()
+        Professor professor = Professor.builder()
             .credentials(
-                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+                new Credentials(professorDTO.getEmail(), passwordEncoder.encode(professorDTO.getPassword()), UserRole.PROFESSOR)
             )
-            .firstName(employerDTO.getFirstName())
-            .lastName(employerDTO.getLastName())
-            .company(employerDTO.getCompany())
+            .firstName(professorDTO.getFirstName())
+            .lastName(professorDTO.getLastName())
             .build();
 
-        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
+        registerUser(professorDTO.getEmail(), professorDTO.getPassword(), professor);
     }
 
     public String registerStudent(StudentDTO studentDTO)
@@ -71,6 +67,20 @@ public class UserService {
             .build();
 
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);
+    }
+
+    public String registerEmployer(EmployerDTO employerDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
+        Employer employer = Employer.builder()
+            .credentials(
+                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+            )
+            .firstName(employerDTO.getFirstName())
+            .lastName(employerDTO.getLastName())
+            .company(employerDTO.getCompany())
+            .build();
+
+        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
     }
 
     public String login(LoginDTO loginDTO) {

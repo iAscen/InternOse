@@ -4,6 +4,7 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
@@ -26,6 +27,7 @@ public class InternshipManagerService {
     private final StudentDAO studentDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
+    private final ProfessorDAO professorDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -179,5 +181,17 @@ public class InternshipManagerService {
         internshipContractDAO.save(contract);
         
         return InternshipContractDTO.fromEntity(contract);
+    }
+
+    public List<ProfessorDTO> findAllProfessors() {
+        List<Professor> professors = professorDAO.findAll();
+        return ProfessorDTO.fromEntityList(professors);
+    }
+
+    public StudentDTO assignProfessorToStudent(Long studentID, Long professorID) {
+        Student student = studentDAO.findById(studentID).orElseThrow();
+        Professor professor = professorDAO.findById(professorID).orElseThrow();
+        student.setAssignedProfessor(professor);
+        return StudentDTO.fromEntity(studentDAO.save(student));
     }
 }
