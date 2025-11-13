@@ -1,21 +1,18 @@
 package cal.ose.internose.service.DTOs;
 
+import cal.ose.internose.modele.Professor;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SuperBuilder
-@NoArgsConstructor
 @Getter
-@Setter
 public class StudentDTO extends UserDTO {
     private String institution;
     private String program;
@@ -30,6 +27,7 @@ public class StudentDTO extends UserDTO {
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
     private StudentApplication.SeenStatus seenStatus;
+    private Professor assignedProfessor;
 
     public static StudentDTO fromEntity(Student student) {
         return StudentDTO.builder()
