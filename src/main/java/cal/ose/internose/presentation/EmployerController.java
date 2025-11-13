@@ -207,9 +207,11 @@ public class EmployerController {
             InternAssessmentDTO internAssessmentDTO = employerService.findInternAssessment(employerID, internshipContractID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internAssessmentDTO));
         } catch (ForbiddenException e) {
-            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\"");
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\"");
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 
@@ -222,9 +224,11 @@ public class EmployerController {
             InternAssessmentDTO savedInternAssessmentDTO = employerService.saveInternAssessment(employerID, internshipContractID, internAssessmentDTO);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(savedInternAssessmentDTO));
         } catch (ForbiddenException e) {
-            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\"");
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\"");
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 

@@ -259,16 +259,22 @@ public class EmployerService {
     }
 
     public InternAssessmentDTO findInternAssessment(Long employerID, Long internshipContractID) throws ForbiddenException {
-        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID).orElseThrow();
+        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé"));
         isOwnerOfInternshipContract(employerID, internshipContract);
 
-        return InternAssessmentDTO.fromEntity(internAssessmentDAO.findByInternshipContract(internshipContract));
+        InternAssessment assessment = internAssessmentDAO.findByInternshipContract(internshipContract);
+        if (assessment == null) {
+            throw new NoSuchElementException("Évaluation non trouvée pour ce contrat");
+        }
+        return InternAssessmentDTO.fromEntity(assessment);
     }
 
     public InternAssessmentDTO saveInternAssessment(
         Long employerID, Long internshipContractID, InternAssessmentDTO internAssessmentDTO
     ) throws ForbiddenException {
-        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID).orElseThrow();
+        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé"));
         isOwnerOfInternshipContract(employerID, internshipContract);
 
         Optional<InternAssessment> optionalInternAssessment = Optional.ofNullable(internAssessmentDAO.findByInternshipContract(internshipContract));
