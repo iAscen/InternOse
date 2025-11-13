@@ -483,6 +483,58 @@ class EmployerAPI {
       };
     }
   }
+
+  // Signer l'entente de stage
+  async signContract(offerId: number, studentId: number): Promise<ApiResponse<InternshipContract>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      const employerId = await userAPI.getEmployerIdFromJWT();
+      if (!employerId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'employeur'
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.EMPLOYER.CONTRACT, { studentID: String(studentId) });
+      url += `/sign?employerID=${employerId}&internshipOfferID=${offerId}`;
+      console.log('🔍 Signing contract at:', url);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const contract = await response.json();
+        return {
+          success: true,
+          data: contract
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors de la signature du contrat'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
 }
 
 export const employerAPI = new EmployerAPI();

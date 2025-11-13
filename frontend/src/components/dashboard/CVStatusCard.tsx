@@ -68,23 +68,23 @@ export default function CVStatusCard({ status, fileName, onStatusChange }: CVSta
   const statusInfo = getStatusInfo();
 
   return (
-    <div className={`rounded-lg border-2 border-dashed ${statusInfo.bgColor} ${statusInfo.borderColor} p-6`}>
-      <div className="flex items-center space-x-4">
+    <div className={`rounded-lg border border-slate-200 ${statusInfo.bgColor} p-6`}>
+      <div className="flex items-center gap-4">
         <div className="flex-shrink-0">
           {statusInfo.icon}
         </div>
         <div className="flex-1">
-          <h3 className={`text-lg font-semibold ${statusInfo.textColor}`}>
+          <h3 className={`text-lg font-bold ${statusInfo.textColor}`}>
             {statusInfo.title}
           </h3>
-          <p className={`mt-1 ${statusInfo.textColor}`}>
+          <p className={`mt-1 text-sm font-medium ${statusInfo.textColor}`}>
             {statusInfo.description}
           </p>
         </div>
         {status === 'rejected' && (
           <button
             onClick={() => onStatusChange('none')}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="group flex items-center justify-between rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 active:border-red-200 active:bg-red-700 transition-colors"
           >
             {t('cvStatus.rejected.uploadNewCv')}
           </button>
