@@ -129,7 +129,7 @@ export default function InterviewInvitationModal({
 
   return (
     <div 
-      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
       onClick={onClose}
     >
       <div 

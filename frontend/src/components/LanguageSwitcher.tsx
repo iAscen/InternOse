@@ -26,23 +26,22 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        className="flex items-center space-x-1 sm:space-x-2 px-2.5 py-2 h-9 text-sm font-medium text-slate-700 bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-md shadow-sm hover:bg-white/90 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all duration-200"
       >
-        <span className="text-base sm:text-lg">{currentLanguage.flag}</span>
-        <span className="hidden md:block text-xs sm:text-sm">{currentLanguage.name}</span>
+        <span className="text-base">{currentLanguage.flag}</span>
+        <span className="hidden md:block text-sm">{currentLanguage.name}</span>
         <svg
-          className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform duration-200 ${
+          className={`size-5 text-slate-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           } hidden sm:block`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
           />
         </svg>
       </button>

@@ -30,8 +30,9 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
     }
 
     return (
-        <div className="absolute mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-            <div className="p-4">
+        <div className="absolute end-0 z-10 mt-2 w-64 rounded-lg shadow-xl ltr:origin-top-right rtl:origin-top-left">
+            <div className="rounded-lg bg-white py-2.5 ring-1 ring-black/5">
+                <div className="px-4 py-2">
                 <form onSubmit={handleSubmit}>
                     <div className="flex items-center space-x-3 mb-3">
                         <FormSection title={t('im.filterAccordingTo')}>
@@ -75,6 +76,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                         </button>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     )

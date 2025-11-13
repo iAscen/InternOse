@@ -14,6 +14,7 @@ import OfferList from "~/components/dashboard/OfferList";
 import CvList from "./CvList";
 import SortMenuCvs from "./SortMenuCvs";
 import FilterMenuCvs from "./FilterMenuCvs";
+import DashboardSidebar from "./DashboardSidebar";
 import { useClickOutside } from "~/hooks/useClickOutside";
 import { filterInternshipOffers, sortInternshipOffers, filterCvs, sortCvs } from "~/utils/filterUtils";
 import InternshipApplications from "~/components/dashboard/InternshipApplications";
@@ -25,11 +26,13 @@ import type { InternshipContract } from "~/interfaces";
 export default function IMDashboardContent() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('overview');
     const [loading, setLoading] = useState(false);
     const [allOffers, setAllOffers] = useState<InternshipOffer[]>([]);
-    const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null)
+    const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
     const [allCvs, setAllCvs] = useState<Cv[]>([]);
     const [filteredOffers, setFilteredOffers] = useState<InternshipOffer[]>([]);
+    const [filteredApprovedOffers, setFilteredApprovedOffers] = useState<InternshipOffer[]>([]);
     const [filteredCvs, setFilteredCvs] = useState<Cv[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
@@ -41,9 +44,7 @@ export default function IMDashboardContent() {
     const [offerSortBy, setOfferSortBy] = useState<string>('');
     const [cvSortBy, setCvSortBy] = useState<string>('');
     const [cvSortOrder, setCvSortOrder] = useState<string>('asc');
-    const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
     const [contracts, setContracts] = useState<InternshipContract[]>([]);
-    const [showContracts, setShowContracts] = useState(false);
 
 
     // Refs pour les dropdowns
@@ -53,18 +54,14 @@ export default function IMDashboardContent() {
     const filterCvsMenuRef = useRef<HTMLDivElement>(null);
 
     const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
-      const countsMap = new Map<number, UnseenApplicationsCount>();
-
+      // This function is passed to InternshipApplications but the result is not used here
       for (const offer of offers) {
         try {
-          const response = await employerAPI.getUnseenApplicationsCount(offer.id);
-          countsMap.set(offer.id, response.data!);
+          await employerAPI.getUnseenApplicationsCount(offer.id);
         } catch (err) {
           console.error(`Failed to fetch unseen count for offer ${offer.id}`, err);
         }
       }
-
-      setUnseenApplicationsCount(countsMap);
     };
 
     // Fermer les dropdowns quand on clique à l'extérieur
@@ -181,18 +178,17 @@ export default function IMDashboardContent() {
         }
     }
 
-    // Apply filters and sorting to offers
+    // Apply filters and sorting to offers (PENDING only)
     useEffect(() => {
-        let filtered = allOffers;
+        // Filtrer seulement les offres PENDING ou sans statut
+        let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
         
         // Apply filters
-        const status = offerFilters[0];
-        const program = offerFilters[1];
-        const title = offerFilters[2];
+        const program = offerFilters[0];
+        const title = offerFilters[1];
         
-        if (status || program || title) {
+        if (program || title) {
             filtered = filterInternshipOffers(filtered, {
-                status,
                 program,
                 title
             });
@@ -204,6 +200,30 @@ export default function IMDashboardContent() {
         }
         
         setFilteredOffers(filtered);
+    }, [allOffers, offerFilters, offerSortBy]);
+
+    // Apply filters and sorting to approved offers
+    useEffect(() => {
+        // Filtrer seulement les offres APPROVED
+        let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
+        
+        // Apply filters
+        const program = offerFilters[0];
+        const title = offerFilters[1];
+        
+        if (program || title) {
+            filtered = filterInternshipOffers(filtered, {
+                program,
+                title
+            });
+        }
+        
+        // Apply sorting
+        if (offerSortBy) {
+            filtered = sortInternshipOffers(filtered, offerSortBy, true);
+        }
+        
+        setFilteredApprovedOffers(filtered);
     }, [allOffers, offerFilters, offerSortBy]);
 
     // Apply filters and sorting to CVs
@@ -232,234 +252,288 @@ export default function IMDashboardContent() {
         loadContracts();
     }, []);
 
+    // Réinitialiser selectedOffer quand on change d'onglet (sauf si on reste sur approved-offers)
+    useEffect(() => {
+        if (activeTab !== 'approved-offers') {
+            setSelectedOffer(null);
+        }
+    }, [activeTab]);
+
+    // Scroller vers le haut quand une offre est sélectionnée pour voir les candidatures
+    useEffect(() => {
+        if (selectedOffer && activeTab === 'approved-offers') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [selectedOffer, activeTab]);
+
     const selectOffer = (offer: InternshipOffer) => {
-      if (offer && offer.verificationStatus === "APPROVED")
-        setSelectedOffer(offer)
+      if (offer && offer.verificationStatus === "APPROVED") {
+        setSelectedOffer(offer);
+        // Changer vers le tab approved-offers si on n'y est pas déjà
+        if (activeTab !== 'approved-offers') {
+          setActiveTab('approved-offers');
+        }
+      }
     }
 
 
 
   return (
-        <div>
-            <div className="min-h-screen bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {/* Titre et sous-titre */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">
-                            {t('im.dashboard')}
-                        </h1>
-                        <p className="mt-2 text-gray-600">
-                            {t("im.dashboardSubtitle")}
-                        </p>
-                    </div>
+    <div className="mx-auto flex min-h-screen w-full min-w-[320px] flex-col bg-slate-100 lg:ps-96">
+      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <main id="page-content" className="flex max-w-full flex-auto flex-col pt-20 lg:pt-0 bg-slate-100">
+        <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
+          {/* Titre et sous-titre - en dehors du conteneur blanc */}
+          <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
+            <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">
+              {t("im.dashboardSubtitle")}
+            </p>
+          </div>
+          
+          <div className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
 
-                    {/* Messages d'erreur */}
-                    {error && (
-                        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                            {error}
-                        </div>
-                    )}
-                    {selectedOffer == null && !showContracts && (
-                      <>
-                        {/* Statistiques */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                          <StatisticsCard
-                            title={t('im.pendingSubmissions')}
-                            value={(() => {
-                              const pendingOffers = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
-                              const pendingCvs = allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
-                              console.log('Pending offers:', pendingOffers, 'Pending CVs:', pendingCvs, 'Total:', pendingOffers + pendingCvs);
-                              return pendingOffers + pendingCvs;
-                            })()}
-                            icon={statsIcons.pending}
-                            bgColor="bg-yellow-100"
-                            iconColor="text-yellow-600"
-                          />
-                          <StatisticsCard
-                            title={t('im.approvedSubmissions')}
-                            value={
-                              allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length +
-                              allCvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length
-                            }
-                            icon={statsIcons.approved}
-                            bgColor="bg-green-100"
-                            iconColor="text-green-600"
-                          />
-                          <StatisticsCard
-                            title={t('im.refusedSubmissions')}
-                            value={
-                              allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length +
-                              allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
-                            }
-                            icon={statsIcons.refused}
-                            bgColor="bg-red-100"
-                            iconColor="text-red-600"
-                          />
-                        </div>
-
-                        {/* Section "Ententes de stage" */}
-                        <div className="bg-white rounded-lg shadow-md mb-8 p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900">
-                              {t("im.internshipContractsSection")}
-                            </h2>
-                            <button
-                              onClick={() => setShowContracts(true)}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                            >
-                              {t("im.viewContracts")}
-                            </button>
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {contracts.length === 0 ? (
-                              <p>{t("im.noContracts")}</p>
-                            ) : (
-                              <p>{t("im.contractsCount", { count: contracts.length })}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Section "Offres de stages des employeurs" */}
-                        <div className="bg-white rounded-lg shadow-md mb-8 p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900">
-                              {t("im.internshipOffersSection")}
-                            </h2>
-                            <div className="flex items-center space-x-4">
-                              <div className="relative" ref={sortOffersMenuRef}>
-                                <SortButton onClick={() => {
-                                  setShowSortMenuOffers(!showSortMenuOffers)
-                                  setShowFilterMenuOffers(false)
-                                  setShowSortMenuResumes(false)
-                                  setShowFilterMenuResumes(false)
-                                }} />
-                                {showSortMenuOffers &&
-                                    <SortMenuOffers
-                                        userRole="INTERNSHIP_MANAGER"
-                                        applySorting={(sortBy: string) => {
-                                          setShowSortMenuOffers(false);
-                                          setOfferSortBy(sortBy);
-                                        }}/>
-                                }
-                              </div>
-                              <div className="relative" ref={filterOffersMenuRef}>
-                                <FilterButton onClick={() => {
-                                  setShowSortMenuOffers(false)
-                                  setShowFilterMenuOffers(!showFilterMenuOffers)
-                                  setShowSortMenuResumes(false)
-                                  setShowFilterMenuResumes(false)
-                                }}/>
-                                {showFilterMenuOffers &&
-                                    <FilterMenuOffers
-                                        userRole="INTERNSHIP_MANAGER"
-                                        applyFilters={(filterBy: string[]) => {
-                                          setShowFilterMenuOffers(false);
-                                          setOfferFilters(filterBy);
-                                        }}/>
-                                }
-                              </div>
-                            </div>
-                          </div>
-                          <OfferList
-                            selectOffer={selectOffer}
-                            isStudent={false}
-                            isEmployer={false}
-                            loading={loading}
-                            offers={filteredOffers}
-                            numbersOfApplications={[]}
-                            onOfferValidation={() => loadOffers()}
-                          />
-                        </div>
-
-                        {/* Section "Candidatures (CVs) des étudiants" */}
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900">
-                              {t("im.resumesSection")}
-                            </h2>
-                            <div className="flex items-center space-x-4 text-gray-900">
-                              <div className="relative" ref={sortCvsMenuRef}>
-                                <SortButton onClick={() => {
-                                  setShowSortMenuOffers(false)
-                                  setShowFilterMenuOffers(false)
-                                  setShowSortMenuResumes(!showSortMenuResumes)
-                                  setShowFilterMenuResumes(false)
-                                }} />
-                                {showSortMenuResumes &&
-                                    <SortMenuCvs applySorting={(sortBy: string, sortOrder: string) => {
-                                      setShowSortMenuResumes(false);
-                                      setCvSortBy(sortBy);
-                                      setCvSortOrder(sortOrder);
-                                    }}/>
-                                }
-                              </div>
-                              <div className="relative" ref={filterCvsMenuRef}>
-                                <FilterButton onClick={() => {
-                                  setShowSortMenuOffers(false)
-                                  setShowFilterMenuOffers(false)
-                                  setShowSortMenuResumes(false)
-                                  setShowFilterMenuResumes(!showFilterMenuResumes)
-                                }}/>
-                                {showFilterMenuResumes &&
-                                    <FilterMenuCvs applyFilters={(filterBy: string[]) => {
-                                      setShowFilterMenuResumes(false);
-                                      setCvFilters(filterBy);
-                                    }}/>
-                                }
-                              </div>
-                            </div>
-                          </div>
-                          {filteredCvs.length != 0 && <CvList
-                              loading={loading}
-                              cvs={filteredCvs}
-                              onCvValidation={() => loadCvs()}
-                          ></CvList>}
-                          {filteredCvs.length == 0 &&
-                              <div className="text-center text-gray-900">
-                                {t('im.resumesSectionEmpty')}
-                              </div>
-                          }
-                        </div>
-                      </>
-                    ) }
-
-                    {showContracts && (
-                      <div className="bg-white rounded-lg shadow-md p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                          <h2 className="text-xl font-semibold text-gray-900">
-                            {t("im.internshipContractsSection")}
-                          </h2>
-                          <button
-                            onClick={() => setShowContracts(false)}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
-                          >
-                            {t("common.back")}
-                          </button>
-                        </div>
-                        <InternshipContractList
-                          contracts={contracts}
-                          loading={loading}
-                          onContractUpdate={loadContracts}
-                        />
-                      </div>
-                    )}
-
-                    {selectedOffer && !showContracts &&
-                      <InternshipApplications
-                          isInternshipManager={true}
-                          setSelectedOffer={setSelectedOffer}
-                          internship={selectedOffer} 
-                          countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
-                          offers={allOffers}
-                          onContractCreated={loadContracts}
-                      ></InternshipApplications>
-                    }
-
-                </div>
+          {/* Messages d'erreur */}
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {error}
             </div>
+          )}
 
+          {/* Contenu selon l'onglet actif */}
+          {activeTab === 'overview' && (
+            <>
+              {/* Statistiques */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 md:gap-6">
+                <div className="sm:col-span-6 xl:col-span-4">
+                  <StatisticsCard
+                    title={t('im.pendingSubmissions')}
+                    value={(() => {
+                      const pendingOffers = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
+                      const pendingCvs = allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
+                      return pendingOffers + pendingCvs;
+                    })()}
+                    icon={statsIcons.pending}
+                    bgColor="bg-yellow-100"
+                    iconColor="text-yellow-600"
+                  />
+                </div>
+                <div className="sm:col-span-6 xl:col-span-4">
+                  <StatisticsCard
+                    title={t('im.approvedSubmissions')}
+                    value={
+                      allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length +
+                      allCvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length
+                    }
+                    icon={statsIcons.approved}
+                    bgColor="bg-green-100"
+                    iconColor="text-green-600"
+                  />
+                </div>
+                <div className="sm:col-span-6 xl:col-span-4">
+                  <StatisticsCard
+                    title={t('im.refusedSubmissions')}
+                    value={
+                      allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length +
+                      allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
+                    }
+                    icon={statsIcons.refused}
+                    bgColor="bg-red-100"
+                    iconColor="text-red-600"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'offers' && (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {t("im.internshipOffers")}
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.internshipOffersSubtitle")}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortOffersMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(!showSortMenuOffers)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }} />
+                      {showSortMenuOffers &&
+                          <SortMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applySorting={(sortBy: string) => {
+                                setShowSortMenuOffers(false);
+                                setOfferSortBy(sortBy);
+                              }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterOffersMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(!showFilterMenuOffers)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }}/>
+                      {showFilterMenuOffers &&
+                          <FilterMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applyFilters={(filterBy: string[]) => {
+                                setShowFilterMenuOffers(false);
+                                setOfferFilters(filterBy);
+                              }}/>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <OfferList
+                  selectOffer={selectOffer}
+                  isStudent={false}
+                  isEmployer={false}
+                  loading={loading}
+                  offers={filteredOffers}
+                  numbersOfApplications={[]}
+                  onOfferValidation={() => loadOffers()}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'approved-offers' && !selectedOffer && (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {t("im.approvedOffers")}
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.approvedOffersSubtitle")}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                {filteredApprovedOffers.length === 0 ? (
+                  <p className="text-sm font-medium text-slate-500 text-center py-8">
+                    {t("im.noApprovedOffers")}
+                  </p>
+                ) : (
+                  <OfferList
+                    selectOffer={selectOffer}
+                    isStudent={false}
+                    isEmployer={false}
+                    loading={loading}
+                    offers={filteredApprovedOffers}
+                    numbersOfApplications={[]}
+                    onOfferValidation={() => loadOffers()}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'approved-offers' && selectedOffer && (
+            <InternshipApplications
+              isInternshipManager={true}
+              setSelectedOffer={setSelectedOffer}
+              internship={selectedOffer} 
+              countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
+              offers={allOffers}
+              onContractCreated={loadContracts}
+            />
+          )}
+
+          {activeTab === 'cvs' && (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {t("im.resumesSection")}
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.resumesSectionSubtitle")}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortCvsMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(!showSortMenuResumes)
+                        setShowFilterMenuResumes(false)
+                      }} />
+                      {showSortMenuResumes &&
+                          <SortMenuCvs applySorting={(sortBy: string, sortOrder: string) => {
+                            setShowSortMenuResumes(false);
+                            setCvSortBy(sortBy);
+                            setCvSortOrder(sortOrder);
+                          }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterCvsMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(!showFilterMenuResumes)
+                      }}/>
+                      {showFilterMenuResumes &&
+                          <FilterMenuCvs applyFilters={(filterBy: string[]) => {
+                            setShowFilterMenuResumes(false);
+                            setCvFilters(filterBy);
+                          }}/>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                {filteredCvs.length != 0 && <CvList
+                    loading={loading}
+                    cvs={filteredCvs}
+                    onCvValidation={() => loadCvs()}
+                ></CvList>}
+                {filteredCvs.length == 0 &&
+                    <div className="text-center text-slate-600 text-sm font-medium">
+                      {t('im.resumesSectionEmpty')}
+                    </div>
+                }
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'contracts' && (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {t("im.internshipContractsSection")}
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: contracts.length })}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <InternshipContractList
+                  contracts={contracts}
+                  loading={loading}
+                  onContractUpdate={loadContracts}
+                />
+              </div>
+            </div>
+          )}
+
+          </div>
         </div>
-    )
+      </main>
+    </div>
+  )
 }
 
 

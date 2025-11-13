@@ -165,6 +165,16 @@ public class InternshipManagerService {
             throw new IllegalStateException("Ce contrat a déjà été signé par le gestionnaire de stages");
         }
         
+        // Vérifier que l'étudiant et l'employeur ont déjà signé
+        // Le gestionnaire DOIT signer en dernier
+        if (!contract.getIsSignedStudent()) {
+            throw new IllegalStateException("Le gestionnaire de stages ne peut signer qu'après que l'étudiant ait signé l'entente");
+        }
+        
+        if (!contract.getIsSignedEmployer()) {
+            throw new IllegalStateException("Le gestionnaire de stages ne peut signer qu'après que l'employeur ait signé l'entente");
+        }
+        
         contract.setIsSignedInternshipManager(true);
         internshipContractDAO.save(contract);
         

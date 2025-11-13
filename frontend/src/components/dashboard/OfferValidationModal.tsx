@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { internshipManagerAPI } from '~/services/InternshipManagerAPI';
 import type { InternshipOffer } from '~/interfaces';
-import { employerAPI } from '~/services/EmployerAPI';
 
 interface OfferValidationModalProps {
   offer: InternshipOffer;
@@ -78,7 +77,7 @@ export default function OfferValidationModal({
 
   return (
     <div 
-      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
       onClick={handleClose}
     >
       <div 

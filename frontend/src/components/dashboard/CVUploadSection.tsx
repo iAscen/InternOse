@@ -76,10 +76,10 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="rounded-lg border border-slate-200 bg-white p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Téléverser mon CV</h2>
-        <p className="text-gray-600 mt-1">
+        <h2 className="text-xl font-bold text-slate-900">Téléverser mon CV</h2>
+        <p className="text-sm font-medium text-slate-500 mt-1">
           Téléversez votre CV au format PDF pour postuler aux offres de stage.
         </p>
       </div>
@@ -87,10 +87,10 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
       <div
         className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           dragActive
-            ? 'border-blue-400 bg-blue-50'
+            ? 'border-indigo-400 bg-indigo-50'
             : disabled
-            ? 'border-gray-300 bg-gray-50'
-            : 'border-gray-300 hover:border-gray-400'
+            ? 'border-slate-300 bg-slate-50'
+            : 'border-slate-300 hover:border-indigo-400'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -107,7 +107,7 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
         />
 
         <div className="space-y-4">
-          <div className="mx-auto w-12 h-12 text-gray-400">
+          <div className="mx-auto w-12 h-12 text-slate-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -119,23 +119,23 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
           </div>
 
           <div>
-            <p className="text-lg font-medium text-gray-900">
+            <p className="text-lg font-semibold text-slate-900">
               {disabled ? 'CV en cours de validation...' : 'Glissez-déposez votre CV ici'}
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm font-medium text-slate-500 mt-1">
               ou{' '}
               <button
                 type="button"
                 onClick={onButtonClick}
                 disabled={disabled}
-                className="text-blue-600 hover:text-blue-500 font-medium disabled:text-gray-400"
+                className="text-indigo-600 hover:text-indigo-700 font-semibold disabled:text-slate-400"
               >
                 cliquez pour sélectionner
               </button>
             </p>
           </div>
 
-          <div className="text-xs text-gray-500">
+          <div className="text-xs font-medium text-slate-500">
             <p>Format accepté : PDF uniquement</p>
             <p>Taille maximale : 10MB</p>
           </div>
@@ -143,10 +143,10 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
       </div>
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex">
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+          <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -154,8 +154,8 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
                 />
               </svg>
             </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+            <div>
+              <p className="text-sm font-medium text-red-700">{error}</p>
             </div>
           </div>
         </div>

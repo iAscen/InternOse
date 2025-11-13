@@ -99,45 +99,45 @@ export default function InternshipApplications({
 	const getStatusBadge = (application: Cv) => {
     if (application.applicationStatus === 'APPROVED') {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
           {t('im.approved')}
         </span>
       );
     } else if (application.applicationStatus === 'REJECTED') {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700">
           {t('im.rejected')}
         </span>
       );
     } else if (application.applicationStatus === 'PENDING_INTERVIEW') {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
           {t('dashboard.internshipApplications.pendingInterview')}
         </span>
       );
     } else if (application.applicationStatus === 'REJECTED_BY_STUDENT') {
 		return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700">
           {t('im.rejectedByStudent')}
         </span>
       );
 	}
 	else if (application.applicationStatus === 'ACCEPTED_BY_STUDENT') {
 		return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
           {t('im.acceptedByStudent')}
         </span>
       );
 	} else if (application.applicationStatus === 'PENDING_CONTRACT') {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
           {t('im.pendingContract')}
         </span>
       );
   }
 	else {
       return (
-        <span className="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
           {t('im.pending')}
         </span>
       );
@@ -224,68 +224,80 @@ export default function InternshipApplications({
 
 	return (
 		<>
-			{
-				errorMessage &&
-				<div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+			{/* Messages d'erreur et de succès */}
+			{errorMessage && (
+				<div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {errorMessage}
 				</div>
-			}
+			)}
 
-			{
-				successMessage &&
-				<div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+			{successMessage && (
+				<div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
             {successMessage}
 				</div>
-			}
+			)}
 
-			<button onClick={() => setSelectedOffer(null)} className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
+			{/* Bouton Retourner - en haut à l'extérieur */}
+			<div className="mb-4">
+				<button 
+					onClick={() => setSelectedOffer(null)} 
+					className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+				>
+					<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+					</svg>
 				{t('dashboard.internshipApplications.goBack')}
 			</button>
+			</div>
 
-			{
-			errorMessage == null &&
-			<>
+			{/* Conteneur principal */}
+			<div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+				{/* Header avec titre et boutons */}
+				<div className="px-6 pt-6">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 				<div>
-					<div className="bg-white rounded-lg shadow-md text-gray-900">
-						<div className="flex px-6 py-4 border-b border-gray-200">
-							<h2 className="text-xl font-semibold text-gray-900">{(internship.title || 'Offre de stage') + ": "}{t('dashboard.internshipApplications.applications')}</h2>
-              {/*<span className="ml-auto hover:text-gray-500 cursor-pointer">{t('dashboard.internshipApplications.sortAndFilter')}</span>*/}
-                <div className="flex ml-auto items-center space-x-4 text-gray-900">
+							<h2 className="text-xl font-bold text-slate-900">
+								{internship.title || t('dashboard.internshipApplications.internshipOffer')}
+							</h2>
+							<p className="text-sm font-medium text-slate-500 mt-1">
+								{t('dashboard.internshipApplications.applications')}
+							</p>
+						</div>
+						<div className="flex items-center gap-2">
                   <div className="relative" ref={sortMenuRef}>
                     <SortButton onClick={() => {
-                      setShowSortMenuApplications(true)
-                      setShowFilterMenuApplications(false)
+									setShowSortMenuApplications(!showSortMenuApplications);
+									setShowFilterMenuApplications(false);
                     }} />
-                    {showSortMenuApplications &&
+								{showSortMenuApplications && (
                         <SortMenuApplications applySorting={(sortBy: string) => {
                           setShowSortMenuApplications(false);
-                          fetchStudentApplications(null, null, null, sortBy)
+										fetchStudentApplications(null, null, null, sortBy);
                         }}/>
-                    }
+								)}
                   </div>
                   <div className="relative" ref={filterMenuRef}>
                     <FilterButton onClick={() => {
-                      setShowSortMenuApplications(false)
-                      setShowFilterMenuApplications(true)
+									setShowSortMenuApplications(false);
+									setShowFilterMenuApplications(!showFilterMenuApplications);
                     }}/>
-                    {showFilterMenuApplications &&
+								{showFilterMenuApplications && (
                         <FilterMenuCvs applyFilters={(filterBy: string[]) => {
                           setShowFilterMenuApplications(false);
-                          const status = filterBy[0] ? filterBy[0].toUpperCase() : null
-                          const program = filterBy[1]
-                          const institution = filterBy[2]
-
-                          fetchStudentApplications(status, program, institution, null)
-                        }}/>
-                    }
-                  </div>
+										const status = filterBy[0] ? filterBy[0].toUpperCase() : null;
+										const program = filterBy[1];
+										const institution = filterBy[2];
+										fetchStudentApplications(status, program, institution, null);
+									}}/>
+								)}
                 </div>
-
+						</div>
 						</div>
 					</div>
 
+				{/* Liste des candidatures */}
+				<div className="p-6 pt-0">
 					{selectedApplication && errorMessage == null && (
-
 								<ApplicationValidationModal
                   isPending={selectedApplication.applicationStatus === 'PENDING'}
 									cv={selectedApplication}
@@ -295,7 +307,6 @@ export default function InternshipApplications({
 										setSelectedApplication(null);
 									}}
 									onValidationSuccess={() => {
-										// Rafraîchir la liste des candidatures après validation
 										fetchStudentApplications(null, null, null, null);
 										setSuccessMessage(t('dashboard.internshipApplications.validationSuccess'));
 										setTimeout(() => {
@@ -305,36 +316,85 @@ export default function InternshipApplications({
 								/>
 							)}
 
-					<div className="mt-1">
+					{applications.length === 0 && errorMessage == null ? (
+						<div className="text-center py-12">
+							<p className="text-sm font-medium text-slate-500">
+								{t('dashboard.internshipApplications.noCandidaturesFound')}
+							</p>
+						</div>
+					) : (
+						<div className="space-y-4">
 						{applications.map((application, index) => {
-							// Pour le gestionnaire de stage, on ne permet pas de cliquer sur les candidatures pour les valider
-							// Le gestionnaire peut seulement créer des contrats via le bouton dédié
 							const canClick = !isInternshipManager;
-							return <div key={application.id || index} onClick={canClick ? () => setSelectedApplication(application) : undefined} className={`bg-white shadow-lg relative rounded-md ps-6 pe-6 pt-2 pb-2 mb-1 ${canClick ? 'hover:bg-gray-100 cursor-pointer' : ''}`}>
-								{application.seenStatus && application.seenStatus === "UNSEEN" && <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-500 rounded-full" />}
-								<div className="flex">
-									<div className="text-lg font-medium text-gray-900 mb-3">
-										{(application.firstName || 'Prénom') + " " + (application.lastName || 'Nom')}
+								return (
+									<div 
+										key={application.id || index} 
+										onClick={canClick ? () => setSelectedApplication(application) : undefined} 
+										className={`relative rounded-lg border border-slate-200 bg-white p-6 transition-colors ${
+											canClick ? 'hover:bg-slate-50 cursor-pointer' : ''
+										}`}
+									>
+										{application.seenStatus && application.seenStatus === "UNSEEN" && (
+											<div className="absolute top-4 right-4 w-2.5 h-2.5 bg-amber-500 rounded-full" />
+										)}
+										
+										<div className="flex-1">
+											<div className="flex items-start justify-between mb-4">
+												<div className="flex-1">
+													<h3 className="text-lg font-semibold text-slate-900">
+														{application.firstName || 'Prénom'} {application.lastName || 'Nom'}
+													</h3>
+												</div>
+												<div className="ml-4">
+													{getStatusBadge(application)}
+												</div>
+											</div>
+											
+											<div className="space-y-3">
+												<div>
+													<h4 className="text-sm font-medium text-slate-700 mb-1">
+														{t("dashboard.internshipApplications.school")}
+													</h4>
+													<p className="text-sm text-slate-600">
+														{application.institution || t("dashboard.internshipApplications.notSpecified")} - {application.program || t("dashboard.internshipApplications.notSpecified")}
+													</p>
+												</div>
+												<div className="flex items-start justify-between gap-4">
+													<div className="flex-1">
+														<h4 className="text-sm font-medium text-slate-700 mb-1">
+															{t("dashboard.internshipApplications.applicationDate")}
+														</h4>
+														<p className="text-sm text-slate-600">
+															{application.applicationDate ? getDateWithoutTime(application.applicationDate) : t('dashboard.internshipApplications.dateUnavailable')}
+														</p>
 									</div>
-									<div className="ml-auto flex items-center space-x-2">
+													<div className="flex items-center gap-3 flex-shrink-0">
 										{/* Bouton pour inviter à l'entrevue (Employeur seulement) */}
 										{application.applicationStatus === 'PENDING' && !isInternshipManager && (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
-												className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
 											>
+																<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																	<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+																</svg>
 												{t('dashboard.internshipApplications.inviteToInterview')}
 											</button>
 										)}
+														
 										{/* Bouton pour créer une entente de stage (Gestionnaire seulement) */}
 										{application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager && (
                       <button
                         onClick={(e) => handleContract(application, e)}
-                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
                       >
+																<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																	<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+																</svg>
                        {t('dashboard.internshipApplications.createInternshipContract')}
                       </button>
                     )}
+														
 										{/* Bouton pour voir l'entente de stage (Employeur seulement, quand PENDING_CONTRACT) */}
 										{application.applicationStatus === 'PENDING_CONTRACT' && !isInternshipManager && (
                       <button
@@ -343,39 +403,26 @@ export default function InternshipApplications({
                           handleViewContract(application);
                         }}
                         disabled={loadingContract}
-                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
+																<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																	<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+																	<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+																</svg>
                        {loadingContract ? t('common.loading') : t('im.viewContract')}
                       </button>
                     )}
-										<span>
-                      {getStatusBadge(application)}
-										</span>
 									</div>
 								</div>
-								<div className="mb-2">
-									<h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.school")}</h4>
-									<p className="text-sm text-gray-700 leading-relaxed">{(application.institution || t("dashboard.internshipApplications.notSpecified")) + " - " + (application.program || t("dashboard.internshipApplications.notSpecified"))}</p>
               					</div>
-								<div>
-                      <h4 className="text-md font-medium text-gray-900 mb-1">{t("dashboard.internshipApplications.applicationDate")}</h4>
-                      <p className="text-sm text-gray-700 leading-relaxed">{application.applicationDate ? getDateWithoutTime(application.applicationDate) : t('dashboard.internshipApplications.dateUnavailable')}</p>
               					</div>
 							</div>
-
-						})}
-					</div>
-
+						);
+					})}
 				</div>
-
-        {applications.length === 0 && errorMessage == null && (
-          <div className="text-center text-gray-900 mt-2">
-            {t('dashboard.internshipApplications.noCandidaturesFound')}
+			)}
+				</div>
           </div>
-
-        )}
-			</>
-		}
 
 		{/* Modal d'invitation à l'entrevue */}
 		{studentToInvite && (

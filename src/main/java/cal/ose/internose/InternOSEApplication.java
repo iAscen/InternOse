@@ -212,16 +212,18 @@ public class InternOSEApplication {
                 studentService.respondToApprovedOffer(5L, 5L, true);
 
                 // Créer une entente de stage en avance
+                // L'offre 1L (Développeur Kotlin) a startDate = 2026-02-19 et duration = 8 semaines
+                // Donc endDate = 2026-02-19 + 8 semaines = 2026-04-16
                 InternshipContractDTO internshipContractDTO = InternshipContractDTO.builder()
                     .studentId(2L)
                     .internshipOfferId(1L)
-                    .startDate(LocalDate.of(2026, 1, 15))
-                    .endDate(LocalDate.of(2026, 4, 15))
+                    .startDate(LocalDate.of(2026, 2, 19))
+                    .endDate(LocalDate.of(2026, 4, 16))
                     .weeklyHours(35)
                     .tasks("Développement des applications web avec Java et Angular.")
                     .educationalObjectives("Appliquer les connaissances acquises en programmation et apprendre le travail en équipe.")
                     .supervisorName("Jean Tremblay")
-                    .supervisorTitle("Chef de l’équipe des programmeurs")
+                    .supervisorTitle("Chef de l'équipe des programmeurs")
                     .supervisorEmail("jean.tremblay@entreprise.qc.ca")
                     .supervisorPhone("514-555-1234")
                     .build();
