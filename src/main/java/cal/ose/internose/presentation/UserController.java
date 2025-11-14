@@ -11,10 +11,10 @@ import cal.ose.internose.service.exceptions.WeakPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -43,6 +43,22 @@ public class UserController {
             return getResponseEntity(HttpStatus.OK, jwt);
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PutMapping(Paths.SET_SESSION_PATH)
+    public ResponseEntity<?> setSession(@RequestBody Map<String, Object> body) {
+        try {
+            Long id = (Long) body.get("id");
+            String session = (String) body.get("session");
+
+            userService.setSession(id, session);
+
+            return getResponseEntity(HttpStatus.OK, session);
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalArgumentException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
