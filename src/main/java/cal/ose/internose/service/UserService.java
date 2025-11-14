@@ -119,6 +119,17 @@ public class UserService {
         }
     }
 
+    public void setSession(long userId, String session) {
+        User user = userDAO.findById(userId).orElseThrow();
+
+        if (session == null || !session.matches("(Winter-\\d+|Autumn-\\d+)")) {
+            throw new IllegalArgumentException("La session devrait etre de la forme: Winter-2025 ou Autumn-2025");
+        }
+
+        user.setSession(session);
+        userDAO.save(user);
+    }
+
     public void verifyPasswordCriteria(String password) throws WeakPasswordException {
         if (password.length() < 8) {
             throw new WeakPasswordException(ErrorMessages.PASSWORD_TOO_SHORT.getMessage());
