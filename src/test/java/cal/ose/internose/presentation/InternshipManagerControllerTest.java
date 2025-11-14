@@ -52,7 +52,7 @@ class InternshipManagerControllerTest {
     @Test
     void getAllEmployersInternshipOffers() throws Exception {
         when(internshipManagerService.findInternshipsBy(
-            null, "Informatique", null, null)).thenReturn(
+            null, "Informatique", null, null, null)).thenReturn(
             List.of(InternshipOfferDTO.builder().program("Informatique").build()));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -76,7 +76,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
-            true, "Informatique", "Développeur", "title")).thenReturn(
+            true, "Informatique", "Développeur", "Winter-2025", "title")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .title("Développeur Java")
@@ -95,6 +95,7 @@ class InternshipManagerControllerTest {
                     .param("isVerified", "true")
                     .param("title", "Développeur")
                     .param("sortBy", "title")
+                    .param("session", "Winter-2025")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -112,7 +113,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersWithSorting() throws Exception {
         // Test avec tri par statut
         when(internshipManagerService.findInternshipsBy(
-            null, null, null, "status")).thenReturn(
+            null, null, null, null, "status")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .verificationStatus(
@@ -142,7 +143,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
-            null, "NonExistent", null, null)).thenReturn(List.of());
+            null, "NonExistent", null, null,null)).thenReturn(List.of());
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_MANAGER_OFFERS_PATH)

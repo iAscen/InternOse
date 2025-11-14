@@ -11,6 +11,7 @@ import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsExcep
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
+import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,11 +45,11 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findAllByProgramLikeAndTitleLike("%Informatique%", "%"))
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%Informatique%", "%", "%"))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy(null, "Informatique", null, "status");
+            .findInternshipsBy(null, "Informatique", null, null, "status");
 
         assertEquals(3, internshipOfferDTOS.size());
         assertEquals("Informatique", internshipOfferDTOS.getFirst().getProgram());
@@ -57,7 +58,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void sortByDomain() {
-        when(internshipOfferDAO.findAllByProgramLikeAndTitleLike("%", "%"))
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%", "%", "%"))
             .thenReturn(List.of(
                 InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
@@ -66,7 +67,7 @@ class InternshipManagerServiceTest {
                     .build()));
 
         List<InternshipOfferDTO> result = internshipManagerService
-            .findInternshipsBy(null, null, null, null);
+            .findInternshipsBy(null, null, null, null, null);
 
         assertEquals(3, result.size());
         assertEquals("Architecture", result.get(0).getProgram());
@@ -76,11 +77,11 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findAllByProgramLikeAndTitleLike("%non%", "%"))
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%non%", "%", "%"))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy(null, "non", null, null);
+            .findInternshipsBy(null, "non", null, null,null);
 
         assertEquals(0, internshipOfferDTOS.size());
     }
@@ -367,6 +368,7 @@ class InternshipManagerServiceTest {
     public void testCreateInternshipContract_OffreDeStageNonAcceptee() {
         //Arrange
         InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         Student student = new Student();
 
         InternshipContractDTO createInternshipContractDTO =
@@ -389,6 +391,7 @@ class InternshipManagerServiceTest {
     public void testCreateInternshipContract_ContractAlreadyExists() {
         //Arrange
         InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         Student student = new Student();
 
         InternshipContractDTO createInternshipContractDTO =
@@ -430,6 +433,7 @@ class InternshipManagerServiceTest {
         student.setLastName("Tremblay");
 
         InternshipOffer offer = new InternshipOffer();
+        offer.setSession(SessionUtil.getCurrentSession());
         offer.setTitle("Software Dev");
 
         Employer employer = Employer.builder()
