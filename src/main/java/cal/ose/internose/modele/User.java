@@ -24,6 +24,8 @@ public abstract class User {
     private String firstName;
     @Column(nullable = false)
     private String lastName;
+    @Column(nullable = false)
+    private String session;
 
     @Embedded
     private Credentials credentials;

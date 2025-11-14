@@ -11,6 +11,7 @@ import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,12 @@ public class UserService {
 
         User user = userDAO.findByCredentials_Email(loginDTO.getEmail()).orElseThrow();
 
+        String currentSession = SessionUtil.getCurrentSession();
+        if (user.getSession() == null || !user.getSession().equals(currentSession)) {
+            user.setSession(currentSession);
+            userDAO.save(user);
+        }
+
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName()
         );
@@ -99,6 +106,7 @@ public class UserService {
                 );
             }
 
+            user.setSession(SessionUtil.getCurrentSession());
             User savedUser = userDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
