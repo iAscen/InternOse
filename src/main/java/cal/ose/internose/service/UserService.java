@@ -134,14 +134,6 @@ public class UserService {
         userDAO.save(user);
     }
 
-    public String getSessionOfAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Credentials credentials = (Credentials) auth.getCredentials();
-        User user = userDAO.findByCredentials_Email(credentials.getEmail()).orElseThrow();
-
-        return user.getSession();
-    }
-
     public void verifyPasswordCriteria(String password) throws WeakPasswordException {
         if (password.length() < 8) {
             throw new WeakPasswordException(ErrorMessages.PASSWORD_TOO_SHORT.getMessage());

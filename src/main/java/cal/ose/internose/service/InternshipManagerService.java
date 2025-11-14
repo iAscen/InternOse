@@ -27,29 +27,18 @@ public class InternshipManagerService {
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
 
-    public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
-        String programPattern = program != null ? "%" + program + "%" : null;
-        String titlePattern = title != null ? "%" + title + "%" : null;
+    public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String session, String sortBy) {
+        String programPattern = program != null ? "%" + program + "%" : "%";
+        String titlePattern = title != null ? "%" + title + "%" : "%";
+        String sessionPattern = session != null ? "%" + session + "%" : "%";
 
         List<InternshipOffer> internshipOffers;
         if (isVerified == null) {
-            // Récupérer toutes les offres
-            if (programPattern == null && titlePattern == null) {
-                // Si aucun filtre n'est appliqué, récupérer toutes les offres
-                internshipOffers = internshipOfferDAO.findAll();
-            } else {
-                internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLike(programPattern, titlePattern);
-            }
+            internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike(programPattern, titlePattern, sessionPattern);
         } else {
-            // Filtrer par statut
-            if (programPattern == null && titlePattern == null) {
-                // Si aucun filtre n'est appliqué, récupérer toutes les offres puis filtrer par statut
-                internshipOffers = internshipOfferDAO.findAll();
-            } else {
-                internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLikeOrderByVerificationStatusAsc(
-                    titlePattern, programPattern
-                );
-            }
+            internshipOffers = internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLikeOrderByVerificationStatusAsc(
+                titlePattern, programPattern, sessionPattern
+            );
         }
 
         if (!internshipOffers.isEmpty()) {
