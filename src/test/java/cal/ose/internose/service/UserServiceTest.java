@@ -10,6 +10,7 @@ import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +66,7 @@ public class UserServiceTest {
         when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userDAO.save(any())).thenReturn(user);
-        when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString()))
+        when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString(), anyString()))
             .thenReturn("mocked-jwt-token");
     }
 
@@ -218,8 +219,9 @@ public class UserServiceTest {
         when(mockUser.getId()).thenReturn(1L);
         when(mockUser.getFirstName()).thenReturn(TEST_FIRST_NAME);
         when(mockUser.getLastName()).thenReturn(TEST_LAST_NAME);
+        when(mockUser.getSession()).thenReturn(SessionUtil.getCurrentSession());
         when(jwtTokenProvider.generateToken(
-            eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
+            eq(mockAuthentication), eq(1L), anyString(), anyString(), anyString())).thenReturn("jwt-token");
 
         String token = userService.login(loginDTO);
 
@@ -227,7 +229,7 @@ public class UserServiceTest {
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userDAO).findByCredentials_Email(loginDTO.getEmail());
-        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString());
+        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString(), anyString());
     }
 
     @Test

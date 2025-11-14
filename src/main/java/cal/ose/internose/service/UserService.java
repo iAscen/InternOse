@@ -91,7 +91,7 @@ public class UserService {
         }
 
         return jwtTokenProvider.generateToken(
-            authentication, user.getId(), user.getFirstName(), user.getLastName()
+            authentication, user.getId(), user.getFirstName(), user.getLastName(), user.getSession()
         );
     }
 
@@ -112,7 +112,7 @@ public class UserService {
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 
             return jwtTokenProvider.generateToken(
-                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName()
+                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), user.getSession()
             );
         } catch (DataIntegrityViolationException e) {
             throw new RequiredFieldException(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage());
