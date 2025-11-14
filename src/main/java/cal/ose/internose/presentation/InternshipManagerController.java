@@ -8,6 +8,7 @@ import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -148,7 +149,8 @@ public class InternshipManagerController {
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(InternshipContractDTO));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
+        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException |
+                 SessionMismatchException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");

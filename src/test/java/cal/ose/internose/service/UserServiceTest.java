@@ -12,6 +12,7 @@ import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -25,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.AfterEach;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -245,6 +247,48 @@ public class UserServiceTest {
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, never()).generateToken(any());
+    }
+
+    @Test
+    @DisplayName("testSetSession - La session est mal ecrite")
+    void testSetSession_SessionMalEcrite() {
+        // Arrange
+        when(userDAO.findById(1L)).thenReturn(Optional.of(mock(User.class)));
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            userService.setSession(1L, "winter-2025");
+        });
+    }
+
+    @Test
+    @DisplayName("testSetSession - L'utilisateur n'existe pas")
+    void testSetSession_UserNotFound() {
+        // Arrange
+        when(userDAO.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            userService.setSession(1L, "winter-2025");
+        });
+    }
+
+    @Test
+    @DisplayName("testSetSession - session changee avec success")
+    void testSetSession_Success() {
+        // Arrange
+        Student student = Student.builder()
+                .id(1L)
+                .session("Winter-2025")
+                    .build();
+
+        when(userDAO.findById(1L)).thenReturn(Optional.of(student));
+
+        // Act
+        userService.setSession(1L, "Winter-2025");
+
+        // Assert
+        verify(userDAO).save(student);
     }
 
     private StudentDTO createStudentDTO(String password) {

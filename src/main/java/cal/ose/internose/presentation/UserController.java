@@ -49,7 +49,7 @@ public class UserController {
     @PutMapping(Paths.SET_SESSION_PATH)
     public ResponseEntity<?> setSession(@RequestBody Map<String, Object> body) {
         try {
-            Long id = (Long) body.get("id");
+            long id = ((Number) body.get("id")).longValue();
             String session = (String) body.get("session");
 
             userService.setSession(id, session);

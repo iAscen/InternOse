@@ -8,6 +8,7 @@ import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,10 +19,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -150,6 +154,72 @@ class UserControllerTest {
             HttpStatus.FORBIDDEN,
             "Incorrect username or password",
             null
+        );
+    }
+
+    @Test
+    @DisplayName("test setSession() - NoSuchElementException")
+    void testSetSessionNoSuchElementException() throws Exception {
+        // Arrange
+        doThrow(new NoSuchElementException("not found")).when(userService).setSession(anyLong(), anyString());
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            put(Paths.SET_SESSION_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\": 123, \"session\": \"Winter-2025\"}") // id = long, session = string
+        ).andReturn();
+
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.NOT_FOUND,
+            "not found",
+            null
+        );
+    }
+
+    @Test
+    @DisplayName("test setSession() - IllegalArgumentException")
+    void testSetSessionIllegalArgumentException() throws Exception {
+        // Arrange
+        doThrow(new IllegalArgumentException("illegal")).when(userService).setSession(anyLong(), anyString());
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            put(Paths.SET_SESSION_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\": 123, \"session\": \"Winter-2025\"}") // id = long, session = string
+        ).andReturn();
+
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.BAD_REQUEST,
+            "illegal",
+            null
+        );
+    }
+
+    @Test
+    @DisplayName("test setSession() - Success")
+    void testSetSessionSuccess() throws Exception {
+        // Arrange
+        doNothing().when(userService).setSession(anyLong(), anyString());
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+            put(Paths.SET_SESSION_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\": 123, \"session\": \"Winter-2025\"}") // id = long, session = string
+        ).andReturn();
+
+        // Assert
+        assertMvcResult(
+            mvcResult,
+            HttpStatus.OK,
+            null,
+            "Winter-2025"
         );
     }
 
