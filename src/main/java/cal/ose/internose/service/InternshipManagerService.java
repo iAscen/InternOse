@@ -5,10 +5,8 @@ import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
-import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
-import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
-import cal.ose.internose.service.exceptions.NoResumeUploadedException;
-import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
+import cal.ose.internose.service.exceptions.*;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -104,6 +102,10 @@ public class InternshipManagerService {
 
         StudentApplication studentApplication = studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer)
             .orElseThrow();
+
+        if (!internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
+            throw new SessionMismatchException("La session de l'offre de stage ne correspond pas à la session actuelle");
+        }
 
         if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
             throw new InternshipOfferNotAcceptedByStudentException();

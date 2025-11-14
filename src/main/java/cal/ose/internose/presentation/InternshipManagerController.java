@@ -31,7 +31,8 @@ public class InternshipManagerController {
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String isVerified,
         @RequestParam(required = false) String program,
-        @RequestParam(required = false) String title
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String session
     ) {
         Boolean isVerifiedBoolean = null;
         if (isVerified != null && !isVerified.equals("null") && !isVerified.isEmpty())
@@ -39,7 +40,7 @@ public class InternshipManagerController {
 
         try {
             List<InternshipOfferDTO> internshipOfferDTOs = internshipManagerService.findInternshipsBy(
-                isVerifiedBoolean, program, title, sortBy
+                isVerifiedBoolean, program, title, session, sortBy
             );
 
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTOs));
