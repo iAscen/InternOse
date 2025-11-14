@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -131,6 +132,14 @@ public class UserService {
 
         user.setSession(session);
         userDAO.save(user);
+    }
+
+    public String getSessionOfAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Credentials credentials = (Credentials) auth.getCredentials();
+        User user = userDAO.findByCredentials_Email(credentials.getEmail()).orElseThrow();
+
+        return user.getSession();
     }
 
     public void verifyPasswordCriteria(String password) throws WeakPasswordException {
