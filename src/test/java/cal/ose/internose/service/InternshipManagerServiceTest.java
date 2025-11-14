@@ -7,10 +7,7 @@ import cal.ose.internose.persistance.StudentApplicationDAO;
 import cal.ose.internose.persistance.StudentDAO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
-import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
-import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
-import cal.ose.internose.service.exceptions.NoResumeUploadedException;
-import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
+import cal.ose.internose.service.exceptions.*;
 import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -384,6 +381,29 @@ class InternshipManagerServiceTest {
 
         // Act && Assert
         assertThrows(InternshipOfferNotAcceptedByStudentException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
+    }
+
+    @Test
+    @DisplayName("Test de la methode createInternshipContract() - Session non correspondante")
+    public void testCreateInternshipContract_SessionNonCorrespondante() {
+        //Arrange
+        InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession("Winter-2001");
+        Student student = new Student();
+
+        InternshipContractDTO createInternshipContractDTO =
+            InternshipContractDTO.builder()
+                .internshipOfferId(1L)
+                .studentId(1L)
+                .build();
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.APPROVED).build()));
+
+        // Act && Assert
+        assertThrows(SessionMismatchException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
     }
 
     @Test
