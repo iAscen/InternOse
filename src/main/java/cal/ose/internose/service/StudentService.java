@@ -196,11 +196,12 @@ public class StudentService {
         List<InternshipOffer> approvedInternshipOffers = internshipOfferDAO.findAll()
             .stream()
             .filter(offer -> offer.getVerificationStatus() == VerificationStatus.APPROVED)
+            .filter(offer -> offer.getSession().equals(SessionUtil.getCurrentSession()))
             .toList();
 
         return approvedInternshipOffers.stream().map(internshipOffer -> {
-            InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
             Student student = studentDAO.findById(studentID).orElseThrow();
+            InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
             Optional<StudentApplication> studentApplication =
                 studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer);
             studentApplication.ifPresent(
