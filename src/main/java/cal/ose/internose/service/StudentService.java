@@ -12,6 +12,8 @@ import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipOfferNotApprovedException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -155,6 +157,10 @@ public class StudentService {
         throws ResumeNotApprovedException, InternshipOfferNotApprovedException, InterviewAlreadyScheduledException {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
+
+        if  (internshipOffer != null && !internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
+            throw new SessionMismatchException("La session de l'offre de stage ne correspond pas à la session actuelle");
+        }
 
         if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED)
             throw new ResumeNotApprovedException();
