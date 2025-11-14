@@ -159,7 +159,7 @@ public class StudentService {
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
 
         if  (internshipOffer != null && !internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
-            throw new SessionMismatchException("La session de l'offre de stage ne correspond pas à la session actuelle");
+            throw new SessionMismatchException();
         }
 
         if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED)

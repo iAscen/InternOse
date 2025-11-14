@@ -104,7 +104,7 @@ public class InternshipManagerService {
             .orElseThrow();
 
         if (!internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
-            throw new SessionMismatchException("La session de l'offre de stage ne correspond pas à la session actuelle");
+            throw new SessionMismatchException();
         }
 
         if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
