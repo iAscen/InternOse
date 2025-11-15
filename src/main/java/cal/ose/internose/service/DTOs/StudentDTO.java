@@ -1,5 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
+import cal.ose.internose.modele.Professor;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
@@ -30,6 +31,7 @@ public class StudentDTO extends UserDTO {
     private LocalDateTime applicationDate;
     private StudentApplication.ApplicationStatus applicationStatus;
     private StudentApplication.SeenStatus seenStatus;
+    private Professor assignedProfessor;
 
     public static StudentDTO fromEntity(Student student) {
         return StudentDTO.builder()
@@ -48,10 +50,15 @@ public class StudentDTO extends UserDTO {
             .resumeVerificationStatus(student.getResumeVerificationStatus())
             .resumeVerifiedDate(student.getResumeVerifiedDate())
             .resumeRejectionReason(student.getResumeRejectionReason())
+            .assignedProfessor(student.getAssignedProfessor())
             .build();
     }
 
     public static List<StudentDTO> fromEntityList(List<Student> students) {
         return students.stream().map(StudentDTO::fromEntity).toList();
+    }
+
+    public void setFirstName(String firstName) {
+        super.setFirstName(firstName);
     }
 }

@@ -1,17 +1,18 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.NotificationDAO;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
+import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,8 +23,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.junit.jupiter.api.AfterEach;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -43,6 +45,8 @@ public class UserServiceTest {
     private JwtTokenProvider jwtTokenProvider;
     @Mock
     private UserDAO userDAO;
+    @Mock
+    private NotificationDAO notificationDAO;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -117,7 +121,7 @@ public class UserServiceTest {
     @Test
     void testEmployerMissingFields() {
         EmployerDTO dto = createEmployerDTO(null);
-        dto.setFirstName(null);
+        dto.setCompany(null);
 
         when(userDAO.save(any(Employer.class)))
             .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
@@ -243,6 +247,35 @@ public class UserServiceTest {
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, never()).generateToken(any());
+    }
+
+    @DisplayName("Test de la methode findNotifications(long userId) - Execution normale")
+    @Test
+    void testFindNotifications_NormalExecution() {
+        Notification notif = Notification.builder()
+            .id(1L)
+            .message("Hello")
+            .build();
+
+        User user = mock(User.class);
+
+        when(userDAO.findById(1L)).thenReturn(Optional.of(user));
+        when(notificationDAO.findByUser(user)).thenReturn(List.of(notif));
+
+        List<NotificationDTO> result = userService.findNotifications(1L);
+
+        assertEquals(1, result.size());
+        assertEquals("Hello", result.getFirst().getMessage());
+    }
+
+    @DisplayName("Test de la methode findNotifications(long userId) - Utilisateur existe pas")
+    @Test
+    void testFindNotifications_UserNotFound() {
+        when(userDAO.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> {
+            userService.findNotifications(1L);
+        });
     }
 
     private StudentDTO createStudentDTO(String password) {

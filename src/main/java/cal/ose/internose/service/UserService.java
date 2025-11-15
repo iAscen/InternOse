@@ -1,12 +1,10 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.NotificationDAO;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import cal.ose.internose.service.DTOs.LoginDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
@@ -21,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -30,6 +31,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final NotificationDAO notificationDAO;
 
     public void registerInternshipManager(InternshipManagerDTO internshipManagerDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
@@ -44,18 +46,17 @@ public class UserService {
         registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
     }
 
-    public String registerEmployer(EmployerDTO employerDTO)
+    public void registerProfessor(ProfessorDTO professorDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
-        Employer employer = Employer.builder()
+        Professor professor = Professor.builder()
             .credentials(
-                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+                new Credentials(professorDTO.getEmail(), passwordEncoder.encode(professorDTO.getPassword()), UserRole.PROFESSOR)
             )
-            .firstName(employerDTO.getFirstName())
-            .lastName(employerDTO.getLastName())
-            .company(employerDTO.getCompany())
+            .firstName(professorDTO.getFirstName())
+            .lastName(professorDTO.getLastName())
             .build();
 
-        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
+        registerUser(professorDTO.getEmail(), professorDTO.getPassword(), professor);
     }
 
     public String registerStudent(StudentDTO studentDTO)
@@ -73,6 +74,20 @@ public class UserService {
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);
     }
 
+    public String registerEmployer(EmployerDTO employerDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
+        Employer employer = Employer.builder()
+            .credentials(
+                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+            )
+            .firstName(employerDTO.getFirstName())
+            .lastName(employerDTO.getLastName())
+            .company(employerDTO.getCompany())
+            .build();
+
+        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
+    }
+
     public String login(LoginDTO loginDTO) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -86,6 +101,19 @@ public class UserService {
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName()
         );
+    }
+
+    public List<NotificationDTO> findNotifications(long userId) {
+        User user = userDAO.findById(userId).orElseThrow();
+        return notificationDAO.findByUser(user).stream().map(
+            notification -> NotificationDTO.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .createdAt(notification.getCreatedAt())
+                .message(notification.getMessage())
+                .checked(notification.isChecked())
+                .build()
+        ).toList();
     }
 
     private String registerUser(String email, String password, User user)

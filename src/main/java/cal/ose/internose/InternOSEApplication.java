@@ -69,11 +69,21 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
+                userService.registerProfessor(
+                    ProfessorDTO.builder()
+                        .firstName("Thomas")
+                        .lastName("C.")
+                        .email("toto@gmail.com")
+                        .password("Password123!")
+                        .build()
+                );
+                EmployerDTO karim = employerService.findEmployerByEmail("karim@gmail.com");
+                StudentDTO alice = studentService.findStudentByEmail("alice@gmail.com");
 
                 // Téléverser et approuver un CV fictif
                 MultipartFile dummyResume = DummyMultipartFile.createDummyResume();
-                studentService.uploadResume(2L, dummyResume);
-                internshipManagerService.verifyResume(2L, true, "");
+                studentService.uploadResume(alice.getId(), dummyResume);
+                internshipManagerService.verifyResume(alice.getId(), true, "");
 
                 userService.registerStudent(
                     StudentDTO.builder()
@@ -85,8 +95,9 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-                studentService.uploadResume(4L, dummyResume);
-                internshipManagerService.verifyResume(4L, true, "");
+                StudentDTO amine = studentService.findStudentByEmail("amine@gmail.com");
+                studentService.uploadResume(amine.getId(), dummyResume);
+                internshipManagerService.verifyResume(amine.getId(), true, "");
                 userService.registerStudent(
                     StudentDTO.builder()
                         .firstName("Walid")
@@ -97,12 +108,13 @@ public class InternOSEApplication {
                         .password("Password123!")
                         .build()
                 );
-                studentService.uploadResume(5L, dummyResume);
-                internshipManagerService.verifyResume(5L, true, "");
+                StudentDTO walid = studentService.findStudentByEmail("walid@gmail.com");
+                studentService.uploadResume(walid.getId(), dummyResume);
+                internshipManagerService.verifyResume(walid.getId(), true, "");
 
                 // Créer quelques offres de stage en avance
-                employerService.createInternshipOffer(
-                    1L,
+                InternshipOfferDTO kotlinDev = employerService.createInternshipOffer(
+                    karim.getId(),
                     InternshipOfferDTO.builder()
                         .title("Développeur Kotlin")
                         .description("Développer des applications mobiles pour Android")
@@ -115,7 +127,7 @@ public class InternOSEApplication {
                         .build()
                 );
                 employerService.createInternshipOffer(
-                    1L,
+                    karim.getId(),
                     InternshipOfferDTO.builder()
                         .title("Développeur Swift")
                         .description("Développer des applications mobiles pour iOS")
@@ -128,7 +140,7 @@ public class InternOSEApplication {
                         .build()
                 );
                 employerService.createInternshipOffer(
-                    1L,
+                    karim.getId(),
                     InternshipOfferDTO.builder()
                         .title("Concepteur UI/UX")
                         .description("Concevoir des expériences utilisateur")
@@ -140,8 +152,8 @@ public class InternOSEApplication {
                         .address("Paris, France")
                         .build()
                 );
-                employerService.createInternshipOffer(
-                    1L,
+                InternshipOfferDTO electricEngineer = employerService.createInternshipOffer(
+                    karim.getId(),
                     InternshipOfferDTO.builder()
                         .title("Ingénieur électrique")
                         .description("Construire et travailler sur des mécanismes électriques")
@@ -153,8 +165,8 @@ public class InternOSEApplication {
                         .address("Kahnawake, Québec")
                         .build()
                 );
-                employerService.createInternshipOffer(
-                    1L,
+                InternshipOfferDTO architect = employerService.createInternshipOffer(
+                    karim.getId(),
                     InternshipOfferDTO.builder()
                         .title("Architecte")
                         .description("Planifier la construction des bâtiments")
@@ -168,33 +180,33 @@ public class InternOSEApplication {
                 );
 
                 // Approuver quelques offres de stage en avance
-                internshipManagerService.verifyInternshipOffer(1L, true, "");
-                internshipManagerService.verifyInternshipOffer(4L, true, "");
-                internshipManagerService.verifyInternshipOffer(5L, true, "");
+                internshipManagerService.verifyInternshipOffer(kotlinDev.getId(), true, "");
+                internshipManagerService.verifyInternshipOffer(electricEngineer.getId(), true, "");
+                internshipManagerService.verifyInternshipOffer(architect.getId(), true, "");
 
                 // Ajouter quelques candidatures aux offres de stage en avance
-                studentService.applyToInternshipOffer(2L, 1L);
-                studentService.applyToInternshipOffer(4L, 1L);
-                studentService.applyToInternshipOffer(5L, 1L);
-                studentService.applyToInternshipOffer(4L, 5L);
-                studentService.applyToInternshipOffer(5L, 5L);
+                studentService.applyToInternshipOffer(alice.getId(), kotlinDev.getId());
+                studentService.applyToInternshipOffer(amine.getId(), kotlinDev.getId());
+                studentService.applyToInternshipOffer(walid.getId(), kotlinDev.getId());
+                studentService.applyToInternshipOffer(amine.getId(), architect.getId());
+                studentService.applyToInternshipOffer(walid.getId(), architect.getId());
 
                 // Planifier quelques entrevues en avance
-                employerService.scheduleInterview(1L, 4L, InterviewDTO.builder()
+                employerService.scheduleInterview(kotlinDev.getId(), amine.getId(), InterviewDTO.builder()
                     .interviewDate(LocalDateTime.of(2025, 12, 1, 15, 30))
                     .interviewMode(Interview.InterviewMode.ONLINE)
                     .location("https://zoom.us/meeting")
                     .personalizedMessage("Nous sommes ravis de vous rencontrer")
                     .build()
                 );
-                employerService.scheduleInterview(5L, 4L, InterviewDTO.builder()
+                employerService.scheduleInterview(architect.getId(), amine.getId(), InterviewDTO.builder()
                     .interviewDate(LocalDateTime.of(2025, 12, 1, 13, 30))
                     .interviewMode(Interview.InterviewMode.IN_PERSON)
                     .location("129, rue Rideau")
                     .personalizedMessage("Nous sommes ravis de vous rencontrer")
                     .build()
                 );
-                employerService.scheduleInterview(1L, 5L, InterviewDTO.builder()
+                employerService.scheduleInterview(kotlinDev.getId(), walid.getId(), InterviewDTO.builder()
                     .interviewDate(LocalDateTime.of(2025, 12, 1, 14, 30))
                     .interviewMode(Interview.InterviewMode.IN_PERSON)
                     .location("129, rue Rideau")
@@ -203,23 +215,22 @@ public class InternOSEApplication {
                 );
 
                 // Accepter quelques candidatures en avance
-                employerService.reviewApplication(1L, 2L, true, "");
-                employerService.reviewApplication(5L, 4L, true, "");
-                employerService.reviewApplication(5L, 5L, true, "");
+                employerService.reviewApplication(kotlinDev.getId(), alice.getId(), true, "");
+                employerService.reviewApplication(architect.getId(), amine.getId(), true, "");
+                employerService.reviewApplication(architect.getId(), walid.getId(), true, "");
 
                 // Accepter quelques offres de stage en avance
-                studentService.respondToApprovedOffer(2L, 1L, true);
-                studentService.respondToApprovedOffer(5L, 5L, true);
+                studentService.respondToApprovedOffer(alice.getId(), kotlinDev.getId(), true);
+                studentService.respondToApprovedOffer(walid.getId(), architect.getId(), true);
 
                 // Créer une entente de stage en avance
-                // L'offre 1L (Développeur Kotlin) a startDate = 2026-02-19 et duration = 8 semaines
-                // Donc endDate = 2026-02-19 + 8 semaines = 2026-04-16
+                int weeklyHours = 35;
                 InternshipContractDTO internshipContractDTO = InternshipContractDTO.builder()
-                    .studentId(2L)
-                    .internshipOfferId(1L)
-                    .startDate(LocalDate.of(2026, 2, 19))
-                    .endDate(LocalDate.of(2026, 4, 16))
-                    .weeklyHours(35)
+                    .studentId(alice.getId())
+                    .internshipOfferId(kotlinDev.getId())
+                    .startDate(kotlinDev.getStartDate())
+                    .endDate(kotlinDev.getEndDate())
+                    .weeklyHours(weeklyHours)
                     .tasks("Développement des applications web avec Java et Angular.")
                     .educationalObjectives("Appliquer les connaissances acquises en programmation et apprendre le travail en équipe.")
                     .supervisorName("Jean Tremblay")
@@ -227,7 +238,6 @@ public class InternOSEApplication {
                     .supervisorEmail("jean.tremblay@entreprise.qc.ca")
                     .supervisorPhone("514-555-1234")
                     .build();
-                internshipManagerService.createInternshipContract(internshipContractDTO);
             }
         };
     }

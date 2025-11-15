@@ -3,11 +3,15 @@ package cal.ose.internose.security;
 public class Paths {
     public static final String API_BASE_PATH = "/api";
 
-    // Utilisateur
+    // Auth
     public static final String AUTH_BASE_PATH = API_BASE_PATH + "/auth";
     public static final String EMPLOYER_REGISTER_PATH = AUTH_BASE_PATH + "/employer/register";
     public static final String STUDENT_REGISTER_PATH = AUTH_BASE_PATH + "/student/register";
     public static final String LOGIN_PATH = AUTH_BASE_PATH + "/login";
+
+    // User
+    public static final String USER_BASE_PATH = API_BASE_PATH + "/user";
+    public static final String USER_NOTIFICATIONS_PATH = USER_BASE_PATH + "/{userID}/notifications";
 
     // Employeur
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";
@@ -55,4 +59,6 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_VERIFY_RESUME_PATH = INTERNSHIP_MANAGER_RESUME_PATH + "/verify";
     public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/contracts";
     public static final String INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH = INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH + "/{contractId}/sign";
+    public static final String INTERNSHIP_MANAGER_PROFESSORS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/professors";
+    public static final String INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH = INTERNSHIP_MANAGER_PROFESSORS_PATH + "/{professorID}/assign";
 }

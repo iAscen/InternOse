@@ -6,6 +6,5 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-@Setter
 public class InternshipManagerDTO extends UserDTO {
 }

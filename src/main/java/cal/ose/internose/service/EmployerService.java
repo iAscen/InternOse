@@ -291,4 +291,9 @@ public class EmployerService {
         if (!employerID.equals(internshipContract.getEmployer().getId()))
             throw new ForbiddenException("Vous n'êtes pas le propriétaire de cette entente de stage!");
     }
+
+    public EmployerDTO findEmployerByEmail(String email) {
+        Employer employer = employerDAO.findByCredentials_Email(email);
+        return EmployerDTO.fromEntity(employer);
+    }
 }

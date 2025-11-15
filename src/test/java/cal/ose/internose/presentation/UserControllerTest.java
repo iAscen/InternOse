@@ -3,10 +3,13 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
+import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +21,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @WebMvcTest(UserController.class)
@@ -153,6 +161,53 @@ class UserControllerTest {
         );
     }
 
+    @Test
+    void findNotifications_Ok() throws Exception {
+        // Arrange
+        long userId = 1L;
+        NotificationDTO notifDTO = NotificationDTO.builder()
+            .id(100L)
+            .message("Hello")
+            .checked(false)
+            .build();
+        List<NotificationDTO> notifications = List.of(notifDTO);
+
+        when(userService.findNotifications(userId)).thenReturn(notifications);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.USER_NOTIFICATIONS_PATH.replace("{userID}", String.valueOf(userId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        String json = mvcResult.getResponse().getContentAsString();
+        List<NotificationDTO> result = objectMapper.readValue(
+            json, new TypeReference<List<NotificationDTO>>() {}
+        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.getFirst().getMessage()).isEqualTo("Hello");
+    }
+
+    @Test
+    void findNotifications_NotFound() throws Exception {
+        // Arrange
+        long userId = 1L;
+        when(userService.findNotifications(userId)).thenThrow(new NoSuchElementException("Utilisateur non trouvé"));
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.USER_NOTIFICATIONS_PATH.replace("{userID}", String.valueOf(userId)))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(mvcResult.getResponse().getContentAsString())
+            .contains("Utilisateur non trouvé");
+    }
+
     private MvcResult performRequest(String path, String body) throws Exception {
         return mockMvc.perform(
             post(path)
@@ -160,6 +215,8 @@ class UserControllerTest {
                 .content(body)
         ).andReturn();
     }
+
+
 
     private void assertMvcResult(
         MvcResult mvcResult,

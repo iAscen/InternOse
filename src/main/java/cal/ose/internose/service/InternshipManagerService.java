@@ -4,6 +4,7 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
@@ -26,6 +27,8 @@ public class InternshipManagerService {
     private final StudentDAO studentDAO;
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
+    private final ProfessorDAO professorDAO;
+    private final NotificationDAO notificationDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -109,7 +112,7 @@ public class InternshipManagerService {
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
 
-    public void createInternshipContract(InternshipContractDTO createInternshipContractDTO) {
+    public void createInternshipContract(InternshipContractDTO createInternshipContractDTO) throws InternshipOfferNotAcceptedByStudentException, InternshipContractAlreadyExistsException {
         Student student = studentDAO.findById(createInternshipContractDTO.getStudentId()).orElseThrow();
         InternshipOffer internshipOffer = internshipOfferDAO.findById(createInternshipContractDTO.getInternshipOfferId()).orElseThrow();
 
@@ -179,5 +182,58 @@ public class InternshipManagerService {
         internshipContractDAO.save(contract);
         
         return InternshipContractDTO.fromEntity(contract);
+    }
+
+    public List<ProfessorDTO> findAllProfessors() {
+        List<Professor> professors = professorDAO.findAll();
+        return ProfessorDTO.fromEntityList(professors);
+    }
+
+    public StudentDTO assignProfessorToStudent(long studentID, Long professorID) {
+        Student student = studentDAO.findById(studentID).orElseThrow();
+
+        List<StudentApplication> confirmedStudentApplications = studentApplicationDAO.findByStudent(student)
+            .stream().filter(studentApplication -> studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
+                studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING_CONTRACT)
+            .toList();
+
+        if (professorID != null && confirmedStudentApplications.isEmpty()) {
+            throw new IllegalStateException("L’étudiant ne peut pas se voir attribuer un professeur sans un stage confirmé");
+        }
+
+        Professor professor = null;
+
+        if (professorID != null) {
+            professor = professorDAO.findById(professorID).orElseThrow();
+        }
+
+        Professor previousProfessor = student.getAssignedProfessor();
+
+        if (professor != null && previousProfessor != professor) {
+            Notification notificationForProfessor = createStudentAssignedToProfessorNotification(
+                professor, "L'étudiant " + student.getFirstName() + " "
+                + student.getLastName() + " vous a été assigné.");
+
+            notificationDAO.save(notificationForProfessor);
+
+            Notification notificationForStudent = createStudentAssignedToProfessorNotification(
+                student, "Vous avez été assigné au professeur " + professor.getFirstName() + " " + professor.getLastName() + "."
+            );
+
+            notificationDAO.save(notificationForStudent);
+        }
+
+        student.setAssignedProfessor(professor);
+        return StudentDTO.fromEntity(studentDAO.save(student));
+    }
+
+    private Notification createStudentAssignedToProfessorNotification(User userToNotify, String message) {
+        LocalDateTime now = LocalDateTime.now();
+        return Notification.builder()
+            .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
+            .user(userToNotify)
+            .createdAt(now)
+            .message(message)
+            .build();
     }
 }
