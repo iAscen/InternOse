@@ -2,10 +2,12 @@ package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.Professor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+@NoArgsConstructor
 @SuperBuilder
 @Getter
 public class ProfessorDTO extends UserDTO {
