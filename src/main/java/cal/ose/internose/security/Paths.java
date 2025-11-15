@@ -8,6 +8,7 @@ public class Paths {
     public static final String EMPLOYER_REGISTER_PATH = AUTH_BASE_PATH + "/employer/register";
     public static final String STUDENT_REGISTER_PATH = AUTH_BASE_PATH + "/student/register";
     public static final String LOGIN_PATH = AUTH_BASE_PATH + "/login";
+    public static final String SET_SESSION_PATH = AUTH_BASE_PATH + "/session";
 
     // User
     public static final String USER_BASE_PATH = API_BASE_PATH + "/user";

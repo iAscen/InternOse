@@ -1,7 +1,6 @@
 package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.NotificationType;
-import cal.ose.internose.modele.User;
 import lombok.*;
 
 import java.time.LocalDateTime;

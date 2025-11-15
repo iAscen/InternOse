@@ -9,7 +9,7 @@ import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -33,7 +33,8 @@ public class InternshipManagerController {
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String isVerified,
         @RequestParam(required = false) String program,
-        @RequestParam(required = false) String title
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String session
     ) {
         Boolean isVerifiedBoolean = null;
         if (isVerified != null && !isVerified.equals("null") && !isVerified.isEmpty())
@@ -41,7 +42,7 @@ public class InternshipManagerController {
 
         try {
             List<InternshipOfferDTO> internshipOfferDTOs = internshipManagerService.findInternshipsBy(
-                isVerifiedBoolean, program, title, sortBy
+                isVerifiedBoolean, program, title, session, sortBy
             );
 
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTOs));
@@ -149,7 +150,8 @@ public class InternshipManagerController {
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(InternshipContractDTO));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
+        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException |
+                 SessionMismatchException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");

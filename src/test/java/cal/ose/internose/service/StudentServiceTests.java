@@ -8,6 +8,7 @@ import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
+import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -372,6 +373,8 @@ public class StudentServiceTests {
     // ========== MÉTHODES UTILITAIRES POUR LES OFFRES DE STAGE ==========
 
     private List<InternshipOffer> createTestOffers() {
+        String session = SessionUtil.getCurrentSession();
+
         Employer employer1 = Employer.builder()
                 .company("TechCorp")
                 .build();
@@ -388,6 +391,7 @@ public class StudentServiceTests {
                 .title("Développeur Java")
                 .program("Informatique")
                 .address("Montréal, QC")
+                .session(session)
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))
@@ -400,6 +404,7 @@ public class StudentServiceTests {
                 .title("Analyste de données")
                 .program("Informatique")
                 .address("Montréal, QC")
+            .session(session)
                 .salary(650.0)
                 .duration(16)
                 .startDate(LocalDate.of(2024, 7, 1))
@@ -410,6 +415,8 @@ public class StudentServiceTests {
     }
 
     private InternshipOffer createTestOffer() {
+        String session = SessionUtil.getCurrentSession();
+
         Employer employer = Employer.builder()
                 .company("TechCorp")
                 .build();
@@ -421,6 +428,7 @@ public class StudentServiceTests {
                 .title("Développeur Java")
                 .program("Informatique")
                 .address("Montréal, QC")
+                .session(session)
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))

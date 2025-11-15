@@ -12,7 +12,11 @@ import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import org.junit.jupiter.api.*;
+import cal.ose.internose.utilities.SessionUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -69,7 +73,7 @@ public class UserServiceTest {
         when(userDAO.findByCredentials_Email(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userDAO.save(any())).thenReturn(user);
-        when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString()))
+        when(jwtTokenProvider.generateToken(any(), anyLong(), anyString(), anyString(), anyString()))
             .thenReturn("mocked-jwt-token");
     }
 
@@ -222,8 +226,9 @@ public class UserServiceTest {
         when(mockUser.getId()).thenReturn(1L);
         when(mockUser.getFirstName()).thenReturn(TEST_FIRST_NAME);
         when(mockUser.getLastName()).thenReturn(TEST_LAST_NAME);
+        when(mockUser.getSession()).thenReturn(SessionUtil.getCurrentSession());
         when(jwtTokenProvider.generateToken(
-            eq(mockAuthentication), eq(1L), anyString(), anyString())).thenReturn("jwt-token");
+            eq(mockAuthentication), eq(1L), anyString(), anyString(), anyString())).thenReturn("jwt-token");
 
         String token = userService.login(loginDTO);
 
@@ -231,7 +236,7 @@ public class UserServiceTest {
         assertEquals("jwt-token", token);
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userDAO).findByCredentials_Email(loginDTO.getEmail());
-        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString());
+        verify(jwtTokenProvider).generateToken(eq(mockAuthentication), anyLong(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -276,6 +281,48 @@ public class UserServiceTest {
         assertThrows(NoSuchElementException.class, () -> {
             userService.findNotifications(1L);
         });
+    }
+
+    @Test
+    @DisplayName("testSetSession - La session est mal ecrite")
+    void testSetSession_SessionMalEcrite() {
+        // Arrange
+        when(userDAO.findById(1L)).thenReturn(Optional.of(mock(User.class)));
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            userService.setSession(1L, "winter-2025");
+        });
+    }
+
+    @Test
+    @DisplayName("testSetSession - L'utilisateur n'existe pas")
+    void testSetSession_UserNotFound() {
+        // Arrange
+        when(userDAO.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            userService.setSession(1L, "winter-2025");
+        });
+    }
+
+    @Test
+    @DisplayName("testSetSession - session changee avec success")
+    void testSetSession_Success() {
+        // Arrange
+        Student student = Student.builder()
+                .id(1L)
+                .session("Winter-2025")
+                    .build();
+
+        when(userDAO.findById(1L)).thenReturn(Optional.of(student));
+
+        // Act
+        userService.setSession(1L, "Winter-2025");
+
+        // Assert
+        verify(userDAO).save(student);
     }
 
     private StudentDTO createStudentDTO(String password) {

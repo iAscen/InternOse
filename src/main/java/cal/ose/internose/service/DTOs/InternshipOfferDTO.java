@@ -25,6 +25,7 @@ public class InternshipOfferDTO {
     private double salary;
     private String address;
     private VerificationStatus verificationStatus;
+    private String session;
     private String rejectionReason;
     private String applicationStatus; // Statut de candidature de l'étudiant
     private String seenStatus; // Si l'application a ete vue par l'employeur ou non
@@ -48,6 +49,7 @@ public class InternshipOfferDTO {
             .address(internshipOffer.getAddress())
             .verificationStatus(internshipOffer.getVerificationStatus())
             .rejectionReason(internshipOffer.getRejectionReason())
+            .session(internshipOffer.getSession())
             .build();
     }
 

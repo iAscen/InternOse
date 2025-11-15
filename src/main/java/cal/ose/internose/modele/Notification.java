@@ -2,11 +2,11 @@ package cal.ose.internose.modele;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,5 +24,6 @@ public class Notification {
     private LocalDateTime createdAt;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+    @Builder.Default
     private boolean checked = false;
 }

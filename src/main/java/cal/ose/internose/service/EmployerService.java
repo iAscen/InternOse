@@ -6,6 +6,7 @@ import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class EmployerService {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
         internshipOffer.setEmployer(employer);
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         internshipOffer.setVerificationStatus(VerificationStatus.PENDING);
         internshipOffer = internshipOfferDAO.save(internshipOffer);
         return InternshipOfferDTO.fromEntity(internshipOffer);

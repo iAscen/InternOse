@@ -1,6 +1,5 @@
 package cal.ose.internose.presentation;
 
-import cal.ose.internose.modele.Notification;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
@@ -12,13 +11,13 @@ import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -59,9 +58,24 @@ public class UserController {
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(notifications));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PutMapping(Paths.SET_SESSION_PATH)
+    public ResponseEntity<?> setSession(@RequestBody Map<String, Object> body) {
+        try {
+            long id = ((Number) body.get("id")).longValue();
+            String session = (String) body.get("session");
+
+            userService.setSession(id, session);
+
+            return getResponseEntity(HttpStatus.OK, session);
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalArgumentException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 

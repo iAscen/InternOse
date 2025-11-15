@@ -238,6 +238,7 @@ public class InternOSEApplication {
                     .supervisorEmail("jean.tremblay@entreprise.qc.ca")
                     .supervisorPhone("514-555-1234")
                     .build();
+                internshipManagerService.createInternshipContract(internshipContractDTO);
             }
         };
     }

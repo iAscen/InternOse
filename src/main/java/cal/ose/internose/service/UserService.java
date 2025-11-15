@@ -9,6 +9,7 @@ import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -98,8 +99,14 @@ public class UserService {
 
         User user = userDAO.findByCredentials_Email(loginDTO.getEmail()).orElseThrow();
 
+        String currentSession = SessionUtil.getCurrentSession();
+        if (user.getSession() == null || !user.getSession().equals(currentSession)) {
+            user.setSession(currentSession);
+            userDAO.save(user);
+        }
+
         return jwtTokenProvider.generateToken(
-            authentication, user.getId(), user.getFirstName(), user.getLastName()
+            authentication, user.getId(), user.getFirstName(), user.getLastName(), user.getSession()
         );
     }
 
@@ -127,16 +134,29 @@ public class UserService {
                 );
             }
 
+            user.setSession(SessionUtil.getCurrentSession());
             User savedUser = userDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 
             return jwtTokenProvider.generateToken(
-                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName()
+                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), user.getSession()
             );
         } catch (DataIntegrityViolationException e) {
             throw new RequiredFieldException(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage());
         }
+    }
+
+    public void setSession(long userId, String session) {
+        User user = userDAO.findById(userId)
+            .orElseThrow(() -> new NoSuchElementException("Utilisateur avec l'id " + userId + " introuvable"));
+
+        if (session == null || !session.matches("(Winter-\\d+|Autumn-\\d+)")) {
+            throw new IllegalArgumentException("La session doit être de la forme : Winter-2025 ou Autumn-2025");
+        }
+
+        user.setSession(session);
+        userDAO.save(user);
     }
 
     public void verifyPasswordCriteria(String password) throws WeakPasswordException {

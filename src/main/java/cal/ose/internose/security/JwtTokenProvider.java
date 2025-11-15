@@ -30,7 +30,7 @@ public class JwtTokenProvider {
         builder.compact();
     }
 
-    public String generateToken(Authentication authentication, Long id, String firstName, String lastName) {
+    public String generateToken(Authentication authentication, Long id, String firstName, String lastName, String session) {
         long nowMillis = System.currentTimeMillis();
         JwtBuilder builder = Jwts.builder()
             .setSubject(authentication.getName())
@@ -40,6 +40,7 @@ public class JwtTokenProvider {
             .claim("id", id)
             .claim("firstName", firstName)
             .claim("lastName", lastName)
+            .claim("session", session)
             .signWith(key());
         return builder.compact();
     }
