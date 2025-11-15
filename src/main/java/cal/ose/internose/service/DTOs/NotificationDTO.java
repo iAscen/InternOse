@@ -2,7 +2,6 @@ package cal.ose.internose.service.DTOs;
 
 import cal.ose.internose.modele.NotificationType;
 import cal.ose.internose.modele.User;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +16,5 @@ public class NotificationDTO {
     private String message;
     private NotificationType type;
     private LocalDateTime createdAt;
-    private User user;
     private boolean checked;
 }

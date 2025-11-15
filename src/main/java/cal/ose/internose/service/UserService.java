@@ -109,7 +109,6 @@ public class UserService {
             notification -> NotificationDTO.builder()
                 .id(notification.getId())
                 .type(notification.getType())
-                .user(notification.getUser())
                 .createdAt(notification.getCreatedAt())
                 .message(notification.getMessage())
                 .checked(notification.isChecked())
