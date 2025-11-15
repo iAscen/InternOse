@@ -4,6 +4,7 @@ import cal.ose.internose.modele.Notification;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
+import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
@@ -54,7 +55,7 @@ public class UserController {
     @GetMapping(Paths.USER_NOTIFICATIONS_PATH)
     public ResponseEntity<?> findNotifications(@PathVariable long userID) {
         try {
-            List<Notification> notifications = userService.findNotifications(userID);
+            List<NotificationDTO> notifications = userService.findNotifications(userID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(notifications));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");

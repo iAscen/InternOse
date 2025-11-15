@@ -103,9 +103,18 @@ public class UserService {
         );
     }
 
-    public List<Notification> findNotifications(long userId) {
+    public List<NotificationDTO> findNotifications(long userId) {
         User user = userDAO.findById(userId).orElseThrow();
-        return notificationDAO.findByUser(user);
+        return notificationDAO.findByUser(user).stream().map(
+            notification -> NotificationDTO.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .user(notification.getUser())
+                .createdAt(notification.getCreatedAt())
+                .message(notification.getMessage())
+                .checked(notification.isChecked())
+                .build()
+        ).toList();
     }
 
     private String registerUser(String email, String password, User user)
