@@ -185,6 +185,8 @@ public class InternshipManagerController {
         try {
             StudentDTO studentWithProfessor = internshipManagerService.assignProfessorToStudent(professorID, studentID);
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(studentWithProfessor));
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
