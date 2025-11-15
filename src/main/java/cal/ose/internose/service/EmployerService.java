@@ -6,6 +6,7 @@ import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class EmployerService {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
         internshipOffer.setEmployer(employer);
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         internshipOffer.setVerificationStatus(VerificationStatus.PENDING);
         internshipOffer = internshipOfferDAO.save(internshipOffer);
         return InternshipOfferDTO.fromEntity(internshipOffer);
@@ -290,5 +292,10 @@ public class EmployerService {
     public void isOwnerOfInternshipContract(Long employerID, InternshipContract internshipContract) throws ForbiddenException {
         if (!employerID.equals(internshipContract.getEmployer().getId()))
             throw new ForbiddenException("Vous n'êtes pas le propriétaire de cette entente de stage!");
+    }
+
+    public EmployerDTO findEmployerByEmail(String email) {
+        Employer employer = employerDAO.findByCredentials_Email(email);
+        return EmployerDTO.fromEntity(employer);
     }
 }

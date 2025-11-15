@@ -1,14 +1,12 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.TestPaths;
-import cal.ose.internose.modele.Credentials;
-import cal.ose.internose.modele.Student;
-import cal.ose.internose.modele.UserRole;
-import cal.ose.internose.modele.VerificationStatus;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
@@ -52,7 +50,7 @@ class InternshipManagerControllerTest {
     @Test
     void getAllEmployersInternshipOffers() throws Exception {
         when(internshipManagerService.findInternshipsBy(
-            null, "Informatique", null, null)).thenReturn(
+            null, "Informatique", null, null, null)).thenReturn(
             List.of(InternshipOfferDTO.builder().program("Informatique").build()));
 
         MvcResult mvcResult = mockMvc.perform(
@@ -76,7 +74,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersWithFilters() throws Exception {
         // Test avec filtrage par domaine et statut
         when(internshipManagerService.findInternshipsBy(
-            true, "Informatique", "Développeur", "title")).thenReturn(
+            true, "Informatique", "Développeur", "Winter-2025", "title")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .title("Développeur Java")
@@ -95,6 +93,7 @@ class InternshipManagerControllerTest {
                     .param("isVerified", "true")
                     .param("title", "Développeur")
                     .param("sortBy", "title")
+                    .param("session", "Winter-2025")
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -112,7 +111,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersWithSorting() throws Exception {
         // Test avec tri par statut
         when(internshipManagerService.findInternshipsBy(
-            null, null, null, "status")).thenReturn(
+            null, null, null, null, "status")).thenReturn(
             List.of(
                 InternshipOfferDTO.builder().program("Informatique")
                     .verificationStatus(
@@ -142,7 +141,7 @@ class InternshipManagerControllerTest {
     void getAllEmployersInternshipOffersEmptyResult() throws Exception {
         // Test avec aucun résultat
         when(internshipManagerService.findInternshipsBy(
-            null, "NonExistent", null, null)).thenReturn(List.of());
+            null, "NonExistent", null, null,null)).thenReturn(List.of());
 
         MvcResult mvcResult = mockMvc.perform(
                 get(Paths.INTERNSHIP_MANAGER_OFFERS_PATH)
@@ -677,5 +676,86 @@ class InternshipManagerControllerTest {
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Erreur lors de la signature");
+    }
+
+    @Test
+    void getAllProfessors_Ok() throws Exception {
+        // Arrange
+        ProfessorDTO professor1 = ProfessorDTO.builder()
+            .email("prof@gmail.com")
+            .build();
+
+        List<ProfessorDTO> professors = List.of(professor1);
+
+        when(internshipManagerService.findAllProfessors()).thenReturn(professors);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.INTERNSHIP_MANAGER_PROFESSORS_PATH)
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        String json = mvcResult.getResponse().getContentAsString();
+        List<ProfessorDTO> result = objectMapper.readValue(
+            json, new TypeReference<List<ProfessorDTO>>() {}
+        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    void getAllProfessors_BadRequest() throws Exception {
+        // Arrange
+        when(internshipManagerService.findAllProfessors()).thenThrow(RuntimeException.class);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                get(Paths.INTERNSHIP_MANAGER_PROFESSORS_PATH)
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void assignProfessorToStudent_CONFLICT() throws Exception {
+        // Arrange
+        long studentId = 1L;
+        long professorId = 2L;
+
+        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
+            .thenThrow(IllegalStateException.class);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("studentID", String.valueOf(studentId))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    void assignProfessorToStudent_BadRequest() throws Exception {
+        // Arrange
+        long studentId = 1L;
+        long professorId = 2L;
+
+        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
+            .thenThrow(RuntimeException.class);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("studentID", String.valueOf(studentId))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

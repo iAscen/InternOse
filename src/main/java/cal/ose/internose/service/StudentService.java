@@ -12,6 +12,8 @@ import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipOfferNotApprovedException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.service.exceptions.ResumeNotApprovedException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -156,6 +158,10 @@ public class StudentService {
         Student student = studentDAO.findById(studentID).orElse(null);
         InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElse(null);
 
+        if  (internshipOffer != null && !internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
+            throw new SessionMismatchException();
+        }
+
         if (student != null && student.getResumeVerificationStatus() != VerificationStatus.APPROVED)
             throw new ResumeNotApprovedException();
 
@@ -190,11 +196,12 @@ public class StudentService {
         List<InternshipOffer> approvedInternshipOffers = internshipOfferDAO.findAll()
             .stream()
             .filter(offer -> offer.getVerificationStatus() == VerificationStatus.APPROVED)
+            .filter(offer -> offer.getSession().equals(SessionUtil.getCurrentSession()))
             .toList();
 
         return approvedInternshipOffers.stream().map(internshipOffer -> {
-            InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
             Student student = studentDAO.findById(studentID).orElseThrow();
+            InternshipOfferDTO internshipOfferDTO = InternshipOfferDTO.fromEntity(internshipOffer);
             Optional<StudentApplication> studentApplication =
                 studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer);
             studentApplication.ifPresent(
@@ -261,5 +268,10 @@ public class StudentService {
         internshipContractDAO.save(contract);
 
         return InternshipContractDTO.fromEntity(contract);
+    }
+
+    public StudentDTO findStudentByEmail(String email) {
+        Student student = studentDAO.findByCredentials_Email(email);
+        return StudentDTO.fromEntity(student);
     }
 }

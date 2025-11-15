@@ -34,6 +34,7 @@ public class InternshipOffer {
     @Builder.Default
     private VerificationStatus verificationStatus = VerificationStatus.NONE;
     private String rejectionReason;
+    private String session;
 
     @ManyToMany
     @JoinTable(

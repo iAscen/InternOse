@@ -3,24 +3,29 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
+import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @AllArgsConstructor
 public class UserController {
     private UserService userService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping(Paths.EMPLOYER_REGISTER_PATH)
     public ResponseEntity<String> registerEmployer(@RequestBody EmployerDTO employerDTO)
@@ -43,6 +48,34 @@ public class UserController {
             return getResponseEntity(HttpStatus.OK, jwt);
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @GetMapping(Paths.USER_NOTIFICATIONS_PATH)
+    public ResponseEntity<?> findNotifications(@PathVariable long userID) {
+        try {
+            List<NotificationDTO> notifications = userService.findNotifications(userID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(notifications));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PutMapping(Paths.SET_SESSION_PATH)
+    public ResponseEntity<?> setSession(@RequestBody Map<String, Object> body) {
+        try {
+            long id = ((Number) body.get("id")).longValue();
+            String session = (String) body.get("session");
+
+            userService.setSession(id, session);
+
+            return getResponseEntity(HttpStatus.OK, session);
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalArgumentException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 

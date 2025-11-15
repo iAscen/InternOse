@@ -490,7 +490,7 @@ public class EmployerServiceTests {
 
         @Test
         @DisplayName("Test approver une application happy day scenario")
-        public void testApproveApplication() {
+        public void testApproveApplication() throws ApplicationAlreadyReviewedException {
             // Arrange
             Long internshipOfferID = 1L;
             Long studentID = 1L;
@@ -517,7 +517,7 @@ public class EmployerServiceTests {
 
         @Test
         @DisplayName("Test rejeter une application happy day scenario")
-        public void testRejectApplication() {
+        public void testRejectApplication() throws ApplicationAlreadyReviewedException {
             // Arrange
             Long internshipOfferID = 1L;
             Long studentID = 1L;
@@ -547,14 +547,14 @@ public class EmployerServiceTests {
         public void testReviewApplication_Throws_NoSuchElementException() {
             try {
                 employerService.reviewApplication(1L, 1L, true, "");
-            } catch (NoSuchElementException e) {
+            } catch (NoSuchElementException | ApplicationAlreadyReviewedException e) {
                 assertThat(e.getMessage()).isEqualTo("No value present");
             }
         }
 
         @Test
         @DisplayName("Test reviewApplication avec statut PENDING - accepter candidature")
-        public void testReviewApplication_WithPendingStatus_Accept() {
+        public void testReviewApplication_WithPendingStatus_Accept() throws ApplicationAlreadyReviewedException {
             // Arrange
             Long internshipOfferID = 1L;
             Long studentID = 1L;
@@ -581,7 +581,7 @@ public class EmployerServiceTests {
 
         @Test
         @DisplayName("Test reviewApplication avec statut PENDING - refuser candidature")
-        public void testReviewApplication_WithPendingStatus_Reject() {
+        public void testReviewApplication_WithPendingStatus_Reject() throws ApplicationAlreadyReviewedException {
             // Arrange
             Long internshipOfferID = 1L;
             Long studentID = 1L;
@@ -630,7 +630,7 @@ public class EmployerServiceTests {
             try {
                 employerService.reviewApplication(1L, 1L, true, "");
             } catch (ApplicationAlreadyReviewedException e) {
-                assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
+                assertThat(e.getMessage()).isEqualTo("Cette candidature est déjà acceptée ou refusée.");
             }
         }
 

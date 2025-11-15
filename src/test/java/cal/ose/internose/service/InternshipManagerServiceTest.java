@@ -1,16 +1,17 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.InternshipContractDAO;
-import cal.ose.internose.persistance.InternshipOfferDAO;
-import cal.ose.internose.persistance.StudentApplicationDAO;
-import cal.ose.internose.persistance.StudentDAO;
+import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
+import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
 import cal.ose.internose.service.exceptions.NoResumeUploadedException;
 import cal.ose.internose.service.exceptions.ResumeAlreadyApprovedException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
+import cal.ose.internose.utilities.SessionUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,16 +40,20 @@ class InternshipManagerServiceTest {
     private InternshipOfferDAO internshipOfferDAO;
     @Mock
     private StudentDAO studentDAO;
+    @Mock
+    private ProfessorDAO professorDAO;
+    @Mock
+    private NotificationDAO notificationDAO;
     @InjectMocks
     private InternshipManagerService internshipManagerService;
 
     @Test
     void findInternshipsBy() {
-        when(internshipOfferDAO.findAllByProgramLikeAndTitleLike("%Informatique%", null))
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%Informatique%", "%", "%"))
             .thenReturn(getInformatiqueInternships());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy(null, "Informatique", null, "status");
+            .findInternshipsBy(null, "Informatique", null, null, "status");
 
         assertEquals(3, internshipOfferDTOS.size());
         assertEquals("Informatique", internshipOfferDTOS.getFirst().getProgram());
@@ -57,7 +62,7 @@ class InternshipManagerServiceTest {
 
     @Test
     void sortByDomain() {
-        when(internshipOfferDAO.findAll())
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%", "%", "%"))
             .thenReturn(List.of(
                 InternshipOffer.builder().program("Informatique").verificationStatus(VerificationStatus.APPROVED)
                     .build(),
@@ -66,7 +71,7 @@ class InternshipManagerServiceTest {
                     .build()));
 
         List<InternshipOfferDTO> result = internshipManagerService
-            .findInternshipsBy(null, null, null, null);
+            .findInternshipsBy(null, null, null, null, null);
 
         assertEquals(3, result.size());
         assertEquals("Architecture", result.get(0).getProgram());
@@ -76,11 +81,11 @@ class InternshipManagerServiceTest {
 
     @Test
     void findInternshipsByNothingFound() {
-        when(internshipOfferDAO.findAllByProgramLikeAndTitleLike("%non%", null))
+        when(internshipOfferDAO.findAllByProgramLikeAndTitleLikeAndSessionLike("%non%", "%", "%"))
             .thenReturn(List.of());
 
         List<InternshipOfferDTO> internshipOfferDTOS = internshipManagerService
-            .findInternshipsBy(null, "non", null, null);
+            .findInternshipsBy(null, "non", null, null,null);
 
         assertEquals(0, internshipOfferDTOS.size());
     }
@@ -367,6 +372,7 @@ class InternshipManagerServiceTest {
     public void testCreateInternshipContract_OffreDeStageNonAcceptee() {
         //Arrange
         InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         Student student = new Student();
 
         InternshipContractDTO createInternshipContractDTO =
@@ -385,11 +391,36 @@ class InternshipManagerServiceTest {
     }
 
     @Test
+    @DisplayName("Test de la methode createInternshipContract() - Session non correspondante")
+    public void testCreateInternshipContract_SessionNonCorrespondante() {
+        //Arrange
+        InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession("Winter-2001");
+        Student student = new Student();
+
+        InternshipContractDTO createInternshipContractDTO =
+            InternshipContractDTO.builder()
+                .internshipOfferId(1L)
+                .studentId(1L)
+                .build();
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
+        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.APPROVED).build()));
+
+        // Act && Assert
+        assertThrows(SessionMismatchException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
+    }
+
+    @Test
     @DisplayName("Test de la methode createInternshipContract() - Contrat existe deja")
     public void testCreateInternshipContract_ContractAlreadyExists() {
         //Arrange
         InternshipOffer internshipOffer = new InternshipOffer();
+        internshipOffer.setSession(SessionUtil.getCurrentSession());
         Student student = new Student();
+        InternshipContract internshipContract = new InternshipContract();
 
         InternshipContractDTO createInternshipContractDTO =
             InternshipContractDTO.builder()
@@ -402,14 +433,15 @@ class InternshipManagerServiceTest {
         when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
             .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT).build()));
 
-        when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenThrow(InternshipContractAlreadyExistsException.class);
+        when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenReturn(Optional.of(internshipContract));
+
         // Act && Assert
         assertThrows(InternshipContractAlreadyExistsException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
     }
 
     @Test
     @DisplayName("Test de la methode createInternshipContract() - Execution normale")
-    void testCreateInternshipContract_NormalExecution() {
+    void testCreateInternshipContract_NormalExecution() throws InternshipOfferNotAcceptedByStudentException, InternshipContractAlreadyExistsException {
         // Arrange
         InternshipContractDTO dto = InternshipContractDTO.builder()
             .studentId(1L)
@@ -430,6 +462,7 @@ class InternshipManagerServiceTest {
         student.setLastName("Tremblay");
 
         InternshipOffer offer = new InternshipOffer();
+        offer.setSession(SessionUtil.getCurrentSession());
         offer.setTitle("Software Dev");
 
         Employer employer = Employer.builder()
@@ -574,5 +607,78 @@ class InternshipManagerServiceTest {
         assertEquals("Ce contrat a déjà été signé par le gestionnaire de stages", exception.getMessage());
         verify(internshipContractDAO, times(1)).findById(contractId);
         verify(internshipContractDAO, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test de la methode findAllProfessors - Execution normale")
+    void testFindAllProfessors_NormalExecution() {
+        Professor professor = Professor.builder()
+            .credentials(new Credentials("email", "password", UserRole.PROFESSOR))
+            .build();
+
+        // Arrange
+        List<Professor> professors = List.of(professor);
+        when(professorDAO.findAll()).thenReturn(professors);
+
+        // Act
+        List<ProfessorDTO> dtos = internshipManagerService.findAllProfessors();
+
+        // Assert
+        assertEquals(1, dtos.size());
+    }
+
+    @Test
+    @DisplayName("Test de la methode assignProfessorToStudent() - Execution normale")
+    void testAssignProfessorToStudent_NormalExecution() {
+        // Arrange
+        Student student = Student.builder()
+            .id(1L)
+            .assignedProfessor(null)
+            .credentials(new Credentials("email", "password", UserRole.STUDENT))
+            .build();
+
+        Professor professor = Professor.builder()
+            .id(2L)
+            .build();
+
+        StudentApplication studentApplication1 = new StudentApplication();
+        studentApplication1.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_CONTRACT);
+        StudentApplication studentApplication2 = new StudentApplication();
+        studentApplication2.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(studentApplicationDAO.findByStudent(student)).thenReturn(List.of(studentApplication1, studentApplication2));
+        when(professorDAO.findById(2L)).thenReturn(Optional.of(professor));
+        when(studentDAO.save(student)).thenReturn(student);
+
+        // Act
+        StudentDTO studentDTO = internshipManagerService.assignProfessorToStudent(1L, 2L);
+
+        // Assert
+        verify(notificationDAO, times(2)).save(any(Notification.class));
+        assertEquals(professor, studentDTO.getAssignedProfessor());
+    }
+
+    @Test
+    @DisplayName("Test de la methode testAssignProfessorToStudent - Aucun stage confirmee")
+    void testAssignProfessorToStudent_AucuneStageConfirme() {
+        // Arrange
+        Student student = Student.builder()
+            .id(1L)
+            .assignedProfessor(null)
+            .credentials(new Credentials("email", "password", UserRole.STUDENT))
+            .build();
+
+        StudentApplication studentApplication1 = new StudentApplication();
+        studentApplication1.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+        StudentApplication studentApplication2 = new StudentApplication();
+        studentApplication2.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+
+        student.setStudentApplications(List.of(studentApplication1, studentApplication2));
+
+        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () -> internshipManagerService.assignProfessorToStudent(1L, 2L));
     }
 }

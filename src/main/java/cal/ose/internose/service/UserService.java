@@ -1,16 +1,15 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.NotificationDAO;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
-import cal.ose.internose.service.DTOs.EmployerDTO;
-import cal.ose.internose.service.DTOs.InternshipManagerDTO;
-import cal.ose.internose.service.DTOs.LoginDTO;
-import cal.ose.internose.service.DTOs.StudentDTO;
+import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
+import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -30,6 +32,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final NotificationDAO notificationDAO;
 
     public void registerInternshipManager(InternshipManagerDTO internshipManagerDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
@@ -44,18 +47,17 @@ public class UserService {
         registerUser(internshipManagerDTO.getEmail(), internshipManagerDTO.getPassword(), internshipManager);
     }
 
-    public String registerEmployer(EmployerDTO employerDTO)
+    public void registerProfessor(ProfessorDTO professorDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
-        Employer employer = Employer.builder()
+        Professor professor = Professor.builder()
             .credentials(
-                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+                new Credentials(professorDTO.getEmail(), passwordEncoder.encode(professorDTO.getPassword()), UserRole.PROFESSOR)
             )
-            .firstName(employerDTO.getFirstName())
-            .lastName(employerDTO.getLastName())
-            .company(employerDTO.getCompany())
+            .firstName(professorDTO.getFirstName())
+            .lastName(professorDTO.getLastName())
             .build();
 
-        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
+        registerUser(professorDTO.getEmail(), professorDTO.getPassword(), professor);
     }
 
     public String registerStudent(StudentDTO studentDTO)
@@ -73,6 +75,20 @@ public class UserService {
         return registerUser(studentDTO.getEmail(), studentDTO.getPassword(), student);
     }
 
+    public String registerEmployer(EmployerDTO employerDTO)
+        throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
+        Employer employer = Employer.builder()
+            .credentials(
+                new Credentials(employerDTO.getEmail(), passwordEncoder.encode(employerDTO.getPassword()), UserRole.EMPLOYER)
+            )
+            .firstName(employerDTO.getFirstName())
+            .lastName(employerDTO.getLastName())
+            .company(employerDTO.getCompany())
+            .build();
+
+        return registerUser(employerDTO.getEmail(), employerDTO.getPassword(), employer);
+    }
+
     public String login(LoginDTO loginDTO) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -83,9 +99,28 @@ public class UserService {
 
         User user = userDAO.findByCredentials_Email(loginDTO.getEmail()).orElseThrow();
 
+        String currentSession = SessionUtil.getCurrentSession();
+        if (user.getSession() == null || !user.getSession().equals(currentSession)) {
+            user.setSession(currentSession);
+            userDAO.save(user);
+        }
+
         return jwtTokenProvider.generateToken(
-            authentication, user.getId(), user.getFirstName(), user.getLastName()
+            authentication, user.getId(), user.getFirstName(), user.getLastName(), user.getSession()
         );
+    }
+
+    public List<NotificationDTO> findNotifications(long userId) {
+        User user = userDAO.findById(userId).orElseThrow();
+        return notificationDAO.findByUser(user).stream().map(
+            notification -> NotificationDTO.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .createdAt(notification.getCreatedAt())
+                .message(notification.getMessage())
+                .checked(notification.isChecked())
+                .build()
+        ).toList();
     }
 
     private String registerUser(String email, String password, User user)
@@ -99,16 +134,29 @@ public class UserService {
                 );
             }
 
+            user.setSession(SessionUtil.getCurrentSession());
             User savedUser = userDAO.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 
             return jwtTokenProvider.generateToken(
-                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName()
+                authentication, savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), user.getSession()
             );
         } catch (DataIntegrityViolationException e) {
             throw new RequiredFieldException(ErrorMessages.REQUIRED_FIELDS_MISSING.getMessage());
         }
+    }
+
+    public void setSession(long userId, String session) {
+        User user = userDAO.findById(userId)
+            .orElseThrow(() -> new NoSuchElementException("Utilisateur avec l'id " + userId + " introuvable"));
+
+        if (session == null || !session.matches("(Winter-\\d+|Autumn-\\d+)")) {
+            throw new IllegalArgumentException("La session doit être de la forme : Winter-2025 ou Autumn-2025");
+        }
+
+        user.setSession(session);
+        userDAO.save(user);
     }
 
     public void verifyPasswordCriteria(String password) throws WeakPasswordException {

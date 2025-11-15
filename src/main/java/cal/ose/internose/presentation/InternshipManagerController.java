@@ -3,11 +3,13 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -31,7 +33,8 @@ public class InternshipManagerController {
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String isVerified,
         @RequestParam(required = false) String program,
-        @RequestParam(required = false) String title
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String session
     ) {
         Boolean isVerifiedBoolean = null;
         if (isVerified != null && !isVerified.equals("null") && !isVerified.isEmpty())
@@ -39,7 +42,7 @@ public class InternshipManagerController {
 
         try {
             List<InternshipOfferDTO> internshipOfferDTOs = internshipManagerService.findInternshipsBy(
-                isVerifiedBoolean, program, title, sortBy
+                isVerifiedBoolean, program, title, session, sortBy
             );
 
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTOs));
@@ -147,7 +150,8 @@ public class InternshipManagerController {
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(InternshipContractDTO));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException e) {
+        } catch (InternshipOfferNotAcceptedByStudentException | InternshipContractAlreadyExistsException |
+                 SessionMismatchException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
@@ -161,6 +165,28 @@ public class InternshipManagerController {
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(signedContract));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (IllegalStateException e) {
+            return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @GetMapping(Paths.INTERNSHIP_MANAGER_PROFESSORS_PATH)
+    public ResponseEntity<String> getAllProfessors() {
+        try {
+            List<ProfessorDTO> professors = internshipManagerService.findAllProfessors();
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(professors));
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PostMapping(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH)
+    public ResponseEntity<String> assignProfessorToStudent(@PathVariable Long professorID, @RequestParam Long studentID) {
+        try {
+            StudentDTO studentWithProfessor = internshipManagerService.assignProfessorToStudent(studentID, professorID);
+            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(studentWithProfessor));
         } catch (IllegalStateException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
