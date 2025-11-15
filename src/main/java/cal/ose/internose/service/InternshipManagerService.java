@@ -210,28 +210,30 @@ public class InternshipManagerService {
         Professor previousProfessor = student.getAssignedProfessor();
 
         if (professor != null && previousProfessor != professor) {
-            LocalDateTime now = LocalDateTime.now();
-
-            Notification notificationForProfessor = Notification.builder()
-                .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
-                .user(professor)
-                .createdAt(now)
-                .message("L'étudiant " + student.getFirstName() + " " + student.getLastName() + " vous a été assigné.")
-                .build();
+            Notification notificationForProfessor = createStudentAssignedToProfessorNotification(
+                professor, "L'étudiant " + student.getFirstName() + " "
+                + student.getLastName() + " vous a été assigné.");
 
             notificationDAO.save(notificationForProfessor);
 
-            Notification notificationForStudent = Notification.builder()
-                .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
-                .user(student)
-                .createdAt(now)
-                .message("Vous avez été assigné au professeur " + professor.getFirstName() + " " + professor.getLastName() + ".")
-                .build();
+            Notification notificationForStudent = createStudentAssignedToProfessorNotification(
+                student, "Vous avez été assigné au professeur " + professor.getFirstName() + " " + professor.getLastName() + "."
+            );
 
             notificationDAO.save(notificationForStudent);
         }
 
         student.setAssignedProfessor(professor);
         return StudentDTO.fromEntity(studentDAO.save(student));
+    }
+
+    private Notification createStudentAssignedToProfessorNotification(User userToNotify, String message) {
+        LocalDateTime now = LocalDateTime.now();
+        return Notification.builder()
+            .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
+            .user(userToNotify)
+            .createdAt(now)
+            .message(message)
+            .build();
     }
 }
