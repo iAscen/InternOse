@@ -1,6 +1,7 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
+import cal.ose.internose.persistance.NotificationDAO;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.*;
@@ -18,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -27,6 +31,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final NotificationDAO notificationDAO;
 
     public void registerInternshipManager(InternshipManagerDTO internshipManagerDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
@@ -96,6 +101,10 @@ public class UserService {
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName()
         );
+    }
+
+    public List<Notification> findNotifications(User user) {
+        return notificationDAO.findByUser(user);
     }
 
     private String registerUser(String email, String password, User user)
