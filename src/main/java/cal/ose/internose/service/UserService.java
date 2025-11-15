@@ -103,7 +103,8 @@ public class UserService {
         );
     }
 
-    public List<Notification> findNotifications(User user) {
+    public List<Notification> findNotifications(long userId) {
+        User user = userDAO.findById(userId).orElseThrow();
         return notificationDAO.findByUser(user);
     }
 

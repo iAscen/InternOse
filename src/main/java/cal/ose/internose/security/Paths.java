@@ -3,11 +3,15 @@ package cal.ose.internose.security;
 public class Paths {
     public static final String API_BASE_PATH = "/api";
 
-    // Utilisateur
+    // Auth
     public static final String AUTH_BASE_PATH = API_BASE_PATH + "/auth";
     public static final String EMPLOYER_REGISTER_PATH = AUTH_BASE_PATH + "/employer/register";
     public static final String STUDENT_REGISTER_PATH = AUTH_BASE_PATH + "/student/register";
     public static final String LOGIN_PATH = AUTH_BASE_PATH + "/login";
+
+    // User
+    public static final String USER_BASE_PATH = API_BASE_PATH + "/user";
+    public static final String USER_NOTIFICATIONS_PATH = USER_BASE_PATH + "/{userID}/notifications";
 
     // Employeur
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";

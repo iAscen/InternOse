@@ -1,7 +1,6 @@
 package cal.ose.internose.persistance;
 
 import cal.ose.internose.modele.Notification;
-import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
