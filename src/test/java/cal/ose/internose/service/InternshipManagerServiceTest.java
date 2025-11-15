@@ -390,6 +390,7 @@ class InternshipManagerServiceTest {
         //Arrange
         InternshipOffer internshipOffer = new InternshipOffer();
         Student student = new Student();
+        InternshipContract internshipContract = new InternshipContract();
 
         InternshipContractDTO createInternshipContractDTO =
             InternshipContractDTO.builder()
@@ -402,7 +403,8 @@ class InternshipManagerServiceTest {
         when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
             .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT).build()));
 
-        when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenThrow(InternshipContractAlreadyExistsException.class);
+        when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenReturn(Optional.of(internshipContract));
+
         // Act && Assert
         assertThrows(InternshipContractAlreadyExistsException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
     }
