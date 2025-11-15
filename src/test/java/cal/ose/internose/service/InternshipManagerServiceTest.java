@@ -4,6 +4,7 @@ import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.*;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.exceptions.InternshipContractAlreadyExistsException;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
@@ -578,6 +579,24 @@ class InternshipManagerServiceTest {
         assertEquals("Ce contrat a déjà été signé par le gestionnaire de stages", exception.getMessage());
         verify(internshipContractDAO, times(1)).findById(contractId);
         verify(internshipContractDAO, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Test de la methode findAllProfessors - Execution normale")
+    void testFindAllProfessors_NormalExecution() {
+        Professor professor = Professor.builder()
+            .credentials(new Credentials("email", "password", UserRole.PROFESSOR))
+            .build();
+
+        // Arrange
+        List<Professor> professors = List.of(professor);
+        when(professorDAO.findAll()).thenReturn(professors);
+
+        // Act
+        List<ProfessorDTO> dtos = internshipManagerService.findAllProfessors();
+
+        // Assert
+        assertEquals(1, dtos.size());
     }
 
     @Test
