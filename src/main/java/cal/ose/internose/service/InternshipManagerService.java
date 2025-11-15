@@ -206,6 +206,12 @@ public class InternshipManagerService {
             professor = professorDAO.findById(professorID).orElseThrow();
         }
 
+        Professor oldProfessor = student.getAssignedProfessor();
+
+        if (oldProfessor != professor) {
+
+        }
+
         student.setAssignedProfessor(professor);
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
