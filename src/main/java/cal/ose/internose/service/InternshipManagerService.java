@@ -188,7 +188,7 @@ public class InternshipManagerService {
         return ProfessorDTO.fromEntityList(professors);
     }
 
-    public StudentDTO assignProfessorToStudent(Long studentID, Long professorID) {
+    public StudentDTO assignProfessorToStudent(long studentID, Long professorID) {
         Student student = studentDAO.findById(studentID).orElseThrow();
 
         List<StudentApplication> confirmedStudentApplications = student.getStudentApplications()
@@ -196,11 +196,16 @@ public class InternshipManagerService {
                 studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING_CONTRACT)
             .toList();
 
-        if (confirmedStudentApplications.isEmpty()) {
+        if (professorID != null && confirmedStudentApplications.isEmpty()) {
             throw new IllegalStateException("L’étudiant ne peut pas se voir attribuer un professeur sans un stage confirmé");
         }
 
-        Professor professor = professorDAO.findById(professorID).orElseThrow();
+        Professor professor = null;
+
+        if (professorID != null) {
+            professor = professorDAO.findById(professorID).orElseThrow();
+        }
+
         student.setAssignedProfessor(professor);
         return StudentDTO.fromEntity(studentDAO.save(student));
     }
