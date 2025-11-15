@@ -390,6 +390,54 @@ class UserAPI {
       return null;
     }
   }
+
+  async setSession(userId: number, session: string): Promise<ApiResponse<string>> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Non authentifié. Veuillez vous reconnecter.',
+        };
+      }
+
+      const response = await fetch(buildFullApiUrl(API_PATHS.AUTH.SET_SESSION_PATH), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: userId, session }),
+      });
+
+      if (response.ok) {
+        const sessionData = await response.text();
+        return {
+          success: true,
+          data: sessionData,
+        };
+      } else {
+        try {
+          const errorResponse: ErrorResponseDTO = await response.json();
+          return {
+            success: false,
+            error: ErrorService.getUserFriendlyMessage(response.status, errorResponse.message),
+          };
+        } catch {
+          const errorText = await response.text();
+          return {
+            success: false,
+            error: ErrorService.getUserFriendlyMessage(response.status, errorText),
+          };
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.',
+      };
+    }
+  }
 }
 
 export const userAPI = new UserAPI();

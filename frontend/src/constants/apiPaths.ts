@@ -9,6 +9,7 @@ export const API_PATHS = {
     LOGIN: '/auth/login',
     EMPLOYER_REGISTER: '/auth/employer/register',
     STUDENT_REGISTER: '/auth/student/register',
+    SET_SESSION_PATH: '/api/auth/session'
   },
   
   // Employeur
