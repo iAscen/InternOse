@@ -630,7 +630,7 @@ public class EmployerServiceTests {
             try {
                 employerService.reviewApplication(1L, 1L, true, "");
             } catch (ApplicationAlreadyReviewedException e) {
-                assertThat(e.getMessage()).isEqualTo("Cette application est déjà examinée.");
+                assertThat(e.getMessage()).isEqualTo("Cette candidature est déjà acceptée ou refusée.");
             }
         }
 
