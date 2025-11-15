@@ -678,4 +678,44 @@ class InternshipManagerControllerTest {
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).contains("Erreur lors de la signature");
     }
+
+    @Test
+    void assignProfessorToStudent_CONFLICT() throws Exception {
+        // Arrange
+        long studentId = 1L;
+        long professorId = 2L;
+
+        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
+            .thenThrow(IllegalStateException.class);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("studentID", String.valueOf(studentId))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    void assignProfessorToStudent_BadRequest() throws Exception {
+        // Arrange
+        long studentId = 1L;
+        long professorId = 2L;
+
+        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
+            .thenThrow(RuntimeException.class);
+
+        // Act
+        MvcResult mvcResult = mockMvc.perform(
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("studentID", String.valueOf(studentId))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        // Assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
 }

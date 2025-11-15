@@ -183,7 +183,7 @@ public class InternshipManagerController {
     @PostMapping(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH)
     public ResponseEntity<String> assignProfessorToStudent(@PathVariable Long professorID, @RequestParam Long studentID) {
         try {
-            StudentDTO studentWithProfessor = internshipManagerService.assignProfessorToStudent(professorID, studentID);
+            StudentDTO studentWithProfessor = internshipManagerService.assignProfessorToStudent(studentID, professorID);
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(studentWithProfessor));
         } catch (IllegalStateException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
