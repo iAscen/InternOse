@@ -51,6 +51,7 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
           { id: 'approved-offers', label: t('im.approvedOffers'), icon: 'clipboard' },
           { id: 'cvs', label: t('im.resumesSection'), icon: 'document' },
           { id: 'contracts', label: t('im.internshipContractsSection'), icon: 'file' },
+          { id: 'history', label: "history TK", icon: 'todo'}
         ];
       default:
         return [];

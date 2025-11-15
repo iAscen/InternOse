@@ -529,6 +529,90 @@ export default function IMDashboardContent() {
             </div>
           )}
 
+            {activeTab === 'history' && (
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">
+                        {t("im.internshipOffers")}
+                      </h2>
+                      <p className="text-sm font-medium text-slate-500 mt-1">{t("im.internshipOffersSubtitle")}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative" ref={filterOffersMenuRef}>
+                        <div className="mb-3">
+                          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1 flex justify-center">
+                            {/*TODO i18n*/}
+                            Session
+                          </label>
+
+                          <select
+                            id="program"
+                            name="program"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                            onChange={(e) => {console.log(e.target.value + " TODO pas hardcoded")}}
+                          >
+                            {/*TODO i18n*/}
+                            <option value="A25" className="text-gray-900 bg-white">Automne 2025</option>
+                            <option value="H25" className="text-gray-900 bg-white">Hiver 2025</option>
+                            <option value="A24" className="text-gray-900 bg-white">Automne 2024</option>
+                            <option value="H24" className="text-gray-900 bg-white">Hiver 2024</option>
+                            {/*TODO list of sessions ex: sessions.map((session, index) => ()) - reference programSelector.tsx*/}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="relative" ref={sortOffersMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(!showSortMenuOffers)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }} />
+                      {showSortMenuOffers &&
+                          <SortMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applySorting={(sortBy: string) => {
+                                setShowSortMenuOffers(false);
+                                setOfferSortBy(sortBy);
+                              }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterOffersMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(!showFilterMenuOffers)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }}/>
+                      {showFilterMenuOffers &&
+                          <FilterMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applyFilters={(filterBy: string[]) => {
+                                setShowFilterMenuOffers(false);
+                                setOfferFilters(filterBy);
+                              }}/>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <OfferList
+                    selectOffer={selectOffer}
+                    isStudent={false}
+                    isEmployer={false}
+                    loading={loading}
+                    offers={filteredOffers}
+                    numbersOfApplications={[]}
+                    onOfferValidation={() => loadOffers()}
+                  />
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </main>
