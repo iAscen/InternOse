@@ -192,7 +192,7 @@ public class InternshipManagerService {
     public StudentDTO assignProfessorToStudent(long studentID, Long professorID) {
         Student student = studentDAO.findById(studentID).orElseThrow();
 
-        List<StudentApplication> confirmedStudentApplications = student.getStudentApplications()
+        List<StudentApplication> confirmedStudentApplications = studentApplicationDAO.findByStudent(student)
             .stream().filter(studentApplication -> studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
                 studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING_CONTRACT)
             .toList();

@@ -29,6 +29,6 @@ public class Student extends User {
     private String resumeRejectionReason;
     @ManyToOne
     private Professor assignedProfessor;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<StudentApplication> studentApplications;
 }

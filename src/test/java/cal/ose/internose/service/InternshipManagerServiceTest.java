@@ -618,9 +618,8 @@ class InternshipManagerServiceTest {
         StudentApplication studentApplication2 = new StudentApplication();
         studentApplication2.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
 
-        student.setStudentApplications(List.of(studentApplication1, studentApplication2));
-
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(studentApplicationDAO.findByStudent(student)).thenReturn(List.of(studentApplication1, studentApplication2));
         when(professorDAO.findById(2L)).thenReturn(Optional.of(professor));
         when(studentDAO.save(student)).thenReturn(student);
 
