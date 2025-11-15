@@ -6,13 +6,17 @@ import cal.ose.internose.modele.StudentApplication;
 import cal.ose.internose.modele.VerificationStatus;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SuperBuilder
+@NoArgsConstructor
 @Getter
+@Setter
 public class StudentDTO extends UserDTO {
     private String institution;
     private String program;
@@ -51,5 +55,9 @@ public class StudentDTO extends UserDTO {
 
     public static List<StudentDTO> fromEntityList(List<Student> students) {
         return students.stream().map(StudentDTO::fromEntity).toList();
+    }
+
+    public void setFirstName(String firstName) {
+        super.setFirstName(firstName);
     }
 }

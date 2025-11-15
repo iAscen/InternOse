@@ -409,7 +409,7 @@ class InternshipManagerServiceTest {
 
     @Test
     @DisplayName("Test de la methode createInternshipContract() - Execution normale")
-    void testCreateInternshipContract_NormalExecution() {
+    void testCreateInternshipContract_NormalExecution() throws InternshipOfferNotAcceptedByStudentException, InternshipContractAlreadyExistsException {
         // Arrange
         InternshipContractDTO dto = InternshipContractDTO.builder()
             .studentId(1L)

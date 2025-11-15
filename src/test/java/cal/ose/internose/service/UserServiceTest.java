@@ -117,7 +117,7 @@ public class UserServiceTest {
     @Test
     void testEmployerMissingFields() {
         EmployerDTO dto = createEmployerDTO(null);
-        dto.setFirstName(null);
+        dto.setCompany(null);
 
         when(userDAO.save(any(Employer.class)))
             .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Missing field"));
