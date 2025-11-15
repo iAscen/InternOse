@@ -1,15 +1,13 @@
 package cal.ose.internose.modele;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -21,6 +19,10 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String message;
+    @Enumerated(EnumType.STRING)
     private NotificationType type;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+    private boolean checked = false;
 }

@@ -28,6 +28,7 @@ public class InternshipManagerService {
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
     private final ProfessorDAO professorDAO;
+    private final NotificationDAO notificationDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : null;
@@ -206,10 +207,28 @@ public class InternshipManagerService {
             professor = professorDAO.findById(professorID).orElseThrow();
         }
 
-        Professor oldProfessor = student.getAssignedProfessor();
+        Professor previousProfessor = student.getAssignedProfessor();
 
-        if (oldProfessor != professor) {
+        if (professor != null && previousProfessor != professor) {
+            LocalDateTime now = LocalDateTime.now();
 
+            Notification notificationForProfessor = Notification.builder()
+                .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
+                .user(professor)
+                .createdAt(now)
+                .message("L'étudiant " + student.getFirstName() + " " + student.getLastName() + " vous a été assigné.")
+                .build();
+
+            notificationDAO.save(notificationForProfessor);
+
+            Notification notificationForStudent = Notification.builder()
+                .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
+                .user(student)
+                .createdAt(now)
+                .message("Vous avez été assigné au professeur " + professor.getFirstName() + " " + professor.getLastName() + ".")
+                .build();
+
+            notificationDAO.save(notificationForStudent);
         }
 
         student.setAssignedProfessor(professor);
