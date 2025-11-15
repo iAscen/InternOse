@@ -190,6 +190,16 @@ public class InternshipManagerService {
 
     public StudentDTO assignProfessorToStudent(Long studentID, Long professorID) {
         Student student = studentDAO.findById(studentID).orElseThrow();
+
+        List<StudentApplication> confirmedStudentApplications = student.getStudentApplications()
+            .stream().filter(studentApplication -> studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
+                studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING_CONTRACT)
+            .toList();
+
+        if (confirmedStudentApplications.isEmpty()) {
+            throw new IllegalStateException("L’étudiant ne peut pas se voir attribuer un professeur sans un stage confirmé");
+        }
+
         Professor professor = professorDAO.findById(professorID).orElseThrow();
         student.setAssignedProfessor(professor);
         return StudentDTO.fromEntity(studentDAO.save(student));

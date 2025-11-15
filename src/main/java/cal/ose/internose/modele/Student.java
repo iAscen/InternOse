@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "STUDENTS")
@@ -28,4 +29,6 @@ public class Student extends User {
     private String resumeRejectionReason;
     @ManyToOne
     private Professor assignedProfessor;
+    @OneToMany
+    private List<StudentApplication> studentApplications;
 }
