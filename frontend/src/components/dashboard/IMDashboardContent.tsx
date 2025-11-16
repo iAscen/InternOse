@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+﻿import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { userAPI } from "~/services/UserAPI";
@@ -22,6 +22,7 @@ import {employerAPI} from "~/services/EmployerAPI";
 import InternshipContractList from "~/components/dashboard/InternshipContractList";
 import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
 import type { InternshipContract } from "~/interfaces";
+import { getAvailableSessions } from "~/utils/avaliableSessions";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -47,6 +48,10 @@ export default function IMDashboardContent() {
     const [contracts, setContracts] = useState<InternshipContract[]>([]);
     const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
 
+    // Get available sessions from approved offers for history view
+    const availableSessions = useMemo(() => {
+        return getAvailableSessions(allOffers, true);
+    }, [allOffers]);
 
     // Refs pour les dropdowns
     const sortOffersMenuRef = useRef<HTMLDivElement>(null);
@@ -555,12 +560,11 @@ export default function IMDashboardContent() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                             onChange={(e) => setSelectedHistorySession(e.target.value)}
                           >
-                            {/*TODO i18n*/}
-                            <option value="Autumn-2025" className="text-gray-900 bg-white">Automne 2025</option>
-                            <option value="Winter-2025" className="text-gray-900 bg-white">Hiver 2025</option>
-                            <option value="Autumn-2024" className="text-gray-900 bg-white">Automne 2024</option>
-                            <option value="Winter-2024" className="text-gray-900 bg-white">Hiver 2024</option>
-                            {/*TODO list of sessions ex: sessions.map((session, index) => ()) - reference programSelector.tsx*/}
+                            {availableSessions.map((session) => (
+                              <option key={session} value={session} className="text-gray-900 bg-white">
+                                {session}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -608,11 +612,12 @@ export default function IMDashboardContent() {
                     isEmployer={false}
                     isHistory={true}
                     loading={loading}
-                    offers={filteredOffers}
+                    offers={allOffers}
                     numbersOfApplications={[]}
                     onOfferValidation={() => loadOffers()}
                     selectedSession={selectedHistorySession}
                     onSessionChange={setSelectedHistorySession}
+                    availableSessions={availableSessions}
                   />
                 </div>
               </div>

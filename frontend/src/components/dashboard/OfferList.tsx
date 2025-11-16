@@ -24,6 +24,7 @@ interface OfferListProps {
   isHistory?: boolean;
   selectedSession?: string;
   onSessionChange?: (session: string) => void;
+  availableSessions?: string[];
 }
 
 export default function OfferList({
@@ -40,7 +41,8 @@ export default function OfferList({
                                     unseenApplicationsCount,
                                     isHistory = false,
                                     selectedSession,
-                                    onSessionChange
+                                    onSessionChange,
+                                    availableSessions
                                   }: OfferListProps) {
   const {t} = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
@@ -55,23 +57,11 @@ export default function OfferList({
   const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
   const [loadingContract, setLoadingContract] = useState(false);
 
-  // Get unique sessions from offers
-  const availableSessions = useMemo(() => {
-    const sessions = new Set<string>();
-    offers.forEach(offer => {
-      if (offer.session) {
-        sessions.add(offer.session);
-      }
-    });
-    return Array.from(sessions).sort().reverse(); // Most recent first
-  }, [offers]);
-
   // Set default session when isHistory is true
   const [internalSelectedSession, setInternalSelectedSession] = useState<string>('');
 
   useEffect(() => {
-    console.log("select " + selectedSession);
-    if (isHistory && availableSessions.length > 0 && !internalSelectedSession) {
+    if (isHistory && availableSessions && availableSessions.length > 0 && !internalSelectedSession) {
       const defaultSession = selectedSession || availableSessions[0];
       setInternalSelectedSession(defaultSession);
       if (onSessionChange && !selectedSession) {
