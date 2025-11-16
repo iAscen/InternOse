@@ -15,6 +15,7 @@ export interface InternshipOffer {
   rejectionReason?: string; // Raison du rejet si applicable
   applicationStatus?: string; // "PENDING", "PENDING_INTERVIEW", "ACCEPTED", "REJECTED"
   applicationId: number;
+  session: string;
 }
 
 export interface CreateInternshipOfferRequest {

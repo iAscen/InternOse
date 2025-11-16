@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {InternshipOffer, UnseenApplicationsCount, InternshipContract} from '~/interfaces';
 import OfferValidationModal from './OfferValidationModal';
@@ -21,6 +21,9 @@ interface OfferListProps {
   changeCursorIfApproved?: boolean; // Pour changer le curseur sur les offres approuvées
   selectOffer?: (offer: InternshipOffer) => void;
   unseenApplicationsCount?: Map<number, UnseenApplicationsCount> // Callback pour sélectionner une offre
+  isHistory?: boolean;
+  selectedSession?: string;
+  onSessionChange?: (session: string) => void;
 }
 
 export default function OfferList({
@@ -35,6 +38,9 @@ export default function OfferList({
                                     changeCursorIfApproved,
                                     selectOffer,
                                     unseenApplicationsCount,
+                                    isHistory = false,
+                                    selectedSession,
+                                    onSessionChange
                                   }: OfferListProps) {
   const {t} = useTranslation();
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
@@ -48,6 +54,45 @@ export default function OfferList({
   const [error, setError] = useState<string | null>(null)
   const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
   const [loadingContract, setLoadingContract] = useState(false);
+
+  // Get unique sessions from offers
+  const availableSessions = useMemo(() => {
+    const sessions = new Set<string>();
+    offers.forEach(offer => {
+      if (offer.session) {
+        sessions.add(offer.session);
+      }
+    });
+    return Array.from(sessions).sort().reverse(); // Most recent first
+  }, [offers]);
+
+  // Set default session when isHistory is true
+  const [internalSelectedSession, setInternalSelectedSession] = useState<string>('');
+
+  useEffect(() => {
+    console.log("select " + selectedSession);
+    if (isHistory && availableSessions.length > 0 && !internalSelectedSession) {
+      const defaultSession = selectedSession || availableSessions[0];
+      setInternalSelectedSession(defaultSession);
+      if (onSessionChange && !selectedSession) {
+        onSessionChange(defaultSession);
+      }
+    }
+  }, [isHistory, availableSessions, internalSelectedSession, selectedSession, onSessionChange]);
+
+  // Filter offers by session when isHistory is true
+  const displayedOffers = useMemo(() => {
+    if (!isHistory) {
+      return offers;
+    }
+
+    const sessionToFilter = selectedSession || internalSelectedSession;
+    if (!sessionToFilter) {
+      return offers;
+    }
+
+    return offers.filter(offer => offer.session === sessionToFilter);
+  }, [isHistory, offers, selectedSession, internalSelectedSession]);
 
   const rejectedUnseenApplicationsLargerThanZero = (offerId: number) => {
     if (unseenApplicationsCount) {
@@ -289,7 +334,7 @@ export default function OfferList({
     );
   }
 
-  if (offers.length === 0) {
+  if (displayedOffers.length === 0) {
     return (
       <div className="text-center p-6">
         <p className="text-sm font-medium text-slate-500">{isEmployer ? t('dashboard.noOffers') : t('im.internshipOffersSectionEmpty')}</p>
@@ -307,7 +352,7 @@ export default function OfferList({
 
       <div className="min-w-full">
         <div className="divide-y divide-slate-100">
-          {offers.map((offer, index) => (
+          {displayedOffers.map((offer, index) => (
             <div
               key={offer.id || index}
               className={`p-6 hover:bg-slate-50 transition-colors ${
@@ -361,6 +406,13 @@ export default function OfferList({
                           </svg>
                           {offer.duration} {t('internship.weeks')}
                         </div>
+                      <div className="flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {offer.session}
+                      </div>
                       </div>
                       {offer.salary > 0 && (
                         <div className="mt-2">
@@ -376,8 +428,8 @@ export default function OfferList({
                       )}
                       {
                         isEmployer && (() => {
-                          const count = Array.isArray(numbersOfApplications) 
-                            ? numbersOfApplications[index] 
+                          const count = Array.isArray(numbersOfApplications)
+                            ? numbersOfApplications[index]
                             : (numbersOfApplications instanceof Map ? numbersOfApplications.get(offer.id) || 0 : 0);
                           return count > 0 && (
                             <div className="mt-2">
@@ -414,7 +466,7 @@ export default function OfferList({
                       {getStatusBadge(offer)}
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                 <div>
                     <h4 className="text-sm font-semibold text-slate-900 mb-1">{t('internship.description')}</h4>

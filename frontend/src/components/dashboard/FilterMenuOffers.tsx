@@ -6,9 +6,10 @@ import ProgramSelector from "~/components/ProgramSelector";
 interface FilterMenuOffersProps {
   applyFilters: Function;
   userRole: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER';
+  isHistory?: boolean;
 }
 
-export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOffersProps) {
+export default function FilterMenuOffers({applyFilters, userRole, isHistory = false}: FilterMenuOffersProps) {
   const {t} = useTranslation();
 
   // Define form data based on user role
@@ -17,7 +18,8 @@ export default function FilterMenuOffers({applyFilters, userRole}: FilterMenuOff
       case 'INTERNSHIP_MANAGER':
         return {
           program: "",
-          title: ""
+          title: "",
+          session: ""
         };
       case 'STUDENT':
         return {
