@@ -34,6 +34,7 @@ export default function IMDashboardContent() {
     const [allCvs, setAllCvs] = useState<Cv[]>([]);
     const [filteredOffers, setFilteredOffers] = useState<InternshipOffer[]>([]);
     const [filteredApprovedOffers, setFilteredApprovedOffers] = useState<InternshipOffer[]>([]);
+    const [filteredHistoryOffers, setFilteredHistoryOffers] = useState<InternshipOffer[]>([]);
     const [filteredCvs, setFilteredCvs] = useState<Cv[]>([]);
     const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
@@ -230,6 +231,26 @@ export default function IMDashboardContent() {
         }
         
         setFilteredApprovedOffers(filtered);
+    }, [allOffers, offerFilters, offerSortBy]);
+
+    useEffect(() => {
+        let filtered = allOffers;
+
+        const program = offerFilters[0];
+        const title = offerFilters[1];
+
+        if (program || title) {
+            filtered = filterInternshipOffers(filtered, {
+                program,
+                title
+            });
+        }
+
+        if (offerSortBy) {
+            filtered = sortInternshipOffers(filtered, offerSortBy, true);
+        }
+
+        setFilteredHistoryOffers(filtered);
     }, [allOffers, offerFilters, offerSortBy]);
 
     // Apply filters and sorting to CVs
@@ -613,7 +634,7 @@ export default function IMDashboardContent() {
                     isEmployer={false}
                     isHistory={true}
                     loading={loading}
-                    offers={allOffers}
+                    offers={filteredHistoryOffers}
                     numbersOfApplications={[]}
                     onOfferValidation={() => loadOffers()}
                     selectedSession={selectedHistorySession}
