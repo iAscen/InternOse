@@ -233,7 +233,10 @@
     "viewContract": "Voir l'entente",
     "viewOffer": "Voir l'offre",
     "noContracts": "Aucune entente créée pour le moment",
-    "contractsCount": "{{count}} entente(s) créée(s)"
+    "contractsCount": "{{count}} entente(s) créée(s)",
+    "history": "Historique",
+    "historySubtitle": "Afficher les offres des sessions précédentes",
+    "session": "Session"
   },
   "internship": {
     "title": "Titre du stage",
@@ -326,7 +329,8 @@
       "validationSuccess": "Candidature mise à jour avec succès !",
       "validationError": "Erreur lors de la validation de la candidature",
       "missingIds": "Erreur : IDs manquants",
-      "serverError": "Erreur de connexion au serveur"
+      "serverError": "Erreur de connexion au serveur",
+      "viewOnlyMode" : "Mode lecture seulement"
     }
   },
   "errors": {

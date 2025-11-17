@@ -563,16 +563,15 @@ export default function IMDashboardContent() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">
-                        {t("im.internshipOffers")}
+                        {t("im.history")}
                       </h2>
-                      <p className="text-sm font-medium text-slate-500 mt-1">{t("im.internshipOffersSubtitle")}</p>
+                      <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative" ref={filterOffersMenuRef}>
                         <div className="mb-3">
                           <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 flex justify-center">
-                            {/*TODO i18n*/}
-                            Session
+                            {t("im.session")}
                           </label>
 
                           <select

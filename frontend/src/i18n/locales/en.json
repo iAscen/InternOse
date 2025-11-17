@@ -233,7 +233,10 @@
     "viewContract": "View Contract",
     "viewOffer": "View offer",
     "noContracts": "No contracts created yet",
-    "contractsCount": "{{count}} contract(s) created"
+    "contractsCount": "{{count}} contract(s) created",
+    "history": "History",
+    "historySubtitle": "View offers of past sessions",
+    "session": "Session"
   },
   "internship": {
     "title": "Internship Title",
@@ -325,7 +328,8 @@
       "missingIds": "Error: Missing IDs",
       "serverError": "Server connection error",
       "createInternshipContract": "Create internship contract",
-      "noCandidaturesAcceptedFound": "No accepted applications yet"
+      "noCandidaturesAcceptedFound": "No accepted applications yet",
+      "viewOnlyMode": "View only"
     }
   },
   "errors": {
