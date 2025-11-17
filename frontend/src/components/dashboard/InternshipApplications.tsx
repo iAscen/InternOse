@@ -21,6 +21,7 @@ interface InternshipCandidatesProps {
 	countNumberOfUnseenApplications?: (offers: InternshipOffer[]) => Promise<void>
 	offers?: InternshipOffer[]
 	onContractCreated?: () => void
+	isHistory?: boolean
 }
 
 export default function InternshipApplications({
@@ -29,7 +30,8 @@ export default function InternshipApplications({
  internship,
  countNumberOfUnseenApplications,
  offers,
- onContractCreated
+ onContractCreated,
+ isHistory = false
 }: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -254,6 +256,16 @@ export default function InternshipApplications({
 			<div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
 				{/* Header avec titre et boutons */}
 				<div className="px-6 pt-6">
+					{/* View-only quand mode historique */}
+					{isHistory && (
+						<div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 flex items-center gap-2">
+							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+							</svg>
+							{t('dashboard.internshipApplications.viewOnlyMode')}
+						</div>
+					)}
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 				<div>
 							<h2 className="text-xl font-bold text-slate-900">
@@ -325,7 +337,7 @@ export default function InternshipApplications({
 					) : (
 						<div className="space-y-4">
 						{applications.map((application, index) => {
-							const canClick = !isInternshipManager;
+							const canClick = !isInternshipManager && !isHistory;
 								return (
 									<div 
 										key={application.id || index} 
@@ -369,8 +381,8 @@ export default function InternshipApplications({
 														</p>
 									</div>
 													<div className="flex items-center gap-3 flex-shrink-0">
-										{/* Bouton pour inviter à l'entrevue (Employeur seulement) */}
-										{application.applicationStatus === 'PENDING' && !isInternshipManager && (
+										{/* Bouton pour inviter à l'entrevue (Employeur seulement, not in history) */}
+										{!isHistory && application.applicationStatus === 'PENDING' && !isInternshipManager && (
 											<button
 												onClick={(e) => handleInviteToInterview(application, e)}
 																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
@@ -382,8 +394,8 @@ export default function InternshipApplications({
 											</button>
 										)}
 														
-										{/* Bouton pour créer une entente de stage (Gestionnaire seulement) */}
-										{application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager && (
+										{/* Bouton pour créer une entente de stage (Gestionnaire seulement, not in history) */}
+										{!isHistory && application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager && (
                       <button
                         onClick={(e) => handleContract(application, e)}
 																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
@@ -395,8 +407,8 @@ export default function InternshipApplications({
                       </button>
                     )}
 														
-										{/* Bouton pour voir l'entente de stage (Employeur seulement, quand PENDING_CONTRACT) */}
-										{application.applicationStatus === 'PENDING_CONTRACT' && !isInternshipManager && (
+										{/* Bouton pour voir l'entente de stage (Employeur seulement, quand PENDING_CONTRACT, not in history) */}
+										{!isHistory && application.applicationStatus === 'PENDING_CONTRACT' && !isInternshipManager && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

@@ -13,6 +13,7 @@ interface OfferActionButtonsProps {
   onValidate?: (offer: InternshipOffer) => void;
   onSelect?: (offer: InternshipOffer) => void;
   loadingContract?: boolean;
+  isHistory?: boolean;
 }
 
 export default function OfferActionButtons({
@@ -27,6 +28,7 @@ export default function OfferActionButtons({
   onValidate,
   onSelect,
   loadingContract = false,
+  isHistory = false,
 }: OfferActionButtonsProps) {
   const { t } = useTranslation();
 
@@ -103,8 +105,8 @@ export default function OfferActionButtons({
 
   // Actions principales (en haut à droite de la carte)
   const renderPrimaryActions = () => {
-    // Pour IM - Validation d'offre
-    if (!isEmployer && !isStudent) {
+    // Pour IM - Validation d'offre (hide when isHistory)
+    if (!isEmployer && !isStudent && !isHistory) {
       if (!offer.verificationStatus || offer.verificationStatus === 'PENDING') {
         return (
           <button

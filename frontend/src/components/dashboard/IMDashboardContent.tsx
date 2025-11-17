@@ -267,7 +267,7 @@ export default function IMDashboardContent() {
 
     // Scroller vers le haut quand une offre est sélectionnée pour voir les candidatures
     useEffect(() => {
-        if (selectedOffer && activeTab === 'approved-offers') {
+        if (selectedOffer && (activeTab === 'approved-offers' || activeTab === 'history')) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [selectedOffer, activeTab]);
@@ -275,8 +275,8 @@ export default function IMDashboardContent() {
     const selectOffer = (offer: InternshipOffer) => {
       if (offer && offer.verificationStatus === "APPROVED") {
         setSelectedOffer(offer);
-        // Changer vers le tab approved-offers si on n'y est pas déjà
-        if (activeTab !== 'approved-offers') {
+        // Only change tab if not already on history or approved-offers
+        if (activeTab !== 'history' && activeTab !== 'approved-offers') {
           setActiveTab('approved-offers');
         }
       }
@@ -452,6 +452,7 @@ export default function IMDashboardContent() {
               countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
               offers={allOffers}
               onContractCreated={loadContracts}
+              isHistory={false}
             />
           )}
 
@@ -535,7 +536,7 @@ export default function IMDashboardContent() {
             </div>
           )}
 
-            {activeTab === 'history' && (
+            {activeTab === 'history' && !selectedOffer && (
               <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                 <div className="px-6 pt-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -621,6 +622,18 @@ export default function IMDashboardContent() {
                   />
                 </div>
               </div>
+            )}
+
+            {activeTab === 'history' && selectedOffer && (
+              <InternshipApplications
+                isInternshipManager={true}
+                setSelectedOffer={setSelectedOffer}
+                internship={selectedOffer}
+                countNumberOfUnseenApplications={countNumberOfUnseenApplications}
+                offers={allOffers}
+                onContractCreated={loadContracts}
+                isHistory={true}
+              />
             )}
 
           </div>
