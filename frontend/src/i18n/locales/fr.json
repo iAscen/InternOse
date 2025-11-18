@@ -28,7 +28,8 @@
     "yes": "Oui",
     "no": "Non",
     "accept": "Accepter",
-    "refuse": "Refuser"
+    "refuse": "Refuser",
+    "notAssigned": "Non attribué"
   },
   "navigation": {
     "home": "Accueil",
@@ -453,6 +454,10 @@
     "supervisorEmailPlaceholder": "jean.tremblay@example.com",
     "supervisorPhone": "Téléphone",
     "supervisorPhonePlaceholder": "514-555-0123",
+    "professor": "Professeur",
+    "professorName": "Nom complet",
+    "professorEmail": "Email",
+    "noProfessorAssigned": "Aucun professeur assigné",
     "createContract": "Créer le contrat",
     "creating": "Création en cours...",
     "createSuccess": "Contrat de stage créé avec succès",

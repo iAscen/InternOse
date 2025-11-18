@@ -192,6 +192,25 @@ export default function InternshipContractDetailsModal({
 
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {t('internshipContract.professor')}
+            </h3>
+            {contract.professorEmail && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">{t('internshipContract.professorName')}</p>
+                <p className="text-sm text-gray-900">{contract.professorFirstName} {contract.professorLastName}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">{t('internshipContract.professorEmail')}</p>
+                <p className="text-sm text-gray-900">{contract.professorEmail}</p>
+              </div>
+            </div>}
+            {contract.professorEmail == undefined && 
+              <div className="text-sm text-gray-900">{t('internshipContract.noProfessorAssigned')}</div>
+            }
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {t('internshipContract.signatures')}
             </h3>
             <div className="space-y-3">

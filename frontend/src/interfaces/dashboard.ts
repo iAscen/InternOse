@@ -125,4 +125,8 @@ export interface InternshipContract {
   employerCompany?: string;
   internshipOfferId?: number;
   internshipOfferTitle?: string;
+  professorFirstName?: string;
+  professorLastName?: string;
+  professorEmail?: string;
+  nbContractsProfessor?: number;
 }

@@ -84,6 +84,14 @@ export default function InternshipContractList({
                           {contract.employerCompany}
                         </p>
                       )}
+                      {contract.professorFirstName && <p>
+                        <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}
+                        {contract.professorFirstName} && {contract.professorLastName}
+                      </p>}
+                      {contract.professorFirstName == undefined && <p>
+                        <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}
+                        {t("common.notAssigned")}
+                      </p>}
                       <p>
                         <span className="font-semibold text-slate-900">{t('internshipContract.period')}:</span>{' '}
                         {formatDate(contract.startDate)} - {formatDate(contract.endDate)}

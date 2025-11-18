@@ -28,7 +28,8 @@
     "yes": "Yes",
     "no": "No",
     "accept": "Accept",
-    "refuse": "Refuse"
+    "refuse": "Refuse",
+    "notAssigned": "Not assigned"
   },
   "navigation": {
     "home": "Home",
@@ -452,6 +453,10 @@
     "supervisorEmailPlaceholder": "john.doe@example.com",
     "supervisorPhone": "Phone",
     "supervisorPhonePlaceholder": "514-555-0123",
+    "professor": "Professor",
+    "professorName": "Full Name",
+    "professorEmail": "Email",
+    "noProfessorAssigned": "No professor assigned",
     "createContract": "Create Contract",
     "creating": "Creating...",
     "createSuccess": "Internship contract created successfully",

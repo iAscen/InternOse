@@ -655,7 +655,6 @@ export default function IMDashboardContent() {
                 isHistory={true}
               />
             )}
-
           </div>
         </div>
       </main>
