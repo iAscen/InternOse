@@ -146,7 +146,19 @@ public class InternshipManagerService {
         List<InternshipContract> internshipContracts = internshipContractDAO.findAll();
 
         return internshipContracts.stream()
-            .map(InternshipContractDTO::fromEntity)
+            .map(internshipContract -> {
+                Professor professor = internshipContract.getProfessor();
+                Integer nbContractsForProfessor = null;
+
+                if (professor != null) {
+                   nbContractsForProfessor = professorDAO.countContractsByProfessor(internshipContract.getProfessor().getId());
+                }
+
+                InternshipContractDTO internshipContractDTO = InternshipContractDTO.fromEntity(internshipContract);
+                internshipContractDTO.setNbContractsProfessor(nbContractsForProfessor);
+
+                return internshipContractDTO;
+            })
             .toList();
     }
 
