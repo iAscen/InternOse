@@ -182,12 +182,12 @@ public class InternshipManagerController {
         }
     }
 
-    @PostMapping(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH)
-    public ResponseEntity<String> assignProfessorToStudent(@PathVariable Long professorID, @RequestParam Long studentID) {
+    @PostMapping(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH)
+    public ResponseEntity<String> assignProfessorToContract(@PathVariable Long professorID, @RequestParam Long contractID) {
         try {
-            StudentDTO studentWithProfessor = internshipManagerService.assignProfessorToStudent(studentID, professorID);
-            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(studentWithProfessor));
-        } catch (IllegalStateException e) {
+            InternshipContractDTO internshipContractWithProfessor = internshipManagerService.assignProfessorToContract(contractID, professorID);
+            return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(internshipContractWithProfessor));
+        } catch (SessionMismatchException e) {
             return getResponseEntity(HttpStatus.CONFLICT, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");

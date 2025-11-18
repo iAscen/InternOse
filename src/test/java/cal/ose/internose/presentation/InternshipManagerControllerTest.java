@@ -11,6 +11,7 @@ import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.InternshipManagerService;
 import cal.ose.internose.service.StudentService;
 import cal.ose.internose.service.exceptions.InternshipOfferNotAcceptedByStudentException;
+import cal.ose.internose.service.exceptions.SessionMismatchException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -720,18 +721,18 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void assignProfessorToStudent_CONFLICT() throws Exception {
+    void assignProfessorToContract_CONFLICT() throws Exception {
         // Arrange
-        long studentId = 1L;
+        long contractId = 1L;
         long professorId = 2L;
 
-        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
-            .thenThrow(IllegalStateException.class);
+        when(internshipManagerService.assignProfessorToContract(contractId, professorId))
+            .thenThrow(SessionMismatchException.class);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
-                    .param("studentID", String.valueOf(studentId))
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("contractID", String.valueOf(contractId))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
@@ -740,18 +741,18 @@ class InternshipManagerControllerTest {
     }
 
     @Test
-    void assignProfessorToStudent_BadRequest() throws Exception {
+    void assignProfessorToContract_BadRequest() throws Exception {
         // Arrange
-        long studentId = 1L;
+        long contractId = 1L;
         long professorId = 2L;
 
-        when(internshipManagerService.assignProfessorToStudent(studentId, professorId))
+        when(internshipManagerService.assignProfessorToContract(contractId, professorId))
             .thenThrow(RuntimeException.class);
 
         // Act
         MvcResult mvcResult = mockMvc.perform(
-                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH.replace("{professorID}", String.valueOf(professorId)))
-                    .param("studentID", String.valueOf(studentId))
+                post(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH.replace("{professorID}", String.valueOf(professorId)))
+                    .param("contractID", String.valueOf(contractId))
                     .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 

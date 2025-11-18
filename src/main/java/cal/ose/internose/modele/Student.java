@@ -27,8 +27,6 @@ public class Student extends User {
     private VerificationStatus resumeVerificationStatus = VerificationStatus.NONE;
     private LocalDateTime resumeVerifiedDate;
     private String resumeRejectionReason;
-    @ManyToOne
-    private Professor assignedProfessor;
     @OneToMany(fetch = FetchType.LAZY)
     private List<StudentApplication> studentApplications;
 }

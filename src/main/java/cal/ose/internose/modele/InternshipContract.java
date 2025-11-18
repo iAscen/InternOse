@@ -38,5 +38,7 @@ public class InternshipContract {
     private Employer employer;
     @ManyToOne
     private InternshipOffer internshipOffer;
+    @ManyToOne
+    private Professor professor;
 }
 

@@ -50,7 +50,6 @@ public class StudentDTO extends UserDTO {
             .resumeVerificationStatus(student.getResumeVerificationStatus())
             .resumeVerifiedDate(student.getResumeVerifiedDate())
             .resumeRejectionReason(student.getResumeRejectionReason())
-            .assignedProfessor(student.getAssignedProfessor())
             .build();
     }
 
