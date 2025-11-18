@@ -7,7 +7,8 @@ import type {
   CreateInterviewInvitationRequest,
   InterviewInvitation,
   UnseenApplicationsCount,
-  InternshipContract
+  InternshipContract,
+  InternAssessment
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -535,6 +536,128 @@ class EmployerAPI {
       };
     }
   }
+
+  // Récupérer l'évaluation du stagiaire
+  async getInternAssessment(employerId: number, internshipContractId: number): Promise<ApiResponse<InternAssessment>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      const url = `${buildFullApiUrl(API_PATHS.EMPLOYER.INTERN_ASSESSMENT)}?employerID=${employerId}&internshipContractID=${internshipContractId}`;
+      console.log('Récupération de l\'évaluation du stagiaire depuis:', url);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const assessment = await response.json();
+        return {
+          success: true,
+          data: assessment
+        };
+      } else {
+        let errorMessage = 'Erreur lors de la récupération de l\'évaluation';
+        try {
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (parseError) {
+          try {
+            const clonedResponse = response.clone();
+            const errorText = await clonedResponse.text();
+            errorMessage = errorText || errorMessage;
+          } catch (textError) {
+            console.log('Impossible de lire la réponse d\'erreur');
+          }
+        }
+
+        return {
+          success: false,
+          error: errorMessage
+        };
+      }
+    } catch (error) {
+      console.error('Erreur réseau:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
+
+  // Soumettre l'évaluation du stagiaire
+  async postInternAssessment(employerId: number, internshipContractId: number, assessmentData: InternAssessment): Promise<ApiResponse<InternAssessment>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant'
+        };
+      }
+
+      const url = `${buildFullApiUrl(API_PATHS.EMPLOYER.INTERN_ASSESSMENT)}?employerID=${employerId}&internshipContractID=${internshipContractId}`;
+      console.log('Soumission de l\'évaluation du stagiaire à:', url);
+      console.log('Données d\'évaluation:', assessmentData);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(assessmentData)
+      });
+
+      if (response.ok) {
+        const savedAssessment = await response.json();
+        return {
+          success: true,
+          data: savedAssessment
+        };
+      } else {
+        let errorMessage = 'Erreur lors de la soumission de l\'évaluation';
+        try {
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          console.log('Erreur data:', errorData);
+        } catch (parseError) {
+          try {
+            const clonedResponse = response.clone();
+            const errorText = await clonedResponse.text();
+            errorMessage = errorText || errorMessage;
+            console.log('Erreur:', errorText);
+          } catch (textError) {
+            console.log('Impossible de lire la réponse d\'erreur');
+          }
+        }
+
+        return {
+          success: false,
+          error: errorMessage
+        };
+      }
+    } catch (error) {
+      console.error('Erreur réseau:', error);
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur'
+      };
+    }
+  }
+
+
 }
 
 export const employerAPI = new EmployerAPI();

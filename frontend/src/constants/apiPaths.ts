@@ -24,7 +24,8 @@ export const API_PATHS = {
     APPLICATIONS_COUNT_UNSEEN: '/employer/:offerID/applications/count-unseen',
     APPLICATIONS_MAKE_SEEN: '/employer/:offerID/applications/make-seen',
     CONTRACT: '/employer/internship-offers/student-applications/{studentID}/contract',
-    SIGN_CONTRACT: '/employer/internship-offers/student-applications/{studentID}/contract/sign'
+    SIGN_CONTRACT: '/employer/internship-offers/student-applications/{studentID}/contract/sign',
+    INTERN_ASSESSMENT: '/employer/intern-assessment'
   },
   
   // Étudiant
