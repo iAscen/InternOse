@@ -62,4 +62,8 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH = INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH + "/{contractId}/sign";
     public static final String INTERNSHIP_MANAGER_PROFESSORS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/professors";
     public static final String INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH = INTERNSHIP_MANAGER_PROFESSORS_PATH + "/{professorID}/assign";
+
+    // Professor
+    public static final String PROFESSOR_BASE_PATH = API_BASE_PATH + "/professors";
+    public static final String PROFESSOR_INTERNSHIP_CONTRACTS = PROFESSOR_BASE_PATH + "/{professorID}/contracts";
 }
