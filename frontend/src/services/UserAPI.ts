@@ -159,14 +159,14 @@ class UserAPI {
   }
 
   // Gestion du rôle utilisateur
-  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER'): void {
+  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR'): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem('user_role', role);
   }
 
-  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
+  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null;
+    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null;
   }
 
   // Récupérer le nom complet de l'utilisateur depuis le JWT (décodage simple)
@@ -201,6 +201,45 @@ class UserAPI {
       return decoded.sub || decoded.email || null;
     } catch (error) {
       console.error('Erreur lors du décodage du JWT:', error);
+      return null;
+    }
+  }
+
+  // Récupérer l'ID de l'employeur depuis le JWT
+  async getProfessorIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) {
+      console.log('No token found');
+      return null;
+    }
+
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+
+      console.log('🔍 Contenu du JWT:', decoded);
+
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
+      const userId = decoded.userId || decoded.id || decoded.professorId || decoded.professor_id;
+
+      if (userId) {
+        console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+
+      // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les professeurs (${email})`);
+        return 1;
+      }
+
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID professeur:', error);
       return null;
     }
   }
@@ -284,7 +323,7 @@ class UserAPI {
   }
 
   // Récupérer le rôle utilisateur depuis le JWT
-  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
+  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) {
@@ -317,15 +356,15 @@ class UserAPI {
           // Try to extract the role from patterns like:
           // 1. "UserRole.INTERNSHIP_MANAGER(userRole=INTERNSHIP_MANAGER)"
           // 2. Just "INTERNSHIP_MANAGER"
-          const match = roleString.match(/=(EMPLOYER|STUDENT|INTERNSHIP_MANAGER)\)/);
+          const match = roleString.match(/=(EMPLOYER|STUDENT|INTERNSHIP_MANAGER|PROFESSOR)\)/);
           if (match && match[1]) {
             roleString = match[1];
             console.log('Extracted role from enum:', roleString);
           }
         }
         
-        if (roleString === 'EMPLOYER' || roleString === 'STUDENT' || roleString === 'INTERNSHIP_MANAGER') {
-          return roleString as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER';
+        if (roleString === 'EMPLOYER' || roleString === 'STUDENT' || roleString === 'INTERNSHIP_MANAGER' || roleString === 'PROFESSOR') {
+          return roleString as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR';
         }
       }
 
@@ -338,7 +377,7 @@ class UserAPI {
   }
 
   // Méthode pour déterminer le rôle utilisateur basé sur l'email (fallback)
-  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP_MANAGER" | null> {
+  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP_MANAGER" | 'PROFESSOR' | null> {
     try {
       // Essayer d'abord de récupérer le rôle depuis le JWT
       const roleFromJWT = this.getUserRoleFromJWT();
@@ -361,6 +400,10 @@ class UserAPI {
         '@manager', '@gestionnaire', '@admin', '@stage'
       ];
 
+      const professorPatterns = [
+        '@prof', '@professeur', '@teacher', '@teach'
+      ];
+
       const emailLower = email.toLowerCase();
 
       // Vérifier les patterns gestionnaires en premier (plus spécifiques)
@@ -381,6 +424,13 @@ class UserAPI {
       for (const pattern of studentPatterns) {
         if (emailLower.includes(pattern)) {
           return 'STUDENT';
+        }
+      }
+
+      // Vérifier les patterns professeurs
+      for (const pattern of professorPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'PROFESSOR';
         }
       }
 

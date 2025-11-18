@@ -336,6 +336,15 @@
       "viewOnlyMode" : "Mode lecture seulement"
     }
   },
+  "professorDashboard": {
+    "dashboard": "Tableau de bord du professeur",
+    "students": "Etudiants",
+    "myStudents": "Mes etudiants",
+    "contractsNotFound": "Les contrats n'ont pas peu etre chargees",
+    "employer": "Employeur",
+    "period": "Periode",
+    "noStudentFound": "Aucun étudiant ne vous a été assigné."
+  },
   "errors": {
     "required": "Ce champ est requis",
     "invalidEmail": "Adresse courriel invalide",

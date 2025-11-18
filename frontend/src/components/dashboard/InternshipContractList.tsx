@@ -6,7 +6,7 @@ import { ProfessorListModal } from './ProfessorListModal';
 
 interface InternshipContractListProps {
   contracts: InternshipContract[];
-  professors: Professor[];
+  professors?: Professor[];
   loading: boolean;
   onContractUpdate?: () => void;
 }
@@ -154,9 +154,9 @@ export default function InternshipContractList({
         />
       )}
 
-      {contractToAssignToProfessor &&
+      {contractToAssignToProfessor && 
         <ProfessorListModal 
-          professors={professors} 
+          professors={professors!} 
           contract={contractToAssignToProfessor}
           onClose={() => setContractToAssignToProfessor(null)}
           onProfessorUpdate={() => onContractUpdate!()}

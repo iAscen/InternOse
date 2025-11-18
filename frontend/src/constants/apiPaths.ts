@@ -57,6 +57,11 @@ export const API_PATHS = {
     ASSIGN_PROFESSOR_TO_CONTRACT: '/internship-manager/professors/{professorID}/assign',
     PROFESSORS: '/internship-manager/professors'
   },
+
+  PROFESSOR: {
+    CONTRACTS: '/professors/{professorID}/contracts'
+  }
+  
 } as const;
 
 // Fonction utilitaire pour remplacer les paramètres dans les URLs

@@ -335,6 +335,14 @@
       "viewOnlyMode": "View only"
     }
   },
+  "professorDashboard": {
+    "dashboard": "Professor Dashboard",
+    "students": "Students",
+    "myStudents": "My students",
+    "contractsNotFound": "The contracts couldn't be loaded",
+    "employer": "Employer",
+    "period": "Period"
+  },
   "errors": {
     "required": "This field is required",
     "invalidEmail": "Invalid email address",
