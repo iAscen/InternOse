@@ -341,7 +341,8 @@
     "myStudents": "My students",
     "contractsNotFound": "The contracts couldn't be loaded",
     "employer": "Employer",
-    "period": "Period"
+    "period": "Period",
+    "noStudentFound": "No student has been assigned to you"
   },
   "errors": {
     "required": "This field is required",
