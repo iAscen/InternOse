@@ -37,6 +37,7 @@ public class InternshipContractDTO {
     private String professorFirstName;
     private String professorLastName;
     private String professorEmail;
+    private Long professorId;
 
     public static InternshipContractDTO fromEntity(InternshipContract contract) {
         return InternshipContractDTO.builder()
@@ -63,6 +64,7 @@ public class InternshipContractDTO {
             .professorFirstName(contract.getProfessor() != null ? contract.getProfessor().getFirstName() : null)
             .professorLastName(contract.getProfessor() != null ? contract.getProfessor().getLastName() : null)
             .professorEmail(contract.getProfessor() != null ? contract.getProfessor().getEmail() : null)
+            .professorId(contract.getProfessor() != null ? contract.getProfessor().getId() : null)
             .build();
     }
 

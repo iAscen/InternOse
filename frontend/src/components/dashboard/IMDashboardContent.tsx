@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { userAPI } from "~/services/UserAPI";
 import { dashboardService } from "~/services/dashboardService";
-import type {InternshipOffer, UnseenApplicationsCount} from "~/interfaces";
+import type {InternshipOffer, Professor, UnseenApplicationsCount} from "~/interfaces";
 import type { Cv } from "~/interfaces"
 import StatisticsCard from "~/components/dashboard/StatisticsCard";
 import SortButton from "~/components/dashboard/SortButton";
@@ -48,6 +48,7 @@ export default function IMDashboardContent() {
     const [cvSortOrder, setCvSortOrder] = useState<string>('asc');
     const [contracts, setContracts] = useState<InternshipContract[]>([]);
     const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
+    const [professors, setProfessors] = useState<Professor[]>([])
 
     // Get available sessions from approved offers for history view
     const availableSessions = useMemo(() => {
@@ -129,6 +130,25 @@ export default function IMDashboardContent() {
             }
         }
     }, [navigate]);
+
+    const loadProfessors = async () => {
+      try {
+        setLoading(true)
+        
+        const response = await internshipManagerAPI.findAllProfessors()
+
+        if (response.success && response.data) {
+          setProfessors(response.data)
+        }
+        else {
+          setError(response.error || t('dashboard.loadingError'));
+        }
+      } catch(err) {
+        setError('dashboard.serverError')
+      } finally {
+        setLoading(false)
+      }
+    }
 
     // Charger toutes les offres de stage (sans filtres backend)
     const loadOffers = async () => {
@@ -278,6 +298,7 @@ export default function IMDashboardContent() {
         loadOffers();
         loadCvs();
         loadContracts();
+        loadProfessors();
     }, []);
 
     // Réinitialiser selectedOffer quand on change d'onglet (sauf si on reste sur approved-offers)
@@ -553,6 +574,7 @@ export default function IMDashboardContent() {
                   contracts={contracts}
                   loading={loading}
                   onContractUpdate={loadContracts}
+                  professors={professors}
                 />
               </div>
             </div>

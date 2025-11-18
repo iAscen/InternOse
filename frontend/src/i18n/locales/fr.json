@@ -29,7 +29,8 @@
     "no": "Non",
     "accept": "Accepter",
     "refuse": "Refuser",
-    "notAssigned": "Non attribué"
+    "notAssigned": "Non attribué",
+    "assigned": "Assigné"
   },
   "navigation": {
     "home": "Accueil",
@@ -460,6 +461,8 @@
     "assign": "Assigner",
     "unassign": "Désassigner",
     "noProfessorAssigned": "Aucun professeur assigné",
+    "noProfessorAvailable": "Aucun professeur disponible",
+    "professors": "Professeurs",
     "createContract": "Créer le contrat",
     "creating": "Création en cours...",
     "createSuccess": "Contrat de stage créé avec succès",

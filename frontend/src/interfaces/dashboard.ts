@@ -128,5 +128,11 @@ export interface InternshipContract {
   professorFirstName?: string;
   professorLastName?: string;
   professorEmail?: string;
-  nbContractsProfessor?: number;
+  professorId?: number;
+}
+
+export interface Professor {
+  id: number,
+  firstName: string,
+  lastName: string,
 }

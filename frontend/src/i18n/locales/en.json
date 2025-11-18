@@ -29,7 +29,8 @@
     "no": "No",
     "accept": "Accept",
     "refuse": "Refuse",
-    "notAssigned": "Not assigned"
+    "notAssigned": "Not assigned",
+    "assigned": "Assigned"
   },
   "navigation": {
     "home": "Home",
@@ -459,6 +460,8 @@
     "assign": "Assign",
     "unassign": "Unassign",
     "noProfessorAssigned": "No professor assigned",
+    "noProfessorAvailable": "No professor available",
+    "professors": "Professors",
     "createContract": "Create Contract",
     "creating": "Creating...",
     "createSuccess": "Internship contract created successfully",
@@ -479,7 +482,8 @@
       "supervisorEmailInvalid": "Email is invalid",
       "supervisorPhoneRequired": "Supervisor phone is required",
       "supervisorPhoneInvalid": "Phone number is invalid",
-      "createFailed": "Error creating contract"
+      "createFailed": "Error creating contract",
+      "professorAssignmentFailed": "Error assigning the professor"
     },
     "contractTitle": "Contract #{{id}}",
     "student": "Student",

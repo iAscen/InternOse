@@ -10,12 +10,14 @@ interface InternshipContractDetailsModalProps {
   contract: InternshipContract;
   onClose: () => void;
   onContractUpdate?: () => void;
+  onIsAssigningProfessor?: () => void;
 }
 
 export default function InternshipContractDetailsModal({
   contract,
   onClose,
-  onContractUpdate
+  onContractUpdate,
+  onIsAssigningProfessor
 }: InternshipContractDetailsModalProps) {
   const { t } = useTranslation();
   const [isSigning, setIsSigning] = useState(false);
@@ -39,6 +41,13 @@ export default function InternshipContractDetailsModal({
     return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  const handleAssignmentOfProfessor = async () => {
+    if (onIsAssigningProfessor) {
+      onIsAssigningProfessor()
+      onClose()
+    }
+  }
+
   const handleUnassignmentOfProfessor = async () => {
     try {
       console.log("Comencement de handleUnassignementOfProfessor")
@@ -54,10 +63,6 @@ export default function InternshipContractDetailsModal({
     catch(err) {
       setError(t('internshipContract.errors.professorAssignmentFailed'))
     }
-  }
-
-  const handleAssignmentOfProfessor = async () => {
-    
   }
 
   const handleSignContract = async () => {
@@ -217,7 +222,7 @@ export default function InternshipContractDetailsModal({
                 {t('internshipContract.professor')}
               </h3>
               {isInternshipManager && <div>
-                <button className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
+                <button onClick={() => handleAssignmentOfProfessor()} className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
                   {t('internshipContract.assign')}
                 </button>
                 {contract.professorEmail && <button onClick={() => handleUnassignmentOfProfessor()} className="rounded-sm ms-2 bg-red-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors duration-150">
