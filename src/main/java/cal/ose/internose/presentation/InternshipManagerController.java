@@ -185,6 +185,7 @@ public class InternshipManagerController {
     @PostMapping(Paths.INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH)
     public ResponseEntity<String> assignProfessorToContract(@PathVariable Long professorID, @RequestParam Long contractID) {
         try {
+            professorID = professorID == -1 ? null : professorID;
             InternshipContractDTO internshipContractWithProfessor = internshipManagerService.assignProfessorToContract(contractID, professorID);
             return getResponseEntity(HttpStatus.CREATED, objectMapper.writeValueAsString(internshipContractWithProfessor));
         } catch (SessionMismatchException e) {

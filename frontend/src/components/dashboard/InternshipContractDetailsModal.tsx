@@ -39,6 +39,27 @@ export default function InternshipContractDetailsModal({
     return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  const handleUnassignmentOfProfessor = async () => {
+    try {
+      console.log("Comencement de handleUnassignementOfProfessor")
+      const response = await internshipManagerAPI.assignProfessorToContract(contract.id, null)
+
+      if (response.success && onContractUpdate) {
+        onContractUpdate()
+        onClose()
+      }
+      else
+        setError(response.error!)
+    }
+    catch(err) {
+      setError(t('internshipContract.errors.professorAssignmentFailed'))
+    }
+  }
+
+  const handleAssignmentOfProfessor = async () => {
+    
+  }
+
   const handleSignContract = async () => {
     if (!canSign) return;
     
@@ -191,9 +212,19 @@ export default function InternshipContractDetailsModal({
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {t('internshipContract.professor')}
-            </h3>
+            <div className='flex'>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t('internshipContract.professor')}
+              </h3>
+              {isInternshipManager && <div>
+                <button className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
+                  {t('internshipContract.assign')}
+                </button>
+                {contract.professorEmail && <button onClick={() => handleUnassignmentOfProfessor()} className="rounded-sm ms-2 bg-red-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors duration-150">
+                  {t('internshipContract.unassign')}
+                </button>}
+              </div>}
+            </div>
             {contract.professorEmail && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-700">{t('internshipContract.professorName')}</p>

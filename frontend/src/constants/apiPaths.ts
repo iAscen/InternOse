@@ -54,6 +54,7 @@ export const API_PATHS = {
     DOWNLOAD_RESUME: '/internship-manager/students/{studentID}/resume/download',
     VERIFY_RESUME: '/internship-manager/students/{studentID}/resume/verify',
     CONTRACTS: '/internship-manager/contracts',
+    ASSIGN_PROFESSOR_TO_CONTRACT: '/internship-manager/professors/{professorID}/assign'
   },
 } as const;
 

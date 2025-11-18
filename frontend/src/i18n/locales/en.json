@@ -456,6 +456,8 @@
     "professor": "Professor",
     "professorName": "Full Name",
     "professorEmail": "Email",
+    "assign": "Assign",
+    "unassign": "Unassign",
     "noProfessorAssigned": "No professor assigned",
     "createContract": "Create Contract",
     "creating": "Creating...",

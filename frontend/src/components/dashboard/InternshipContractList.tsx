@@ -86,7 +86,7 @@ export default function InternshipContractList({
                       )}
                       {contract.professorFirstName && <p>
                         <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}
-                        {contract.professorFirstName} && {contract.professorLastName}
+                        {contract.professorFirstName} {contract.professorLastName}
                       </p>}
                       {contract.professorFirstName == undefined && <p>
                         <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}

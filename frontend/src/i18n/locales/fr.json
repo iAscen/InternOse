@@ -457,6 +457,8 @@
     "professor": "Professeur",
     "professorName": "Nom complet",
     "professorEmail": "Email",
+    "assign": "Assigner",
+    "unassign": "Désassigner",
     "noProfessorAssigned": "Aucun professeur assigné",
     "createContract": "Créer le contrat",
     "creating": "Création en cours...",
@@ -478,7 +480,8 @@
       "supervisorEmailInvalid": "L'email est invalide",
       "supervisorPhoneRequired": "Le téléphone du superviseur est requis",
       "supervisorPhoneInvalid": "Le numéro de téléphone est invalide",
-      "createFailed": "Erreur lors de la création du contrat"
+      "createFailed": "Erreur lors de la création du contrat",
+      "professorAssignmentFailed": "Erreur lors de l'affectation du professeur"
     },
     "contractTitle": "Entente #{{id}}",
     "student": "Étudiant",

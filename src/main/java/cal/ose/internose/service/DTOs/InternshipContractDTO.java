@@ -37,7 +37,6 @@ public class InternshipContractDTO {
     private String professorFirstName;
     private String professorLastName;
     private String professorEmail;
-    private Integer nbContractsProfessor;
 
     public static InternshipContractDTO fromEntity(InternshipContract contract) {
         return InternshipContractDTO.builder()

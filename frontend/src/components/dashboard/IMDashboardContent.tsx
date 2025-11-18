@@ -174,6 +174,7 @@ export default function IMDashboardContent() {
             setLoading(true);
             const response = await internshipManagerAPI.getAllInternshipContracts();
             if (response.success && response.data) {
+                console.log("Contracts loaded")
                 setContracts(response.data);
             } else {
                 setError(response.error || t('dashboard.loadingError'));
