@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import type { InternshipContract } from "~/interfaces";
 import DashboardSidebar from "./DashboardSidebar";
 import { professorAPI } from "../../services/ProfessorAPI"
