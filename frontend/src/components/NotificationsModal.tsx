@@ -63,7 +63,7 @@ export function NotificationsModal(
                                 </div>
                             </div>
                             
-                            <hr className="border-t border-gray-300" />
+                            <hr className="border-t border-gray-300 mb-4" />
                         </div>
                     )}
 
