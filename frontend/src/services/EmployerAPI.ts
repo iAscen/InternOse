@@ -538,7 +538,7 @@ class EmployerAPI {
   }
 
   // Récupérer l'évaluation du stagiaire
-  async getInternAssessment(employerId: number, internshipContractId: number): Promise<ApiResponse<InternAssessment>> {
+  async getInternAssessment(employerId: number | undefined, internshipContractId: number): Promise<ApiResponse<InternAssessment>> {
     try {
       const token = userAPI.getToken();
       if (!token) {
