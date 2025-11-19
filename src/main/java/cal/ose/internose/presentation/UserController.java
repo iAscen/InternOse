@@ -52,13 +52,25 @@ public class UserController {
     }
 
     @GetMapping(Paths.USER_NOTIFICATIONS_PATH)
-    public ResponseEntity<?> findNotifications(@PathVariable long userID) {
+    public ResponseEntity<String> findNotifications(@PathVariable long userID) {
         try {
             List<NotificationDTO> notifications = userService.findNotifications(userID);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(notifications));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (JsonProcessingException e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @PutMapping(Paths.USER_CHECK_NOTIFICATION_PATH)
+    public ResponseEntity<String> checkNotification(@PathVariable long notificationID) {
+        try{
+            userService.checkNotification(notificationID);
+            return ResponseEntity.ok(null);
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }

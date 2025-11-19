@@ -112,7 +112,7 @@ public class UserService {
 
     public List<NotificationDTO> findNotifications(long userId) {
         User user = userDAO.findById(userId).orElseThrow();
-        return notificationDAO.findByUser(user).stream().map(
+        return notificationDAO.findByUserAndCheckedOrderByCreatedAt(user, false).stream().map(
             notification -> NotificationDTO.builder()
                 .id(notification.getId())
                 .type(notification.getType())
@@ -121,6 +121,12 @@ public class UserService {
                 .checked(notification.isChecked())
                 .build()
         ).toList();
+    }
+
+    public void checkNotification(long notificationId) {
+        Notification notification = notificationDAO.findById(notificationId).orElseThrow();
+        notification.setChecked(true);
+        notificationDAO.save(notification);
     }
 
     private String registerUser(String email, String password, User user)

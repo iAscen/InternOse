@@ -72,7 +72,7 @@ export default function ProfessorDashboardContent() {
                                   </div>
                                   <div>
                                     <h4 className="font-medium">{t("professorDashboard.period")}</h4>
-                                    <p>{formatDate(contract.startDate)} {'-->'} {formatDate(contract.endDate)}</p>
+                                    <p>{formatDate(contract.startDate)} {'-'} {formatDate(contract.endDate)}</p>
                                   </div>
                                 </div> 
                               )

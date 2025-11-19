@@ -1,19 +1,80 @@
 import {Link} from "react-router";
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {userAPI} from "~/services/UserAPI";
 import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ClientOnly from "./ClientOnly";
 import { useMobileSidebar } from "~/contexts/MobileSidebarContext";
+import { NotificationsModal } from "./NotificationsModal";
+import type { Notification } from "~/interfaces";
+
 
 export default function Header() {
   const {isAuthenticated, userRole, userName, userEmail} = useAuth();
   const {t} = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notificationsError, setNotificationsError] = useState<String | null>(null)
+  const [showNotificationsModal, setShowModificationsModal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadNotifications()
+  }, [])
+
+  const getUserId = async () => {
+   const role = userAPI.getUserRoleFromJWT()
+   let id = null
+
+   if (role === "EMPLOYER")
+      id = await userAPI.getEmployerIdFromJWT()
+    if (role === "INTERNSHIP_MANAGER")
+      id = await userAPI.getStudentIdFromJWT()
+    if (role === "PROFESSOR")
+      id = await userAPI.getProfessorIdFromJWT()
+    if (role === "STUDENT")
+      id = await userAPI.getStudentIdFromJWT()
+
+    return id;
+  }
+
+  const loadNotifications = async () => {
+    try {
+      const userId = await getUserId()
+      if (userId) {
+        const response = await userAPI.getNotifications(userId)
+        if (response.success && response.data) {
+          setNotifications(response.data)
+        }
+        else 
+          setNotificationsError(response.error ?? t('navigation.notificationsNotFoundError'))
+      }
+      else {
+        setNotificationsError(t('navigation.notificationsNotFoundError'))
+      }
+    } catch(Error) {
+      setNotificationsError(t('navigation.notificationsNotFoundError'))
+    }
+  }
+
+  const checkNotification = async (notificationId: number) => {
+    try {
+      const response = await userAPI.checkNotification(notificationId)
+
+      if (response.error)
+        setNotificationsError(response.error)
+    } catch(Error) {
+      setNotificationsError(t('navigation.notificationCheckingError'))
+    }
+  }
+
+  const onNotificationDeletionButtonClick = async (notificationId: number) => {
+    await checkNotification(notificationId)
+    await loadNotifications()
+  }
   
   // Get mobile sidebar state if on dashboard
   const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER');
@@ -29,7 +90,7 @@ export default function Header() {
   useClickOutside(mobileMenuRef, () => setShowMobileMenu(false));
 
   return (
-    <header className={`sticky top-0 z-40 ${isDashboard ? 'bg-slate-100 lg:ml-96' : 'bg-white'} shadow-xs border-b border-slate-200`}>
+    <header className={`sticky top-0 z-100 ${isDashboard ? 'bg-slate-100 lg:ml-96' : 'bg-white'} shadow-xs border-b border-slate-200`}>
       <div className={`${isDashboard ? 'mx-auto w-full xl:max-w-7xl' : 'w-full'} px-2 sm:px-4 md:px-6 lg:px-8`}>
         <div className={`${isDashboard ? 'container mx-auto px-4 sm:px-0' : ''} flex items-center h-16 sm:h-18 md:h-20 w-full`}>
           {/* Mobile Sidebar Toggle Button - only on dashboard */}
@@ -87,8 +148,47 @@ export default function Header() {
             </div>
           )}
 
-          {/* Right side: Language Switcher (left) + Actions (right) */}
+
+          {/* Right side: Notification bell (left) + languageSwitcher(center) + Actions (right) */}
           <div className={`flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0 ${isDashboard ? 'ml-auto' : ''}`}>
+            
+          {userAPI.isAuthenticated() &&
+          <ClientOnly>
+          <div onClick={() => setShowModificationsModal(true)} className="relative me-2 z-[100]">
+            {/* Bell icon */}
+            <svg
+              className="w-6 h-6 text-gray-700 hover:text-gray-900 cursor-pointer"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+
+            {/* Red badge */}
+            { notifications && notifications.length >= 1 &&
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                {notifications.length}
+              </span>
+            } 
+          </div> </ClientOnly>}
+
+          {showNotificationsModal && 
+            <NotificationsModal 
+              onClose={() => setShowModificationsModal(false)}
+              notifications={notifications}
+              error={notificationsError}
+              onNotificationDeletionButtonClick={onNotificationDeletionButtonClick}
+              >
+            </NotificationsModal>
+          }
+            
             {/* Language Switcher - Always on the left */}
             <ClientOnly 
               fallback={<div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>}

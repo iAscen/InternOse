@@ -36,7 +36,10 @@
     "home": "Accueil",
     "dashboard": "Tableau de bord",
     "profile": "Profil",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "notifications": "Notifications",
+    "notificationsNotFoundError": "Les notifications n'ont pas peu etre chargees",
+    "noNotificationsFound": "Vous n'avez aucune notification"
   },
   "auth": {
     "loginTitle": "Connexion",

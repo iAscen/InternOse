@@ -36,7 +36,11 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "notificationsNotFoundError": "Notifications could not be loaded",
+    "notificationCheckingError": "The notification could not be deleted",
+    "noNotificationsFound": "You don’t have any notifications."
   },
   "auth": {
     "loginTitle": "Login",
