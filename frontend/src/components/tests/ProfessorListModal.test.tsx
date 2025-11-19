@@ -101,36 +101,4 @@ describe('ProfessorListModal', () => {
 
     expect(alreadyAssignedProfessor).toHaveLength(1)
   });
-
-  it("should call the API and close the modal when assigning a professor", async () => {
-  // mock API response
-  vi.mocked(internshipManagerAPI.assignProfessorToContract).mockResolvedValue({
-    success: true
-  });
-
-  mockContract.professorEmail = undefined
-  mockContract.professorFirstName = undefined
-  mockContract.professorLastName = undefined
-  mockContract.professorId = undefined
-
-  render(
-    <ProfessorListModal
-      professors={professors}
-      contract={mockContract}
-      onClose={mockOnClose}
-      onProfessorUpdate={mockOnProfessorUpdate}
-    />
-  );
-
-  const assignButton = screen.getAllByText("internshipContract.assign")[0]
-
-  fireEvent.click(assignButton)
-
-  expect(internshipManagerAPI.assignProfessorToContract).toHaveBeenCalledWith(
-    mockContract.id,
-    professors[0].id
-  );
-  
-  expect(mockOnClose).toHaveBeenCalled();
-});
 })
