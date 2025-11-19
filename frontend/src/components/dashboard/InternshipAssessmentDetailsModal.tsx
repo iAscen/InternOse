@@ -19,6 +19,7 @@ export default function InternshipAssessmentDetailsModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   // Critères d'évaluation
   const assessmentCriteria = [
@@ -29,6 +30,12 @@ export default function InternshipAssessmentDetailsModal({
     { key: 'TEAM_INTEGRATION', label: 'Intégration à l\'équipe' },
   ];
 
+  // Initialize internAssessment with all criteria set to empty (not done)
+  const initialInternAssessment = assessmentCriteria.reduce((acc, criterion) => {
+    acc[criterion.key] = '' as AssessmentOptions;
+    return acc;
+  }, {} as Record<string, AssessmentOptions>);
+
   const [formData, setFormData] = useState<InternAssessment>({
     studentName: `${contract.studentFirstName} ${contract.studentLastName}`,
     studentProgram: '',
@@ -36,7 +43,7 @@ export default function InternshipAssessmentDetailsModal({
     supervisorName: contract.supervisorName || '',
     supervisorTitle: contract.supervisorTitle || '',
     supervisorPhoneNumber: contract.supervisorPhone || '',
-    internAssessment: {},
+    internAssessment: initialInternAssessment,
     internAssessmentComments: {},
     overallInternAppreciation: 'FULLY_MEETS_EXPECTATIONS',
     appreciationComment: '',
@@ -127,16 +134,32 @@ export default function InternshipAssessmentDetailsModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitAttempted(true);
 
+    // Check for missing or empty criteria
     const missingCriteria = assessmentCriteria.filter(
-      criterion => !formData.internAssessment[criterion.key]
+      criterion => !formData.internAssessment[criterion.key] || formData.internAssessment[criterion.key] === ''
     );
 
     if (missingCriteria.length > 0) {
-      setError(`Veuillez évaluer tous les critères obligatoires: ${missingCriteria.map(c => c.label).join(', ')}`);
+      setError('Veuillez évaluer tous les critères obligatoires');
       return;
     }
 
+    // Validate student program
+    if (!formData.studentProgram || formData.studentProgram.trim() === '') {
+      setError('Veuillez saisir le programme d\'études');
+      return;
+    }
+
+    // Validate weekly supervision hours
+    const hours = formData.weeklySupervisionHours;
+    if (!isFinite(hours) || hours < 0) {
+      setError('Veuillez fournir un nombre valide pour les heures de supervision hebdomadaire');
+      return;
+    }
+
+    // Validate signer information
     if (!formData.signerName || !formData.signerTitle) {
       setError('Veuillez remplir les informations du signataire (nom et titre)');
       return;
@@ -148,9 +171,14 @@ export default function InternshipAssessmentDetailsModal({
     const employerId = contract.employerId
     if (!employerId || !contract.id) {
       setError('Impossible de récupérer les informations nécessaires');
+      setLoading(false);
       return;
     }
 
+    // TODO: Submit assessment to backend
+    // await employerAPI.submitInternAssessment(employerId, contract.id, formData);
+    setLoading(false);
+    onClose();
   };
 
   return (
@@ -179,7 +207,7 @@ export default function InternshipAssessmentDetailsModal({
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1 relative">
           {internAssessment ? (
             <>
               {/* Informations générales */}
@@ -334,12 +362,6 @@ export default function InternshipAssessmentDetailsModal({
             </>
           ) : showForm ? (
             <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800">{error}</p>
-                </div>
-              )}
-
               {/* Informations générales */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations générales</h3>
@@ -384,44 +406,58 @@ export default function InternshipAssessmentDetailsModal({
                 </p>
 
                 <div className="space-y-6">
-                  {assessmentCriteria.map((criterion) => (
-                    <div key={criterion.key} className="border border-gray-200 rounded-lg p-4">
-                      <label className="block text-sm font-medium text-gray-900 mb-3">
-                        {criterion.label} <span className="text-red-500">*</span>
-                      </label>
+                  {assessmentCriteria.map((criterion) => {
+                    const isNotDone = !formData.internAssessment[criterion.key] || formData.internAssessment[criterion.key] === '';
+                    const showNotDone = submitAttempted && isNotDone;
+                    return (
+                      <div
+                        key={criterion.key}
+                        className={`border rounded-lg p-4 ${
+                          showNotDone ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <label className="block text-sm font-medium text-gray-900 mb-3">
+                          {criterion.label} <span className="text-red-500">*</span>
+                          {showNotDone && (
+                            <span className="ml-2 text-xs text-red-600 font-normal">
+                              (Non complété)
+                            </span>
+                          )}
+                        </label>
 
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
-                        {[
-                          { value: 'COMPLETELY_AGREE' as AssessmentOptions, label: 'Excellent (5)' },
-                          { value: 'PARTIALLY_AGREE' as AssessmentOptions, label: 'Très bien (4)' },
-                          { value: 'PARTIALLY_DISAGREE' as AssessmentOptions, label: 'Bien (3)' },
-                          { value: 'COMPLETELY_DISAGREE' as AssessmentOptions, label: 'À améliorer (2)' },
-                          { value: 'NOT_APPLICABLE' as AssessmentOptions, label: 'Non applicable' },
-                        ].map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => handleAssessmentChange(criterion.key, option.value)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              formData.internAssessment[criterion.key] === option.value
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+                          {[
+                            { value: 'COMPLETELY_AGREE' as AssessmentOptions, label: 'Excellent (5)' },
+                            { value: 'PARTIALLY_AGREE' as AssessmentOptions, label: 'Très bien (4)' },
+                            { value: 'PARTIALLY_DISAGREE' as AssessmentOptions, label: 'Bien (3)' },
+                            { value: 'COMPLETELY_DISAGREE' as AssessmentOptions, label: 'À améliorer (2)' },
+                            { value: 'NOT_APPLICABLE' as AssessmentOptions, label: 'Non applicable' },
+                          ].map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleAssessmentChange(criterion.key, option.value)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                formData.internAssessment[criterion.key] === option.value
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        <textarea
+                          value={formData.internAssessmentComments[criterion.key] || ''}
+                          onChange={(e) => handleCommentChange(criterion.key, e.target.value)}
+                          placeholder="Commentaires (optionnel)"
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
                       </div>
-
-                      <textarea
-                        value={formData.internAssessmentComments[criterion.key] || ''}
-                        onChange={(e) => handleCommentChange(criterion.key, e.target.value)}
-                        placeholder="Commentaires (optionnel)"
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -561,43 +597,58 @@ export default function InternshipAssessmentDetailsModal({
           )}
         </div>
 
-        <div className="flex justify-end gap-3 p-6 flex-shrink-0 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-between gap-3 p-6 flex-shrink-0 border-t border-gray-200 bg-gray-50">
           {showForm && !internAssessment ? (
             <>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Annuler
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Soumission en cours...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {/* Error message on the left */}
+              <div className="flex-1 flex items-center">
+                {error && (
+                  <div className="flex items-center gap-2 bg-red-50 border border-red-300 rounded-lg px-4 py-2 max-w-2xl">
+                    <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    Soumettre l'évaluation
-                  </>
+                    <p className="text-red-800 text-sm font-medium">{error}</p>
+                  </div>
                 )}
-              </button>
+              </div>
+
+              {/* Buttons on the right */}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={loading}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Soumission en cours...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Soumettre l'évaluation
+                    </>
+                  )}
+                </button>
+              </div>
             </>
           ) : (
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors ml-auto"
             >
               {t('common.close') || 'Fermer'}
             </button>
