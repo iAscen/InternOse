@@ -323,6 +323,7 @@ class UserAPI {
     }
   }
 
+  
   // Récupérer le rôle utilisateur depuis le JWT
   getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;

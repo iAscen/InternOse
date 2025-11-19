@@ -1,7 +1,4 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { InternshipContract, Professor } from "~/interfaces";
-import { internshipManagerAPI } from "~/services/InternshipManagerAPI";
 import type { Notification } from "~/interfaces";
 
 interface NotificationsModal {

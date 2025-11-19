@@ -38,7 +38,7 @@ export function ProfessorListModal(
         className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
         onClick={onClose}
         > 
-        <div className="p-6 overflow-y-auto flex-1 w-1">
+        <div onClick={(e) => e.stopPropagation()} className="p-6 overflow-y-auto flex-1 w-1">
 
             <div className="mb-6 bg-gray-100 w-1/2 m-auto">
                 <h2 className="text-xl p-3 font-semibold bg-gray-200 text-gray-900 mb-4">
