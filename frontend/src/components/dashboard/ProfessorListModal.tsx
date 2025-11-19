@@ -38,20 +38,20 @@ export function ProfessorListModal(
         className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-[100]"
         onClick={onClose}
         > 
-        <div onClick={(e) => e.stopPropagation()} className="p-6 overflow-y-auto flex-1 w-1">
+        <div className="p-6 overflow-y-auto flex-1 w-1">
 
-            <div className="mb-6 bg-gray-100 w-1/2 m-auto">
+            <div onClick={(e) => e.stopPropagation()} className="mb-6 bg-gray-100 w-1/2 m-auto">
                 <h2 className="text-xl p-3 font-semibold bg-gray-200 text-gray-900 mb-4">
                 {t('internshipContract.professors')}
                 </h2>
                 <div>
                     {professors.map((professor) => 
                     
-                        <div onClick={() => {handleProfessorUpdate(professor.id)}} key={professor.id} className="text-gray-900 flex items-center pb-3 ps-3 pe-3">
+                        <div key={professor.id} className="text-gray-900 flex items-center pb-3 ps-3 pe-3">
                             <span>{professor.firstName} {professor.lastName}</span>
 
                             {professor.id != contract.professorId && <div className="ms-auto">
-                                <button className="p-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <button onClick={() => {handleProfessorUpdate(professor.id)}} className="p-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                     {t('internshipContract.assign')}
                                 </button>
                             </div>}
