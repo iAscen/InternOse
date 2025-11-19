@@ -40,6 +40,8 @@ export default function Home() {
         navigate('/student-dashboard');
       } else if (userRole === 'INTERNSHIP_MANAGER') {
         navigate('/im-dashboard');
+      } else if (userRole === 'PROFESSOR') {
+        navigate('/professor-dashboard')
       }
     }
   }, [navigate]);
