@@ -128,10 +128,29 @@ export default function InternshipAssessmentDetailsModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log(formData);
-    // TODO soumettre le formulaire
+    const missingCriteria = assessmentCriteria.filter(
+      criterion => !formData.internAssessment[criterion.key]
+    );
 
-    onClose()
+    if (missingCriteria.length > 0) {
+      setError(`Veuillez évaluer tous les critères obligatoires: ${missingCriteria.map(c => c.label).join(', ')}`);
+      return;
+    }
+
+    if (!formData.signerName || !formData.signerTitle) {
+      setError('Veuillez remplir les informations du signataire (nom et titre)');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const employerId = contract.employerId
+    if (!employerId || !contract.id) {
+      setError('Impossible de récupérer les informations nécessaires');
+      return;
+    }
+
   };
 
   return (
