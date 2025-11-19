@@ -35,6 +35,8 @@ export default function Header() {
       id = await userAPI.getProfessorIdFromJWT()
     if (role === "STUDENT")
       id = await userAPI.getStudentIdFromJWT()
+    if (role === 'INTERNSHIP_MANAGER')
+      id = await userAPI.getInternshipManagerIdFromJWT()
 
     return id;
   }

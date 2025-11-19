@@ -207,6 +207,45 @@ class UserAPI {
   }
 
   // Récupérer l'ID de l'employeur depuis le JWT
+  async getInternshipManagerIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) {
+      console.log('No token found');
+      return null;
+    }
+
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+
+      console.log('🔍 Contenu du JWT:', decoded);
+
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
+      const userId = decoded.userId || decoded.id || decoded.internshipManagerId || decoded.internshipManager_id;
+      
+      if (userId) {
+        console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+
+      // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les gestionnaires (${email})`);
+        return 1;
+      }
+
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID gestionnaire:', error);
+      return null;
+    }
+  }
+
+  // Récupérer l'ID de l'employeur depuis le JWT
   async getProfessorIdFromJWT(): Promise<number | null> {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
