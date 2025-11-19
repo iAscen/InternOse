@@ -39,6 +39,7 @@
     "settings": "Paramètres",
     "notifications": "Notifications",
     "notificationsNotFoundError": "Les notifications n'ont pas peu etre chargees",
+    "notificationCheckingError": "La notification n'a pas peu etre supprimer",
     "noNotificationsFound": "Vous n'avez aucune notification"
   },
   "auth": {

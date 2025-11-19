@@ -31,8 +31,6 @@ export default function Header() {
 
    if (role === "EMPLOYER")
       id = await userAPI.getEmployerIdFromJWT()
-    if (role === "INTERNSHIP_MANAGER")
-      id = await userAPI.getStudentIdFromJWT()
     if (role === "PROFESSOR")
       id = await userAPI.getProfessorIdFromJWT()
     if (role === "STUDENT")
@@ -154,7 +152,7 @@ export default function Header() {
             
           {userAPI.isAuthenticated() &&
           <ClientOnly>
-          <div onClick={() => setShowModificationsModal(true)} className="relative me-2 z-[100]">
+          <div role='bell' onClick={() => setShowModificationsModal(true)} className="relative me-2 z-[100]">
             {/* Bell icon */}
             <svg
               className="w-6 h-6 text-gray-700 hover:text-gray-900 cursor-pointer"
