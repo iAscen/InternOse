@@ -75,7 +75,7 @@ export default function Header() {
   }
   
   // Get mobile sidebar state if on dashboard
-  const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER');
+  const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER' || userRole === 'PROFESSOR');
   let mobileSidebarContext;
   try {
     mobileSidebarContext = useMobileSidebar();
