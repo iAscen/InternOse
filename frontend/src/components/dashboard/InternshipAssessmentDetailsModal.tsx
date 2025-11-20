@@ -25,14 +25,13 @@ export default function InternshipAssessmentDetailsModal({
 
   // Critères d'évaluation
   const assessmentCriteria = [
-    { key: 'PUNCTUALITY', label: 'Ponctualité et assiduité' },
-    { key: 'ATTITUDE', label: 'Attitude et comportement professionnel' },
-    { key: 'WORK_QUALITY', label: 'Qualité du travail et autonomie' },
-    { key: 'FOLLOW_INSTRUCTIONS', label: 'Respect des consignes et capacité d\'apprentissage' },
-    { key: 'TEAM_INTEGRATION', label: 'Intégration à l\'équipe' },
+    { key: 'PUNCTUALITY', label: t('internshipAssessment.criteria.PUNCTUALITY') },
+    { key: 'ATTITUDE', label: t('internshipAssessment.criteria.ATTITUDE') },
+    { key: 'WORK_QUALITY', label: t('internshipAssessment.criteria.WORK_QUALITY') },
+    { key: 'FOLLOW_INSTRUCTIONS', label: t('internshipAssessment.criteria.FOLLOW_INSTRUCTIONS') },
+    { key: 'TEAM_INTEGRATION', label: t('internshipAssessment.criteria.TEAM_INTEGRATION') },
   ];
 
-  // Initialize internAssessment with all criteria set to empty (not done)
   const initialInternAssessment = assessmentCriteria.reduce((acc, criterion) => {
     acc[criterion.key] = '' as AssessmentOptions;
     return acc;
@@ -85,31 +84,31 @@ export default function InternshipAssessmentDetailsModal({
 
   const getAssessmentLabel = (value: string) => {
     const labels: Record<string, string> = {
-      'COMPLETELY_AGREE': 'Totalement d\'accord',
-      'PARTIALLY_AGREE': 'Plutôt d\'accord',
-      'PARTIALLY_DISAGREE': 'Plutôt en désaccord',
-      'COMPLETELY_DISAGREE': 'Totalement en désaccord',
-      'NOT_APPLICABLE': 'Non applicable'
+      'COMPLETELY_AGREE': t('internshipAssessment.ratings.COMPLETELY_AGREE'),
+      'PARTIALLY_AGREE': t('internshipAssessment.ratings.PARTIALLY_AGREE'),
+      'PARTIALLY_DISAGREE': t('internshipAssessment.ratings.PARTIALLY_DISAGREE'),
+      'COMPLETELY_DISAGREE': t('internshipAssessment.ratings.COMPLETELY_DISAGREE'),
+      'NOT_APPLICABLE': t('internshipAssessment.ratings.NOT_APPLICABLE')
     };
     return labels[value] || value;
   };
 
   const getAppreciationLabel = (value: string) => {
     const labels: Record<string, string> = {
-      'GREATLY_EXCEEDS_EXPECTATIONS': 'Dépasse de beaucoup les attentes',
-      'EXCEEDS_EXPECTATIONS': 'Dépasse les attentes',
-      'FULLY_MEETS_EXPECTATIONS': 'Répond pleinement aux attentes',
-      'PARTIALLY_MEETS_EXPECTATIONS': 'Répond partiellement aux attentes',
-      'DOES_NOT_MEET_EXPECTATIONS': 'Ne répond pas aux attentes'
+      'GREATLY_EXCEEDS_EXPECTATIONS': t('internshipAssessment.appreciations.GREATLY_EXCEEDS_EXPECTATIONS'),
+      'EXCEEDS_EXPECTATIONS': t('internshipAssessment.appreciations.EXCEEDS_EXPECTATIONS'),
+      'FULLY_MEETS_EXPECTATIONS': t('internshipAssessment.appreciations.FULLY_MEETS_EXPECTATIONS'),
+      'PARTIALLY_MEETS_EXPECTATIONS': t('internshipAssessment.appreciations.PARTIALLY_MEETS_EXPECTATIONS'),
+      'DOES_NOT_MEET_EXPECTATIONS': t('internshipAssessment.appreciations.DOES_NOT_MEET_EXPECTATIONS')
     };
     return labels[value] || value;
   };
 
   const getCollaborationLabel = (value: string) => {
     const labels: Record<string, string> = {
-      'YES': 'Oui',
-      'MAYBE': 'Peut-être',
-      'NO': 'Non'
+      'YES': t('internshipAssessment.collaborationOptions.YES'),
+      'MAYBE': t('internshipAssessment.collaborationOptions.MAYBE'),
+      'NO': t('internshipAssessment.collaborationOptions.NO')
     };
     return labels[value] || value;
   };
@@ -152,26 +151,26 @@ export default function InternshipAssessmentDetailsModal({
     );
 
     if (missingCriteria.length > 0) {
-      setError('Veuillez évaluer tous les critères obligatoires');
+      setError(t('internshipAssessment.errors.allCriteriaRequired'));
       return;
     }
 
     // Validate student program
     if (!formData.studentProgram || formData.studentProgram.trim() === '') {
-      setError('Veuillez saisir le programme d\'études');
+      setError(t('internshipAssessment.errors.programRequired'));
       return;
     }
 
     // Validate weekly supervision hours
     const hours = formData.weeklySupervisionHours;
     if (!isFinite(hours) || hours < 0) {
-      setError('Veuillez fournir un nombre valide pour les heures de supervision hebdomadaire');
+      setError(t('internshipAssessment.errors.invalidSupervisionHours'));
       return;
     }
 
     // Validate signer information
     if (!formData.signerName || !formData.signerTitle) {
-      setError('Veuillez remplir les informations du signataire (nom et titre)');
+      setError(t('internshipAssessment.errors.signerInfoRequired'));
       return;
     }
 
@@ -180,12 +179,12 @@ export default function InternshipAssessmentDetailsModal({
 
     const employerId = contract.employerId
     if (!employerId || !contract.id) {
-      setError('Impossible de récupérer les informations nécessaires');
+      setError(t('internshipAssessment.errors.missingInfo'));
       setLoading(false);
       return;
     }
     if (!formData.signerName || !formData.signerTitle) {
-      setError('Veuillez remplir les informations du signataire (nom et titre)');
+      setError(t('internshipAssessment.errors.signerInfoRequired'));
       return;
     }
 
@@ -195,7 +194,7 @@ export default function InternshipAssessmentDetailsModal({
 
       const employerId = await userAPI.getEmployerIdFromJWT();
       if (!employerId || !contract.id) {
-        setError('Impossible de récupérer les informations nécessaires');
+        setError(t('internshipAssessment.errors.missingInfo'));
         return;
       }
 
@@ -214,11 +213,11 @@ export default function InternshipAssessmentDetailsModal({
         setInternAssessment(response.data);
         setShowForm(false);
       } else {
-        setError(response.error || 'Erreur lors de la soumission de l\'évaluation');
+        setError(response.error || t('internshipAssessment.errors.submissionError'));
       }
     } catch (err) {
       console.error('Erreur:', err);
-      setError('Erreur de connexion au serveur');
+      setError(t('internshipAssessment.errors.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -235,9 +234,9 @@ export default function InternshipAssessmentDetailsModal({
       >
         <div className="sticky top-0 bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 flex-shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Évaluation du stagiaire</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('internshipAssessment.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              {internAssessment?.studentName || 'Évaluation'}
+              {internAssessment?.studentName || t('internshipAssessment.evaluation')}
             </p>
           </div>
           <button
@@ -256,31 +255,31 @@ export default function InternshipAssessmentDetailsModal({
               {/* Informations générales */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Informations générales
+                  {t('internshipAssessment.generalInformation')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Nom du stagiaire</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.studentName')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.studentName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Programme d'études</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.studentProgram')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.studentProgram}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Nom de l'entreprise</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.companyName')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.companyName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Nom du superviseur</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.supervisorName')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.supervisorName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Titre du superviseur</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.supervisorTitle')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.supervisorTitle}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Téléphone du superviseur</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.supervisorPhone')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.supervisorPhoneNumber}</p>
                   </div>
                 </div>
@@ -289,7 +288,7 @@ export default function InternshipAssessmentDetailsModal({
               {/* Évaluations */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Évaluations des compétences
+                  {t('internshipAssessment.skillsEvaluation')}
                 </h3>
                 <div className="space-y-3">
                   {Object.entries(internAssessment.internAssessment).map(([key, value]) => (
@@ -313,17 +312,17 @@ export default function InternshipAssessmentDetailsModal({
               {/* Appréciation globale */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Appréciation globale
+                  {t('internshipAssessment.overallAppreciation')}
                 </h3>
                 <div className="p-4 bg-blue-50 rounded-lg mb-3">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Appréciation</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t('internshipAssessment.appreciation')}</p>
                   <p className="text-base font-semibold text-blue-700">
                     {getAppreciationLabel(internAssessment.overallInternAppreciation)}
                   </p>
                 </div>
                 {internAssessment.appreciationComment && (
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700 mb-1">Commentaires</p>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('internshipAssessment.comments')}</p>
                     <p className="text-sm text-gray-900 whitespace-pre-wrap">
                       {internAssessment.appreciationComment}
                     </p>
@@ -334,21 +333,21 @@ export default function InternshipAssessmentDetailsModal({
               {/* Détails supplémentaires */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Détails supplémentaires
+                  {t('internshipAssessment.additionalDetails')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700">Discuté avec le stagiaire</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.discussedWithStudent')}</p>
                     <p className="text-sm text-gray-900">
-                      {internAssessment.discussedWithTheIntern ? 'Oui' : 'Non'}
+                      {internAssessment.discussedWithTheIntern ? t('common.yes') : t('common.no')}
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700">Heures de supervision par semaine</p>
-                    <p className="text-sm text-gray-900">{internAssessment.weeklySupervisionHours} heures</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.weeklySupervisionHours')}</p>
+                    <p className="text-sm text-gray-900">{internAssessment.weeklySupervisionHours} {t('internshipAssessment.hours')}</p>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700">Collaboration future</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.futureCollaboration')}</p>
                     <p className="text-sm text-gray-900">
                       {getCollaborationLabel(internAssessment.futureCollaboration)}
                     </p>
@@ -360,7 +359,7 @@ export default function InternshipAssessmentDetailsModal({
               {internAssessment.academicPreparationAdequacy && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Préparation académique
+                    {t('internshipAssessment.academicPreparation')}
                   </h3>
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-900 whitespace-pre-wrap">
@@ -373,24 +372,24 @@ export default function InternshipAssessmentDetailsModal({
               {/* Signature */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Signature
+                  {t('internshipAssessment.signature')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Nom du signataire</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.signerName')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.signerName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Titre du signataire</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.signerTitle')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.signerTitle}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Date de signature</p>
+                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.signatureDate')}</p>
                     <p className="text-sm text-gray-900">{formatDate(internAssessment.signatureDate)}</p>
                   </div>
                   {internAssessment.signature && (
                     <div className="md:col-span-2">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Signature</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">{t('internshipAssessment.signature')}</p>
                       <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <img
                           src={internAssessment.signature}
@@ -407,15 +406,34 @@ export default function InternshipAssessmentDetailsModal({
             <form onSubmit={handleSubmit}>
               {/* Informations générales */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations générales</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipAssessment.generalInformation')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  {/*TODO CHANGE TO CONSTANT*/}
+                  <div className={`border rounded-lg p-4 ${
+                    submitAttempted && (!formData.studentProgram || formData.studentProgram.trim() === '') 
+                      ? 'border-red-300 bg-red-50' 
+                      : 'border-gray-200'
+                  }`}>
                     <ProgramSelector onChange={handleSelectChange} value={formData.studentProgram}/>
+                    {submitAttempted && (!formData.studentProgram || formData.studentProgram.trim() === '') && (
+                      <span className="text-xs text-red-600 font-normal mt-1 block">
+                        ({t('internshipAssessment.notCompleted')})
+                      </span>
+                    )}
                   </div>
 
-                  <div>
+                  <div className={`border rounded-lg p-4 ${
+                    submitAttempted && (!isFinite(formData.weeklySupervisionHours) || formData.weeklySupervisionHours < 0)
+                      ? 'border-red-300 bg-red-50' 
+                      : 'border-gray-200'
+                  }`}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Heures de supervision par semaine <span className="text-red-500">*</span>
+                      {t('internshipAssessment.weeklySupervisionHours')} <span className="text-red-500">*</span>
+                      {submitAttempted && (!isFinite(formData.weeklySupervisionHours) || formData.weeklySupervisionHours < 0) && (
+                        <span className="ml-2 text-xs text-red-600 font-normal">
+                          ({t('internshipAssessment.notCompleted')})
+                        </span>
+                      )}
                     </label>
                     <input
                       type="number"
@@ -425,7 +443,7 @@ export default function InternshipAssessmentDetailsModal({
                       value={formData.weeklySupervisionHours}
                       onChange={(e) => setFormData({ ...formData, weeklySupervisionHours: parseFloat(e.target.value) })}
                       className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-                      placeholder="Ex: 2"
+                      placeholder={t('internshipAssessment.weeklySupervisionHoursPlaceholder')}
                     />
                   </div>
                 </div>
@@ -433,9 +451,9 @@ export default function InternshipAssessmentDetailsModal({
 
               {/* Critères d'évaluation */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Critères d'évaluation</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipAssessment.assessmentCriteria')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Évaluez le stagiaire selon les critères suivants
+                  {t('internshipAssessment.assessmentCriteriaSubtitle')}
                 </p>
 
                 <div className="space-y-6">
@@ -448,23 +466,23 @@ export default function InternshipAssessmentDetailsModal({
                         className={`border rounded-lg p-4 ${
                           showNotDone ? 'border-red-300 bg-red-50' : 'border-gray-200'
                         }`}
-                      >
+                        >
                         <label className="block text-sm font-medium text-gray-900 mb-3">
                           {criterion.label} <span className="text-red-500">*</span>
                           {showNotDone && (
                             <span className="ml-2 text-xs text-red-600 font-normal">
-                              (Non complété)
+                              ({t('internshipAssessment.notCompleted')})
                             </span>
                           )}
                         </label>
 
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
                           {[
-                            { value: 'COMPLETELY_AGREE' as AssessmentOptions, label: 'Excellent (5)' },
-                            { value: 'PARTIALLY_AGREE' as AssessmentOptions, label: 'Très bien (4)' },
-                            { value: 'PARTIALLY_DISAGREE' as AssessmentOptions, label: 'Bien (3)' },
-                            { value: 'COMPLETELY_DISAGREE' as AssessmentOptions, label: 'À améliorer (2)' },
-                            { value: 'NOT_APPLICABLE' as AssessmentOptions, label: 'Non applicable' },
+                            { value: 'COMPLETELY_AGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.excellent') },
+                            { value: 'PARTIALLY_AGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.veryGood') },
+                            { value: 'PARTIALLY_DISAGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.good') },
+                            { value: 'COMPLETELY_DISAGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.needsImprovement') },
+                            { value: 'NOT_APPLICABLE' as AssessmentOptions, label: t('internshipAssessment.ratings.notApplicable') },
                           ].map((option) => (
                             <button
                               key={option.value}
@@ -484,7 +502,7 @@ export default function InternshipAssessmentDetailsModal({
                         <textarea
                           value={formData.internAssessmentComments[criterion.key] || ''}
                           onChange={(e) => handleCommentChange(criterion.key, e.target.value)}
-                          placeholder="Commentaires (optionnel)"
+                          placeholder={t('internshipAssessment.commentsOptional')}
                           rows={2}
                           className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder:text-gray-500"
                         />
@@ -496,11 +514,11 @@ export default function InternshipAssessmentDetailsModal({
 
               {/* Appréciation globale */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Appréciation globale</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipAssessment.overallAppreciation')}</h3>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Appréciation générale du stagiaire <span className="text-red-500">*</span>
+                    {t('internshipAssessment.generalAppreciation')} <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -508,24 +526,24 @@ export default function InternshipAssessmentDetailsModal({
                     onChange={(e) => setFormData({ ...formData, overallInternAppreciation: e.target.value as OverallInternAppreciation })}
                     className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="GREATLY_EXCEEDS_EXPECTATIONS">Dépasse de beaucoup les attentes</option>
-                    <option value="EXCEEDS_EXPECTATIONS">Dépasse les attentes</option>
-                    <option value="FULLY_MEETS_EXPECTATIONS">Répond pleinement aux attentes</option>
-                    <option value="PARTIALLY_MEETS_EXPECTATIONS">Répond partiellement aux attentes</option>
-                    <option value="DOES_NOT_MEET_EXPECTATIONS">Ne répond pas aux attentes</option>
+                    <option value="GREATLY_EXCEEDS_EXPECTATIONS">{t('internshipAssessment.appreciations.GREATLY_EXCEEDS_EXPECTATIONS')}</option>
+                    <option value="EXCEEDS_EXPECTATIONS">{t('internshipAssessment.appreciations.EXCEEDS_EXPECTATIONS')}</option>
+                    <option value="FULLY_MEETS_EXPECTATIONS">{t('internshipAssessment.appreciations.FULLY_MEETS_EXPECTATIONS')}</option>
+                    <option value="PARTIALLY_MEETS_EXPECTATIONS">{t('internshipAssessment.appreciations.PARTIALLY_MEETS_EXPECTATIONS')}</option>
+                    <option value="DOES_NOT_MEET_EXPECTATIONS">{t('internshipAssessment.appreciations.DOES_NOT_MEET_EXPECTATIONS')}</option>
                   </select>
                 </div>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Précisez votre appréciation
+                    {t('internshipAssessment.specifyAppreciation')}
                   </label>
                   <textarea
                     value={formData.appreciationComment}
                     onChange={(e) => setFormData({ ...formData, appreciationComment: e.target.value })}
                     rows={4}
                     className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-                    placeholder="Commentaires généraux sur le stagiaire..."
+                    placeholder={t('internshipAssessment.generalComments')}
                   />
                 </div>
 
@@ -538,24 +556,24 @@ export default function InternshipAssessmentDetailsModal({
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <label htmlFor="discussed" className="ml-2 text-sm text-gray-700">
-                    Cette évaluation a été discutée avec le stagiaire
+                    {t('internshipAssessment.discussedWithIntern')}
                   </label>
                 </div>
               </div>
 
               {/* Collaboration future */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Collaboration future</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipAssessment.futureCollaboration')}</h3>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    L'entreprise aimerait accueillir cet étudiant pour son prochain stage? <span className="text-red-500">*</span>
+                    {t('internshipAssessment.futureCollaborationQuestion')} <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-4">
                     {[
-                      { value: 'YES' as FutureCollaboration, label: 'Oui' },
-                      { value: 'MAYBE' as FutureCollaboration, label: 'Peut-être' },
-                      { value: 'NO' as FutureCollaboration, label: 'Non' },
+                      { value: 'YES' as FutureCollaboration, label: t('internshipAssessment.collaborationOptions.YES') },
+                      { value: 'MAYBE' as FutureCollaboration, label: t('internshipAssessment.collaborationOptions.MAYBE') },
+                      { value: 'NO' as FutureCollaboration, label: t('internshipAssessment.collaborationOptions.NO') },
                     ].map((option) => (
                       <button
                         key={option.value}
@@ -575,26 +593,35 @@ export default function InternshipAssessmentDetailsModal({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    La formation technique du stagiaire était-elle suffisante pour accomplir le mandat de stage?
+                    {t('internshipAssessment.academicPreparationQuestion')}
                   </label>
                   <textarea
                     value={formData.academicPreparationAdequacy}
                     onChange={(e) => setFormData({ ...formData, academicPreparationAdequacy: e.target.value })}
                     rows={3}
                     className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-                    placeholder="Commentaires sur la préparation académique..."
+                    placeholder={t('internshipAssessment.academicPreparationPlaceholder')}
                   />
                 </div>
               </div>
 
               {/* Signature */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Signature</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('internshipAssessment.signature')}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className={`border rounded-lg p-4 ${
+                    submitAttempted && (!formData.signerName || formData.signerName.trim() === '')
+                      ? 'border-red-300 bg-red-50' 
+                      : 'border-gray-200'
+                  }`}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom du signataire <span className="text-red-500">*</span>
+                      {t('internshipAssessment.signerName')} <span className="text-red-500">*</span>
+                      {submitAttempted && (!formData.signerName || formData.signerName.trim() === '') && (
+                        <span className="ml-2 text-xs text-red-600 font-normal">
+                          ({t('internshipAssessment.notCompleted')})
+                        </span>
+                      )}
                     </label>
                     <input
                       type="text"
@@ -602,13 +629,22 @@ export default function InternshipAssessmentDetailsModal({
                       value={formData.signerName}
                       onChange={(e) => setFormData({ ...formData, signerName: e.target.value })}
                       className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-                      placeholder="Nom complet"
+                      placeholder={t('internshipAssessment.signerNamePlaceholder')}
                     />
                   </div>
 
-                  <div>
+                  <div className={`border rounded-lg p-4 ${
+                    submitAttempted && (!formData.signerTitle || formData.signerTitle.trim() === '')
+                      ? 'border-red-300 bg-red-50' 
+                      : 'border-gray-200'
+                  }`}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Titre du signataire <span className="text-red-500">*</span>
+                      {t('internshipAssessment.signerTitle')} <span className="text-red-500">*</span>
+                      {submitAttempted && (!formData.signerTitle || formData.signerTitle.trim() === '') && (
+                        <span className="ml-2 text-xs text-red-600 font-normal">
+                          ({t('internshipAssessment.notCompleted')})
+                        </span>
+                      )}
                     </label>
                     <input
                       type="text"
@@ -616,7 +652,7 @@ export default function InternshipAssessmentDetailsModal({
                       value={formData.signerTitle}
                       onChange={(e) => setFormData({ ...formData, signerTitle: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder:text-gray-500"
-                      placeholder="Ex: Superviseur de stage"
+                      placeholder={t('internshipAssessment.signerTitlePlaceholder')}
                     />
                   </div>
                 </div>
