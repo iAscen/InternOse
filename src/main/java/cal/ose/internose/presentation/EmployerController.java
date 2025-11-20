@@ -37,6 +37,24 @@ public class EmployerController {
         }
     }
 
+    @GetMapping(Paths.EMPLOYER_INTERNSHIP_OFFER_DETAILS_PATH)
+    public ResponseEntity<String> getInternshipOfferDetails(@PathVariable Long internshipOfferID) {
+        try {
+            InternshipOfferDTO internshipOfferDTO = employerService.getInternshipOfferByID(internshipOfferID);
+            return getResponseEntity(
+                HttpStatus.OK, objectMapper.writeValueAsString(internshipOfferDTO)
+            );
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(
+                HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        } catch (Exception e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }
+    }
+
     @GetMapping(Paths.EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<String> listPastSessionsInternshipOffers(@RequestParam Long employerID) {
         try {

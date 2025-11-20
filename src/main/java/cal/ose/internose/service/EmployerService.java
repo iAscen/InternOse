@@ -305,4 +305,9 @@ public class EmployerService {
         Employer employer = employerDAO.findByCredentials_Email(email);
         return EmployerDTO.fromEntity(employer);
     }
+
+    public InternshipOfferDTO getInternshipOfferByID(Long internshipOfferID) {
+        InternshipOffer internshipOffer = internshipOfferDAO.findById(internshipOfferID).orElseThrow();
+        return InternshipOfferDTO.fromEntity(internshipOffer);
+    }
 }

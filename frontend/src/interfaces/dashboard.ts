@@ -136,3 +136,41 @@ export interface Professor {
   firstName: string,
   lastName: string,
 }
+
+// Enums pour l'évaluation du stagiaire
+export type AssessmentOptions =
+  | 'COMPLETELY_AGREE'
+  | 'PARTIALLY_AGREE'
+  | 'PARTIALLY_DISAGREE'
+  | 'COMPLETELY_DISAGREE'
+  | 'NOT_APPLICABLE';
+
+export type OverallInternAppreciation =
+  | 'GREATLY_EXCEEDS_EXPECTATIONS'
+  | 'EXCEEDS_EXPECTATIONS'
+  | 'FULLY_MEETS_EXPECTATIONS'
+  | 'PARTIALLY_MEETS_EXPECTATIONS'
+  | 'DOES_NOT_MEET_EXPECTATIONS';
+
+export type FutureCollaboration = 'YES' | 'MAYBE' | 'NO';
+
+export interface InternAssessment {
+  studentName: string;
+  studentProgram: string;
+  companyName: string;
+  supervisorName: string;
+  supervisorTitle: string;
+  supervisorPhoneNumber: string;
+  internAssessment: Record<string, AssessmentOptions>;
+  internAssessmentComments: Record<string, string>;
+  overallInternAppreciation: OverallInternAppreciation;
+  appreciationComment: string;
+  discussedWithTheIntern: boolean;
+  weeklySupervisionHours: number;
+  futureCollaboration: FutureCollaboration;
+  academicPreparationAdequacy: string;
+  signerName: string;
+  signerTitle: string;
+  signature: string;
+  signatureDate: string;
+}

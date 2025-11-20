@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { InternshipContract, Professor } from '~/interfaces';
 import InternshipContractDetailsModal from '~/components/dashboard/InternshipContractDetailsModal';
+import InternshipAssessmentDetailsModal from "~/components/dashboard/InternshipAssessmentDetailsModal";
 import { ProfessorListModal } from './ProfessorListModal';
 
 interface InternshipContractListProps {
@@ -19,6 +20,7 @@ export default function InternshipContractList({
 }: InternshipContractListProps) {
   const { t } = useTranslation();
   const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
+  const [selectedAssessmentContract, setSelectedAssessmentContract] = useState<InternshipContract | null>(null);
   const [contractToAssignToProfessor, setContractToAssignToProfessor] = useState<InternshipContract | null>(null)
 
   const handleIsAssigningProfessor = () => {
@@ -126,6 +128,20 @@ export default function InternshipContractList({
                       </span>
                     </div>
                   </div>
+                  {contract.isSignedStudent && contract.isSignedEmployer && contract.isSignedInternshipManager && (
+                    <div className="flex items-center flex-shrink-0">
+
+                      <button
+                        onClick={() => setSelectedAssessmentContract(contract)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5V4a3 3 0 016 0v1m-6 0h6m-6 0a3 3 0 00-3 3v12a3 3 0 003 3h6a3 3 0 003-3V8a3 3 0 00-3-3m-6 0h6" />
+                        </svg>
+                        {t('internshipAssessment.viewAssessment')}
+                      </button>
+                    </div>
+                  )}
                   <div className="flex items-center flex-shrink-0">
                     <button
                       onClick={() => setSelectedContract(contract)}
@@ -154,9 +170,17 @@ export default function InternshipContractList({
         />
       )}
 
-      {contractToAssignToProfessor && 
-        <ProfessorListModal 
-          professors={professors!} 
+      { selectedAssessmentContract && (
+          <InternshipAssessmentDetailsModal
+          contract={selectedAssessmentContract}
+          onClose={() => setSelectedAssessmentContract(null)}
+          />
+        )
+      }
+
+      {contractToAssignToProfessor &&
+        <ProfessorListModal
+          professors={professors!}
           contract={contractToAssignToProfessor}
           onClose={() => setContractToAssignToProfessor(null)}
           onProfessorUpdate={() => onContractUpdate!()}
