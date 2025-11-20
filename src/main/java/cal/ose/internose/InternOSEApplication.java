@@ -239,7 +239,11 @@ public class InternOSEApplication {
                     .supervisorPhone("514-555-1234")
                     .build();
                 internshipManagerService.createInternshipContract(internshipContractDTO);
-                internshipManagerService.assignProfessorToContract(1L, 4L);
+//                internshipManagerService.assignProfessorToContract(1L, 4L);
+
+                employerService.signContract(alice.getId(), 1L, karim.getId());
+                studentService.signContract(alice.getId(), 1L);
+                internshipManagerService.signContract(1L);
             }
         };
     }
