@@ -243,6 +243,8 @@
     "history": "History",
     "historySubtitle": "View offers of past sessions",
     "session": "Session",
+    "allSessions": "All sessions",
+    "noSessionsAvailable": "No sessions available"
     "teacherAllocation": "Management of assignments"
   },
   "internship": {

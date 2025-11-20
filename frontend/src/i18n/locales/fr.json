@@ -243,6 +243,8 @@
     "history": "Historique",
     "historySubtitle": "Afficher les offres des sessions précédentes",
     "session": "Session",
+    "allSessions": "Toutes les sessions",
+    "noSessionsAvailable": "Aucune session disponible"
     "teacherAllocation": "Gestion des affectations"
   },
   "internship": {

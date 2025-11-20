@@ -1,4 +1,4 @@
-import {useEffect, useState, useRef} from 'react';
+import {useEffect, useState, useRef, useMemo, useCallback} from 'react';
 import {useNavigate} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {userAPI} from '../../services/UserAPI';
@@ -17,7 +17,7 @@ import {employerAPI} from "~/services/EmployerAPI";
 import {useClickOutside} from "~/hooks/useClickOutside";
 import {filterInternshipOffers, sortInternshipOffers} from "~/utils/filterUtils";
 import InternshipContractList from './InternshipContractList';
-import {useCallback} from 'react';
+import { getAvailableSessions } from "~/utils/avaliableSessions";
 
 export default function EmployerDashboardContent() {
   const {t} = useTranslation();
@@ -39,8 +39,20 @@ export default function EmployerDashboardContent() {
   const [offerSortBy, setOfferSortBy] = useState<string>('');
   const [contracts, setContracts] = useState<InternshipContract[]>([]);
   const [loadingContracts, setLoadingContracts] = useState(false);
+  const [pastOffers, setPastOffers] = useState<InternshipOffer[]>([]);
+  const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
+  const [filteredHistoryOffers, setFilteredHistoryOffers] = useState<InternshipOffer[]>([]);
 
-  // Refs pour les dropdowns
+  const availableSessions = useMemo(() => {
+    return getAvailableSessions(pastOffers, false);
+  }, [pastOffers]);
+
+  useEffect(() => {
+    if (availableSessions.length > 0 && !selectedHistorySession) {
+      setSelectedHistorySession(availableSessions[0]);
+    }
+  }, [availableSessions, selectedHistorySession]);
+
   const sortOffersMenuRef = useRef<HTMLDivElement>(null);
   const filterOffersMenuRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +71,6 @@ export default function EmployerDashboardContent() {
     setUnseenApplicationsCount(countsMap);
   };
 
-  // Fermer les dropdowns quand on clique à l'extérieur
   useClickOutside(sortOffersMenuRef, () => {
     setShowSortMenuOffers(false);
   });
@@ -68,48 +79,40 @@ export default function EmployerDashboardContent() {
     setShowFilterMenuOffers(false);
   });
 
-  // Vérifier l'authentification au chargement
   useEffect(() => {
     if (!userAPI.isAuthenticated()) {
       navigate('/login');
     }
   }, [navigate]);
 
-  // Réinitialiser selectedOffer quand on change d'onglet (sauf si on reste sur approved-offers)
   useEffect(() => {
-    if (activeTab !== 'approved-offers') {
+    if (activeTab !== 'approved-offers' && activeTab !== 'history') {
       setSelectedOffer(null);
     }
   }, [activeTab]);
 
-  // Scroller vers le haut quand une offre est sélectionnée pour voir les candidatures
   useEffect(() => {
-    if (selectedOffer && activeTab === 'approved-offers') {
+    if (selectedOffer && (activeTab === 'approved-offers' || activeTab === 'history')) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [selectedOffer, activeTab]);
 
-  // Charger les contrats de l'employeur
   const loadContracts = useCallback(async () => {
     try {
       setLoadingContracts(true);
       const contractsList: InternshipContract[] = [];
       
-      // Pour chaque offre validée (APPROVED), charger les candidatures et récupérer les contrats
       const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
       
       if (approvedOffers.length > 0) {
-        // Charger les contrats en parallèle pour améliorer les performances
         const contractPromises: Promise<{ contract: InternshipContract | null, offerId: number, studentId: number } | null>[] = [];
         
         for (const offer of approvedOffers) {
           if (!offer.id) continue;
           
           try {
-            // Récupérer les candidatures pour cette offre
             const applicationsResponse = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
             if (applicationsResponse.success && applicationsResponse.data) {
-              // Pour chaque candidature avec statut ACCEPTED_BY_STUDENT ou PENDING_CONTRACT, charger le contrat
               const acceptedApplications = applicationsResponse.data.filter((app: any) => 
                 app.applicationStatus === 'ACCEPTED_BY_STUDENT' || app.applicationStatus === 'PENDING_CONTRACT'
               );
@@ -126,16 +129,12 @@ export default function EmployerDashboardContent() {
                         }
                         return null;
                       })
-                      .catch(err => {
-                        console.log(`Contract not found for offer ${offerId}, student ${studentId}:`, err);
-                        return null;
-                      })
+                      .catch(() => null)
                   );
                 }
               }
             }
           } catch (err) {
-            console.log(`Error loading applications for offer ${offer.id}:`, err);
           }
         }
         
@@ -148,7 +147,6 @@ export default function EmployerDashboardContent() {
         });
       }
       
-      console.log(`📋 Loaded ${contractsList.length} contracts for employer`);
       setContracts(contractsList);
     } catch (error) {
       console.error('Erreur lors du chargement des contrats:', error);
@@ -158,7 +156,6 @@ export default function EmployerDashboardContent() {
     }
   }, [allOffers]);
 
-  // Recharger les contrats quand on change vers l'onglet "contracts" ou quand allOffers change
   useEffect(() => {
     if (allOffers.length > 0 && activeTab === 'contracts') {
       loadContracts();
@@ -168,28 +165,22 @@ export default function EmployerDashboardContent() {
   const selectOffer = (offer: InternshipOffer) => {
     if (offer && offer.verificationStatus === "APPROVED") {
       setSelectedOffer(offer);
-      // Changer vers le tab approved-offers si on n'y est pas déjà
-      if (activeTab !== 'approved-offers') {
+      if (activeTab !== 'approved-offers' && activeTab !== 'history') {
         setActiveTab('approved-offers');
       }
     }
   };
 
-  // Charger les offres existantes
   const loadOffers = async () => {
     try {
       setLoading(true);
-      console.log('Chargement des offres...');
       const response = await dashboardService.getInternshipOffers();
-      console.log('Réponse du serveur:', response);
 
       if (response.success && response.data) {
-        console.log('Offres chargées:', response.data);
         setAllOffers(response.data);
         await countNumberOfApplicationsForOffers(response.data);
         await countNumberOfUnseenApplications(response.data);
       } else {
-        console.error('Erreur lors du chargement:', response.error);
         setError(response.error || t('dashboard.loadingError'));
       }
     } catch (err) {
@@ -200,12 +191,27 @@ export default function EmployerDashboardContent() {
     }
   };
 
-  // Apply filters and sorting to offers (PENDING only)
+  const loadPastOffers = async () => {
+    try {
+      setLoading(true);
+      const response = await employerAPI.getPastSessionsInternshipOffers();
+
+      if (response.success && response.data) {
+        setPastOffers(response.data);
+      } else {
+        setError(response.error || t('dashboard.loadingError'));
+      }
+    } catch (err) {
+      console.error('Erreur de connexion:', err);
+      setError(t('dashboard.serverError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Filtrer seulement les offres PENDING ou sans statut
     let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
     
-    // Apply filters
     const program = offerFilters[0];
     const title = offerFilters[1];
     
@@ -216,7 +222,6 @@ export default function EmployerDashboardContent() {
       });
     }
     
-    // Apply sorting
     if (offerSortBy) {
       filtered = sortInternshipOffers(filtered, offerSortBy, true);
     }
@@ -224,12 +229,9 @@ export default function EmployerDashboardContent() {
     setFilteredOffers(filtered);
   }, [allOffers, offerFilters, offerSortBy]);
 
-  // Apply filters and sorting to approved offers
   useEffect(() => {
-    // Filtrer seulement les offres APPROVED
     let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
     
-    // Apply filters
     const program = offerFilters[0];
     const title = offerFilters[1];
     
@@ -240,13 +242,36 @@ export default function EmployerDashboardContent() {
       });
     }
     
-    // Apply sorting
     if (offerSortBy) {
       filtered = sortInternshipOffers(filtered, offerSortBy, true);
     }
     
     setFilteredApprovedOffers(filtered);
   }, [allOffers, offerFilters, offerSortBy]);
+
+  useEffect(() => {
+    let filtered = pastOffers;
+
+    if (selectedHistorySession) {
+      filtered = filtered.filter(offer => offer.session === selectedHistorySession);
+    }
+
+    const program = offerFilters[0];
+    const title = offerFilters[1];
+
+    if (program || title) {
+      filtered = filterInternshipOffers(filtered, {
+        program,
+        title
+      });
+    }
+
+    if (offerSortBy) {
+      filtered = sortInternshipOffers(filtered, offerSortBy, true);
+    }
+
+    setFilteredHistoryOffers(filtered);
+  }, [pastOffers, offerFilters, offerSortBy, selectedHistorySession]);
 
   const countNumberOfApplicationsForOffers = async (offersList: InternshipOffer[], applicationStatus: string | null = null, program: string | null = null, institution: string | null = null, sortBy: string | null = null) => {
     const errorMes = "Erreur lors du comptage des candidatures sur vos offres de stage."
@@ -269,14 +294,13 @@ export default function EmployerDashboardContent() {
     }
   }
 
-  // Calculer les statistiques
   const stats = dashboardService.calculateStats(allOffers);
 
   useEffect(() => {
     loadOffers();
+    loadPastOffers();
   }, []);
 
-  // Fonction pour mapper CreateOfferFormData vers CreateInternshipOfferRequest
   const mapFormDataToRequest = (formData: CreateOfferFormData): CreateInternshipOfferRequest => {
     return {
       title: formData.jobTitle,
@@ -294,10 +318,8 @@ export default function EmployerDashboardContent() {
     setError(null);
     setSuccess(null);
 
-    // Mapper les données du formulaire vers le format API
     const requestData = mapFormDataToRequest(formData);
 
-    // Validation des données
     const validationError = dashboardService.validateOfferData(requestData);
     if (validationError) {
       setError(validationError);
@@ -306,17 +328,13 @@ export default function EmployerDashboardContent() {
 
     try {
       setLoading(true);
-      console.log('Création de l\'offre avec les données:', requestData);
       const response = await dashboardService.createInternshipOffer(requestData);
-      console.log('Réponse de création:', response);
 
       if (response.success) {
         setSuccess(t('dashboard.offerCreatedSuccess'));
         setShowCreateForm(false);
-        console.log('Rechargement des offres...');
-        loadOffers(); // Recharger la liste
+        loadOffers();
       } else {
-        console.error('Erreur lors de la création:', response.error);
         setError(response.error || t('dashboard.creationError'));
       }
     } catch (err) {
@@ -327,7 +345,6 @@ export default function EmployerDashboardContent() {
     }
   };
 
-  // Icônes pour les statistiques
   const statsIcons = {
     total: (
       <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +377,6 @@ export default function EmployerDashboardContent() {
       
       <main id="page-content" className="flex max-w-full flex-auto flex-col pt-20 lg:pt-0 bg-slate-100">
         <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
-          {/* En-tête du dashboard - en dehors du conteneur blanc */}
           <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
           <div className="flex justify-between items-center">
             <div>
@@ -594,6 +610,97 @@ export default function EmployerDashboardContent() {
                 />
               </div>
             </div>
+          )}
+
+          {activeTab === 'history' && !selectedOffer && (
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {t("im.history")}
+                    </h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
+                  </div>
+                  <div className="flex items-center gap-2 relative">
+                    <div className="relative z-10" ref={sortOffersMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(!showSortMenuOffers);
+                        setShowFilterMenuOffers(false);
+                      }} />
+                      {showSortMenuOffers &&
+                        <SortMenuOffers
+                          userRole="EMPLOYER"
+                          applySorting={(sortBy: string) => {
+                            setShowSortMenuOffers(false);
+                            setOfferSortBy(sortBy);
+                          }}/>
+                      }
+                    </div>
+                    <div className="relative z-10" ref={filterOffersMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false);
+                        setShowFilterMenuOffers(!showFilterMenuOffers);
+                      }}/>
+                      {showFilterMenuOffers &&
+                        <FilterMenuOffers
+                          userRole="EMPLOYER"
+                          isHistory={true}
+                          availableSessions={availableSessions}
+                          selectedSession={selectedHistorySession}
+                          applyFilters={(filterBy: string[]) => {
+                            setShowFilterMenuOffers(false);
+                            const status = filterBy[0];
+                            const program = filterBy[1];
+                            const session = filterBy[2];
+                            setOfferFilters([status, program]);
+                            if (session) {
+                              setSelectedHistorySession(session);
+                            }
+                          }}/>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                {availableSessions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-lg font-medium text-slate-600">
+                      {t('im.internshipOffersSectionEmpty')}
+                    </p>
+                    <p className="text-sm text-slate-500 mt-2">
+                      Aucune offre de stage des sessions passées trouvée.
+                    </p>
+                  </div>
+                ) : (
+                  <OfferList
+                    selectOffer={selectOffer}
+                    isStudent={false}
+                    isEmployer={true}
+                    isHistory={true}
+                    loading={loading}
+                    offers={filteredHistoryOffers}
+                    numbersOfApplications={numbersOfApplications}
+                    selectedSession={selectedHistorySession}
+                    onSessionChange={setSelectedHistorySession}
+                    availableSessions={availableSessions}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'history' && selectedOffer && (
+            <InternshipApplications
+              isInternshipManager={false}
+              setSelectedOffer={setSelectedOffer}
+              internship={selectedOffer}
+              countNumberOfUnseenApplications={countNumberOfUnseenApplications}
+              offers={allOffers}
+              onContractCreated={loadContracts}
+              isHistory={true}
+            />
           )}
           </div>
       </div>

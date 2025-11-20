@@ -110,6 +110,55 @@ class EmployerAPI {
     }
   }
 
+  // Récupérer les offres de stage des sessions passées de l'employeur
+  async getPastSessionsInternshipOffers(): Promise<ApiResponse<InternshipOffer[]>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      // Récupérer l'ID de l'employeur depuis le JWT
+      const employerId = await userAPI.getEmployerIdFromJWT();
+      if (!employerId) {
+        return {
+          success: false,
+          error: 'Impossible de récupérer l\'ID de l\'employeur',
+        };
+      }
+
+      const response = await fetch(buildFullApiUrl(API_PATHS.EMPLOYER.PAST_SESSIONS_INTERNSHIP_OFFERS) + `?employerID=${employerId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offers = await response.json();
+        return {
+          success: true,
+          data: offers,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.message || 'Erreur lors du chargement des offres des sessions passées',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     try {
@@ -703,8 +752,6 @@ class EmployerAPI {
       };
     }
   }
-
-
 }
 
 export const employerAPI = new EmployerAPI();
