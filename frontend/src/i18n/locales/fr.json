@@ -38,8 +38,8 @@
     "profile": "Profil",
     "settings": "Paramètres",
     "notifications": "Notifications",
-    "notificationsNotFoundError": "Les notifications n'ont pas peu etre chargees",
-    "notificationCheckingError": "La notification n'a pas peu etre supprimer",
+    "notificationsNotFoundError": "Les notifications n'ont pas pu être chargées",
+    "notificationCheckingError": "La notification n'a pas pu être supprimée",
     "noNotificationsFound": "Vous n'avez aucune notification"
   },
   "auth": {
@@ -342,12 +342,13 @@
   },
   "professorDashboard": {
     "dashboard": "Tableau de bord du professeur",
-    "students": "Etudiants",
-    "myStudents": "Mes etudiants",
-    "contractsNotFound": "Les contrats n'ont pas peu etre chargees",
+    "students": "Étudiants",
+    "myStudents": "Mes étudiants",
+    "contractsNotFound": "Les contrats n'ont pas pu être chargées",
     "employer": "Employeur",
     "period": "Periode",
-    "noStudentFound": "Aucun étudiant ne vous a été assigné."
+    "noStudentFound": "Aucun étudiant ne vous a été assigné.",
+    "nbStudents": "Total des étudiants assigné à vous"
   },
   "errors": {
     "required": "Ce champ est requis",

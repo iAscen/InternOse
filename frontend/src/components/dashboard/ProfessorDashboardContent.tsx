@@ -4,6 +4,7 @@ import type { InternshipContract } from "~/interfaces";
 import DashboardSidebar from "./DashboardSidebar";
 import { professorAPI } from "../../services/ProfessorAPI"
 import { userAPI } from "../../services/UserAPI"
+import StatisticsCard from "~/components/dashboard/StatisticsCard";
  
 export default function ProfessorDashboardContent() {
     const { t } = useTranslation();
@@ -15,6 +16,14 @@ export default function ProfessorDashboardContent() {
         loadContracts()
     }, [])
 
+    const statsIcons = {
+      total: (
+        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      ),
+    }
     const loadContracts = async () => {
         try {
             const userId = await userAPI.getProfessorIdFromJWT()
@@ -35,6 +44,14 @@ export default function ProfessorDashboardContent() {
             setError(t('professorDashboard.contractsNotFound'))
         }
     }
+    const getProfessorStats = () => {
+
+      return {
+        students: contracts.length
+      }
+    };
+
+    const stats = getProfessorStats();
 
     const formatDate = (dateString: string) => {
       if (!dateString) return '';
@@ -55,6 +72,23 @@ export default function ProfessorDashboardContent() {
                   </div>
               )}
 
+              {/* Contenu selon l'onglet actif */}
+              {activeTab === 'overview' && (
+                <>
+                  {/* Cartes de statistiques */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 md:gap-6">
+                    <div className="sm:col-span-6 xl:col-span-3">
+                      <StatisticsCard
+                        title={t('dashboard.totalOffers')}
+                        value={stats.students}
+                        icon={statsIcons.total}
+                        bgColor="bg-blue-100"
+                        iconColor="text-blue-600"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               {activeTab == "etudiants" && contracts.length >= 1 &&
 

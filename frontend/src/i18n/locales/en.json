@@ -346,7 +346,8 @@
     "contractsNotFound": "The contracts couldn't be loaded",
     "employer": "Employer",
     "period": "Period",
-    "noStudentFound": "No student has been assigned to you"
+    "noStudentFound": "No student has been assigned to you",
+    "nbStudents": "Total des étudiants assigné à vous"
   },
   "errors": {
     "required": "This field is required",
