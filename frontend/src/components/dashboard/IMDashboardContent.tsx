@@ -392,6 +392,131 @@ export default function IMDashboardContent() {
                   />
                 </div>
               </div>
+
+              {/* Navigation rapide */}
+              <div className="rounded-lg border border-slate-200 bg-white p-6">
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <button
+                    onClick={() => setActiveTab('offers')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-yellow-100 group-hover:bg-yellow-200 transition-colors">
+                        <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.internshipOffers')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length} offre{allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length > 1 ? 's' : ''} en attente
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('cvs')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
+                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">CVs des étudiants</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length} CV{allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length > 1 ? 's' : ''} en attente
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('approved-offers')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-green-300 hover:bg-green-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-green-100 group-hover:bg-green-200 transition-colors">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.approvedOffers')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length} offre{allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length > 1 ? 's' : ''} validée{allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length > 1 ? 's' : ''}
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('contracts')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.internshipContractsSection')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {contracts.length} contrat{contracts.length > 1 ? 's' : ''} de stage
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Statistiques détaillées */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="rounded-lg border border-slate-200 bg-white p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Offres de stage</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">En attente</span>
+                      <span className="text-lg font-bold text-yellow-600">
+                        {allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Approuvées</span>
+                      <span className="text-lg font-bold text-green-600">
+                        {allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Refusées</span>
+                      <span className="text-lg font-bold text-red-600">
+                        {allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-slate-200 bg-white p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">CVs des étudiants</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">En attente</span>
+                      <span className="text-lg font-bold text-yellow-600">
+                        {allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Approuvés</span>
+                      <span className="text-lg font-bold text-green-600">
+                        {allCvs.filter(cv => cv.cvStatus === 'approved' || cv.cvStatus === 'APPROVED').length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Refusés</span>
+                      <span className="text-lg font-bold text-red-600">
+                        {allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </>
           )}
 
@@ -593,7 +718,7 @@ export default function IMDashboardContent() {
                     <div className="flex items-center gap-2">
                       <div className="relative" ref={filterOffersMenuRef}>
                         <div className="mb-3">
-                          <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 flex justify-center">
+                          <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 text-center">
                             {t("im.session")}
                           </label>
 

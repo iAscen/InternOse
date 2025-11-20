@@ -2,7 +2,6 @@ package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
-import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.ProfessorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

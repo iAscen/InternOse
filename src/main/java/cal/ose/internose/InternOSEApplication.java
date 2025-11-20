@@ -1,6 +1,9 @@
 package cal.ose.internose;
 
+import cal.ose.internose.modele.Employer;
+import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Interview;
+import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.service.DTOs.*;
 import cal.ose.internose.service.EmployerService;
 import cal.ose.internose.service.InternshipManagerService;
@@ -33,7 +36,8 @@ public class InternOSEApplication {
         ObjectProvider<UserService> authServiceProvider,
         ObjectProvider<EmployerService> employerServiceProvider,
         ObjectProvider<StudentService> studentServiceProvider,
-        ObjectProvider<InternshipManagerService> internshipManagerServiceProvider
+        ObjectProvider<InternshipManagerService> internshipManagerServiceProvider,
+        InternshipOfferDAO internshipOfferDAO
     ) {
         return _ -> {
             UserService userService = authServiceProvider.getIfAvailable();
@@ -239,6 +243,22 @@ public class InternOSEApplication {
                     .supervisorPhone("514-555-1234")
                     .build();
                 internshipManagerService.createInternshipContract(internshipContractDTO);
+                internshipManagerService.assignProfessorToContract(1L, 4L);
+
+                internshipOfferDAO.save(
+                    InternshipOffer.builder()
+                        .employer(Employer.builder().id(1L).build())
+                        .title("Frontend dev")
+                        .description("Construire des sites webs")
+                        .program("243.D0 - Technologie du génie électrique: automatisation et contrôle")
+                        .requiredSkills("DEC en Technique du génie électrique: automatisation et contrôle")
+                        .startDate(LocalDate.of(2026, 2, 26))
+                        .duration(8)
+                        .salary(30.0)
+                        .address("Kahnawake, Québec")
+                        .session("Autum-2023")
+                        .build()
+                );
 //                internshipManagerService.assignProfessorToContract(1L, 4L);
 
                 employerService.signContract(alice.getId(), 1L, karim.getId());
