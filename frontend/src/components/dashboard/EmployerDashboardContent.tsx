@@ -258,6 +258,7 @@ export default function EmployerDashboardContent() {
       filtered = filtered.filter(offer => offer.session === selectedHistorySession);
     }
 
+    // Pour l'historique, offerFilters contient seulement [program, title] (pas de status)
     const program = offerFilters[0];
     const title = offerFilters[1];
 
@@ -780,44 +781,62 @@ export default function EmployerDashboardContent() {
                     </h2>
                     <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
                   </div>
-                  <div className="flex items-center gap-2 relative">
-                    <div className="relative z-10" ref={sortOffersMenuRef}>
-                      <SortButton onClick={() => {
-                        setShowSortMenuOffers(!showSortMenuOffers);
-                        setShowFilterMenuOffers(false);
-                      }} />
-                      {showSortMenuOffers &&
-                        <SortMenuOffers
-                          userRole="EMPLOYER"
-                          applySorting={(sortBy: string) => {
-                            setShowSortMenuOffers(false);
-                            setOfferSortBy(sortBy);
-                          }}/>
-                      }
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={filterOffersMenuRef}>
+                      <div className="mb-3">
+                        <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                          {t("im.session")}
+                        </label>
+
+                        <select
+                          id="session"
+                          name="session"
+                          value={selectedHistorySession}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                          onChange={(e) => setSelectedHistorySession(e.target.value)}
+                        >
+                          {availableSessions.map((session) => (
+                            <option key={session} value={session} className="text-gray-900 bg-white">
+                              {session}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <div className="relative z-10" ref={filterOffersMenuRef}>
-                      <FilterButton onClick={() => {
-                        setShowSortMenuOffers(false);
-                        setShowFilterMenuOffers(!showFilterMenuOffers);
-                      }}/>
-                      {showFilterMenuOffers &&
-                        <FilterMenuOffers
-                          userRole="EMPLOYER"
-                          isHistory={true}
-                          availableSessions={availableSessions}
-                          selectedSession={selectedHistorySession}
-                          applyFilters={(filterBy: string[]) => {
-                            setShowFilterMenuOffers(false);
-                            const status = filterBy[0];
-                            const program = filterBy[1];
-                            const session = filterBy[2];
-                            setOfferFilters([status, program]);
-                            if (session) {
-                              setSelectedHistorySession(session);
-                            }
-                          }}/>
-                      }
-                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <div className="relative" ref={sortOffersMenuRef}>
+                    <SortButton onClick={() => {
+                      setShowSortMenuOffers(!showSortMenuOffers);
+                      setShowFilterMenuOffers(false);
+                    }} />
+                    {showSortMenuOffers &&
+                      <SortMenuOffers
+                        userRole="EMPLOYER"
+                        applySorting={(sortBy: string) => {
+                          setShowSortMenuOffers(false);
+                          setOfferSortBy(sortBy);
+                        }}/>
+                    }
+                  </div>
+                  <div className="relative" ref={filterOffersMenuRef}>
+                    <FilterButton onClick={() => {
+                      setShowSortMenuOffers(false);
+                      setShowFilterMenuOffers(!showFilterMenuOffers);
+                    }}/>
+                    {showFilterMenuOffers &&
+                      <FilterMenuOffers
+                        userRole="EMPLOYER"
+                        isHistory={true}
+                        applyFilters={(filterBy: string[]) => {
+                          setShowFilterMenuOffers(false);
+                          // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
+                          const program = filterBy[0];
+                          const title = filterBy[1];
+                          setOfferFilters([program, title]);
+                        }}/>
+                    }
                   </div>
                 </div>
               </div>

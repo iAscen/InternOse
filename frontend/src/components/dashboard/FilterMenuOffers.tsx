@@ -32,6 +32,12 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
           startDateTo: ""
         };
       case 'EMPLOYER':
+        if (isHistory) {
+          return {
+            program: "",
+            title: ""
+          };
+        }
         return {
           status: "",
           program: "",
@@ -68,10 +74,17 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
       const startDateTo = formData.startDateTo != "" ? formData.startDateTo : undefined;
       applyFilters([program, jobTitle, minSalary, maxSalary, startDateFrom, startDateTo]);
     } else if (userRole === 'EMPLOYER') {
-      const status = formData.status != "" ? formData.status : undefined;
-      const program = formData.program != "" ? formData.program : undefined;
-      const session = formData.session != "" ? formData.session : undefined;
-      applyFilters([status, program, session]);
+      if (isHistory) {
+        // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
+        const program = formData.program != "" ? formData.program : undefined;
+        const title = formData.title != "" ? formData.title : undefined;
+        applyFilters([program, title]);
+      } else {
+        const status = formData.status != "" ? formData.status : undefined;
+        const program = formData.program != "" ? formData.program : undefined;
+        const session = formData.session != "" ? formData.session : undefined;
+        applyFilters([status, program, session]);
+      }
     }
   }
 
@@ -162,6 +175,25 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
         </>
       );
     } else if (userRole === 'EMPLOYER') {
+      if (isHistory) {
+        // Pour l'historique, seulement program et title (pas de status, pas de session)
+        return (
+          <>
+            <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
+            <FormInput
+              className={"mb-3"}
+              id={"title"}
+              name={"title"}
+              type={"text"}
+              label={t('im.title')}
+              placeholder={t('im.placeholderDev')}
+              value={formData.title || ""}
+              onChange={handleChange}
+              required={false}
+            />
+          </>
+        );
+      }
       return (
         <>
           <div className="mb-3">
@@ -182,33 +214,6 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
             </select>
           </div>
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
-          {isHistory && (
-            <div className="mb-3">
-              <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1">
-                {t('im.session')}
-              </label>
-              <select
-                id="session"
-                name="session"
-                value={formData.session || ""}
-                onChange={handleSelectChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                disabled={availableSessions.length === 0}
-              >
-                {availableSessions.length === 0 ? (
-                  <option value="" className="text-gray-900 bg-white">
-                    {t('im.noSessionsAvailable')}
-                  </option>
-                ) : (
-                  availableSessions.map((session) => (
-                    <option key={session} value={session} className="text-gray-900 bg-white">
-                      {session}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          )}
         </>
       );
     }
