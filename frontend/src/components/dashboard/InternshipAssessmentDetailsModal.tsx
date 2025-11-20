@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type {InternAssessment, InternshipContract, AssessmentOptions, OverallInternAppreciation, FutureCollaboration} from '~/interfaces';
-import {useEffect, useState} from "react";
-import {employerAPI} from "~/services/EmployerAPI";
-import ProgramSelector from "~/components/ProgramSelector";
+import {useEffect, useState, useMemo} from "react";
+import {employerAPI}from "~/services/EmployerAPI";
 import {userAPI} from "~/services/UserAPI";
 
 interface InternshipAssessmentDetailsModalProps {
@@ -22,6 +21,7 @@ export default function InternshipAssessmentDetailsModal({
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [loadedOffer, setLoadedOffer] = useState<import('~/interfaces').InternshipOffer | null>(null);
 
   // Critères d'évaluation
   const assessmentCriteria = [
@@ -58,6 +58,11 @@ export default function InternshipAssessmentDetailsModal({
     signatureDate: '',
   });
 
+  // Constant program derived from the loaded offer (falls back to current form value)
+  const OFFER_PROGRAM = useMemo(() => {
+    return loadedOffer?.program ?? formData.studentProgram ?? '';
+  }, [loadedOffer?.program, formData.studentProgram]);
+
   useEffect(() => {
     const loadAssessment = async () => {
       if (!initialAssessment && contract.employerId && contract.id) {
@@ -75,6 +80,30 @@ export default function InternshipAssessmentDetailsModal({
     };
     loadAssessment();
   }, [contract.employerId, contract.id, initialAssessment]);
+
+  useEffect(() => {
+    const loadOffer = async () => {
+      if (contract.internshipOfferId) {
+        try {
+          console.log('Loading offer for id:', contract.internshipOfferId);
+          const resp = await employerAPI.getInternshipOffer(contract.internshipOfferId);
+          const offer = resp.data;
+          if (resp.success && offer) {
+            setLoadedOffer(offer);
+            console.log('Loaded offer:', offer);
+            if (offer.program) {
+              setFormData(prev => ({ ...prev, studentProgram: offer.program }));
+            }
+          } else {
+            console.warn('No offer found or API returned error for id', contract.internshipOfferId, resp.error);
+          }
+        } catch (err) {
+          console.error('Failed to load offer', err);
+        }
+      }
+    };
+    loadOffer();
+  }, [contract.internshipOfferId]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -133,21 +162,13 @@ export default function InternshipAssessmentDetailsModal({
     }));
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const {value} = e.target;
-    setFormData(prev => ({
-      ...prev,
-      studentProgram: value,
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
 
     // Check for missing or empty criteria
     const missingCriteria = assessmentCriteria.filter(
-      criterion => !formData.internAssessment[criterion.key] || formData.internAssessment[criterion.key] === ''
+      criterion => !formData.internAssessment[criterion.key]
     );
 
     if (missingCriteria.length > 0) {
@@ -236,7 +257,7 @@ export default function InternshipAssessmentDetailsModal({
           <div>
             <h2 className="text-xl font-bold text-gray-900">{t('internshipAssessment.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              {internAssessment?.studentName || t('internshipAssessment.evaluation')}
+              {loadedOffer?.title || t('internshipAssessment.evaluation')}
             </p>
           </div>
           <button
@@ -294,7 +315,7 @@ export default function InternshipAssessmentDetailsModal({
                   {Object.entries(internAssessment.internAssessment).map(([key, value]) => (
                     <div key={key} className="p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700">{key}</span>
+                        <span className="text-sm font-medium text-gray-700">{assessmentCriteria.find(c => c.key === key)?.label || key}</span>
                         <span className="text-sm font-semibold text-blue-600">
                           {getAssessmentLabel(value)}
                         </span>
@@ -414,11 +435,13 @@ export default function InternshipAssessmentDetailsModal({
                       ? 'border-red-300 bg-red-50' 
                       : 'border-gray-200'
                   }`}>
-                    <ProgramSelector onChange={handleSelectChange} value={formData.studentProgram}/>
-                    {submitAttempted && (!formData.studentProgram || formData.studentProgram.trim() === '') && (
-                      <span className="text-xs text-red-600 font-normal mt-1 block">
-                        ({t('internshipAssessment.notCompleted')})
-                      </span>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('internshipAssessment.studentProgram')}</label>
+                    <p className="text-sm text-gray-900">{OFFER_PROGRAM}</p>
+                    {/* Keep a hidden input in case form submission relies on it */}
+                    <input type="hidden" name="studentProgram" value={OFFER_PROGRAM} />
+
+                    {submitAttempted && (!OFFER_PROGRAM || OFFER_PROGRAM.trim() === '') && (
+                      <span className="text-xs text-red-600 font-normal mt-1 block">({t('internshipAssessment.notCompleted')})</span>
                     )}
                   </div>
 
@@ -458,7 +481,7 @@ export default function InternshipAssessmentDetailsModal({
 
                 <div className="space-y-6">
                   {assessmentCriteria.map((criterion) => {
-                    const isNotDone = !formData.internAssessment[criterion.key] || formData.internAssessment[criterion.key] === '';
+                    const isNotDone = !formData.internAssessment[criterion.key];
                     const showNotDone = submitAttempted && isNotDone;
                     return (
                       <div

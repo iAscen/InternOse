@@ -63,6 +63,53 @@ class EmployerAPI {
     }
   }
 
+  // Récupérer une offre de stage par son ID
+  async getInternshipOffer(internshipOfferId: number): Promise<ApiResponse<InternshipOffer>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      const url = buildFullApiUrl(API_PATHS.EMPLOYER.INTERNSHIP_OFFER_DETAILS, { offerID: internshipOfferId });
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const offer = await response.json();
+        return {
+          success: true,
+          data: offer,
+        };
+      } else {
+        let errorMessage = 'Erreur lors du chargement de l\'offre';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // ignore
+        }
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
   // Créer une nouvelle offre de stage
   async createInternshipOffer(offerData: CreateInternshipOfferRequest): Promise<ApiResponse<string>> {
     try {
