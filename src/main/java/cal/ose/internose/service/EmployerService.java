@@ -31,6 +31,13 @@ public class EmployerService {
         return InternshipOfferDTO.fromEntityList(internshipOfferDAO.findAllByEmployer(employer));
     }
 
+    public List<InternshipOfferDTO> listPastSessionsInternshipOffers(Long employerID) {
+        Employer employer = employerDAO.findById(employerID).orElseThrow();
+        String currentSession = SessionUtil.getCurrentSession();
+        List<InternshipOffer> pastSessionOffers = internshipOfferDAO.findAllByEmployerAndSessionNot(employer, currentSession);
+        return InternshipOfferDTO.fromEntityList(pastSessionOffers);
+    }
+
     public InternshipOfferDTO createInternshipOffer(Long employerID, InternshipOfferDTO internshipOfferDTO) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);

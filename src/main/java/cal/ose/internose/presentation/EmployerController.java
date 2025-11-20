@@ -55,6 +55,23 @@ public class EmployerController {
         }
     }
 
+    @GetMapping(Paths.EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH)
+    public ResponseEntity<String> listPastSessionsInternshipOffers(@RequestParam Long employerID) {
+        try {
+            return getResponseEntity(
+                HttpStatus.OK, objectMapper.writeValueAsString(employerService.listPastSessionsInternshipOffers(employerID))
+            );
+        } catch (JsonProcessingException e) {
+            return getResponseEntity(
+                HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(
+                HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }"
+            );
+        }
+    }
+
     @PostMapping(Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH)
     public ResponseEntity<String> createInternshipOffer(@RequestParam Long employerID, @RequestBody String requestBody) {
         try {
