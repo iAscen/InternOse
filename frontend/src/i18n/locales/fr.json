@@ -496,7 +496,7 @@
   },
   "internshipAssessment": {
     "title": "Évaluation du stagiaire",
-    "evaluation": "Évaluation",
+    "assessment": "Évaluation",
     "generalInformation": "Informations générales",
     "studentName": "Nom du stagiaire",
     "studentProgram": "Programme d'études",
@@ -558,7 +558,7 @@
     "signerTitle": "Titre du signataire",
     "signerTitlePlaceholder": "Ex: Superviseur de stage",
     "signatureDate": "Date de signature",
-    "skillsEvaluation": "Évaluations des compétences",
+    "skillsAssessment": "Évaluations des compétences",
     "comments": "Commentaires",
     "additionalDetails": "Détails supplémentaires",
     "discussedWithStudent": "Discuté avec le stagiaire",
@@ -572,6 +572,6 @@
       "submissionError": "Erreur lors de la soumission de l'évaluation",
       "connectionError": "Erreur de connexion au serveur"
     },
-    "viewAssessment": "Voir l'évaluation"
+    "viewAssessment": "Évaluation"
   }
 }

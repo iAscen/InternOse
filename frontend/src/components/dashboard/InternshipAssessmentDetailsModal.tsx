@@ -257,7 +257,7 @@ export default function InternshipAssessmentDetailsModal({
           <div>
             <h2 className="text-xl font-bold text-gray-900">{t('internshipAssessment.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              {loadedOffer?.title || t('internshipAssessment.evaluation')}
+              {loadedOffer?.title || t('internshipAssessment.assessment')}
             </p>
           </div>
           <button
@@ -309,7 +309,7 @@ export default function InternshipAssessmentDetailsModal({
               {/* Évaluations */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {t('internshipAssessment.skillsEvaluation')}
+                  {t('internshipAssessment.skillsAssessment')}
                 </h3>
                 <div className="space-y-3">
                   {Object.entries(internAssessment.internAssessment).map(([key, value]) => (
