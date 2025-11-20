@@ -3,6 +3,7 @@ import type {InternAssessment, InternshipContract, AssessmentOptions, OverallInt
 import {useEffect, useState} from "react";
 import {employerAPI} from "~/services/EmployerAPI";
 import ProgramSelector from "~/components/ProgramSelector";
+import {userAPI} from "~/services/UserAPI";
 
 interface InternshipAssessmentDetailsModalProps {
   contract: InternshipContract;
@@ -183,11 +184,44 @@ export default function InternshipAssessmentDetailsModal({
       setLoading(false);
       return;
     }
+    if (!formData.signerName || !formData.signerTitle) {
+      setError('Veuillez remplir les informations du signataire (nom et titre)');
+      return;
+    }
 
-    // TODO: Submit assessment to backend
-    // await employerAPI.submitInternAssessment(employerId, contract.id, formData);
-    setLoading(false);
-    onClose();
+    try {
+      setLoading(true);
+      setError(null);
+
+      const employerId = await userAPI.getEmployerIdFromJWT();
+      if (!employerId || !contract.id) {
+        setError('Impossible de récupérer les informations nécessaires');
+        return;
+      }
+
+      const assessmentData = {
+        ...formData,
+        signatureDate: new Date().toISOString(),
+      };
+
+      const response = await employerAPI.postInternAssessment(
+        employerId,
+        contract.id,
+        assessmentData
+      );
+
+      if (response.success && response.data) {
+        setInternAssessment(response.data);
+        setShowForm(false);
+      } else {
+        setError(response.error || 'Erreur lors de la soumission de l\'évaluation');
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      setError('Erreur de connexion au serveur');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
