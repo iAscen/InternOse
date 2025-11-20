@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type {InternAssessment, InternshipContract, AssessmentOptions, OverallInternAppreciation, FutureCollaboration} from '~/interfaces';
 import {useEffect, useState} from "react";
 import {employerAPI} from "~/services/EmployerAPI";
+import ProgramSelector from "~/components/ProgramSelector";
 
 interface InternshipAssessmentDetailsModalProps {
   contract: InternshipContract;
@@ -129,6 +130,14 @@ export default function InternshipAssessmentDetailsModal({
         ...prev.internAssessmentComments,
         [key]: value,
       },
+    }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const {value} = e.target;
+    setFormData(prev => ({
+      ...prev,
+      studentProgram: value,
     }));
   };
 
@@ -367,17 +376,7 @@ export default function InternshipAssessmentDetailsModal({
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations générales</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Programme d'études <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.studentProgram}
-                      onChange={(e) => setFormData({ ...formData, studentProgram: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ex: Techniques de l'informatique"
-                    />
+                    <ProgramSelector onChange={handleSelectChange} value={formData.studentProgram}/>
                   </div>
 
                   <div>
