@@ -236,7 +236,9 @@
     "contractsCount": "{{count}} contract(s) created",
     "history": "History",
     "historySubtitle": "View offers of past sessions",
-    "session": "Session"
+    "session": "Session",
+    "allSessions": "All sessions",
+    "noSessionsAvailable": "No sessions available"
   },
   "internship": {
     "title": "Internship Title",

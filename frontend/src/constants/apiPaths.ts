@@ -16,6 +16,7 @@ export const API_PATHS = {
   EMPLOYER: {
     BASE: '/employer',
     INTERNSHIP_OFFERS: '/employer/internship-offers',
+    PAST_SESSIONS_INTERNSHIP_OFFERS: '/employer/internship-offers/past-sessions',
     APPLICATIONS: '/employer/internship-offers/student-applications',
     APPLICATION_DETAILS: '/employer/internship-offers/student-applications/{studentID}',
     UPDATE_APPLICATION_STATUS: '/employer/internship-offers/{internshipOfferID}/student-applications/{studentID}/status',

@@ -7,12 +7,13 @@ interface FilterMenuOffersProps {
   applyFilters: Function;
   userRole: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER';
   isHistory?: boolean;
+  availableSessions?: string[];
+  selectedSession?: string;
 }
 
-export default function FilterMenuOffers({applyFilters, userRole, isHistory = false}: FilterMenuOffersProps) {
+export default function FilterMenuOffers({applyFilters, userRole, isHistory = false, availableSessions = [], selectedSession = ''}: FilterMenuOffersProps) {
   const {t} = useTranslation();
 
-  // Define form data based on user role
   const getInitialFormData = () => {
     switch (userRole) {
       case 'INTERNSHIP_MANAGER':
@@ -33,7 +34,8 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
       case 'EMPLOYER':
         return {
           status: "",
-          program: ""
+          program: "",
+          session: selectedSession
         };
       default:
         return {};
@@ -44,11 +46,6 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const {name, value} = e.target;
-
-    // Debug: Print the selected program value
-    if (name === 'program') {
-      console.log('Program selected:', value);
-    }
 
     handleChange({
       target: {name, value}
@@ -73,11 +70,11 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
     } else if (userRole === 'EMPLOYER') {
       const status = formData.status != "" ? formData.status : undefined;
       const program = formData.program != "" ? formData.program : undefined;
-      applyFilters([status, program]);
+      const session = formData.session != "" ? formData.session : undefined;
+      applyFilters([status, program, session]);
     }
   }
 
-  // Render filters based on user role
   const renderFilters = () => {
     if (userRole === 'INTERNSHIP_MANAGER') {
       return (
@@ -185,6 +182,33 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
             </select>
           </div>
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
+          {isHistory && (
+            <div className="mb-3">
+              <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('im.session')}
+              </label>
+              <select
+                id="session"
+                name="session"
+                value={formData.session || ""}
+                onChange={handleSelectChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                disabled={availableSessions.length === 0}
+              >
+                {availableSessions.length === 0 ? (
+                  <option value="" className="text-gray-900 bg-white">
+                    {t('im.noSessionsAvailable')}
+                  </option>
+                ) : (
+                  availableSessions.map((session) => (
+                    <option key={session} value={session} className="text-gray-900 bg-white">
+                      {session}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+          )}
         </>
       );
     }

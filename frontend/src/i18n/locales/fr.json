@@ -236,7 +236,9 @@
     "contractsCount": "{{count}} entente(s) créée(s)",
     "history": "Historique",
     "historySubtitle": "Afficher les offres des sessions précédentes",
-    "session": "Session"
+    "session": "Session",
+    "allSessions": "Toutes les sessions",
+    "noSessionsAvailable": "Aucune session disponible"
   },
   "internship": {
     "title": "Titre du stage",

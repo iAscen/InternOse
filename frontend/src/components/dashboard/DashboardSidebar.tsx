@@ -43,6 +43,7 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
           { id: 'offers', label: t('im.internshipOffers'), icon: 'briefcase' },
           { id: 'approved-offers', label: t('im.approvedOffers'), icon: 'clipboard' },
           { id: 'contracts', label: t('im.internshipContractsSection'), icon: 'file' },
+          { id: 'history', label: t('im.history'), icon: 'clock'},
         ];
       case 'INTERNSHIP_MANAGER':
         return [
