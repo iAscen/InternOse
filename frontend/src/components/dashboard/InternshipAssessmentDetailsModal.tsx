@@ -421,10 +421,10 @@ export default function InternshipAssessmentDetailsModal({
                       type="number"
                       required
                       min="0"
-                      step="0.5"
+                      step="1"
                       value={formData.weeklySupervisionHours}
                       onChange={(e) => setFormData({ ...formData, weeklySupervisionHours: parseFloat(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                       placeholder="Ex: 2"
                     />
                   </div>
@@ -486,7 +486,7 @@ export default function InternshipAssessmentDetailsModal({
                           onChange={(e) => handleCommentChange(criterion.key, e.target.value)}
                           placeholder="Commentaires (optionnel)"
                           rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder:text-gray-500"
                         />
                       </div>
                     );
@@ -506,7 +506,7 @@ export default function InternshipAssessmentDetailsModal({
                     required
                     value={formData.overallInternAppreciation}
                     onChange={(e) => setFormData({ ...formData, overallInternAppreciation: e.target.value as OverallInternAppreciation })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="GREATLY_EXCEEDS_EXPECTATIONS">Dépasse de beaucoup les attentes</option>
                     <option value="EXCEEDS_EXPECTATIONS">Dépasse les attentes</option>
@@ -524,7 +524,7 @@ export default function InternshipAssessmentDetailsModal({
                     value={formData.appreciationComment}
                     onChange={(e) => setFormData({ ...formData, appreciationComment: e.target.value })}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                     placeholder="Commentaires généraux sur le stagiaire..."
                   />
                 </div>
@@ -581,7 +581,7 @@ export default function InternshipAssessmentDetailsModal({
                     value={formData.academicPreparationAdequacy}
                     onChange={(e) => setFormData({ ...formData, academicPreparationAdequacy: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                     placeholder="Commentaires sur la préparation académique..."
                   />
                 </div>
@@ -601,7 +601,7 @@ export default function InternshipAssessmentDetailsModal({
                       required
                       value={formData.signerName}
                       onChange={(e) => setFormData({ ...formData, signerName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                       placeholder="Nom complet"
                     />
                   </div>
@@ -615,7 +615,7 @@ export default function InternshipAssessmentDetailsModal({
                       required
                       value={formData.signerTitle}
                       onChange={(e) => setFormData({ ...formData, signerTitle: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder:text-gray-500"
                       placeholder="Ex: Superviseur de stage"
                     />
                   </div>
