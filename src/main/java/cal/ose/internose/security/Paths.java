@@ -13,6 +13,7 @@ public class Paths {
     // User
     public static final String USER_BASE_PATH = API_BASE_PATH + "/user";
     public static final String USER_NOTIFICATIONS_PATH = USER_BASE_PATH + "/{userID}/notifications";
+    public static final String USER_CHECK_NOTIFICATION_PATH = API_BASE_PATH + "/user/notifications/{notificationID}";
 
     // Employeur
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";
@@ -62,5 +63,9 @@ public class Paths {
     public static final String INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/contracts";
     public static final String INTERNSHIP_MANAGER_SIGN_CONTRACT_PATH = INTERNSHIP_MANAGER_INTERNSHIP_CONTRACTS_PATH + "/{contractId}/sign";
     public static final String INTERNSHIP_MANAGER_PROFESSORS_PATH = INTERNSHIP_MANAGER_BASE_PATH + "/professors";
-    public static final String INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_STUDENT_PATH = INTERNSHIP_MANAGER_PROFESSORS_PATH + "/{professorID}/assign";
+    public static final String INTERNSHIP_MANAGER_ASSIGN_PROFESSOR_TO_CONTRACT_PATH = INTERNSHIP_MANAGER_PROFESSORS_PATH + "/{professorID}/assign";
+
+    // Professor
+    public static final String PROFESSOR_BASE_PATH = API_BASE_PATH + "/professors";
+    public static final String PROFESSOR_INTERNSHIP_CONTRACTS = PROFESSOR_BASE_PATH + "/{professorID}/contracts";
 }

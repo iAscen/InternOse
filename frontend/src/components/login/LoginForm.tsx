@@ -54,6 +54,11 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
              console.log('Redirecting to im-dashboard');
              window.location.href = '/im-dashboard';
              break;
+          case 'PROFESSOR':
+            userAPI.saveUserRole('PROFESSOR')
+            console.log('Redirecting to professor-dashboard');
+            window.location.href = '/professor-dashboard';
+            break;
           default:
             console.log('Role from JWT not found, trying determineUserRole');
             // Si le rôle n'est pas trouvé dans le JWT, essayer la logique de fallback
@@ -71,6 +76,10 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
                userAPI.saveUserRole('INTERNSHIP_MANAGER');
                console.log('Redirecting to im-dashboard (fallback)');
                window.location.href = '/im-dashboard';
+            } else if (determinedRole === 'PROFESSOR') {
+              userAPI.saveUserRole('PROFESSOR')
+              console.log('Redirecting to professor-dashboard (fallback)');
+              window.location.href = '/professor-dashboard';
             } else {
               console.error('Unable to determine user role, redirecting to home');
               // Si on ne peut toujours pas déterminer, rediriger vers l'accueil

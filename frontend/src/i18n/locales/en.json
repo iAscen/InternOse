@@ -28,13 +28,19 @@
     "yes": "Yes",
     "no": "No",
     "accept": "Accept",
-    "refuse": "Refuse"
+    "refuse": "Refuse",
+    "notAssigned": "Not assigned",
+    "assigned": "Assigned"
   },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "notificationsNotFoundError": "Notifications could not be loaded",
+    "notificationCheckingError": "The notification could not be deleted",
+    "noNotificationsFound": "You don’t have any notifications."
   },
   "auth": {
     "loginTitle": "Login",
@@ -236,7 +242,8 @@
     "contractsCount": "{{count}} contract(s) created",
     "history": "History",
     "historySubtitle": "View offers of past sessions",
-    "session": "Session"
+    "session": "Session",
+    "teacherAllocation": "Management of assignments"
   },
   "internship": {
     "title": "Internship Title",
@@ -331,6 +338,16 @@
       "noCandidaturesAcceptedFound": "No accepted applications yet",
       "viewOnlyMode": "View only"
     }
+  },
+  "professorDashboard": {
+    "dashboard": "Professor Dashboard",
+    "students": "Students",
+    "myStudents": "My students",
+    "contractsNotFound": "The contracts couldn't be loaded",
+    "employer": "Employer",
+    "period": "Period",
+    "noStudentFound": "No student has been assigned to you",
+    "nbStudents": "Total des étudiants assigné à vous"
   },
   "errors": {
     "required": "This field is required",
@@ -451,6 +468,14 @@
     "supervisorEmailPlaceholder": "john.doe@example.com",
     "supervisorPhone": "Phone",
     "supervisorPhonePlaceholder": "514-555-0123",
+    "professor": "Professor",
+    "professorName": "Full Name",
+    "professorEmail": "Email",
+    "assign": "Assign",
+    "unassign": "Unassign",
+    "noProfessorAssigned": "No professor assigned",
+    "noProfessorAvailable": "No professor available",
+    "professors": "Professors",
     "createContract": "Create Contract",
     "creating": "Creating...",
     "createSuccess": "Internship contract created successfully",
@@ -471,7 +496,8 @@
       "supervisorEmailInvalid": "Email is invalid",
       "supervisorPhoneRequired": "Supervisor phone is required",
       "supervisorPhoneInvalid": "Phone number is invalid",
-      "createFailed": "Error creating contract"
+      "createFailed": "Error creating contract",
+      "professorAssignmentFailed": "Error assigning the professor"
     },
     "contractTitle": "Contract #{{id}}",
     "student": "Student",

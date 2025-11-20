@@ -1,21 +1,31 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { InternshipContract } from '~/interfaces';
+import type { InternshipContract, Professor } from '~/interfaces';
 import InternshipContractDetailsModal from '~/components/dashboard/InternshipContractDetailsModal';
+import { ProfessorListModal } from './ProfessorListModal';
 
 interface InternshipContractListProps {
   contracts: InternshipContract[];
+  professors?: Professor[];
   loading: boolean;
   onContractUpdate?: () => void;
 }
 
 export default function InternshipContractList({
   contracts,
+  professors,
   loading,
   onContractUpdate
 }: InternshipContractListProps) {
   const { t } = useTranslation();
   const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
+  const [contractToAssignToProfessor, setContractToAssignToProfessor] = useState<InternshipContract | null>(null)
+
+  const handleIsAssigningProfessor = () => {
+    if (selectedContract) {
+      setContractToAssignToProfessor(selectedContract)
+    }
+  }
 
   const getStatusBadge = (contract: InternshipContract) => {
     const allSigned = contract.isSignedStudent && contract.isSignedEmployer && contract.isSignedInternshipManager;
@@ -84,6 +94,14 @@ export default function InternshipContractList({
                           {contract.employerCompany}
                         </p>
                       )}
+                      {contract.professorFirstName && <p>
+                        <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}
+                        {contract.professorFirstName} {contract.professorLastName}
+                      </p>}
+                      {contract.professorFirstName == undefined && <p>
+                        <span className="font-semibold text-slate-900">{t('internshipContract.professor')}:</span>{' '}
+                        {t("common.notAssigned")}
+                      </p>}
                       <p>
                         <span className="font-semibold text-slate-900">{t('internshipContract.period')}:</span>{' '}
                         {formatDate(contract.startDate)} - {formatDate(contract.endDate)}
@@ -132,9 +150,18 @@ export default function InternshipContractList({
           contract={selectedContract}
           onClose={() => setSelectedContract(null)}
           onContractUpdate={onContractUpdate}
+          onIsAssigningProfessor={() => handleIsAssigningProfessor()}
         />
       )}
+
+      {contractToAssignToProfessor && 
+        <ProfessorListModal 
+          professors={professors!} 
+          contract={contractToAssignToProfessor}
+          onClose={() => setContractToAssignToProfessor(null)}
+          onProfessorUpdate={() => onContractUpdate!()}
+        />
+      }
     </>
   );
 }
-

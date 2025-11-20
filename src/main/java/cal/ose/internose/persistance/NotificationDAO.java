@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface NotificationDAO extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByUser(User user);
+    List<Notification> findByUserAndCheckedOrderByCreatedAt(User user, boolean checked);
 }

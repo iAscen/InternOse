@@ -11,6 +11,11 @@ export const API_PATHS = {
     STUDENT_REGISTER: '/auth/student/register',
     SET_SESSION_PATH: '/api/auth/session'
   },
+
+  USER: {
+    NOTIFICATIONS: '/user/{userID}/notifications',
+    CHECK_NOTIFICATION: '/user/notifications/{notificationID}'
+  },
   
   // Employeur
   EMPLOYER: {
@@ -54,7 +59,14 @@ export const API_PATHS = {
     DOWNLOAD_RESUME: '/internship-manager/students/{studentID}/resume/download',
     VERIFY_RESUME: '/internship-manager/students/{studentID}/resume/verify',
     CONTRACTS: '/internship-manager/contracts',
+    ASSIGN_PROFESSOR_TO_CONTRACT: '/internship-manager/professors/{professorID}/assign',
+    PROFESSORS: '/internship-manager/professors'
   },
+
+  PROFESSOR: {
+    CONTRACTS: '/professors/{professorID}/contracts'
+  }
+  
 } as const;
 
 // Fonction utilitaire pour remplacer les paramètres dans les URLs

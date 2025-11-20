@@ -3,7 +3,8 @@ import type {
   InternshipOffer,
   ApiResponse,
   Cv,
-  InternshipContract
+  InternshipContract,
+  Professor
 } from '~/interfaces';
 import { userAPI } from './UserAPI';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -513,6 +514,102 @@ class InternshipManagerAPI {
       };
     }
   }
+
+  async assignProfessorToContract(contractId: number, professorId: number | null): Promise<ApiResponse<InternshipContract>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.ASSIGN_PROFESSOR_TO_CONTRACT)
+      
+      if (professorId)
+        url = url.replace("{professorID}", String(professorId))
+      else
+        url = url.replace("{professorID}", String("-1"))
+
+      url = url + `?contractID=${contractId}`
+
+      console.log('URL: ' + url)
+
+      const response = await fetch(url, {
+        method: 'Post',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        console.log(response.status)
+        return {
+          success: true,
+          data: body.data,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de l\'assignation d\'un professeur',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async findAllProfessors(): Promise<ApiResponse<Professor[]>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.INTERNSHIP_MANAGER.PROFESSORS)
+
+      console.log('URL: ' + url)
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        return {
+          success: true,
+          data: body,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la recuperation des professeurs',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
 }
+
+
 
 export const internshipManagerAPI = new InternshipManagerAPI();

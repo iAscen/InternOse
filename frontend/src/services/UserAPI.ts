@@ -4,7 +4,8 @@ import type {
   StudentRegistrationRequest,
   EmployerRegistrationRequest,
   ErrorResponseDTO,
-  ApiResponse
+  ApiResponse,
+  Notification
 } from '~/interfaces';
 import {ErrorService} from './errorService';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -159,14 +160,14 @@ class UserAPI {
   }
 
   // Gestion du rôle utilisateur
-  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER'): void {
+  saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR'): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem('user_role', role);
   }
 
-  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
+  getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null;
+    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null;
   }
 
   // Récupérer le nom complet de l'utilisateur depuis le JWT (décodage simple)
@@ -201,6 +202,84 @@ class UserAPI {
       return decoded.sub || decoded.email || null;
     } catch (error) {
       console.error('Erreur lors du décodage du JWT:', error);
+      return null;
+    }
+  }
+
+  // Récupérer l'ID de l'employeur depuis le JWT
+  async getInternshipManagerIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) {
+      console.log('No token found');
+      return null;
+    }
+
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+
+      console.log('🔍 Contenu du JWT:', decoded);
+
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
+      const userId = decoded.userId || decoded.id || decoded.internshipManagerId || decoded.internshipManager_id;
+      
+      if (userId) {
+        console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+
+      // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les gestionnaires (${email})`);
+        return 1;
+      }
+
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID gestionnaire:', error);
+      return null;
+    }
+  }
+
+  // Récupérer l'ID de l'employeur depuis le JWT
+  async getProfessorIdFromJWT(): Promise<number | null> {
+    if (typeof window === 'undefined') return null;
+    const token = this.getToken();
+    if (!token) {
+      console.log('No token found');
+      return null;
+    }
+
+    try {
+      // Décodage simple du JWT (partie payload)
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+
+      console.log('🔍 Contenu du JWT:', decoded);
+
+      // Chercher l'ID utilisateur dans le JWT (userId contient l'ID de l'employeur)
+      const userId = decoded.userId || decoded.id || decoded.professorId || decoded.professor_id;
+
+      if (userId) {
+        console.log(`✅ ID utilisateur trouvé dans le JWT: ${userId} (type: ${typeof userId})`);
+        return Number(userId);
+      }
+
+      // Fallback : utiliser l'ID 1 pour tous les employeurs (solution temporaire)
+      const email = decoded.sub || decoded.email;
+      if (email) {
+        console.warn(`⚠️ Aucun ID utilisateur dans le JWT. Utilisation de l'ID 1 pour tous les professeurs (${email})`);
+        return 1;
+      }
+
+      console.error('❌ Aucun email trouvé dans le JWT');
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du décodage du JWT pour l\'ID professeur:', error);
       return null;
     }
   }
@@ -283,8 +362,9 @@ class UserAPI {
     }
   }
 
+  
   // Récupérer le rôle utilisateur depuis le JWT
-  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | null {
+  getUserRoleFromJWT(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;
     const token = this.getToken();
     if (!token) {
@@ -317,15 +397,15 @@ class UserAPI {
           // Try to extract the role from patterns like:
           // 1. "UserRole.INTERNSHIP_MANAGER(userRole=INTERNSHIP_MANAGER)"
           // 2. Just "INTERNSHIP_MANAGER"
-          const match = roleString.match(/=(EMPLOYER|STUDENT|INTERNSHIP_MANAGER)\)/);
+          const match = roleString.match(/=(EMPLOYER|STUDENT|INTERNSHIP_MANAGER|PROFESSOR)\)/);
           if (match && match[1]) {
             roleString = match[1];
             console.log('Extracted role from enum:', roleString);
           }
         }
         
-        if (roleString === 'EMPLOYER' || roleString === 'STUDENT' || roleString === 'INTERNSHIP_MANAGER') {
-          return roleString as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER';
+        if (roleString === 'EMPLOYER' || roleString === 'STUDENT' || roleString === 'INTERNSHIP_MANAGER' || roleString === 'PROFESSOR') {
+          return roleString as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR';
         }
       }
 
@@ -338,7 +418,7 @@ class UserAPI {
   }
 
   // Méthode pour déterminer le rôle utilisateur basé sur l'email (fallback)
-  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP_MANAGER" | null> {
+  async determineUserRole(email: string): Promise<"EMPLOYER" | "STUDENT" | "INTERNSHIP_MANAGER" | 'PROFESSOR' | null> {
     try {
       // Essayer d'abord de récupérer le rôle depuis le JWT
       const roleFromJWT = this.getUserRoleFromJWT();
@@ -361,6 +441,10 @@ class UserAPI {
         '@manager', '@gestionnaire', '@admin', '@stage'
       ];
 
+      const professorPatterns = [
+        '@prof', '@professeur', '@teacher', '@teach'
+      ];
+
       const emailLower = email.toLowerCase();
 
       // Vérifier les patterns gestionnaires en premier (plus spécifiques)
@@ -381,6 +465,13 @@ class UserAPI {
       for (const pattern of studentPatterns) {
         if (emailLower.includes(pattern)) {
           return 'STUDENT';
+        }
+      }
+
+      // Vérifier les patterns professeurs
+      for (const pattern of professorPatterns) {
+        if (emailLower.includes(pattern)) {
+          return 'PROFESSOR';
         }
       }
 
@@ -435,6 +526,94 @@ class UserAPI {
       return {
         success: false,
         error: 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.',
+      };
+    }
+  }
+
+  async getNotifications(userID: number): Promise<ApiResponse<Notification[]>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.USER.NOTIFICATIONS)
+      url = url.replace("{userID}", String(userID))
+
+      console.log('URL: ' + url)
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        return {
+          success: true,
+          data: body,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la recuperation des notifications',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
+      };
+    }
+  }
+
+  async checkNotification(notificationID: number): Promise<ApiResponse<any>> {
+    try {
+      const token = userAPI.getToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Token d\'authentification manquant',
+        };
+      }
+
+      let url = buildFullApiUrl(API_PATHS.USER.CHECK_NOTIFICATION)
+      url = url.replace("{notificationID}", String(notificationID))
+
+      console.log('URL: ' + url)
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        //const body = await response.json();
+        return {
+          success: true,
+          //data: body,
+        };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          error: errorData.error || 'Erreur lors de la supprimation de la notification',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Erreur de connexion au serveur',
       };
     }
   }

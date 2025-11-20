@@ -180,16 +180,13 @@ public class InternshipManagerService {
         return ProfessorDTO.fromEntityList(professors);
     }
 
-    public StudentDTO assignProfessorToStudent(long studentID, Long professorID) {
-        Student student = studentDAO.findById(studentID).orElseThrow();
+    public InternshipContractDTO assignProfessorToContract(long contractID, Long professorID) {
+        InternshipContract internshipContract = internshipContractDAO.findById(contractID).orElseThrow();
+        Student student = internshipContract.getStudent();
+        InternshipOffer internshipOffer = internshipContract.getInternshipOffer();
 
-        List<StudentApplication> confirmedStudentApplications = studentApplicationDAO.findByStudent(student)
-            .stream().filter(studentApplication -> studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
-                studentApplication.getApplicationStatus() == StudentApplication.ApplicationStatus.PENDING_CONTRACT)
-            .toList();
-
-        if (professorID != null && confirmedStudentApplications.isEmpty()) {
-            throw new IllegalStateException("L’étudiant ne peut pas se voir attribuer un professeur sans un stage confirmé");
+        if (!internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
+            throw new SessionMismatchException("La session du contrat ne correspond pas a la session actuelle");
         }
 
         Professor professor = null;
@@ -198,7 +195,7 @@ public class InternshipManagerService {
             professor = professorDAO.findById(professorID).orElseThrow();
         }
 
-        Professor previousProfessor = student.getAssignedProfessor();
+        Professor previousProfessor = internshipContract.getProfessor();
 
         if (professor != null && previousProfessor != professor) {
             Notification notificationForProfessor = createStudentAssignedToProfessorNotification(
@@ -214,8 +211,8 @@ public class InternshipManagerService {
             notificationDAO.save(notificationForStudent);
         }
 
-        student.setAssignedProfessor(professor);
-        return StudentDTO.fromEntity(studentDAO.save(student));
+        internshipContract.setProfessor(professor);
+        return InternshipContractDTO.fromEntity(internshipContractDAO.save(internshipContract));
     }
 
     private Notification createStudentAssignedToProfessorNotification(User userToNotify, String message) {

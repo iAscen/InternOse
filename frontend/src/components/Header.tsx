@@ -1,22 +1,83 @@
 import {Link} from "react-router";
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {userAPI} from "~/services/UserAPI";
 import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ClientOnly from "./ClientOnly";
 import { useMobileSidebar } from "~/contexts/MobileSidebarContext";
+import { NotificationsModal } from "./NotificationsModal";
+import type { Notification } from "~/interfaces";
+
 
 export default function Header() {
   const {isAuthenticated, userRole, userName, userEmail} = useAuth();
   const {t} = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notificationsError, setNotificationsError] = useState<String | null>(null)
+  const [showNotificationsModal, setShowModificationsModal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadNotifications()
+  }, [])
+
+  const getUserId = async () => {
+   const role = userAPI.getUserRoleFromJWT()
+   let id = null
+
+   if (role === "EMPLOYER")
+      id = await userAPI.getEmployerIdFromJWT()
+    if (role === "PROFESSOR")
+      id = await userAPI.getProfessorIdFromJWT()
+    if (role === "STUDENT")
+      id = await userAPI.getStudentIdFromJWT()
+    if (role === 'INTERNSHIP_MANAGER')
+      id = await userAPI.getInternshipManagerIdFromJWT()
+
+    return id;
+  }
+
+  const loadNotifications = async () => {
+    try {
+      const userId = await getUserId()
+      if (userId) {
+        const response = await userAPI.getNotifications(userId)
+        if (response.success && response.data) {
+          setNotifications(response.data)
+        }
+        else 
+          setNotificationsError(response.error ?? t('navigation.notificationsNotFoundError'))
+      }
+      else {
+        setNotificationsError(t('navigation.notificationsNotFoundError'))
+      }
+    } catch(Error) {
+      setNotificationsError(t('navigation.notificationsNotFoundError'))
+    }
+  }
+
+  const checkNotification = async (notificationId: number) => {
+    try {
+      const response = await userAPI.checkNotification(notificationId)
+
+      if (response.error)
+        setNotificationsError(response.error)
+    } catch(Error) {
+      setNotificationsError(t('navigation.notificationCheckingError'))
+    }
+  }
+
+  const onNotificationDeletionButtonClick = async (notificationId: number) => {
+    await checkNotification(notificationId)
+    await loadNotifications()
+  }
   
   // Get mobile sidebar state if on dashboard
-  const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER');
+  const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER' || userRole === 'PROFESSOR');
   let mobileSidebarContext;
   try {
     mobileSidebarContext = useMobileSidebar();
@@ -29,7 +90,7 @@ export default function Header() {
   useClickOutside(mobileMenuRef, () => setShowMobileMenu(false));
 
   return (
-    <header className={`sticky top-0 z-40 ${isDashboard ? 'bg-slate-100 lg:ml-96' : 'bg-white'} shadow-xs border-b border-slate-200`}>
+    <header className={`sticky top-0 z-100 ${isDashboard ? 'bg-slate-100 lg:ml-96' : 'bg-white'} shadow-xs border-b border-slate-200`}>
       <div className={`${isDashboard ? 'mx-auto w-full xl:max-w-7xl' : 'w-full'} px-2 sm:px-4 md:px-6 lg:px-8`}>
         <div className={`${isDashboard ? 'container mx-auto px-4 sm:px-0' : ''} flex items-center h-16 sm:h-18 md:h-20 w-full`}>
           {/* Mobile Sidebar Toggle Button - only on dashboard */}
@@ -87,8 +148,21 @@ export default function Header() {
             </div>
           )}
 
-          {/* Right side: Language Switcher (left) + Actions (right) */}
+
+          {/* Right side: Notification bell (left) + languageSwitcher(center) + Actions (right) */}
           <div className={`flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0 ${isDashboard ? 'ml-auto' : ''}`}>
+
+
+          {showNotificationsModal && 
+            <NotificationsModal 
+              onClose={() => setShowModificationsModal(false)}
+              notifications={notifications}
+              error={notificationsError}
+              onNotificationDeletionButtonClick={onNotificationDeletionButtonClick}
+              >
+            </NotificationsModal>
+          }
+            
             {/* Language Switcher - Always on the left */}
             <ClientOnly 
               fallback={<div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>}

@@ -28,13 +28,19 @@
     "yes": "Oui",
     "no": "Non",
     "accept": "Accepter",
-    "refuse": "Refuser"
+    "refuse": "Refuser",
+    "notAssigned": "Non attribué",
+    "assigned": "Assigné"
   },
   "navigation": {
     "home": "Accueil",
     "dashboard": "Tableau de bord",
     "profile": "Profil",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "notifications": "Notifications",
+    "notificationsNotFoundError": "Les notifications n'ont pas pu être chargées",
+    "notificationCheckingError": "La notification n'a pas pu être supprimée",
+    "noNotificationsFound": "Vous n'avez aucune notification"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -236,7 +242,8 @@
     "contractsCount": "{{count}} entente(s) créée(s)",
     "history": "Historique",
     "historySubtitle": "Afficher les offres des sessions précédentes",
-    "session": "Session"
+    "session": "Session",
+    "teacherAllocation": "Gestion des affectations"
   },
   "internship": {
     "title": "Titre du stage",
@@ -332,6 +339,16 @@
       "serverError": "Erreur de connexion au serveur",
       "viewOnlyMode" : "Mode lecture seulement"
     }
+  },
+  "professorDashboard": {
+    "dashboard": "Tableau de bord du professeur",
+    "students": "Étudiants",
+    "myStudents": "Mes étudiants",
+    "contractsNotFound": "Les contrats n'ont pas pu être chargées",
+    "employer": "Employeur",
+    "period": "Periode",
+    "noStudentFound": "Aucun étudiant ne vous a été assigné.",
+    "nbStudents": "Total des étudiants assigné à vous"
   },
   "errors": {
     "required": "Ce champ est requis",
@@ -452,6 +469,14 @@
     "supervisorEmailPlaceholder": "jean.tremblay@example.com",
     "supervisorPhone": "Téléphone",
     "supervisorPhonePlaceholder": "514-555-0123",
+    "professor": "Professeur",
+    "professorName": "Nom complet",
+    "professorEmail": "Email",
+    "assign": "Assigner",
+    "unassign": "Désassigner",
+    "noProfessorAssigned": "Aucun professeur assigné",
+    "noProfessorAvailable": "Aucun professeur disponible",
+    "professors": "Professeurs",
     "createContract": "Créer le contrat",
     "creating": "Création en cours...",
     "createSuccess": "Contrat de stage créé avec succès",
@@ -472,7 +497,8 @@
       "supervisorEmailInvalid": "L'email est invalide",
       "supervisorPhoneRequired": "Le téléphone du superviseur est requis",
       "supervisorPhoneInvalid": "Le numéro de téléphone est invalide",
-      "createFailed": "Erreur lors de la création du contrat"
+      "createFailed": "Erreur lors de la création du contrat",
+      "professorAssignmentFailed": "Erreur lors de l'affectation du professeur"
     },
     "contractTitle": "Entente #{{id}}",
     "student": "Étudiant",

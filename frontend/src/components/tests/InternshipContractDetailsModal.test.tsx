@@ -54,7 +54,11 @@ describe('InternshipContractDetailsModal', () => {
     employerId: 2,
     employerCompany: 'Tech Corp',
     internshipOfferId: 10,
-    internshipOfferTitle: 'Software Developer Internship'
+    internshipOfferTitle: 'Software Developer Internship',
+    professorId: 1,
+    professorEmail: 'prof@gmail.com',
+    professorFirstName: 'Robert',
+    professorLastName: 'Swanson'
   };
 
   beforeEach(() => {
@@ -297,4 +301,41 @@ describe('InternshipContractDetailsModal', () => {
       expect(signedElements).toHaveLength(3);
     });
   });
+
+  describe('Unassigning Professor button display', () => {
+    it('should display a button for deassigning', () => {
+      vi.mocked(userAPI.getUserRole).mockReturnValue('INTERNSHIP_MANAGER');
+
+      render (
+        <InternshipContractDetailsModal
+          contract={mockContract}
+          onClose={mockOnClose}
+          onContractUpdate={mockOnContractUpdate}>
+        </InternshipContractDetailsModal>
+      )
+
+      const deassigingButton = screen.getAllByText('internshipContract.unassign')
+      expect(deassigingButton).toHaveLength(1)
+    });
+
+    it('should not display a button for deassigning', () => {
+      vi.mocked(userAPI.getUserRole).mockReturnValue('INTERNSHIP_MANAGER');
+
+      mockContract.professorEmail = undefined
+      mockContract.professorFirstName = undefined
+      mockContract.professorLastName = undefined
+      mockContract.professorId = undefined
+
+      render (
+        <InternshipContractDetailsModal
+          contract={mockContract}
+          onClose={mockOnClose}
+          onContractUpdate={mockOnContractUpdate}>
+        </InternshipContractDetailsModal>
+      )
+      
+      
+      expect(screen.queryByText('internshipContract.unassign')).not.toBeInTheDocument();
+    })
+  })
 });

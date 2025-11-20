@@ -628,57 +628,67 @@ class InternshipManagerServiceTest {
     }
 
     @Test
-    @DisplayName("Test de la methode assignProfessorToStudent() - Execution normale")
-    void testAssignProfessorToStudent_NormalExecution() {
+    @DisplayName("Test de la methode assignProfessorToContract() - Execution normale")
+    void testAssignProfessorToContract_NormalExecution() {
         // Arrange
         Student student = Student.builder()
             .id(1L)
-            .assignedProfessor(null)
             .credentials(new Credentials("email", "password", UserRole.STUDENT))
+            .build();
+
+        InternshipOffer internshipOffer = InternshipOffer.builder()
+            .session(SessionUtil.getCurrentSession())
+            .id(3L)
             .build();
 
         Professor professor = Professor.builder()
             .id(2L)
+            .credentials(new Credentials("professor@gmail.com", "password", UserRole.PROFESSOR))
             .build();
 
-        StudentApplication studentApplication1 = new StudentApplication();
-        studentApplication1.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_CONTRACT);
-        StudentApplication studentApplication2 = new StudentApplication();
-        studentApplication2.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+        InternshipContract internshipContract = InternshipContract
+            .builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .build();
 
-        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
-        when(studentApplicationDAO.findByStudent(student)).thenReturn(List.of(studentApplication1, studentApplication2));
+        when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
         when(professorDAO.findById(2L)).thenReturn(Optional.of(professor));
-        when(studentDAO.save(student)).thenReturn(student);
+        when(internshipContractDAO.save(internshipContract)).thenReturn(internshipContract);
 
         // Act
-        StudentDTO studentDTO = internshipManagerService.assignProfessorToStudent(1L, 2L);
+        InternshipContractDTO internshipContractDTO = internshipManagerService.assignProfessorToContract(1L, 2L);
 
         // Assert
         verify(notificationDAO, times(2)).save(any(Notification.class));
-        assertEquals(professor, studentDTO.getAssignedProfessor());
+        assertEquals("professor@gmail.com", internshipContractDTO.getProfessorEmail());
     }
 
     @Test
-    @DisplayName("Test de la methode testAssignProfessorToStudent - Aucun stage confirmee")
-    void testAssignProfessorToStudent_AucuneStageConfirme() {
+    @DisplayName("Test de la methode testAssignProfessorToContract - Les sessions de l'offre et actuelle ne corresponent pas")
+    void testAssignProfessorToContract_SessionsDontMatch() {
         // Arrange
         Student student = Student.builder()
             .id(1L)
-            .assignedProfessor(null)
             .credentials(new Credentials("email", "password", UserRole.STUDENT))
             .build();
 
-        StudentApplication studentApplication1 = new StudentApplication();
-        studentApplication1.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
-        StudentApplication studentApplication2 = new StudentApplication();
-        studentApplication2.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
+        InternshipOffer internshipOffer = InternshipOffer.builder()
+            .session("Autumn-2001")
+            .id(3L)
+            .build();
 
-        student.setStudentApplications(List.of(studentApplication1, studentApplication2));
+        InternshipContract internshipContract = InternshipContract
+            .builder()
+            .id(1L)
+            .student(student)
+            .internshipOffer(internshipOffer)
+            .build();
 
-        when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
+        when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () -> internshipManagerService.assignProfessorToStudent(1L, 2L));
+        assertThrows(SessionMismatchException.class, () -> internshipManagerService.assignProfessorToContract(1L, 2L));
     }
 }

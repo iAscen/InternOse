@@ -265,7 +265,7 @@ public class UserServiceTest {
         User user = mock(User.class);
 
         when(userDAO.findById(1L)).thenReturn(Optional.of(user));
-        when(notificationDAO.findByUser(user)).thenReturn(List.of(notif));
+        when(notificationDAO.findByUserAndCheckedOrderByCreatedAt(user, false)).thenReturn(List.of(notif));
 
         List<NotificationDTO> result = userService.findNotifications(1L);
 

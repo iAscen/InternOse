@@ -6,6 +6,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("employer-dashboard", "routes/employer-dashboard.tsx"),
   route("student-dashboard", "routes/student-dashboard.tsx"),
+  route("professor-dashboard", "routes/professor-dashboard.tsx"),
   route("im-dashboard", "routes/im-dashboard.tsx"),
   route("cv/:studentId", "routes/cv-detail.tsx"),
   route("im-validation/:id", "routes/im-validation.tsx"),

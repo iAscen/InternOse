@@ -10,17 +10,19 @@ interface InternshipContractDetailsModalProps {
   contract: InternshipContract;
   onClose: () => void;
   onContractUpdate?: () => void;
+  onIsAssigningProfessor?: () => void;
 }
 
 export default function InternshipContractDetailsModal({
   contract,
   onClose,
-  onContractUpdate
+  onContractUpdate,
+  onIsAssigningProfessor
 }: InternshipContractDetailsModalProps) {
   const { t } = useTranslation();
   const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const userRole = userAPI.getUserRole();
   const isInternshipManager = userRole === 'INTERNSHIP_MANAGER';
   const isStudent = userRole === 'STUDENT';
@@ -38,6 +40,30 @@ export default function InternshipContractDetailsModal({
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   };
+
+  const handleAssignmentOfProfessor = async () => {
+    if (onIsAssigningProfessor) {
+      onIsAssigningProfessor()
+      onClose()
+    }
+  }
+
+  const handleUnassignmentOfProfessor = async () => {
+    try {
+      console.log("Commencement de handleUnassignementOfProfessor")
+      const response = await internshipManagerAPI.assignProfessorToContract(contract.id, null)
+
+      if (response.success && onContractUpdate) {
+        onContractUpdate()
+        onClose()
+      }
+      else
+        setError(response.error!)
+    }
+    catch(err) {
+      setError(t('internshipContract.errors.professorAssignmentFailed'))
+    }
+  }
 
   const handleSignContract = async () => {
     if (!canSign) return;
@@ -188,6 +214,39 @@ export default function InternshipContractDetailsModal({
                 <p className="text-sm text-gray-900">{contract.supervisorPhone}</p>
               </div>
             </div>
+          </div>
+
+          <div className="mb-6">
+            <div className='flex'>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t('internshipContract.professor')}
+              </h3>
+              {isInternshipManager && <div>
+                {!contract.professorEmail && (
+                  <button onClick={() => handleAssignmentOfProfessor()} className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
+                    {t('internshipContract.assign')}
+                  </button>
+                )}
+                {contract.professorEmail && (
+                  <button onClick={() => handleUnassignmentOfProfessor()} className="rounded-sm ms-2 bg-purple-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-colors duration-150">
+                    {t('internshipContract.unassign')}
+                  </button>
+                )}
+              </div>}
+            </div>
+            {contract.professorEmail && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">{t('internshipContract.professorName')}</p>
+                <p className="text-sm text-gray-900">{contract.professorFirstName} {contract.professorLastName}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">{t('internshipContract.professorEmail')}</p>
+                <p className="text-sm text-gray-900">{contract.professorEmail}</p>
+              </div>
+            </div>}
+            {contract.professorEmail == undefined &&
+              <div className="text-sm text-gray-900">{t('internshipContract.noProfessorAssigned')}</div>
+            }
           </div>
 
           <div className="mb-6">
