@@ -42,6 +42,8 @@ export default function EmployerDashboardContent() {
   const [pastOffers, setPastOffers] = useState<InternshipOffer[]>([]);
   const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
   const [filteredHistoryOffers, setFilteredHistoryOffers] = useState<InternshipOffer[]>([]);
+  const [pendingApplicationsCount, setPendingApplicationsCount] = useState<number>(0);
+  const [interviewApplicationsCount, setInterviewApplicationsCount] = useState<number>(0);
 
   const availableSessions = useMemo(() => {
     return getAvailableSessions(pastOffers, false);
@@ -294,12 +296,55 @@ export default function EmployerDashboardContent() {
     }
   }
 
+  // Compter les candidatures en attente et en entrevue
+  const countApplicationStatuses = async () => {
+    try {
+      let pendingCount = 0;
+      let interviewCount = 0;
+      
+      // Seulement pour les offres approuvées
+      const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      
+      for (const offer of approvedOffers) {
+        if (!offer.id) continue;
+        
+        try {
+          // Récupérer toutes les candidatures pour cette offre
+          const response = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
+          if (response.success && response.data) {
+            response.data.forEach((app: any) => {
+              if (app.applicationStatus === 'PENDING') {
+                pendingCount++;
+              } else if (app.applicationStatus === 'PENDING_INTERVIEW') {
+                interviewCount++;
+              }
+            });
+          }
+        } catch (err) {
+          console.error(`Erreur lors du chargement des candidatures pour l'offre ${offer.id}:`, err);
+        }
+      }
+      
+      setPendingApplicationsCount(pendingCount);
+      setInterviewApplicationsCount(interviewCount);
+    } catch (error) {
+      console.error('Erreur lors du comptage des statuts de candidatures:', error);
+    }
+  }
+
   const stats = dashboardService.calculateStats(allOffers);
 
   useEffect(() => {
     loadOffers();
     loadPastOffers();
   }, []);
+
+  // Charger les statistiques de candidatures quand les offres changent
+  useEffect(() => {
+    if (allOffers.length > 0 && stats.approved > 0) {
+      countApplicationStatuses();
+    }
+  }, [allOffers.length]);
 
   const mapFormDataToRequest = (formData: CreateOfferFormData): CreateInternshipOfferRequest => {
     return {
@@ -451,6 +496,119 @@ export default function EmployerDashboardContent() {
               />
             </div>
               </div>
+
+              {/* Navigation rapide */}
+              <div className="rounded-lg border border-slate-200 bg-white p-6">
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <button
+                    onClick={() => setActiveTab('offers')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
+                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('dashboard.createOffer')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {stats.pending} offre{stats.pending > 1 ? 's' : ''} en attente de validation
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('approved-offers')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-green-300 hover:bg-green-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-green-100 group-hover:bg-green-200 transition-colors">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.approvedOffers')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {stats.approved} offre{stats.approved > 1 ? 's' : ''} validée{stats.approved > 1 ? 's' : ''}
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('contracts')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.internshipContractsSection')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      {contracts.length} contrat{contracts.length > 1 ? 's' : ''} de stage
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('history')}
+                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
+                        <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-slate-900">{t('im.history')}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left">
+                      Consulter les offres passées
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Statistiques supplémentaires */}
+              {stats.approved > 0 && (
+                <div className="rounded-lg border border-slate-200 bg-white p-6">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">Candidatures reçues</h2>
+                  <div className="divide-y divide-slate-200">
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm font-medium text-slate-700">Total des candidatures</span>
+                      <span className="text-lg font-bold text-slate-900">
+                        {Array.from(numbersOfApplications.values()).reduce((sum, count) => sum + count, 0)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm font-medium text-slate-700">En attente</span>
+                      <span className="text-lg font-bold text-yellow-600">
+                        {pendingApplicationsCount}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm font-medium text-slate-700">En entrevue</span>
+                      <span className="text-lg font-bold text-purple-600">
+                        {interviewApplicationsCount}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm font-medium text-slate-700">Réponses des étudiants</span>
+                      <span className="text-lg font-bold text-amber-600">
+                        {Array.from(unseenApplicationsCount.values()).reduce((sum, count) => sum + (count.studentsWhoRejectedTheOffer || 0) + (count.studentsWhoAcceptedTheOffer || 0), 0)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm font-medium text-slate-700">Offres avec candidatures</span>
+                      <span className="text-lg font-bold text-blue-600">
+                        {filteredApprovedOffers.length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

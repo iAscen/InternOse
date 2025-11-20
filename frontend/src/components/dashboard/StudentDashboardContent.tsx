@@ -62,6 +62,13 @@ export default function StudentDashboardContent() {
     }
   }, [navigate]);
 
+  // Charger les contrats une fois que les offres sont chargées
+  useEffect(() => {
+    if (allOffers.length > 0) {
+      loadContracts();
+    }
+  }, [allOffers.length]);
+
 
     const loadOffers = async () => {
         try {
@@ -400,6 +407,100 @@ export default function StudentDashboardContent() {
                   />
               </div>
               </div>
+
+              {/* Navigation rapide */}
+                          <div className="rounded-lg border border-slate-200 bg-white p-6">
+                              <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                  <button
+                                      onClick={() => setActiveTab('cv')}
+                                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
+                                  >
+                                      <div className="flex items-center gap-3 mb-2">
+                                          <div className="p-2 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
+                                              <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                              </svg>
+                                          </div>
+                                          <span className="font-semibold text-slate-900">{t('student.cv')}</span>
+                                      </div>
+                                      <p className="text-sm text-slate-600 text-left">
+                                          {cvStatus === 'approved' ? 'CV approuvé' : cvStatus === 'pending' ? 'CV en validation' : 'Téléverser votre CV'}
+                                      </p>
+                                  </button>
+
+                                  <button
+                                      onClick={() => setActiveTab('offers')}
+                                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                                      disabled={cvStatus !== 'approved'}
+                                  >
+                                      <div className="flex items-center gap-3 mb-2">
+                                          <div className="p-2 rounded-lg bg-blue-100 group-hover:bg-blue-200 transition-colors">
+                                              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                              </svg>
+                                          </div>
+                                          <span className="font-semibold text-slate-900">{t('student.offers')}</span>
+                                      </div>
+                                      <p className="text-sm text-slate-600 text-left">
+                                          {allOffers.filter(o => !o.applicationStatus).length} offres disponibles
+                                      </p>
+                                  </button>
+
+                                  <button
+                                      onClick={() => setActiveTab('applications')}
+                                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-purple-300 hover:bg-purple-50 transition-all group"
+                                  >
+                                      <div className="flex items-center gap-3 mb-2">
+                                          <div className="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200 transition-colors">
+                                              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                              </svg>
+                                          </div>
+                                          <span className="font-semibold text-slate-900">{t('student.applications')}</span>
+                                      </div>
+                                      <p className="text-sm text-slate-600 text-left">
+                                          {(() => {
+                                              // Compter les candidatures actives (exclure celles avec contrat)
+                                              const activeApplications = allOffers.filter(offer => {
+                                                  if (!offer.applicationStatus) return false;
+                                                  
+                                                  // Exclure si le statut est PENDING_CONTRACT (contrat créé)
+                                                  if (offer.applicationStatus === 'PENDING_CONTRACT') {
+                                                      return false;
+                                                  }
+                                                  
+                                                  // Exclure si un contrat existe dans contractsMap
+                                                  if (offer.id && contractsMap.has(offer.id)) {
+                                                      return false;
+                                                  }
+                                                  
+                                                  return true;
+                                              }).length;
+                                              
+                                              return `${activeApplications} candidature${activeApplications > 1 ? 's' : ''} active${activeApplications > 1 ? 's' : ''}`;
+                                          })()}
+                                      </p>
+                                  </button>
+
+                                  <button
+                                      onClick={() => setActiveTab('contracts')}
+                                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all group"
+                                  >
+                                      <div className="flex items-center gap-3 mb-2">
+                                          <div className="p-2 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+                                              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                              </svg>
+                                          </div>
+                                          <span className="font-semibold text-slate-900">{t('student.contracts')}</span>
+                                      </div>
+                                      <p className="text-sm text-slate-600 text-left">
+                                          {contracts.length} entente{contracts.length > 1 ? 's' : ''} de stage
+                                      </p>
+                                  </button>
+                              </div>
+                          </div>
 
               {/* Section d'information pour les étudiants */}
                           <div className="rounded-lg border border-slate-200 bg-white p-6">
