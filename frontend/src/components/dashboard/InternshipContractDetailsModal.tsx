@@ -22,7 +22,7 @@ export default function InternshipContractDetailsModal({
   const { t } = useTranslation();
   const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const userRole = userAPI.getUserRole();
   const isInternshipManager = userRole === 'INTERNSHIP_MANAGER';
   const isStudent = userRole === 'STUDENT';
@@ -50,7 +50,7 @@ export default function InternshipContractDetailsModal({
 
   const handleUnassignmentOfProfessor = async () => {
     try {
-      console.log("Comencement de handleUnassignementOfProfessor")
+      console.log("Commencement de handleUnassignementOfProfessor")
       const response = await internshipManagerAPI.assignProfessorToContract(contract.id, null)
 
       if (response.success && onContractUpdate) {
@@ -222,12 +222,16 @@ export default function InternshipContractDetailsModal({
                 {t('internshipContract.professor')}
               </h3>
               {isInternshipManager && <div>
-                <button onClick={() => handleAssignmentOfProfessor()} className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
-                  {t('internshipContract.assign')}
-                </button>
-                {contract.professorEmail && <button onClick={() => handleUnassignmentOfProfessor()} className="rounded-sm ms-2 bg-red-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors duration-150">
-                  {t('internshipContract.unassign')}
-                </button>}
+                {!contract.professorEmail && (
+                  <button onClick={() => handleAssignmentOfProfessor()} className="rounded-sm ms-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-150">
+                    {t('internshipContract.assign')}
+                  </button>
+                )}
+                {contract.professorEmail && (
+                  <button onClick={() => handleUnassignmentOfProfessor()} className="rounded-sm ms-2 bg-purple-600 text-white text-xs font-medium px-2 py-0.25 hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-colors duration-150">
+                    {t('internshipContract.unassign')}
+                  </button>
+                )}
               </div>}
             </div>
             {contract.professorEmail && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -240,7 +244,7 @@ export default function InternshipContractDetailsModal({
                 <p className="text-sm text-gray-900">{contract.professorEmail}</p>
               </div>
             </div>}
-            {contract.professorEmail == undefined && 
+            {contract.professorEmail == undefined &&
               <div className="text-sm text-gray-900">{t('internshipContract.noProfessorAssigned')}</div>
             }
           </div>
