@@ -20,6 +20,7 @@ public class TestPaths {
     // Employeur
     public static final String EMPLOYER_BASE_PATH = Paths.EMPLOYER_BASE_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFERS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH;
+    public static final String EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH = Paths.EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATIONS_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATION_DETAILS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH;
     public static final String EMPLOYER_INTERVIEWS_PATH = Paths.EMPLOYER_INTERVIEWS_PATH;
@@ -66,6 +67,10 @@ public class TestPaths {
 
     public static String buildEmployerInternshipOffersUrl(Long employerId) {
         return EMPLOYER_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerId;
+    }
+
+    public static String buildEmployerPastSessionsInternshipOffersUrl(Long employerId) {
+        return EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH + "?employerID=" + employerId;
     }
 
     public static String buildEmployerApplicationsUrl(Long internshipOfferId) {

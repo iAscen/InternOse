@@ -62,6 +62,73 @@ public class EmployerServiceTests {
         }
 
         @Test
+        @DisplayName("Test de la méthode listPastSessionsInternshipOffers()")
+        public void testListPastSessionsInternshipOffers() {
+                // Arrange
+                Long employerID = 1L;
+                Employer employer = exampleEmployer();
+                
+                List<InternshipOffer> pastSessionOffers = List.of(
+                                InternshipOffer.builder()
+                                                .id(1L)
+                                                .title("Offre session passée")
+                                                .session("Autumn-2024")
+                                                .build(),
+                                InternshipOffer.builder()
+                                                .id(2L)
+                                                .title("Autre offre session passée")
+                                                .session("Winter-2024")
+                                                .build()
+                );
+                
+                when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
+                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), anyString()))
+                                .thenReturn(pastSessionOffers);
+                
+                // Act
+                List<InternshipOfferDTO> result = employerService.listPastSessionsInternshipOffers(employerID);
+                
+                // Assert
+                assertThat(result.size()).isEqualTo(2);
+                assertThat(result.get(0).getSession()).isEqualTo("Autumn-2024");
+                assertThat(result.get(1).getSession()).isEqualTo("Winter-2024");
+                verify(internshipOfferDAO, times(1)).findAllByEmployerAndSessionNot(any(Employer.class), anyString());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode listPastSessionsInternshipOffers() - employeur non trouvé")
+        public void testListPastSessionsInternshipOffers_EmployerNotFound() {
+                // Arrange
+                Long employerID = 1L;
+                when(employerDAO.findById(employerID)).thenReturn(Optional.empty());
+                
+                // Act & Assert
+                assertThrows(
+                                NoSuchElementException.class,
+                                () -> employerService.listPastSessionsInternshipOffers(employerID));
+                verify(internshipOfferDAO, never()).findAllByEmployerAndSessionNot(any(Employer.class), anyString());
+        }
+
+        @Test
+        @DisplayName("Test de la méthode listPastSessionsInternshipOffers() - liste vide")
+        public void testListPastSessionsInternshipOffers_EmptyList() {
+                // Arrange
+                Long employerID = 1L;
+                Employer employer = exampleEmployer();
+                
+                when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
+                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), anyString()))
+                                .thenReturn(new ArrayList<>());
+                
+                // Act
+                List<InternshipOfferDTO> result = employerService.listPastSessionsInternshipOffers(employerID);
+                
+                // Assert
+                assertThat(result.size()).isEqualTo(0);
+                verify(internshipOfferDAO, times(1)).findAllByEmployerAndSessionNot(any(Employer.class), anyString());
+        }
+
+        @Test
         @DisplayName("Test de la méthode createInternshipOffer()")
         public void testCreateInternshipOffer() {
                 // Arrange

@@ -74,6 +74,85 @@ public class EmployerControllerTests {
         }
 
         @Test
+        @DisplayName("Test de GET /api/employer/internship-offers/past-sessions")
+        public void testGETPastSessionsInternshipOffers() throws Exception {
+                // Arrange
+                Long employerID = 1L;
+                List<InternshipOfferDTO> pastSessionOffers = new ArrayList<>();
+                pastSessionOffers.add(
+                                InternshipOfferDTO.builder()
+                                                .title("Offre session passée")
+                                                .session("Autumn-2024")
+                                                .build());
+                pastSessionOffers.add(
+                                InternshipOfferDTO.builder()
+                                                .title("Autre offre session passée")
+                                                .session("Winter-2024")
+                                                .build());
+                
+                when(employerService.listPastSessionsInternshipOffers(anyLong())).thenReturn(pastSessionOffers);
+                
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                get(TestPaths.buildEmployerPastSessionsInternshipOffersUrl(employerID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                List<InternshipOfferDTO> internshipOfferDTOs = objectMapper.readValue(
+                                mvcResult.getResponse().getContentAsString(),
+                                objectMapper.getTypeFactory().constructCollectionType(List.class,
+                                                InternshipOfferDTO.class));
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+                assertThat(internshipOfferDTOs.size()).isEqualTo(2);
+                assertThat(internshipOfferDTOs.get(0).getSession()).isEqualTo("Autumn-2024");
+                assertThat(internshipOfferDTOs.get(1).getSession()).isEqualTo("Winter-2024");
+        }
+
+        @Test
+        @DisplayName("Test de GET /api/employer/internship-offers/past-sessions - employeur non trouvé")
+        public void testGETPastSessionsInternshipOffers_EmployerNotFound() throws Exception {
+                // Arrange
+                Long employerID = 1L;
+                when(employerService.listPastSessionsInternshipOffers(anyLong()))
+                                .thenThrow(new NoSuchElementException("Employeur non trouvé"));
+                
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                get(TestPaths.buildEmployerPastSessionsInternshipOffersUrl(employerID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                String responseBody = mvcResult.getResponse().getContentAsString();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> response = objectMapper.readValue(responseBody, Map.class);
+                assertThat(response.get("message")).isEqualTo("Employeur non trouvé");
+        }
+
+        @Test
+        @DisplayName("Test de GET /api/employer/internship-offers/past-sessions - liste vide")
+        public void testGETPastSessionsInternshipOffers_EmptyList() throws Exception {
+                // Arrange
+                Long employerID = 1L;
+                when(employerService.listPastSessionsInternshipOffers(anyLong())).thenReturn(new ArrayList<>());
+                
+                // Act
+                MvcResult mvcResult = mockMvc.perform(
+                                get(TestPaths.buildEmployerPastSessionsInternshipOffersUrl(employerID))
+                                                .contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+
+                // Assert
+                assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+                List<?> responseList = objectMapper.readValue(
+                                mvcResult.getResponse().getContentAsString(),
+                                objectMapper.getTypeFactory().constructCollectionType(List.class, Object.class));
+                assertThat(responseList.size()).isEqualTo(0);
+        }
+
+        @Test
         @DisplayName("Test de POST /api/employer/internship-offers")
         public void testPOSTInternshipOffers() throws Exception {
                 // Arrange
