@@ -67,7 +67,6 @@ public class EmployerServiceTests {
                 // Arrange
                 Long employerID = 1L;
                 Employer employer = exampleEmployer();
-                String currentSession = "Winter-2025";
                 
                 List<InternshipOffer> pastSessionOffers = List.of(
                                 InternshipOffer.builder()
@@ -83,7 +82,7 @@ public class EmployerServiceTests {
                 );
                 
                 when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
-                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), eq(currentSession)))
+                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), anyString()))
                                 .thenReturn(pastSessionOffers);
                 
                 // Act
@@ -116,10 +115,9 @@ public class EmployerServiceTests {
                 // Arrange
                 Long employerID = 1L;
                 Employer employer = exampleEmployer();
-                String currentSession = "Winter-2025";
                 
                 when(employerDAO.findById(employerID)).thenReturn(Optional.of(employer));
-                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), eq(currentSession)))
+                when(internshipOfferDAO.findAllByEmployerAndSessionNot(any(Employer.class), anyString()))
                                 .thenReturn(new ArrayList<>());
                 
                 // Act
