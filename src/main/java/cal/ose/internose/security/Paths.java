@@ -18,6 +18,7 @@ public class Paths {
     // Employeur
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";
     public static final String EMPLOYER_INTERNSHIP_OFFERS_PATH = EMPLOYER_BASE_PATH + "/internship-offers";
+    public static final String EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH = EMPLOYER_INTERNSHIP_OFFERS_PATH + "/past-sessions";
     public static final String EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATIONS_PATH =
         EMPLOYER_INTERNSHIP_OFFERS_PATH + "/student-applications";
     public static final String EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATION_DETAILS_PATH =
