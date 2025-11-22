@@ -157,8 +157,8 @@ public class UserService {
         User user = userDAO.findById(userId)
             .orElseThrow(() -> new NoSuchElementException("Utilisateur avec l'id " + userId + " introuvable"));
 
-        if (session == null || !session.matches("(Winter-\\d+|Autumn-\\d+)")) {
-            throw new IllegalArgumentException("La session doit être de la forme : Winter-2025 ou Autumn-2025");
+        if (session == null || !session.matches("(Winter-\\d+)")) {
+            throw new IllegalArgumentException("La session doit être de la forme : Winter-2025");
         }
 
         user.setSession(session);

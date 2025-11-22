@@ -569,8 +569,8 @@ export default function StudentDashboardContent() {
             )}
 
                   {activeTab === 'offers' && cvStatus === 'approved' && (
-                      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                          <div className="px-6 pt-6">
+                      <div className="rounded-xl border border-slate-200 bg-white">
+                          <div className="px-6 pt-6 relative">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                                   <div>
                                       <h2 className="text-xl font-bold text-slate-900">{t("im.internshipOffersSection")}</h2>
@@ -608,7 +608,7 @@ export default function StudentDashboardContent() {
                           </div>
                       </div>
                           </div>
-                          <div className="p-6">
+                          <div className="p-6 overflow-hidden">
         <OfferList
           isStudent={true}
           isEmployer={false}

@@ -11,11 +11,13 @@ import SortButton from './SortButton';
 import SortMenuOffers from './SortMenuOffers';
 import FilterButton from './FilterButton';
 import FilterMenuOffers from './FilterMenuOffers';
+import SortMenuContracts from './SortMenuContracts';
+import FilterMenuContracts from './FilterMenuContracts';
 import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer, UnseenApplicationsCount, InternshipContract} from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
 import {employerAPI} from "~/services/EmployerAPI";
 import {useClickOutside} from "~/hooks/useClickOutside";
-import {filterInternshipOffers, sortInternshipOffers} from "~/utils/filterUtils";
+import {filterInternshipOffers, sortInternshipOffers, filterContracts, sortContracts} from "~/utils/filterUtils";
 import InternshipContractList from './InternshipContractList';
 import { getAvailableSessions } from "~/utils/avaliableSessions";
 
@@ -35,8 +37,12 @@ export default function EmployerDashboardContent() {
    const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
   const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
   const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
+  const [showSortMenuContracts, setShowSortMenuContracts] = useState(false);
+  const [showFilterMenuContracts, setShowFilterMenuContracts] = useState(false);
   const [offerFilters, setOfferFilters] = useState<string[]>([]);
+  const [contractFilters, setContractFilters] = useState<string[]>([]);
   const [offerSortBy, setOfferSortBy] = useState<string>('');
+  const [contractSortBy, setContractSortBy] = useState<string>('');
   const [contracts, setContracts] = useState<InternshipContract[]>([]);
   const [loadingContracts, setLoadingContracts] = useState(false);
   const [pastOffers, setPastOffers] = useState<InternshipOffer[]>([]);
@@ -57,6 +63,8 @@ export default function EmployerDashboardContent() {
 
   const sortOffersMenuRef = useRef<HTMLDivElement>(null);
   const filterOffersMenuRef = useRef<HTMLDivElement>(null);
+  const sortContractsMenuRef = useRef<HTMLDivElement>(null);
+  const filterContractsMenuRef = useRef<HTMLDivElement>(null);
 
   const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
     const countsMap = new Map<number, UnseenApplicationsCount>();
@@ -79,6 +87,14 @@ export default function EmployerDashboardContent() {
 
   useClickOutside(filterOffersMenuRef, () => {
     setShowFilterMenuOffers(false);
+  });
+
+  useClickOutside(sortContractsMenuRef, () => {
+    setShowSortMenuContracts(false);
+  });
+
+  useClickOutside(filterContractsMenuRef, () => {
+    setShowFilterMenuContracts(false);
   });
 
   useEffect(() => {
@@ -276,6 +292,29 @@ export default function EmployerDashboardContent() {
     setFilteredHistoryOffers(filtered);
   }, [pastOffers, offerFilters, offerSortBy, selectedHistorySession]);
 
+  // Apply filters and sorting to contracts
+  const filteredAndSortedContracts = useMemo(() => {
+    let filtered = contracts;
+    
+    // Apply filters
+    const status = contractFilters[0];
+    const title = contractFilters[1];
+    
+    if (status || title) {
+      filtered = filterContracts(filtered, {
+        status,
+        title
+      });
+    }
+    
+    // Apply sorting
+    if (contractSortBy) {
+      filtered = sortContracts(filtered, contractSortBy, true);
+    }
+    
+    return filtered;
+  }, [contracts, contractFilters, contractSortBy]);
+
   const countNumberOfApplicationsForOffers = async (offersList: InternshipOffer[], applicationStatus: string | null = null, program: string | null = null, institution: string | null = null, sortBy: string | null = null) => {
     const errorMes = "Erreur lors du comptage des candidatures sur vos offres de stage."
     const numbersOfApplicationsMap = new Map<number, number>();
@@ -428,7 +467,27 @@ export default function EmployerDashboardContent() {
             <div>
                 <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">{t('dashboard.subtitle')}</p>
             </div>
-            <div>
+            <div className="flex items-center gap-4">
+              {activeTab === 'history' && (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="session-history-employer" className="text-sm font-medium text-slate-700 whitespace-nowrap">
+                    {t("im.session")}:
+                  </label>
+                  <select
+                    id="session-history-employer"
+                    name="session"
+                    value={selectedHistorySession}
+                    className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 min-w-[150px]"
+                    onChange={(e) => setSelectedHistorySession(e.target.value)}
+                  >
+                    {availableSessions.map((session) => (
+                      <option key={session} value={session} className="text-gray-900 bg-white">
+                        {session}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
                 {selectedOffer == null && activeTab === 'offers' &&
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
@@ -627,8 +686,8 @@ export default function EmployerDashboardContent() {
               )}
 
               {/* Liste des offres existantes (PENDING) */}
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                <div className="px-6 pt-6">
+              <div className="rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6 relative">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">{t('im.internshipOffersSection')}</h2>
@@ -666,7 +725,7 @@ export default function EmployerDashboardContent() {
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
+                <div className="p-6 overflow-hidden">
                   <OfferList 
                     changeCursorIfApproved={false}
                     selectOffer={selectOffer}
@@ -693,8 +752,8 @@ export default function EmployerDashboardContent() {
                   isInternshipManager={false}
                 />
               ) : (
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                  <div className="px-6 pt-6">
+                <div className="rounded-xl border border-slate-200 bg-white">
+                  <div className="px-6 pt-6 relative">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                       <div>
                         <h2 className="text-xl font-bold text-slate-900">{t('im.approvedOffers')}</h2>
@@ -732,7 +791,7 @@ export default function EmployerDashboardContent() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 overflow-hidden">
                     {filteredApprovedOffers.length === 0 ? (
                       <p className="text-sm font-medium text-slate-500 text-center py-8">
                         {t('im.noApprovedOffers')}
@@ -756,14 +815,50 @@ export default function EmployerDashboardContent() {
           )}
 
           {activeTab === 'contracts' && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6 relative">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
                 <h2 className="text-xl font-bold text-slate-900">{t('im.internshipContractsSection')}</h2>
-                <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: contracts.length })}</p>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: filteredAndSortedContracts.length })}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortContractsMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuContracts(!showSortMenuContracts);
+                        setShowFilterMenuContracts(false);
+                        setShowSortMenuOffers(false);
+                        setShowFilterMenuOffers(false);
+                      }} />
+                      {showSortMenuContracts &&
+                        <SortMenuContracts
+                          applySorting={(sortBy: string) => {
+                            setShowSortMenuContracts(false);
+                            setContractSortBy(sortBy);
+                          }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterContractsMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuContracts(false);
+                        setShowFilterMenuContracts(!showFilterMenuContracts);
+                        setShowSortMenuOffers(false);
+                        setShowFilterMenuOffers(false);
+                      }}/>
+                      {showFilterMenuContracts &&
+                        <FilterMenuContracts
+                          applyFilters={(filterBy: string[]) => {
+                            setShowFilterMenuContracts(false);
+                            setContractFilters(filterBy);
+                          }}/>
+                      }
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 <InternshipContractList
-                  contracts={contracts}
+                  contracts={filteredAndSortedContracts}
                   loading={loadingContracts}
                   onContractUpdate={loadContracts}
                 />
@@ -773,7 +868,7 @@ export default function EmployerDashboardContent() {
 
           {activeTab === 'history' && !selectedOffer && (
             <div className="rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+              <div className="px-6 pt-6 relative">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
@@ -782,65 +877,42 @@ export default function EmployerDashboardContent() {
                     <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortOffersMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(!showSortMenuOffers);
+                        setShowFilterMenuOffers(false);
+                      }} />
+                      {showSortMenuOffers &&
+                        <SortMenuOffers
+                          userRole="EMPLOYER"
+                          applySorting={(sortBy: string) => {
+                            setShowSortMenuOffers(false);
+                            setOfferSortBy(sortBy);
+                          }}/>
+                      }
+                    </div>
                     <div className="relative" ref={filterOffersMenuRef}>
-                      <div className="mb-3">
-                        <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 text-center">
-                          {t("im.session")}
-                        </label>
-
-                        <select
-                          id="session"
-                          name="session"
-                          value={selectedHistorySession}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                          onChange={(e) => setSelectedHistorySession(e.target.value)}
-                        >
-                          {availableSessions.map((session) => (
-                            <option key={session} value={session} className="text-gray-900 bg-white">
-                              {session}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false);
+                        setShowFilterMenuOffers(!showFilterMenuOffers);
+                      }}/>
+                      {showFilterMenuOffers &&
+                        <FilterMenuOffers
+                          userRole="EMPLOYER"
+                          isHistory={true}
+                          applyFilters={(filterBy: string[]) => {
+                            setShowFilterMenuOffers(false);
+                            // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
+                            const program = filterBy[0];
+                            const title = filterBy[1];
+                            setOfferFilters([program, title]);
+                          }}/>
+                      }
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-end gap-2">
-                  <div className="relative" ref={sortOffersMenuRef}>
-                    <SortButton onClick={() => {
-                      setShowSortMenuOffers(!showSortMenuOffers);
-                      setShowFilterMenuOffers(false);
-                    }} />
-                    {showSortMenuOffers &&
-                      <SortMenuOffers
-                        userRole="EMPLOYER"
-                        applySorting={(sortBy: string) => {
-                          setShowSortMenuOffers(false);
-                          setOfferSortBy(sortBy);
-                        }}/>
-                    }
-                  </div>
-                  <div className="relative" ref={filterOffersMenuRef}>
-                    <FilterButton onClick={() => {
-                      setShowSortMenuOffers(false);
-                      setShowFilterMenuOffers(!showFilterMenuOffers);
-                    }}/>
-                    {showFilterMenuOffers &&
-                      <FilterMenuOffers
-                        userRole="EMPLOYER"
-                        isHistory={true}
-                        applyFilters={(filterBy: string[]) => {
-                          setShowFilterMenuOffers(false);
-                          // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
-                          const program = filterBy[0];
-                          const title = filterBy[1];
-                          setOfferFilters([program, title]);
-                        }}/>
-                    }
-                  </div>
-                </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 {availableSessions.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-lg font-medium text-slate-600">

@@ -6,8 +6,8 @@ public class SessionUtil {
     public static final int WINTER_SESSION_START_MONTH = 1;
     public static final int WINTER_SESSION_START_DAY = 23;
 
-    public static final int AUTUMN_SESSION_START_MONTH = 6;
-    public static final int AUTUMN_SESSION_START_DAY = 25;
+    public static final int WINTER_SESSION_START_MONTH_2 = 6;
+    public static final int WINTER_SESSION_START_DAY_2 = 25;
 
     public static String getCurrentSession() {
         LocalDate now = LocalDate.now();
@@ -16,16 +16,16 @@ public class SessionUtil {
         int year = now.getYear();
 
         if (month == WINTER_SESSION_START_MONTH && day < WINTER_SESSION_START_DAY) {
-            return "Autumn-" + (year - 1);
+            return "Winter-" + (year - 1);
         }
 
-        boolean beforeAutumnStart = month < AUTUMN_SESSION_START_MONTH
-            || (month == AUTUMN_SESSION_START_MONTH && day < AUTUMN_SESSION_START_DAY);
+        boolean beforeWinterStart = month < WINTER_SESSION_START_MONTH_2
+            || (month == WINTER_SESSION_START_MONTH_2 && day < WINTER_SESSION_START_DAY_2);
 
-        if (beforeAutumnStart) {
+        if (beforeWinterStart) {
             return "Winter-" + year;
         }
 
-        return "Autumn-" + year;
+        return "Winter-" + year;
     }
 }
