@@ -62,7 +62,7 @@ export default function Home() {
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-5xl mx-auto leading-relaxed">
               {t('home.subtitle')}
             </p>
 
@@ -85,7 +85,7 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="py-20 bg-gray-50">
+        <div className="py-9 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16">
               {t('home.features.title')}
