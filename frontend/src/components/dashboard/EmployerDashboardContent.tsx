@@ -13,13 +13,19 @@ import FilterButton from './FilterButton';
 import FilterMenuOffers from './FilterMenuOffers';
 import SortMenuContracts from './SortMenuContracts';
 import FilterMenuContracts from './FilterMenuContracts';
-import type {CreateInternshipOfferRequest, CreateOfferFormData, InternshipOffer, UnseenApplicationsCount, InternshipContract} from '../../interfaces';
+import type {
+  CreateInternshipOfferRequest,
+  CreateOfferFormData,
+  InternshipOffer,
+  UnseenApplicationsCount,
+  InternshipContract
+} from '../../interfaces';
 import InternshipApplications from './InternshipApplications';
 import {employerAPI} from "~/services/EmployerAPI";
 import {useClickOutside} from "~/hooks/useClickOutside";
 import {filterInternshipOffers, sortInternshipOffers, filterContracts, sortContracts} from "~/utils/filterUtils";
 import InternshipContractList from './InternshipContractList';
-import { getAvailableSessions } from "~/utils/avaliableSessions";
+import {getAvailableSessions} from "~/utils/avaliableSessions";
 
 export default function EmployerDashboardContent() {
   const {t} = useTranslation();
@@ -34,7 +40,7 @@ export default function EmployerDashboardContent() {
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedOffer, setSelectedOffer] = useState<InternshipOffer | null>(null);
   const [numbersOfApplications, setNumbersOfApplications] = useState<Map<number, number>>(new Map());
-   const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
+  const [unseenApplicationsCount, setUnseenApplicationsCount] = useState<Map<number, UnseenApplicationsCount>>(new Map());
   const [showSortMenuOffers, setShowSortMenuOffers] = useState(false);
   const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
   const [showSortMenuContracts, setShowSortMenuContracts] = useState(false);
@@ -68,7 +74,7 @@ export default function EmployerDashboardContent() {
 
   const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
     const countsMap = new Map<number, UnseenApplicationsCount>();
-    
+
     for (const offer of offers) {
       try {
         const response = await employerAPI.getUnseenApplicationsCount(offer.id);
@@ -111,7 +117,7 @@ export default function EmployerDashboardContent() {
 
   useEffect(() => {
     if (selectedOffer && (activeTab === 'approved-offers' || activeTab === 'history')) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
   }, [selectedOffer, activeTab]);
 
@@ -119,22 +125,26 @@ export default function EmployerDashboardContent() {
     try {
       setLoadingContracts(true);
       const contractsList: InternshipContract[] = [];
-      
+
       const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
-      
+
       if (approvedOffers.length > 0) {
-        const contractPromises: Promise<{ contract: InternshipContract | null, offerId: number, studentId: number } | null>[] = [];
-        
+        const contractPromises: Promise<{
+          contract: InternshipContract | null,
+          offerId: number,
+          studentId: number
+        } | null>[] = [];
+
         for (const offer of approvedOffers) {
           if (!offer.id) continue;
-          
+
           try {
             const applicationsResponse = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
             if (applicationsResponse.success && applicationsResponse.data) {
-              const acceptedApplications = applicationsResponse.data.filter((app: any) => 
+              const acceptedApplications = applicationsResponse.data.filter((app: any) =>
                 app.applicationStatus === 'ACCEPTED_BY_STUDENT' || app.applicationStatus === 'PENDING_CONTRACT'
               );
-              
+
               for (const app of acceptedApplications) {
                 if (app.id && offer.id) {
                   const studentId = app.id;
@@ -143,7 +153,7 @@ export default function EmployerDashboardContent() {
                     employerAPI.getInternshipContract(offerId, studentId)
                       .then(response => {
                         if (response.success && response.data) {
-                          return { contract: response.data, offerId, studentId };
+                          return {contract: response.data, offerId, studentId};
                         }
                         return null;
                       })
@@ -155,16 +165,16 @@ export default function EmployerDashboardContent() {
           } catch (err) {
           }
         }
-        
+
         const contractResults = await Promise.all(contractPromises);
-        
+
         contractResults.forEach(result => {
           if (result && result.contract) {
             contractsList.push(result.contract);
           }
         });
       }
-      
+
       setContracts(contractsList);
     } catch (error) {
       console.error('Erreur lors du chargement des contrats:', error);
@@ -229,41 +239,41 @@ export default function EmployerDashboardContent() {
 
   useEffect(() => {
     let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
-    
+
     const program = offerFilters[0];
     const title = offerFilters[1];
-    
+
     if (program || title) {
       filtered = filterInternshipOffers(filtered, {
         program,
         title
       });
     }
-    
+
     if (offerSortBy) {
       filtered = sortInternshipOffers(filtered, offerSortBy, true);
     }
-    
+
     setFilteredOffers(filtered);
   }, [allOffers, offerFilters, offerSortBy]);
 
   useEffect(() => {
     let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
-    
+
     const program = offerFilters[0];
     const title = offerFilters[1];
-    
+
     if (program || title) {
       filtered = filterInternshipOffers(filtered, {
         program,
         title
       });
     }
-    
+
     if (offerSortBy) {
       filtered = sortInternshipOffers(filtered, offerSortBy, true);
     }
-    
+
     setFilteredApprovedOffers(filtered);
   }, [allOffers, offerFilters, offerSortBy]);
 
@@ -341,13 +351,13 @@ export default function EmployerDashboardContent() {
     try {
       let pendingCount = 0;
       let interviewCount = 0;
-      
+
       // Seulement pour les offres approuvées
       const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
-      
+
       for (const offer of approvedOffers) {
         if (!offer.id) continue;
-        
+
         try {
           // Récupérer toutes les candidatures pour cette offre
           const response = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
@@ -364,7 +374,7 @@ export default function EmployerDashboardContent() {
           console.error(`Erreur lors du chargement des candidatures pour l'offre ${offer.id}:`, err);
         }
       }
-      
+
       setPendingApplicationsCount(pendingCount);
       setInterviewApplicationsCount(interviewCount);
     } catch (error) {
@@ -458,313 +468,254 @@ export default function EmployerDashboardContent() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full min-w-[320px] flex-col bg-slate-100 lg:ps-96">
-      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      
+      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab}/>
+
       <main id="page-content" className="flex max-w-full flex-auto flex-col pt-20 lg:pt-0 bg-slate-100">
         <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
           <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
-          <div className="flex justify-between items-center">
-            <div>
+            <div className="flex justify-between items-center">
+              <div>
                 <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">{t('dashboard.subtitle')}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {activeTab === 'history' && (
-                <div className="flex items-center gap-2">
-                  <label htmlFor="session-history-employer" className="text-sm font-medium text-slate-700 whitespace-nowrap">
-                    {t("im.session")}:
-                  </label>
-                  <select
-                    id="session-history-employer"
-                    name="session"
-                    value={selectedHistorySession}
-                    className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 min-w-[150px]"
-                    onChange={(e) => setSelectedHistorySession(e.target.value)}
-                  >
-                    {availableSessions.map((session) => (
-                      <option key={session} value={session} className="text-gray-900 bg-white">
-                        {session}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              </div>
+              <div className="flex items-center gap-4">
+                {activeTab === 'history' && (
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="session-history-employer" className="text-sm font-medium text-slate-700 whitespace-nowrap">
+                      {t("im.session")}:
+                    </label>
+                    <select
+                      id="session-history-employer"
+                      name="session"
+                      value={selectedHistorySession}
+                      className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 min-w-[150px]"
+                      onChange={(e) => setSelectedHistorySession(e.target.value)}
+                    >
+                      {availableSessions.map((session) => (
+                        <option key={session} value={session} className="text-gray-900 bg-white">
+                          {session}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 {selectedOffer == null && activeTab === 'offers' &&
-                <button
-                  onClick={() => setShowCreateForm(!showCreateForm)}
+                  <button
+                    onClick={() => setShowCreateForm(!showCreateForm)}
                     className="group flex items-center justify-between rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 active:border-indigo-200 active:bg-indigo-700 transition-colors"
-                >
-                  {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
-                </button>
-              }
+                  >
+                    {showCreateForm ? t('dashboard.cancel') : t('dashboard.createOffer')}
+                  </button>
+                }
+              </div>
             </div>
           </div>
-        </div>
-          
+
           <div className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
 
-        {/* Messages d'erreur et de succès */}
-        {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        )}
-        {success && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            {success}
-          </div>
-        )}
-
-          {/* Contenu selon l'onglet actif */}
-          {activeTab === 'overview' && (
-            <>
-        {/* Cartes de statistiques */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 md:gap-6">
-                <div className="sm:col-span-6 xl:col-span-3">
-              <StatisticsCard
-                title={t('dashboard.totalOffers')}
-                value={stats.total}
-                icon={statsIcons.total}
-                bgColor="bg-blue-100"
-                iconColor="text-blue-600"
-              />
-                </div>
-                <div className="sm:col-span-6 xl:col-span-3">
-              <StatisticsCard
-                title={t('dashboard.pending')}
-                value={stats.pending}
-                icon={statsIcons.pending}
-                bgColor="bg-yellow-100"
-                iconColor="text-yellow-600"
-              />
-                </div>
-                <div className="sm:col-span-6 xl:col-span-3">
-              <StatisticsCard
-                title={t('dashboard.validated')}
-                value={stats.approved}
-                icon={statsIcons.approved}
-                bgColor="bg-green-100"
-                iconColor="text-green-600"
-              />
-                </div>
-                <div className="sm:col-span-6 xl:col-span-3">
-              <StatisticsCard
-                title={t('dashboard.rejected')}
-                value={stats.rejected}
-                icon={statsIcons.rejected}
-                bgColor="bg-red-100"
-                iconColor="text-red-600"
-              />
-            </div>
+            {/* Messages d'erreur et de succès */}
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                {error}
               </div>
-
-              {/* Navigation rapide */}
-              <div className="rounded-lg border border-slate-200 bg-white p-6">
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <button
-                    onClick={() => setActiveTab('offers')}
-                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
-                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </div>
-                      <span className="font-semibold text-slate-900">{t('dashboard.createOffer')}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 text-left">
-                      {stats.pending} offre{stats.pending > 1 ? 's' : ''} en attente de validation
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('approved-offers')}
-                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-green-300 hover:bg-green-50 transition-all group"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-green-100 group-hover:bg-green-200 transition-colors">
-                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <span className="font-semibold text-slate-900">{t('im.approvedOffers')}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 text-left">
-                      {stats.approved} offre{stats.approved > 1 ? 's' : ''} validée{stats.approved > 1 ? 's' : ''}
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('contracts')}
-                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all group"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
-                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      <span className="font-semibold text-slate-900">{t('im.internshipContractsSection')}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 text-left">
-                      {contracts.length} contrat{contracts.length > 1 ? 's' : ''} de stage
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('history')}
-                    className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all group"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
-                        <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <span className="font-semibold text-slate-900">{t('im.history')}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 text-left">
-                      Consulter les offres passées
-                    </p>
-                  </button>
-                </div>
+            )}
+            {success && (
+              <div
+                className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                {success}
               </div>
+            )}
 
-              {/* Statistiques supplémentaires */}
-              {stats.approved > 0 && (
+            {/* Contenu selon l'onglet actif */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Cartes de statistiques */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 md:gap-6">
+                  <div className="sm:col-span-6 xl:col-span-3">
+                    <StatisticsCard
+                      title={t('dashboard.totalOffers')}
+                      value={stats.total}
+                      icon={statsIcons.total}
+                      bgColor="bg-blue-100"
+                      iconColor="text-blue-600"
+                    />
+                  </div>
+                  <div className="sm:col-span-6 xl:col-span-3">
+                    <StatisticsCard
+                      title={t('dashboard.pending')}
+                      value={stats.pending}
+                      icon={statsIcons.pending}
+                      bgColor="bg-yellow-100"
+                      iconColor="text-yellow-600"
+                    />
+                  </div>
+                  <div className="sm:col-span-6 xl:col-span-3">
+                    <StatisticsCard
+                      title={t('dashboard.validated')}
+                      value={stats.approved}
+                      icon={statsIcons.approved}
+                      bgColor="bg-green-100"
+                      iconColor="text-green-600"
+                    />
+                  </div>
+                  <div className="sm:col-span-6 xl:col-span-3">
+                    <StatisticsCard
+                      title={t('dashboard.rejected')}
+                      value={stats.rejected}
+                      icon={statsIcons.rejected}
+                      bgColor="bg-red-100"
+                      iconColor="text-red-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation rapide */}
                 <div className="rounded-lg border border-slate-200 bg-white p-6">
-                  <h2 className="text-xl font-bold text-slate-900 mb-4">Candidatures reçues</h2>
-                  <div className="divide-y divide-slate-200">
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-sm font-medium text-slate-700">Total des candidatures</span>
-                      <span className="text-lg font-bold text-slate-900">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button
+                      onClick={() => setActiveTab('offers')}
+                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-indigo-100 group-hover:bg-indigo-200 transition-colors">
+                          <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                               viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                          </svg>
+                        </div>
+                        <span className="font-semibold text-slate-900">{t('dashboard.createOffer')}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 text-left">
+                        {stats.pending} offre{stats.pending > 1 ? 's' : ''} en attente de validation
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('approved-offers')}
+                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-green-300 hover:bg-green-50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-green-100 group-hover:bg-green-200 transition-colors">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </div>
+                        <span className="font-semibold text-slate-900">{t('im.approvedOffers')}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 text-left">
+                        {stats.approved} offre{stats.approved > 1 ? 's' : ''} validée{stats.approved > 1 ? 's' : ''}
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('contracts')}
+                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
+                               viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          </svg>
+                        </div>
+                        <span className="font-semibold text-slate-900">{t('im.internshipContractsSection')}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 text-left">
+                        {contracts.length} contrat{contracts.length > 1 ? 's' : ''} de stage
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('history')}
+                      className="flex flex-col items-start p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
+                          <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </div>
+                        <span className="font-semibold text-slate-900">{t('im.history')}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 text-left">
+                        Consulter les offres passées
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Statistiques supplémentaires */}
+                {stats.approved > 0 && (
+                  <div className="rounded-lg border border-slate-200 bg-white p-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">Candidatures reçues</h2>
+                    <div className="divide-y divide-slate-200">
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-sm font-medium text-slate-700">Total des candidatures</span>
+                        <span className="text-lg font-bold text-slate-900">
                         {Array.from(numbersOfApplications.values()).reduce((sum, count) => sum + count, 0)}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-sm font-medium text-slate-700">En attente</span>
-                      <span className="text-lg font-bold text-yellow-600">
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-sm font-medium text-slate-700">En attente</span>
+                        <span className="text-lg font-bold text-yellow-600">
                         {pendingApplicationsCount}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-sm font-medium text-slate-700">En entrevue</span>
-                      <span className="text-lg font-bold text-purple-600">
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-sm font-medium text-slate-700">En entrevue</span>
+                        <span className="text-lg font-bold text-purple-600">
                         {interviewApplicationsCount}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-sm font-medium text-slate-700">Réponses des étudiants</span>
-                      <span className="text-lg font-bold text-amber-600">
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-sm font-medium text-slate-700">Réponses des étudiants</span>
+                        <span className="text-lg font-bold text-amber-600">
                         {Array.from(unseenApplicationsCount.values()).reduce((sum, count) => sum + (count.studentsWhoRejectedTheOffer || 0) + (count.studentsWhoAcceptedTheOffer || 0), 0)}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-sm font-medium text-slate-700">Offres avec candidatures</span>
-                      <span className="text-lg font-bold text-blue-600">
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <span className="text-sm font-medium text-slate-700">Offres avec candidatures</span>
+                        <span className="text-lg font-bold text-blue-600">
                         {filteredApprovedOffers.length}
                       </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'offers' && (
-            <>
-            {/* Formulaire de création d'offre */}
-            {showCreateForm && (
-                <div className="rounded-xl border border-slate-200 bg-white p-6">
-              <CreateOfferForm
-                onSubmit={handleCreateOffer}
-                onCancel={() => setShowCreateForm(false)}
-                loading={loading}
-              />
-                </div>
-              )}
-
-              {/* Liste des offres existantes (PENDING) */}
-              <div className="rounded-xl border border-slate-200 bg-white">
-                <div className="px-6 pt-6 relative">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-slate-900">{t('im.internshipOffersSection')}</h2>
-                      <p className="text-sm font-medium text-slate-500 mt-1">{t('im.internshipOffersSubtitle')}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative" ref={sortOffersMenuRef}>
-                        <SortButton onClick={() => {
-                          setShowSortMenuOffers(!showSortMenuOffers);
-                          setShowFilterMenuOffers(false);
-                        }} />
-                        {showSortMenuOffers &&
-                          <SortMenuOffers
-                            userRole="EMPLOYER"
-                            applySorting={(sortBy: string) => {
-                              setShowSortMenuOffers(false);
-                              setOfferSortBy(sortBy);
-                            }}/>
-                        }
-                      </div>
-                      <div className="relative" ref={filterOffersMenuRef}>
-                        <FilterButton onClick={() => {
-                          setShowSortMenuOffers(false);
-                          setShowFilterMenuOffers(!showFilterMenuOffers);
-                        }}/>
-                        {showFilterMenuOffers &&
-                          <FilterMenuOffers
-                            userRole="EMPLOYER"
-                            applyFilters={(filterBy: string[]) => {
-                              setShowFilterMenuOffers(false);
-                              setOfferFilters(filterBy);
-                            }}/>
-                        }
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-6 overflow-hidden">
-                  <OfferList 
-                    changeCursorIfApproved={false}
-                    selectOffer={selectOffer}
-                    isStudent={false}
-                    isEmployer={true}
-                    loading={loading}
-                    offers={filteredOffers}
-                    numbersOfApplications={numbersOfApplications}
-                    unseenApplicationsCount={unseenApplicationsCount}
-                  />
-                </div>
-              </div>
-            </>
-          )}
+                )}
+              </>
+            )}
 
-          {activeTab === 'approved-offers' && (
-            <>
-              {selectedOffer ? (
-                <InternshipApplications 
-                  setSelectedOffer={setSelectedOffer}
-                  internship={selectedOffer} 
-                  countNumberOfUnseenApplications={countNumberOfUnseenApplications} 
-                  offers={allOffers}
-                  isInternshipManager={false}
-                />
-              ) : (
-                <div className="rounded-xl border border-slate-200 bg-white">
-                  <div className="px-6 pt-6 relative">
+            {activeTab === 'offers' && (
+              <>
+                {/* Formulaire de création d'offre */}
+                {showCreateForm && (
+                  <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <CreateOfferForm
+                      onSubmit={handleCreateOffer}
+                      onCancel={() => setShowCreateForm(false)}
+                      loading={loading}
+                    />
+                  </div>
+                )}
+
+                {/* Liste des offres existantes (PENDING) */}
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  <div className="px-6 pt-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                       <div>
-                        <h2 className="text-xl font-bold text-slate-900">{t('im.approvedOffers')}</h2>
-                        <p className="text-sm font-medium text-slate-500 mt-1">{t('im.approvedOffersSubtitle')}</p>
+                        <h2 className="text-xl font-bold text-slate-900">{t('employer.internshipOffers')}</h2>
+                        <p className="text-sm font-medium text-slate-500 mt-1">{t('employer.internshipOffersSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="relative" ref={sortOffersMenuRef}>
                           <SortButton onClick={() => {
                             setShowSortMenuOffers(!showSortMenuOffers);
                             setShowFilterMenuOffers(false);
-                          }} />
+                          }}/>
                           {showSortMenuOffers &&
                             <SortMenuOffers
                               userRole="EMPLOYER"
@@ -791,169 +742,235 @@ export default function EmployerDashboardContent() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-6 overflow-hidden">
-                    {filteredApprovedOffers.length === 0 ? (
-                      <p className="text-sm font-medium text-slate-500 text-center py-8">
-                        {t('im.noApprovedOffers')}
-                      </p>
-                    ) : (
-                      <OfferList 
-                        changeCursorIfApproved={true}
-                        selectOffer={selectOffer}
-                        isStudent={false}
-                        isEmployer={true}
-                        loading={loading}
-                        offers={filteredApprovedOffers}
-                        numbersOfApplications={numbersOfApplications}
-                        unseenApplicationsCount={unseenApplicationsCount}
-                      />
-                    )}
+                  <div className="p-6">
+                    <OfferList
+                      changeCursorIfApproved={false}
+                      selectOffer={selectOffer}
+                      isStudent={false}
+                      isEmployer={true}
+                      loading={loading}
+                      offers={filteredOffers}
+                      numbersOfApplications={numbersOfApplications}
+                      unseenApplicationsCount={unseenApplicationsCount}
+                    />
                   </div>
                 </div>
-              )}
-            </>
-          )}
+              </>
+            )}
 
-          {activeTab === 'contracts' && (
-            <div className="rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6 relative">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                  <div>
-                <h2 className="text-xl font-bold text-slate-900">{t('im.internshipContractsSection')}</h2>
-                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: filteredAndSortedContracts.length })}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="relative" ref={sortContractsMenuRef}>
-                      <SortButton onClick={() => {
-                        setShowSortMenuContracts(!showSortMenuContracts);
-                        setShowFilterMenuContracts(false);
-                        setShowSortMenuOffers(false);
-                        setShowFilterMenuOffers(false);
-                      }} />
-                      {showSortMenuContracts &&
-                        <SortMenuContracts
-                          applySorting={(sortBy: string) => {
-                            setShowSortMenuContracts(false);
-                            setContractSortBy(sortBy);
-                          }}/>
-                      }
-                    </div>
-                    <div className="relative" ref={filterContractsMenuRef}>
-                      <FilterButton onClick={() => {
-                        setShowSortMenuContracts(false);
-                        setShowFilterMenuContracts(!showFilterMenuContracts);
-                        setShowSortMenuOffers(false);
-                        setShowFilterMenuOffers(false);
-                      }}/>
-                      {showFilterMenuContracts &&
-                        <FilterMenuContracts
-                          applyFilters={(filterBy: string[]) => {
-                            setShowFilterMenuContracts(false);
-                            setContractFilters(filterBy);
-                          }}/>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 overflow-hidden">
-                <InternshipContractList
-                  contracts={filteredAndSortedContracts}
-                  loading={loadingContracts}
-                  onContractUpdate={loadContracts}
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'history' && !selectedOffer && (
-            <div className="rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6 relative">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900">
-                      {t("im.history")}
-                    </h2>
-                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="relative" ref={sortOffersMenuRef}>
-                      <SortButton onClick={() => {
-                        setShowSortMenuOffers(!showSortMenuOffers);
-                        setShowFilterMenuOffers(false);
-                      }} />
-                      {showSortMenuOffers &&
-                        <SortMenuOffers
-                          userRole="EMPLOYER"
-                          applySorting={(sortBy: string) => {
-                            setShowSortMenuOffers(false);
-                            setOfferSortBy(sortBy);
-                          }}/>
-                      }
-                    </div>
-                    <div className="relative" ref={filterOffersMenuRef}>
-                      <FilterButton onClick={() => {
-                        setShowSortMenuOffers(false);
-                        setShowFilterMenuOffers(!showFilterMenuOffers);
-                      }}/>
-                      {showFilterMenuOffers &&
-                        <FilterMenuOffers
-                          userRole="EMPLOYER"
-                          isHistory={true}
-                          applyFilters={(filterBy: string[]) => {
-                            setShowFilterMenuOffers(false);
-                            // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
-                            const program = filterBy[0];
-                            const title = filterBy[1];
-                            setOfferFilters([program, title]);
-                          }}/>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 overflow-hidden">
-                {availableSessions.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-lg font-medium text-slate-600">
-                      {t('im.internshipOffersSectionEmpty')}
-                    </p>
-                    <p className="text-sm text-slate-500 mt-2">
-                      Aucune offre de stage des sessions passées trouvée.
-                    </p>
-                  </div>
-                ) : (
-                  <OfferList
-                    selectOffer={selectOffer}
-                    isStudent={false}
-                    isEmployer={true}
-                    isHistory={true}
-                    loading={loading}
-                    offers={filteredHistoryOffers}
-                    numbersOfApplications={numbersOfApplications}
-                    selectedSession={selectedHistorySession}
-                    onSessionChange={setSelectedHistorySession}
-                    availableSessions={availableSessions}
+            {activeTab === 'approved-offers' && (
+              <>
+                {selectedOffer ? (
+                  <InternshipApplications
+                    setSelectedOffer={setSelectedOffer}
+                    internship={selectedOffer}
+                    countNumberOfUnseenApplications={countNumberOfUnseenApplications}
+                    offers={allOffers}
+                    isInternshipManager={false}
                   />
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <div className="px-6 pt-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <div>
+                          <h2 className="text-xl font-bold text-slate-900">{t('employer.approvedInternshipOffers')}</h2>
+                          <p className="text-sm font-medium text-slate-500 mt-1">{t('employer.approvedInternshipOffersSubtitle')}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="relative" ref={sortOffersMenuRef}>
+                            <SortButton onClick={() => {
+                              setShowSortMenuOffers(!showSortMenuOffers);
+                              setShowFilterMenuOffers(false);
+                            }}/>
+                            {showSortMenuOffers &&
+                              <SortMenuOffers
+                                userRole="EMPLOYER"
+                                applySorting={(sortBy: string) => {
+                                  setShowSortMenuOffers(false);
+                                  setOfferSortBy(sortBy);
+                                }}/>
+                            }
+                          </div>
+                          <div className="relative" ref={filterOffersMenuRef}>
+                            <FilterButton onClick={() => {
+                              setShowSortMenuOffers(false);
+                              setShowFilterMenuOffers(!showFilterMenuOffers);
+                            }}/>
+                            {showFilterMenuOffers &&
+                              <FilterMenuOffers
+                                userRole="EMPLOYER"
+                                applyFilters={(filterBy: string[]) => {
+                                  setShowFilterMenuOffers(false);
+                                  setOfferFilters(filterBy);
+                                }}/>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      {filteredApprovedOffers.length === 0 ? (
+                        <p className="text-sm font-medium text-slate-500 text-center py-8">
+                          {t('im.noApprovedOffers')}
+                        </p>
+                      ) : (
+                        <OfferList
+                          changeCursorIfApproved={true}
+                          selectOffer={selectOffer}
+                          isStudent={false}
+                          isEmployer={true}
+                          loading={loading}
+                          offers={filteredApprovedOffers}
+                          numbersOfApplications={numbersOfApplications}
+                          unseenApplicationsCount={unseenApplicationsCount}
+                        />
+                      )}
+                    </div>
+                  </div>
                 )}
-              </div>
-            </div>
-          )}
+              </>
+            )}
 
-          {activeTab === 'history' && selectedOffer && (
-            <InternshipApplications
-              isInternshipManager={false}
-              setSelectedOffer={setSelectedOffer}
-              internship={selectedOffer}
-              countNumberOfUnseenApplications={countNumberOfUnseenApplications}
-              offers={allOffers}
-              onContractCreated={loadContracts}
-              isHistory={true}
-            />
-          )}
+            {activeTab === 'contracts' && (
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">{t('im.internshipContractsSection')}</h2>
+                      <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: filteredAndSortedContracts.length })}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative" ref={sortContractsMenuRef}>
+                        <SortButton onClick={() => {
+                          setShowSortMenuContracts(!showSortMenuContracts);
+                          setShowFilterMenuContracts(false);
+                          setShowSortMenuOffers(false);
+                          setShowFilterMenuOffers(false);
+                        }} />
+                        {showSortMenuContracts &&
+                          <SortMenuContracts
+                            applySorting={(sortBy: string) => {
+                              setShowSortMenuContracts(false);
+                              setContractSortBy(sortBy);
+                            }}/>
+                        }
+                      </div>
+                      <div className="relative" ref={filterContractsMenuRef}>
+                        <FilterButton onClick={() => {
+                          setShowSortMenuContracts(false);
+                          setShowFilterMenuContracts(!showFilterMenuContracts);
+                          setShowSortMenuOffers(false);
+                          setShowFilterMenuOffers(false);
+                        }}/>
+                        {showFilterMenuContracts &&
+                          <FilterMenuContracts
+                            applyFilters={(filterBy: string[]) => {
+                              setShowFilterMenuContracts(false);
+                              setContractFilters(filterBy);
+                            }}/>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <InternshipContractList
+                    contracts={filteredAndSortedContracts}
+                    loading={loadingContracts}
+                    onContractUpdate={loadContracts}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'history' && !selectedOffer && (
+              <div className="rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">
+                        {t("im.history")}
+                      </h2>
+                      <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative" ref={sortOffersMenuRef}>
+                        <SortButton onClick={() => {
+                          setShowSortMenuOffers(!showSortMenuOffers);
+                          setShowFilterMenuOffers(false);
+                        }} />
+                        {showSortMenuOffers &&
+                          <SortMenuOffers
+                            userRole="EMPLOYER"
+                            applySorting={(sortBy: string) => {
+                              setShowSortMenuOffers(false);
+                              setOfferSortBy(sortBy);
+                            }}/>
+                        }
+                      </div>
+                      <div className="relative" ref={filterOffersMenuRef}>
+                        <FilterButton onClick={() => {
+                          setShowSortMenuOffers(false);
+                          setShowFilterMenuOffers(!showFilterMenuOffers);
+                        }}/>
+                        {showFilterMenuOffers &&
+                          <FilterMenuOffers
+                            userRole="EMPLOYER"
+                            isHistory={true}
+                            applyFilters={(filterBy: string[]) => {
+                              setShowFilterMenuOffers(false);
+                              // Pour l'historique, on envoie seulement [program, title] (pas de status, pas de session)
+                              const program = filterBy[0];
+                              const title = filterBy[1];
+                              setOfferFilters([program, title]);
+                            }}/>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  {availableSessions.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-lg font-medium text-slate-600">
+                        {t('im.internshipOffersSectionEmpty')}
+                      </p>
+                      <p className="text-sm text-slate-500 mt-2">
+                        Aucune offre de stage des sessions passées trouvée.
+                      </p>
+                    </div>
+                  ) : (
+                    <OfferList
+                      selectOffer={selectOffer}
+                      isStudent={false}
+                      isEmployer={true}
+                      isHistory={true}
+                      loading={loading}
+                      offers={filteredHistoryOffers}
+                      numbersOfApplications={numbersOfApplications}
+                      selectedSession={selectedHistorySession}
+                      onSessionChange={setSelectedHistorySession}
+                      availableSessions={availableSessions}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'history' && selectedOffer && (
+              <InternshipApplications
+                isInternshipManager={false}
+                setSelectedOffer={setSelectedOffer}
+                internship={selectedOffer}
+                countNumberOfUnseenApplications={countNumberOfUnseenApplications}
+                offers={allOffers}
+                onContractCreated={loadContracts}
+                isHistory={true}
+              />
+            )}
           </div>
-      </div>
-    </main>
+        </div>
+      </main>
     </div>
   );
 }

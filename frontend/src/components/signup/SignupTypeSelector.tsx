@@ -25,9 +25,6 @@ export default function SignupTypeSelector({ onSelectEmployer, onSelectStudent }
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             {t('auth.chooseAccountType')}
           </h2>
-          <p className="text-gray-600">
-            {t('auth.chooseAccountType')}
-          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -44,9 +41,6 @@ export default function SignupTypeSelector({ onSelectEmployer, onSelectStudent }
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 {t('auth.signupEmployerTitle')}
               </h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {t('employer.dashboard')}
-              </p>
               <div className="mt-4 inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
                 {t('common.signup')}
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,9 +64,6 @@ export default function SignupTypeSelector({ onSelectEmployer, onSelectStudent }
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 {t('auth.signupStudentTitle')}
               </h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {t('student.dashboard')}
-              </p>
               <div className="mt-4 inline-flex items-center text-purple-600 font-semibold group-hover:text-purple-700">
                 {t('common.signup')}
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -33,15 +33,15 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
         return [
           { id: 'overview', label: t('student.dashboard'), icon: 'home' },
           { id: 'cv', label: t('student.cv'), icon: 'document' },
-          { id: 'offers', label: t('student.offers'), icon: 'briefcase' },
+          { id: 'offers', label: t('employer.offers'), icon: 'briefcase' },
           { id: 'applications', label: t('student.applications'), icon: 'clipboard' },
           { id: 'contracts', label: t('student.contracts'), icon: 'file' },
         ];
       case 'EMPLOYER':
         return [
           { id: 'overview', label: t('dashboard.title'), icon: 'home' },
-          { id: 'offers', label: t('im.internshipOffers'), icon: 'briefcase' },
-          { id: 'approved-offers', label: t('im.approvedOffers'), icon: 'clipboard' },
+          { id: 'offers', label: t('employer.internshipOffers'), icon: 'briefcase' },
+          { id: 'approved-offers', label: t('employer.approvedInternshipOffers'), icon: 'clipboard' },
           { id: 'contracts', label: t('im.internshipContractsSection'), icon: 'file' },
           { id: 'history', label: t('im.history'), icon: 'clock'},
         ];
