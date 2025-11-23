@@ -198,7 +198,7 @@
         "profile": "Profil employeur",
         "internshipOffers": "Offres de stage",
         "internshipOffersSubtitle": "Voici les offres de stage que vous avez créé.e",
-        "approvedInternshipOffers": "Offres de stages approuvées",
+        "approvedInternshipOffers": "Offres de stage approuvées",
         "approvedInternshipOffersSubtitle": "Voici vos offres de stage qui ont été approuvées par le gestionnaire de stages",
         "contractsCount": "Il y a {{count}} entente(s) de stage qui vous est(sont) destinée(s)",
         "createOffer": "Créer une offre",
