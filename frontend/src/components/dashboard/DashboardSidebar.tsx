@@ -33,7 +33,7 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
         return [
           { id: 'overview', label: t('student.dashboard'), icon: 'home' },
           { id: 'cv', label: t('student.cv'), icon: 'document' },
-          { id: 'offers', label: t('student.offers'), icon: 'briefcase' },
+          { id: 'offers', label: t('employer.offers'), icon: 'briefcase' },
           { id: 'applications', label: t('student.applications'), icon: 'clipboard' },
           { id: 'contracts', label: t('student.contracts'), icon: 'file' },
         ];
