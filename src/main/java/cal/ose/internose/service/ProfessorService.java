@@ -6,12 +6,18 @@ import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.ProfessorDAO;
 import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
+import cal.ose.internose.service.DTOs.ProfessorDTO;
+import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,8 +30,10 @@ public class ProfessorService {
     private final ProfessorDAO professorDAO;
     private final InternAssessmentDAO internAssessmentDAO;
 
-    public List<InternshipContractDTO> findInternshipContractsBy(long professorId, String studentName, String company, String internshipProgram, String sortBy) {
+    public List<InternshipContractDTO> findInternshipContractsBy(long professorId, String studentName, String company, String internshipProgram, String sortBy) throws ForbiddenException {
         Professor professor = professorDAO.findById(professorId).orElseThrow();
+        isLoggedProfessor(professor);
+
         String currentSession = SessionUtil.getCurrentSession();
 
         String studentNameFilter = studentName == null ? null : "%" + studentName + "%";
@@ -74,8 +82,12 @@ public class ProfessorService {
         return internshipContracts.stream().map(InternshipContractDTO::fromEntity).toList();
     }
 
-    public InternAssessmentDTO findInternshipAssessment(long contractId) {
+    public InternAssessmentDTO findInternshipAssessment(long contractId) throws ForbiddenException {
         InternshipContract internshipContract =  internshipContractDAO.findById(contractId).orElseThrow();
+        Professor professor = internshipContract.getProfessor();
+
+        isLoggedProfessor(professor);
+
         InternAssessment internAssessment = internAssessmentDAO.findByInternshipContract(internshipContract);
 
         if (internAssessment == null) {
@@ -83,5 +95,19 @@ public class ProfessorService {
         }
 
         return InternAssessmentDTO.fromEntity(internAssessment);
+    }
+
+    private void isLoggedProfessor(Professor professor) throws ForbiddenException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            if (!userDetails.getUsername().equals(professor.getEmail())) {
+                throw new ForbiddenException("Vous n'êtes pas autorisé à accéder à cette ressource");
+            }
+            return; // allowed
+        }
+
+        throw new ForbiddenException("Vous n'êtes pas autorisé à accéder à cette ressource");
     }
 }
