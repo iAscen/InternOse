@@ -6,18 +6,15 @@ import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.ProfessorDAO;
 import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
-import cal.ose.internose.service.DTOs.ProfessorDTO;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -82,7 +79,7 @@ public class ProfessorService {
         return internshipContracts.stream().map(InternshipContractDTO::fromEntity).toList();
     }
 
-    public InternAssessmentDTO findInternshipAssessment(long contractId) throws ForbiddenException {
+    public InternAssessmentDTO findInternAssessment(long contractId) throws ForbiddenException {
         InternshipContract internshipContract =  internshipContractDAO.findById(contractId).orElseThrow();
         Professor professor = internshipContract.getProfessor();
 

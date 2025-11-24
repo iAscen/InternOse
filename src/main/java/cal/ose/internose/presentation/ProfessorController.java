@@ -5,7 +5,6 @@ import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.ProfessorService;
 import cal.ose.internose.service.exceptions.ForbiddenException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,10 +23,10 @@ public class ProfessorController {
 
     @GetMapping(Paths.PROFESSOR_INTERNSHIP_CONTRACTS)
     public ResponseEntity<String> findInternshipContracts(@PathVariable("professorID") long professorId,
-                                                          @RequestParam("studentName") String studentName,
-                                                          @RequestParam("company") String company,
-                                                          @RequestParam("program") String internshipProgram,
-                                                          @RequestParam("sortBy") String sortBy) {
+                                                          @RequestParam(value = "studentName", required = false) String studentName,
+                                                          @RequestParam(value = "company", required = false) String company,
+                                                          @RequestParam(value = "program", required = false) String internshipProgram,
+                                                          @RequestParam(value = "sortBy", required = false) String sortBy) {
         try {
             List<InternshipContractDTO> internshipContracts = professorService.findInternshipContractsBy(professorId, studentName, company, internshipProgram, sortBy);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipContracts));
@@ -41,9 +40,9 @@ public class ProfessorController {
     }
 
     @GetMapping(Paths.PROFESSOR_INTERNSHIP_CONTRACT_ASSESSMENT)
-    public ResponseEntity<String> findInternshipAssessment(@PathVariable("contractID") long contractId) {
+    public ResponseEntity<String> findInternAssessment(@PathVariable("contractID") long contractId) {
         try {
-            InternAssessmentDTO internAssessmentDTO = professorService.findInternshipAssessment(contractId);
+            InternAssessmentDTO internAssessmentDTO = professorService.findInternAssessment(contractId);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internAssessmentDTO));
         } catch (NoSuchElementException e)  {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
