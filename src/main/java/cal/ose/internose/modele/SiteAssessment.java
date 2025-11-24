@@ -1,5 +1,6 @@
 package cal.ose.internose.modele;
 
+import cal.ose.internose.service.DTOs.SiteAssessmentDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -75,5 +76,24 @@ public class SiteAssessment {
     private String professorName;
     private String signature;
     private String assessmentDate;
+
+    public static SiteAssessment fromDTO(SiteAssessmentDTO siteAssessmentDTO) {
+        return SiteAssessment.builder()
+            .studentName(siteAssessmentDTO.getStudentName())
+            .companyName(siteAssessmentDTO.getCompanyName())
+            .supervisorName(siteAssessmentDTO.getSupervisorName())
+            .internshipPosition(siteAssessmentDTO.getInternshipPosition())
+            .internshipDuration(siteAssessmentDTO.getInternshipDuration())
+            .siteAssessment(siteAssessmentDTO.getSiteAssessment())
+            .siteAssessmentComments(siteAssessmentDTO.getSiteAssessmentComments())
+            .overallSiteAppreciation(siteAssessmentDTO.getOverallSiteAppreciation())
+            .generalComments(siteAssessmentDTO.getGeneralComments())
+            .recommendation(siteAssessmentDTO.getRecommendation())
+            .academicConformity(siteAssessmentDTO.getAcademicConformity())
+            .professorName(siteAssessmentDTO.getProfessorName())
+            .signature(siteAssessmentDTO.getSignature())
+            .assessmentDate(siteAssessmentDTO.getAssessmentDate())
+            .build();
+    }
 }
 

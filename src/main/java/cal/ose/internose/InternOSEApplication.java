@@ -3,12 +3,10 @@ package cal.ose.internose;
 import cal.ose.internose.modele.Employer;
 import cal.ose.internose.modele.InternshipOffer;
 import cal.ose.internose.modele.Interview;
+import cal.ose.internose.modele.SiteAssessment;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.service.*;
 import cal.ose.internose.service.DTOs.*;
-import cal.ose.internose.service.EmployerService;
-import cal.ose.internose.service.InternshipManagerService;
-import cal.ose.internose.service.StudentService;
-import cal.ose.internose.service.UserService;
 import cal.ose.internose.utilities.DummyMultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -37,6 +36,7 @@ public class InternOSEApplication {
         ObjectProvider<EmployerService> employerServiceProvider,
         ObjectProvider<StudentService> studentServiceProvider,
         ObjectProvider<InternshipManagerService> internshipManagerServiceProvider,
+        ObjectProvider<ProfessorService> professorServiceProvider,
         InternshipOfferDAO internshipOfferDAO
     ) {
         return _ -> {
@@ -44,7 +44,8 @@ public class InternOSEApplication {
             EmployerService employerService = employerServiceProvider.getIfAvailable();
             StudentService studentService = studentServiceProvider.getIfAvailable();
             InternshipManagerService internshipManagerService = internshipManagerServiceProvider.getIfAvailable();
-            if (userService != null && employerService != null && studentService != null && internshipManagerService != null) {
+            ProfessorService professorService = professorServiceProvider.getIfAvailable();
+            if (userService != null && employerService != null && studentService != null && internshipManagerService != null && professorService != null) {
                 // Créer quelques utilisateurs en avance
                 userService.registerEmployer(
                     EmployerDTO.builder()
@@ -264,6 +265,33 @@ public class InternOSEApplication {
                 employerService.signContract(alice.getId(), 1L, karim.getId());
                 studentService.signContract(alice.getId(), 1L);
                 internshipManagerService.signContract(1L);
+
+                // Créer une évaluation du milieu de stage en avance
+                SiteAssessmentDTO siteAssessmentDTO = SiteAssessmentDTO.builder()
+                    .studentName("Alice A.")
+                    .companyName("SQL Technologies")
+                    .supervisorName("Jean Tremblay")
+                    .internshipPosition("Développeur Kotlin")
+                    .internshipDuration("8 semaines")
+                    .siteAssessment(Map.of(
+                        "Accueil et intégration", SiteAssessment.AssessmentOptions.EXCELLENT,
+                        "Encadrement et supervision", SiteAssessment.AssessmentOptions.VERY_GOOD,
+                        "Ressources disponibles", SiteAssessment.AssessmentOptions.GOOD,
+                        "Environnement de travail", SiteAssessment.AssessmentOptions.EXCELLENT
+                    ))
+                    .siteAssessmentComments(Map.of(
+                        "Accueil et intégration", "Très bon accueil de l'équipe",
+                        "Encadrement et supervision", "Superviseur disponible et compétent"
+                    ))
+                    .overallSiteAppreciation(SiteAssessment.OverallSiteAppreciation.EXCELLENT)
+                    .generalComments("Excellent milieu de stage avec de bonnes opportunités d'apprentissage.")
+                    .recommendation(SiteAssessment.Recommendation.STRONGLY_RECOMMEND)
+                    .academicConformity("Le stage respecte tous les objectifs du programme.")
+                    .professorName("Thomas C.")
+                    .signature("Thomas C.")
+                    .assessmentDate(LocalDate.now().toString())
+                    .build();
+                professorService.saveSiteAssessment(4L, 1L, siteAssessmentDTO);
             }
         };
     }
