@@ -31,10 +31,18 @@ public abstract class User {
     private Credentials credentials;
 
     public String getEmail() {
+        if (credentials == null) {
+            return null;
+        }
+
         return credentials.getEmail();
     }
 
     public String getPassword() {
+        if (credentials == null) {
+            return null;
+        }
+
         return credentials.getPassword();
     }
 
