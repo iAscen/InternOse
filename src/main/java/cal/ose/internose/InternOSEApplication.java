@@ -265,33 +265,6 @@ public class InternOSEApplication {
                 employerService.signContract(alice.getId(), 1L, karim.getId());
                 studentService.signContract(alice.getId(), 1L);
                 internshipManagerService.signContract(1L);
-
-                // Créer une évaluation du milieu de stage en avance
-                SiteAssessmentDTO siteAssessmentDTO = SiteAssessmentDTO.builder()
-                    .studentName("Alice A.")
-                    .companyName("SQL Technologies")
-                    .supervisorName("Jean Tremblay")
-                    .internshipPosition("Développeur Kotlin")
-                    .internshipDuration("8 semaines")
-                    .siteAssessment(Map.of(
-                        "Accueil et intégration", SiteAssessment.AssessmentOptions.EXCELLENT,
-                        "Encadrement et supervision", SiteAssessment.AssessmentOptions.VERY_GOOD,
-                        "Ressources disponibles", SiteAssessment.AssessmentOptions.GOOD,
-                        "Environnement de travail", SiteAssessment.AssessmentOptions.EXCELLENT
-                    ))
-                    .siteAssessmentComments(Map.of(
-                        "Accueil et intégration", "Très bon accueil de l'équipe",
-                        "Encadrement et supervision", "Superviseur disponible et compétent"
-                    ))
-                    .overallSiteAppreciation(SiteAssessment.OverallSiteAppreciation.EXCELLENT)
-                    .generalComments("Excellent milieu de stage avec de bonnes opportunités d'apprentissage.")
-                    .recommendation(SiteAssessment.Recommendation.STRONGLY_RECOMMEND)
-                    .academicConformity("Le stage respecte tous les objectifs du programme.")
-                    .professorName("Thomas C.")
-                    .signature("Thomas C.")
-                    .assessmentDate(LocalDate.now().toString())
-                    .build();
-                professorService.saveSiteAssessment(4L, 1L, siteAssessmentDTO);
             }
         };
     }
