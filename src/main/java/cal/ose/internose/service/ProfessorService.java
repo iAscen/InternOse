@@ -1,9 +1,12 @@
 package cal.ose.internose.service;
 
+import cal.ose.internose.modele.InternAssessment;
 import cal.ose.internose.modele.InternshipContract;
 import cal.ose.internose.modele.Professor;
+import cal.ose.internose.persistance.InternAssessmentDAO;
 import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.ProfessorDAO;
+import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.utilities.SessionUtil;
 import jakarta.transaction.Transactional;
@@ -18,6 +21,7 @@ import java.util.List;
 public class ProfessorService {
     private final InternshipContractDAO internshipContractDAO;
     private final ProfessorDAO professorDAO;
+    private final InternAssessmentDAO internAssessmentDAO;
 
     public List<InternshipContractDTO> findInternshipContracts(long professorId) {
         Professor professor = professorDAO.findById(professorId).orElseThrow();
@@ -27,5 +31,12 @@ public class ProfessorService {
                 .findByProfessorAndSession(professor, currentSession);
 
         return internshipContracts.stream().map(InternshipContractDTO::fromEntity).toList();
+    }
+
+    public InternAssessmentDTO findInternshipAssessment(long contractId) {
+        InternshipContract internshipContract =  internshipContractDAO.findById(contractId).orElseThrow();
+        InternAssessment internAssessment = internAssessmentDAO.findByInternshipContract(internshipContract);
+        
+        return InternAssessmentDTO.fromEntity(internAssessment);
     }
 }
