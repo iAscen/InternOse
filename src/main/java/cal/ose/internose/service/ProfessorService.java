@@ -40,7 +40,8 @@ public class ProfessorService {
         List<InternshipContract> internshipContracts = internshipContractDAO
                 .findAllByProfessorWithOptionalFilters(professor, currentSession, studentNameFilter, companyFilter, internshipProgramFilter);
 
-        sortBy = sortBy.toLowerCase();
+        sortBy = sortBy == null ? "" : sortBy.toLowerCase();
+
         if (sortBy.equals("student")) {
             internshipContracts = internshipContracts.stream().sorted(Comparator.comparing(
                 (internshipContract -> {
