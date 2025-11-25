@@ -97,9 +97,9 @@ public class ProfessorService {
     private void isLoggedProfessor(Professor professor) throws ForbiddenException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = (String) authentication.getPrincipal();
 
-            if (!userDetails.getUsername().equals(professor.getEmail())) {
+            if (!email.equals(professor.getEmail())) {
                 throw new ForbiddenException("Vous n'êtes pas autorisé à accéder à cette ressource");
             }
             return; // allowed

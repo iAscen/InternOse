@@ -47,12 +47,10 @@ class ProfessorServiceTest {
         // Arrange
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
-        UserDetails userDetails = mock(UserDetails.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("email");
+        when(authentication.getPrincipal()).thenReturn("email");
 
         SecurityContextHolder.setContext(securityContext);
 
@@ -101,12 +99,10 @@ class ProfessorServiceTest {
         // Arrange
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
-        UserDetails userDetails = mock(UserDetails.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("yahoo");
+        when(authentication.getPrincipal()).thenReturn("emai");
 
         SecurityContextHolder.setContext(securityContext);
 
@@ -127,12 +123,10 @@ class ProfessorServiceTest {
         // Arrange
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
-        UserDetails userDetails = mock(UserDetails.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("email");
+        when(authentication.getPrincipal()).thenReturn("email");
 
         SecurityContextHolder.setContext(securityContext);
 
@@ -158,12 +152,10 @@ class ProfessorServiceTest {
         // Arrange
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
-        UserDetails userDetails = mock(UserDetails.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("email");
+        when(authentication.getPrincipal()).thenReturn("email");
 
         SecurityContextHolder.setContext(securityContext);
 
