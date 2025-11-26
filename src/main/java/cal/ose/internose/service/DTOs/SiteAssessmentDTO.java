@@ -32,6 +32,7 @@ public class SiteAssessmentDTO {
     private String assessmentDate;
 
     public static SiteAssessmentDTO fromEntity(SiteAssessment siteAssessment) {
+
         return SiteAssessmentDTO.builder()
             .studentName(siteAssessment.getStudentName())
             .companyName(siteAssessment.getCompanyName())

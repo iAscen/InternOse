@@ -48,7 +48,6 @@ public class ProfessorService {
         }
 
         return SiteAssessmentDTO.fromEntity(siteAssessment);
-
     }
 
     public void isAssignedToContract(Long professorID, InternshipContract contract) throws ForbiddenException {

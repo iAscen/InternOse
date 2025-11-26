@@ -1,9 +1,6 @@
 package cal.ose.internose;
 
-import cal.ose.internose.modele.Employer;
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Interview;
-import cal.ose.internose.modele.SiteAssessment;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
 import cal.ose.internose.service.*;
 import cal.ose.internose.service.DTOs.*;

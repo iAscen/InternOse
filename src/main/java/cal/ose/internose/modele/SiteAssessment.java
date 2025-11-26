@@ -38,14 +38,14 @@ public class SiteAssessment {
         NOT_APPLICABLE
     }
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "SITE_ASSESSMENT_MAPS", joinColumns = @JoinColumn(name = "id"))
     @MapKeyColumn(name = "site_assessment_key")
     @Column(name = "site_assessment_value")
     @Enumerated(EnumType.STRING)
     private Map<String, AssessmentOptions> siteAssessment;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "SITE_COMMENT_MAPS", joinColumns = @JoinColumn(name = "id"))
     @MapKeyColumn(name = "site_assessment_comment_key")
     @Column(name = "site_assessment_comment_value", length = 1000)
