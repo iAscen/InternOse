@@ -36,9 +36,8 @@ public class InternOSEApplication {
         ObjectProvider<EmployerService> employerServiceProvider,
         ObjectProvider<StudentService> studentServiceProvider,
         ObjectProvider<InternshipManagerService> internshipManagerServiceProvider,
-        ObjectProvider<InternshipOfferDAO> internshipOfferDAOProvider
-        ObjectProvider<ProfessorService> professorServiceProvider,
-        InternshipOfferDAO internshipOfferDAO
+        ObjectProvider<InternshipOfferDAO> internshipOfferDAOProvider,
+        ObjectProvider<ProfessorService> professorServiceProvider
     ) {
         return _ -> {
             UserService userService = authServiceProvider.getIfAvailable();
