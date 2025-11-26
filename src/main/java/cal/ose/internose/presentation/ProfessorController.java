@@ -1,6 +1,7 @@
 package cal.ose.internose.presentation;
 
 import cal.ose.internose.security.Paths;
+import cal.ose.internose.service.DTOs.InternAssessmentDTO;
 import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.SiteAssessmentDTO;
 import cal.ose.internose.service.ProfessorService;
@@ -22,12 +23,32 @@ public class ProfessorController {
     private final ObjectMapper objectMapper;
 
     @GetMapping(Paths.PROFESSOR_INTERNSHIP_CONTRACTS)
-    public ResponseEntity<String> findInternshipContracts(@PathVariable("professorID") long professorid) {
+    public ResponseEntity<String> findInternshipContracts(@PathVariable("professorID") long professorId,
+                                                          @RequestParam(value = "studentName", required = false) String studentName,
+                                                          @RequestParam(value = "company", required = false) String company,
+                                                          @RequestParam(value = "program", required = false) String internshipProgram,
+                                                          @RequestParam(value = "sortBy", required = false) String sortBy) {
         try {
-            List<InternshipContractDTO> internshipContracts = professorService.findInternshipContracts(professorid);
+            List<InternshipContractDTO> internshipContracts = professorService.findInternshipContractsBy(professorId, studentName, company, internshipProgram, sortBy);
             return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internshipContracts));
         } catch (NoSuchElementException e) {
             return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (ForbiddenException e) {
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+    @GetMapping(Paths.PROFESSOR_INTERNSHIP_CONTRACT_ASSESSMENT)
+    public ResponseEntity<String> findInternAssessment(@PathVariable("contractID") long contractId) {
+        try {
+            InternAssessmentDTO internAssessmentDTO = professorService.findInternAssessment(contractId);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(internAssessmentDTO));
+        } catch (NoSuchElementException e)  {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (ForbiddenException e) {
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
