@@ -36,6 +36,31 @@ public class ProfessorService {
         return internshipContracts.stream().map(InternshipContractDTO::fromEntity).toList();
     }
 
+    public SiteAssessmentDTO findSiteAssessment(Long professorID, Long internshipContractID) throws ForbiddenException {
+        InternshipContract internshipContract = internshipContractDAO.findById(internshipContractID)
+            .orElseThrow(() -> new NoSuchElementException("Contrat non trouvé"));
+        isAssignedToContract(professorID, internshipContract);
+
+        SiteAssessment siteAssessment = siteAssessmentDAO.findByInternshipContract(internshipContract);
+        if (siteAssessment == null) {
+            // Retourne null afin que le frontend puisse afficher le formulaire
+            return null;
+        }
+
+        return SiteAssessmentDTO.fromEntity(siteAssessment);
+
+    }
+
+    public void isAssignedToContract(Long professorID, InternshipContract contract) throws ForbiddenException {
+        Professor professor = professorDAO.findById(professorID)
+            .orElseThrow(() -> new NoSuchElementException("Professeur non trouvé"));
+
+        if (contract.getProfessor() == null || !contract.getProfessor().equals(professor)) {
+            throw new ForbiddenException("Vous n'êtes pas le professeur responsable de ce contrat de stage!");
+        }
+    }
+
+
     public SiteAssessmentDTO saveSiteAssessment(
         Long professorID, Long internshipContractID, SiteAssessmentDTO siteAssessmentDTO
     ) throws ForbiddenException {

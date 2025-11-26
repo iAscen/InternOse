@@ -33,6 +33,21 @@ public class ProfessorController {
         }
     }
 
+    @GetMapping(Paths.PROFESSOR_INTERNSHIP_SITE_ASSESSMENT)
+    public ResponseEntity<String> findSiteAssessment(@PathVariable("professorID") Long professorID, @RequestParam Long internshipContractID) {
+        try {
+            SiteAssessmentDTO siteAssessmentDTO = professorService.findSiteAssessment(professorID, internshipContractID);
+            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(siteAssessmentDTO));
+        } catch (NoSuchElementException e) {
+            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (ForbiddenException e) {
+            return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
+        } catch (Exception e) {
+            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
+        }
+    }
+
+
     @PostMapping(Paths.PROFESSOR_INTERNSHIP_SITE_ASSESSMENT)
     public ResponseEntity<String> postSiteAssessment(
         @PathVariable("professorID") Long professorID,
