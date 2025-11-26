@@ -1,14 +1,9 @@
 package cal.ose.internose;
 
-import cal.ose.internose.modele.Employer;
-import cal.ose.internose.modele.InternshipOffer;
-import cal.ose.internose.modele.Interview;
+import cal.ose.internose.modele.*;
 import cal.ose.internose.persistance.InternshipOfferDAO;
+import cal.ose.internose.service.*;
 import cal.ose.internose.service.DTOs.*;
-import cal.ose.internose.service.EmployerService;
-import cal.ose.internose.service.InternshipManagerService;
-import cal.ose.internose.service.StudentService;
-import cal.ose.internose.service.UserService;
 import cal.ose.internose.utilities.DummyMultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @SpringBootApplication
 public class InternOSEApplication {
@@ -37,7 +33,8 @@ public class InternOSEApplication {
         ObjectProvider<EmployerService> employerServiceProvider,
         ObjectProvider<StudentService> studentServiceProvider,
         ObjectProvider<InternshipManagerService> internshipManagerServiceProvider,
-        ObjectProvider<InternshipOfferDAO> internshipOfferDAOProvider
+        ObjectProvider<InternshipOfferDAO> internshipOfferDAOProvider,
+        ObjectProvider<ProfessorService> professorServiceProvider
     ) {
         return _ -> {
             UserService userService = authServiceProvider.getIfAvailable();
@@ -45,7 +42,8 @@ public class InternOSEApplication {
             StudentService studentService = studentServiceProvider.getIfAvailable();
             InternshipManagerService internshipManagerService = internshipManagerServiceProvider.getIfAvailable();
             InternshipOfferDAO internshipOfferDAO = internshipOfferDAOProvider.getIfAvailable();
-            if (userService != null && employerService != null && studentService != null && internshipManagerService != null) {
+            ProfessorService professorService = professorServiceProvider.getIfAvailable();
+            if (userService != null && employerService != null && studentService != null && internshipManagerService != null && professorService != null) {
                 // Créer quelques utilisateurs en avance
                 userService.registerEmployer(
                     EmployerDTO.builder()

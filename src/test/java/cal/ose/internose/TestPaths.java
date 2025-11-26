@@ -48,6 +48,11 @@ public class TestPaths {
     public static final String INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH = Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH;
     public static final String INTERNSHIP_MANAGER_VERIFY_RESUME_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_PATH;
 
+    // Professor
+    public static final String PROFESSOR_BASE_PATH = Paths.PROFESSOR_BASE_PATH;
+    public static final String PROFESSOR_INTERNSHIP_CONTRACTS = Paths.PROFESSOR_INTERNSHIP_CONTRACTS;
+    public static final String PROFESSOR_INTERNSHIP_SITE_ASSESSMENT = Paths.PROFESSOR_INTERNSHIP_SITE_ASSESSMENT;
+
     // Méthodes utilitaires pour construire les URLs avec paramètres
     public static String buildStudentResumeStatusUrl(Long studentId) {
         return STUDENT_RESUME_STATUS_PATH + "?studentID=" + studentId;
