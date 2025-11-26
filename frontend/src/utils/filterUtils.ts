@@ -250,11 +250,33 @@ export function sortContracts(
         const titleB = b.internshipOfferTitle || '';
         comparison = titleA.localeCompare(titleB);
         break;
+      case 'name':
+      case 'student_name':
+        const nameA = `${a.studentFirstName || ''} ${a.studentLastName || ''}`.trim();
+        const nameB = `${b.studentFirstName || ''} ${b.studentLastName || ''}`.trim();
+        comparison = nameA.localeCompare(nameB);
+        break;
+      case 'company':
+      case 'employer':
+        const companyA = a.employerCompany || '';
+        const companyB = b.employerCompany || '';
+        comparison = companyA.localeCompare(companyB);
+        break;
+      case 'program':
+        // Note: program is not in InternshipContract, would need to be added
+        comparison = 0;
+        break;
       case 'status':
         const allSignedA = a.isSignedStudent && a.isSignedEmployer && a.isSignedInternshipManager;
         const allSignedB = b.isSignedStudent && b.isSignedEmployer && b.isSignedInternshipManager;
         // Fully signed contracts come first (or last depending on ascending)
         comparison = allSignedA === allSignedB ? 0 : (allSignedA ? 1 : -1);
+        break;
+      case 'startdate':
+      case 'start_date':
+        const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+        const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+        comparison = dateA - dateB;
         break;
       default:
         comparison = 0;
@@ -264,5 +286,38 @@ export function sortContracts(
   });
 
   return sorted;
+}
+
+// Filter contracts for professor dashboard
+export function filterProfessorContracts(
+  contracts: InternshipContract[],
+  filters: {
+    program?: string;
+    company?: string;
+    status?: string;
+  }
+): InternshipContract[] {
+  return contracts.filter(contract => {
+    if (filters.company && contract.employerCompany) {
+      if (!contract.employerCompany.toLowerCase().includes(filters.company.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (filters.status) {
+      const allSigned = contract.isSignedStudent && contract.isSignedEmployer && contract.isSignedInternshipManager;
+      if (filters.status === 'fullySigned' && !allSigned) {
+        return false;
+      }
+      if (filters.status === 'pendingSignatures' && allSigned) {
+        return false;
+      }
+    }
+
+    // Note: program filtering would require program field in InternshipContract
+    // For now, we skip program filtering
+
+    return true;
+  });
 }
 
