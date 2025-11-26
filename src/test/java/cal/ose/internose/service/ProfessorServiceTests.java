@@ -5,6 +5,7 @@ import cal.ose.internose.modele.Professor;
 import cal.ose.internose.modele.SiteAssessment;
 import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.SiteAssessmentDAO;
+import cal.ose.internose.persistance.ProfessorDAO;
 import cal.ose.internose.service.DTOs.SiteAssessmentDTO;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,9 @@ class ProfessorServiceTests {
 
     @Mock
     private SiteAssessmentDAO siteAssessmentDAO;
+
+    @Mock
+    private ProfessorDAO professorDAO;
 
     @InjectMocks
     private ProfessorService professorService;
@@ -157,5 +161,78 @@ class ProfessorServiceTests {
         verify(internshipContractDAO, times(1)).findById(1L);
         verify(siteAssessmentDAO, times(1)).findByInternshipContract(internshipContract);
         verify(siteAssessmentDAO, never()).save(any());
+    }
+
+    @Test
+    void testFindSiteAssessment_Success_WhenAssessmentExists() throws ForbiddenException {
+        // Arrange
+        when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
+        when(professorDAO.findById(1L)).thenReturn(Optional.of(professor));
+        when(siteAssessmentDAO.findByInternshipContract(internshipContract)).thenReturn(siteAssessment);
+
+        // Act
+        SiteAssessmentDTO result = professorService.findSiteAssessment(1L, 1L);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getStudentName()).isEqualTo(siteAssessmentDTO.getStudentName());
+        assertThat(result.getCompanyName()).isEqualTo(siteAssessmentDTO.getCompanyName());
+
+        verify(internshipContractDAO, times(1)).findById(1L);
+        verify(professorDAO, times(1)).findById(1L);
+        verify(siteAssessmentDAO, times(1)).findByInternshipContract(internshipContract);
+    }
+
+    @Test
+    void testFindSiteAssessment_ReturnsNull_WhenNoAssessment() throws ForbiddenException {
+        // Arrange
+        when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
+        when(professorDAO.findById(1L)).thenReturn(Optional.of(professor));
+        when(siteAssessmentDAO.findByInternshipContract(internshipContract)).thenReturn(null);
+
+        // Act
+        SiteAssessmentDTO result = professorService.findSiteAssessment(1L, 1L);
+
+        // Assert - null indicates frontend should show empty form
+        assertThat(result).isNull();
+
+        verify(internshipContractDAO, times(1)).findById(1L);
+        verify(professorDAO, times(1)).findById(1L);
+        verify(siteAssessmentDAO, times(1)).findByInternshipContract(internshipContract);
+    }
+
+    @Test
+    void testFindSiteAssessment_ContractNotFound() {
+        // Arrange
+        when(internshipContractDAO.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        NoSuchElementException exception = assertThrows(
+            NoSuchElementException.class,
+            () -> professorService.findSiteAssessment(1L, 999L)
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("Contrat non trouvé");
+        verify(internshipContractDAO, times(1)).findById(999L);
+        verify(siteAssessmentDAO, never()).findByInternshipContract(any());
+    }
+
+    @Test
+    void testFindSiteAssessment_Forbidden_WhenProfessorNotAssigned() {
+        // Arrange
+        Professor other = Professor.builder().id(2L).build();
+        when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
+        when(professorDAO.findById(1L)).thenReturn(Optional.of(other));
+
+        // Act & Assert
+        ForbiddenException exception = assertThrows(
+            ForbiddenException.class,
+            () -> professorService.findSiteAssessment(1L, 1L)
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("Vous n'êtes pas le professeur responsable de ce contrat de stage!");
+        verify(internshipContractDAO, times(1)).findById(1L);
+        verify(professorDAO, times(1)).findById(1L);
+        verify(siteAssessmentDAO, never()).findByInternshipContract(any());
     }
 }
