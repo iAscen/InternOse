@@ -1,4 +1,4 @@
-import type { InternshipOffer, Cv } from '~/interfaces';
+import type { InternshipOffer, Cv, InternshipContract } from '~/interfaces';
 
 // Filter internship offers based on criteria
 export function filterInternshipOffers(
@@ -191,6 +191,70 @@ export function sortCvs(
         const dateA = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
         const dateB = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
         comparison = dateA - dateB;
+        break;
+      default:
+        comparison = 0;
+    }
+
+    return ascending ? comparison : -comparison;
+  });
+
+  return sorted;
+}
+
+// Filter contracts based on criteria
+export function filterContracts(
+  contracts: InternshipContract[],
+  filters: {
+    status?: string;
+    title?: string;
+  }
+): InternshipContract[] {
+  return contracts.filter(contract => {
+    if (filters.status) {
+      const allSigned = contract.isSignedStudent && contract.isSignedEmployer && contract.isSignedInternshipManager;
+      if (filters.status === 'fullySigned' && !allSigned) {
+        return false;
+      }
+      if (filters.status === 'pendingSignatures' && allSigned) {
+        return false;
+      }
+    }
+
+    if (filters.title && contract.internshipOfferTitle) {
+      if (!contract.internshipOfferTitle.toLowerCase().includes(filters.title.toLowerCase())) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+// Sort contracts
+export function sortContracts(
+  contracts: InternshipContract[],
+  sortBy?: string,
+  ascending: boolean = true
+): InternshipContract[] {
+  if (!sortBy) return contracts;
+
+  const sorted = [...contracts];
+
+  sorted.sort((a, b) => {
+    let comparison = 0;
+
+    switch (sortBy.toLowerCase()) {
+      case 'title':
+        const titleA = a.internshipOfferTitle || '';
+        const titleB = b.internshipOfferTitle || '';
+        comparison = titleA.localeCompare(titleB);
+        break;
+      case 'status':
+        const allSignedA = a.isSignedStudent && a.isSignedEmployer && a.isSignedInternshipManager;
+        const allSignedB = b.isSignedStudent && b.isSignedEmployer && b.isSignedInternshipManager;
+        // Fully signed contracts come first (or last depending on ascending)
+        comparison = allSignedA === allSignedB ? 0 : (allSignedA ? 1 : -1);
         break;
       default:
         comparison = 0;

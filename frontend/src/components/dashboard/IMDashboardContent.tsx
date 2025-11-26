@@ -14,9 +14,11 @@ import OfferList from "~/components/dashboard/OfferList";
 import CvList from "./CvList";
 import SortMenuCvs from "./SortMenuCvs";
 import FilterMenuCvs from "./FilterMenuCvs";
+import SortMenuContracts from "./SortMenuContracts";
+import FilterMenuContracts from "./FilterMenuContracts";
 import DashboardSidebar from "./DashboardSidebar";
 import { useClickOutside } from "~/hooks/useClickOutside";
-import { filterInternshipOffers, sortInternshipOffers, filterCvs, sortCvs } from "~/utils/filterUtils";
+import { filterInternshipOffers, sortInternshipOffers, filterCvs, sortCvs, filterContracts, sortContracts } from "~/utils/filterUtils";
 import InternshipApplications from "~/components/dashboard/InternshipApplications";
 import {employerAPI} from "~/services/EmployerAPI";
 import InternshipContractList from "~/components/dashboard/InternshipContractList";
@@ -40,11 +42,15 @@ export default function IMDashboardContent() {
     const [showSortMenuResumes, setShowSortMenuResumes] = useState(false);
     const [showFilterMenuOffers, setShowFilterMenuOffers] = useState(false);
     const [showFilterMenuResumes, setShowFilterMenuResumes] = useState(false);
+    const [showSortMenuContracts, setShowSortMenuContracts] = useState(false);
+    const [showFilterMenuContracts, setShowFilterMenuContracts] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [offerFilters, setOfferFilters] = useState<string[]>([]);
     const [cvFilters, setCvFilters] = useState<string[]>([]);
+    const [contractFilters, setContractFilters] = useState<string[]>([]);
     const [offerSortBy, setOfferSortBy] = useState<string>('');
     const [cvSortBy, setCvSortBy] = useState<string>('');
+    const [contractSortBy, setContractSortBy] = useState<string>('');
     const [cvSortOrder, setCvSortOrder] = useState<string>('asc');
     const [contracts, setContracts] = useState<InternshipContract[]>([]);
     const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
@@ -60,6 +66,8 @@ export default function IMDashboardContent() {
     const filterOffersMenuRef = useRef<HTMLDivElement>(null);
     const sortCvsMenuRef = useRef<HTMLDivElement>(null);
     const filterCvsMenuRef = useRef<HTMLDivElement>(null);
+    const sortContractsMenuRef = useRef<HTMLDivElement>(null);
+    const filterContractsMenuRef = useRef<HTMLDivElement>(null);
 
     const countNumberOfUnseenApplications = async (offers: InternshipOffer[]) => {
       // This function is passed to InternshipApplications but the result is not used here
@@ -87,6 +95,14 @@ export default function IMDashboardContent() {
 
     useClickOutside(filterCvsMenuRef, () => {
         setShowFilterMenuResumes(false);
+    });
+
+    useClickOutside(sortContractsMenuRef, () => {
+        setShowSortMenuContracts(false);
+    });
+
+    useClickOutside(filterContractsMenuRef, () => {
+        setShowFilterMenuContracts(false);
     });
 
     // Icônes pour les statistiques
@@ -274,6 +290,29 @@ export default function IMDashboardContent() {
         setFilteredHistoryOffers(filtered);
     }, [allOffers, offerFilters, offerSortBy]);
 
+    // Apply filters and sorting to contracts
+    const filteredAndSortedContracts = useMemo(() => {
+        let filtered = contracts;
+        
+        // Apply filters
+        const status = contractFilters[0];
+        const title = contractFilters[1];
+        
+        if (status || title) {
+            filtered = filterContracts(filtered, {
+                status,
+                title
+            });
+        }
+        
+        // Apply sorting
+        if (contractSortBy) {
+            filtered = sortContracts(filtered, contractSortBy, true);
+        }
+        
+        return filtered;
+    }, [contracts, contractFilters, contractSortBy]);
+
     // Apply filters and sorting to CVs
     useEffect(() => {
         let filtered = allCvs;
@@ -335,9 +374,35 @@ export default function IMDashboardContent() {
         <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
           {/* Titre et sous-titre - en dehors du conteneur blanc */}
           <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
+            {activeTab === 'history' ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">
+                  {t("im.dashboardSubtitle")}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="session-history" className="text-sm font-medium text-slate-700 whitespace-nowrap">
+                    {t("im.session")}:
+                  </label>
+                  <select
+                    id="session-history"
+                    name="session"
+                    value={selectedHistorySession}
+                    className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 min-w-[150px]"
+                    onChange={(e) => setSelectedHistorySession(e.target.value)}
+                  >
+                    {availableSessions.map((session) => (
+                      <option key={session} value={session} className="text-gray-900 bg-white">
+                        {session}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
             <p className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">
               {t("im.dashboardSubtitle")}
             </p>
+            )}
           </div>
           
           <div className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
@@ -521,8 +586,8 @@ export default function IMDashboardContent() {
           )}
 
           {activeTab === 'offers' && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6 relative">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
@@ -566,7 +631,7 @@ export default function IMDashboardContent() {
                   </div>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 <OfferList
                   selectOffer={selectOffer}
                   isStudent={false}
@@ -581,8 +646,8 @@ export default function IMDashboardContent() {
           )}
 
           {activeTab === 'approved-offers' && !selectedOffer && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6 relative">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
@@ -590,9 +655,43 @@ export default function IMDashboardContent() {
                     </h2>
                     <p className="text-sm font-medium text-slate-500 mt-1">{t("im.approvedOffersSubtitle")}</p>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortOffersMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuOffers(!showSortMenuOffers)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }} />
+                      {showSortMenuOffers &&
+                          <SortMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applySorting={(sortBy: string) => {
+                                setShowSortMenuOffers(false);
+                                setOfferSortBy(sortBy);
+                              }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterOffersMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(!showFilterMenuOffers)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }}/>
+                      {showFilterMenuOffers &&
+                          <FilterMenuOffers
+                              userRole="INTERNSHIP_MANAGER"
+                              applyFilters={(filterBy: string[]) => {
+                                setShowFilterMenuOffers(false);
+                                setOfferFilters(filterBy);
+                              }}/>
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 {filteredApprovedOffers.length === 0 ? (
                   <p className="text-sm font-medium text-slate-500 text-center py-8">
                     {t("im.noApprovedOffers")}
@@ -625,8 +724,8 @@ export default function IMDashboardContent() {
           )}
 
           {activeTab === 'cvs' && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6 relative">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
@@ -667,7 +766,7 @@ export default function IMDashboardContent() {
                   </div>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 {filteredCvs.length != 0 && <CvList
                     loading={loading}
                     cvs={filteredCvs}
@@ -683,20 +782,56 @@ export default function IMDashboardContent() {
           )}
 
           {activeTab === 'contracts' && (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="px-6 pt-6">
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="px-6 pt-6 relative">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
                       {t("im.internshipContractsSection")}
                     </h2>
-                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: contracts.length })}</p>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{t("im.contractsCount", { count: filteredAndSortedContracts.length })}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative" ref={sortContractsMenuRef}>
+                      <SortButton onClick={() => {
+                        setShowSortMenuContracts(!showSortMenuContracts)
+                        setShowFilterMenuContracts(false)
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }} />
+                      {showSortMenuContracts &&
+                          <SortMenuContracts
+                              applySorting={(sortBy: string) => {
+                                setShowSortMenuContracts(false);
+                                setContractSortBy(sortBy);
+                              }}/>
+                      }
+                    </div>
+                    <div className="relative" ref={filterContractsMenuRef}>
+                      <FilterButton onClick={() => {
+                        setShowSortMenuContracts(false)
+                        setShowFilterMenuContracts(!showFilterMenuContracts)
+                        setShowSortMenuOffers(false)
+                        setShowFilterMenuOffers(false)
+                        setShowSortMenuResumes(false)
+                        setShowFilterMenuResumes(false)
+                      }}/>
+                      {showFilterMenuContracts &&
+                          <FilterMenuContracts
+                              applyFilters={(filterBy: string[]) => {
+                                setShowFilterMenuContracts(false);
+                                setContractFilters(filterBy);
+                              }}/>
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 <InternshipContractList
-                  contracts={contracts}
+                  contracts={filteredAndSortedContracts}
                   loading={loading}
                   onContractUpdate={loadContracts}
                   professors={professors}
@@ -706,8 +841,8 @@ export default function IMDashboardContent() {
           )}
 
             {activeTab === 'history' && !selectedOffer && (
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                <div className="px-6 pt-6">
+              <div className="rounded-xl border border-slate-200 bg-white">
+                <div className="px-6 pt-6 relative">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">
@@ -716,30 +851,6 @@ export default function IMDashboardContent() {
                       <p className="text-sm font-medium text-slate-500 mt-1">{t("im.historySubtitle")}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="relative" ref={filterOffersMenuRef}>
-                        <div className="mb-3">
-                          <label htmlFor="session" className="block text-sm font-medium text-gray-700 mb-1 text-center">
-                            {t("im.session")}
-                          </label>
-
-                          <select
-                            id="session"
-                            name="session"
-                            value={selectedHistorySession}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                            onChange={(e) => setSelectedHistorySession(e.target.value)}
-                          >
-                            {availableSessions.map((session) => (
-                              <option key={session} value={session} className="text-gray-900 bg-white">
-                                {session}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-end gap-2">
                     <div className="relative" ref={sortOffersMenuRef}>
                       <SortButton onClick={() => {
                         setShowSortMenuOffers(!showSortMenuOffers)
@@ -774,7 +885,8 @@ export default function IMDashboardContent() {
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
+                </div>
+                <div className="p-6 overflow-hidden">
                   <OfferList
                     selectOffer={selectOffer}
                     isStudent={false}

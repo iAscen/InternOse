@@ -1,7 +1,6 @@
 import {useTranslation} from "react-i18next";
 import {useForm} from "~/hooks";
 import FormSection from "~/components/FormSection";
-import FormInput from "~/components/FormInput";
 
 interface FilterMenuOffersProps {
     applyFilters: Function;
@@ -11,8 +10,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
     const { t } = useTranslation();
 
     const {formData, handleChange} = useForm({
-        status: "",
-        institution: ""
+        status: ""
     });
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -25,8 +23,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const status = formData.status != "" ? formData.status : undefined;
-        const institution = formData.institution != "" ? formData.institution : undefined;
-        applyFilters([status, undefined, institution]);
+        applyFilters([status, undefined, undefined]);
     }
 
     return (
@@ -50,23 +47,8 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                     <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
                                     <option value="pending" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
                                     <option value="approved" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
-                                    <option value="rejected" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
-                                    <option value="rejected_by_student" className="text-gray-900 bg-white">{t('im.rejectedByStudent')}</option>
-                                    <option value="accepted_by_student" className="text-gray-900 bg-white">{t('im.acceptedByStudent')}</option>
-                                    <option value="pending_contract" className="text-gray-900 bg-white"> {t('im.pendingContract')}</option>
                                 </select>
                             </div>
-                            <FormInput
-                                className={"mb-3"}
-                                id={"institution"}
-                                name={"institution"}
-                                type={"text"}
-                                label={"Institution"}
-                                placeholder={"Cégep André-Laurendeau"}
-                                value={formData.institution}
-                                onChange={handleChange}
-                                required={false}
-                            />
                         </FormSection>
                     </div>
 

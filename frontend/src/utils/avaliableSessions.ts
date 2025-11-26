@@ -24,8 +24,8 @@ export function getAvailableSessions(
       const season = parts[0]?.toLowerCase();
       const year = parseInt(parts[1] || '0', 10);
 
-      // Autumn = 1, Winter = 0
-      const seasonValue = season.includes('autumn') ? 1 : 0;
+      // Winter = 0 (toutes les sessions sont Winter maintenant)
+      const seasonValue = 0;
 
       return { year, seasonValue };
     };

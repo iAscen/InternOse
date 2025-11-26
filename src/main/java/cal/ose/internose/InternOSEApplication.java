@@ -36,6 +36,7 @@ public class InternOSEApplication {
         ObjectProvider<EmployerService> employerServiceProvider,
         ObjectProvider<StudentService> studentServiceProvider,
         ObjectProvider<InternshipManagerService> internshipManagerServiceProvider,
+        ObjectProvider<InternshipOfferDAO> internshipOfferDAOProvider
         ObjectProvider<ProfessorService> professorServiceProvider,
         InternshipOfferDAO internshipOfferDAO
     ) {
@@ -44,6 +45,7 @@ public class InternOSEApplication {
             EmployerService employerService = employerServiceProvider.getIfAvailable();
             StudentService studentService = studentServiceProvider.getIfAvailable();
             InternshipManagerService internshipManagerService = internshipManagerServiceProvider.getIfAvailable();
+            InternshipOfferDAO internshipOfferDAO = internshipOfferDAOProvider.getIfAvailable();
             ProfessorService professorService = professorServiceProvider.getIfAvailable();
             if (userService != null && employerService != null && studentService != null && internshipManagerService != null && professorService != null) {
                 // Créer quelques utilisateurs en avance
@@ -246,20 +248,22 @@ public class InternOSEApplication {
                 internshipManagerService.createInternshipContract(internshipContractDTO);
                 internshipManagerService.assignProfessorToContract(1L, 4L);
 
-                internshipOfferDAO.save(
-                    InternshipOffer.builder()
-                        .employer(Employer.builder().id(1L).build())
-                        .title("Frontend dev")
-                        .description("Construire des sites webs")
-                        .program("243.D0 - Technologie du génie électrique: automatisation et contrôle")
-                        .requiredSkills("DEC en Technique du génie électrique: automatisation et contrôle")
-                        .startDate(LocalDate.of(2026, 2, 26))
-                        .duration(8)
-                        .salary(30.0)
-                        .address("Kahnawake, Québec")
-                        .session("Autum-2023")
-                        .build()
-                );
+                if (internshipOfferDAO != null) {
+                    internshipOfferDAO.save(
+                        InternshipOffer.builder()
+                            .employer(Employer.builder().id(1L).build())
+                            .title("Frontend dev")
+                            .description("Construire des sites webs")
+                            .program("243.D0 - Technologie du génie électrique: automatisation et contrôle")
+                            .requiredSkills("DEC en Technique du génie électrique: automatisation et contrôle")
+                            .startDate(LocalDate.of(2026, 2, 26))
+                            .duration(8)
+                            .salary(30.0)
+                            .address("Kahnawake, Québec")
+                            .session("Autum-2023")
+                            .build()
+                    );
+                }
 //                internshipManagerService.assignProfessorToContract(1L, 4L);
 
                 employerService.signContract(alice.getId(), 1L, karim.getId());
