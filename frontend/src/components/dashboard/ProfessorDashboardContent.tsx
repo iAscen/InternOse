@@ -11,6 +11,7 @@ import ProfessorStudentDetailsModal from "./ProfessorStudentDetailsModal";
 import ProfessorStudentList from "./ProfessorStudentList";
 import ProfessorSortMenu from "./ProfessorSortMenu";
 import ProfessorFilterMenu from "./ProfessorFilterMenu";
+import SiteAssessmentModal from "./SiteAssessmentModal";
 import { useClickOutside } from "~/hooks";
 import { sortContracts, filterProfessorContracts } from "~/utils/filterUtils";
 
@@ -21,6 +22,7 @@ export default function ProfessorDashboardContent() {
   const [loading, setLoading] = useState(false);
   const [contracts, setContracts] = useState<InternshipContract[]>([]);
   const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
+  const [contractForAssessment, setContractForAssessment] = useState<InternshipContract | null>(null);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [sortBy, setSortBy] = useState<string>('');
@@ -239,6 +241,7 @@ export default function ProfessorDashboardContent() {
               <ProfessorStudentList
                 contracts={filteredAndSortedContracts}
                 onContractSelect={setSelectedContract}
+                onEvaluateSite={setContractForAssessment}
                 getStatusBadgeColor={getStatusBadgeColor}
                 getContractStatus={getContractStatus}
                 formatDate={formatDate}
@@ -254,6 +257,13 @@ export default function ProfessorDashboardContent() {
           contract={selectedContract}
           isOpen={!!selectedContract}
           onClose={() => setSelectedContract(null)}
+        />
+      )}
+
+      {contractForAssessment && (
+        <SiteAssessmentModal
+          contract={contractForAssessment}
+          onClose={() => setContractForAssessment(null)}
         />
       )}
     </DashboardLayout>

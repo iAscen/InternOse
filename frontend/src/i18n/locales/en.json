@@ -688,5 +688,77 @@
             "connectionError": "Server connection error"
         },
         "viewAssessment": "Assessment"
+    },
+    "siteAssessment": {
+        "title": "Internship Site Assessment",
+        "assessment": "Assessment",
+        "generalInformation": "General Information",
+        "studentName": "Student Name",
+        "companyName": "Company Name",
+        "supervisorName": "Supervisor Name",
+        "internshipPosition": "Internship Position",
+        "internshipDuration": "Internship Duration",
+        "assessmentCriteria": "Assessment Criteria",
+        "criteria": {
+            "welcome": "Welcome and Integration",
+            "supervision": "Quality of Supervision",
+            "tasks": "Relevance of Tasks",
+            "objectives": "Clarity of Objectives",
+            "communication": "Communication",
+            "academicConformity": "Academic Conformity"
+        },
+        "options": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Very Good",
+            "GOOD": "Good",
+            "SATISFACTORY": "Satisfactory",
+            "UNSATISFACTORY": "Unsatisfactory",
+            "NOT_APPLICABLE": "Not Applicable"
+        },
+        "ratings": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Very Good",
+            "GOOD": "Good",
+            "SATISFACTORY": "Satisfactory",
+            "UNSATISFACTORY": "Unsatisfactory",
+            "NOT_APPLICABLE": "Not Applicable"
+        },
+        "selectOption": "Select an option",
+        "notCompleted": "Not completed",
+        "assessmentCriteriaSubtitle": "Evaluate the internship site according to the following criteria",
+        "commentPlaceholder": "Comments (optional)",
+        "overallAppreciation": "Overall Appreciation",
+        "appreciation": "Appreciation",
+        "appreciationOptions": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Very Good",
+            "GOOD": "Good",
+            "SATISFACTORY": "Satisfactory",
+            "UNSATISFACTORY": "Unsatisfactory"
+        },
+        "generalComments": "General Comments",
+        "commentsPlaceholder": "General comments about the internship site...",
+        "recommendation": "Recommendation",
+        "recommendationLabel": "Recommendation",
+        "recommendationOptions": {
+            "STRONGLY_RECOMMEND": "Strongly Recommend",
+            "RECOMMEND": "Recommend",
+            "RECOMMEND_WITH_RESERVATIONS": "Recommend with Reservations",
+            "DO_NOT_RECOMMEND": "Do Not Recommend"
+        },
+        "academicConformity": "Academic Conformity",
+        "academicConformityPlaceholder": "Comments on the academic conformity of the internship site...",
+        "signature": "Signature",
+        "professorName": "Professor Name",
+        "assessmentDate": "Assessment Date",
+        "submit": "Submit Assessment",
+        "evaluateSite": "Evaluate Internship Site",
+        "viewAssessment": "View Site Assessment",
+        "errors": {
+            "incompleteForm": "Please fill in all required fields",
+            "missingInfo": "Unable to retrieve necessary information",
+            "submissionError": "Error submitting the assessment",
+            "connectionError": "Server connection error"
+        }
     }
 }

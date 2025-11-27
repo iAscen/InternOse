@@ -4,6 +4,7 @@ import type { InternshipContract } from '~/interfaces';
 interface ProfessorStudentListProps {
   contracts: InternshipContract[];
   onContractSelect: (contract: InternshipContract) => void;
+  onEvaluateSite: (contract: InternshipContract) => void;
   getStatusBadgeColor: (contract: InternshipContract) => string;
   getContractStatus: (contract: InternshipContract) => string;
   formatDate: (dateString: string | undefined) => string;
@@ -12,6 +13,7 @@ interface ProfessorStudentListProps {
 export default function ProfessorStudentList({
   contracts,
   onContractSelect,
+  onEvaluateSite,
   getStatusBadgeColor,
   getContractStatus,
   formatDate
@@ -138,8 +140,17 @@ export default function ProfessorStudentList({
               </div>
             </div>
 
-            {/* View Details button - Bottom right */}
-            <div className="absolute bottom-6 right-6">
+            {/* Action buttons - Bottom right */}
+            <div className="absolute bottom-6 right-6 flex items-center gap-3">
+              <button
+                onClick={() => onEvaluateSite(contract)}
+                className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 whitespace-nowrap"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {t('siteAssessment.evaluateSite')}
+              </button>
               <button
                 onClick={() => onContractSelect(contract)}
                 className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 whitespace-nowrap"
