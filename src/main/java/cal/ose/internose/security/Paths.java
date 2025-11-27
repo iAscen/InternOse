@@ -70,4 +70,7 @@ public class Paths {
     // Professor
     public static final String PROFESSOR_BASE_PATH = API_BASE_PATH + "/professors";
     public static final String PROFESSOR_INTERNSHIP_CONTRACTS = PROFESSOR_BASE_PATH + "/{professorID}/contracts";
+    public static final String PROFESSOR_INTERNSHIP_CONTRACT_ASSESSMENT = PROFESSOR_BASE_PATH + "/{contractID}/intern-assessment";
+    public static final String PROFESSOR_INTERNSHIP_SITE_ASSESSMENT = PROFESSOR_BASE_PATH + "/{professorID}/site-assessment";
+
 }

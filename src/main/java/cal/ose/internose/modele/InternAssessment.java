@@ -47,7 +47,7 @@ public class InternAssessment {
     /**
      * Ce dictionnaire contient les réponses aux questions à choix multiples
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "INTERN_ASSESSMENT_MAPS", joinColumns = @JoinColumn(name = "id"))
     @MapKeyColumn(name = "intern_assessment_key")
     @Column(name = "intern_assessment_value")
@@ -56,7 +56,7 @@ public class InternAssessment {
     /**
      * Ce dictionnaire contient les commentaires à la fin de chaque section des questions à choix multiples
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "COMMENT_MAPS", joinColumns = @JoinColumn(name = "id"))
     @MapKeyColumn(name = "intern_assessment_comment_key")
     @Column(name = "intern_assessment_comment_value")

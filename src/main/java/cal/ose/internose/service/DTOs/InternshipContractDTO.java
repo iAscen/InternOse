@@ -30,18 +30,20 @@ public class InternshipContractDTO {
     private Long studentId;
     private String studentFirstName;
     private String studentLastName;
+    private String studentEmail;
     private Long employerId;
     private String employerCompany;
+    private String employerEmail;
     private Long internshipOfferId;
     private String internshipOfferTitle;
+    private String internshipOfferSession;
+    private String internshipOfferProgram;
+    private String internshipOfferAddress;
     private String professorFirstName;
     private String professorLastName;
     private String professorEmail;
     private Long professorId;
-    private String studentEmail;
     private String studentProgram;
-    private String internshipOfferAddress;
-    private String internshipOfferSession;
 
     public static InternshipContractDTO fromEntity(InternshipContract contract) {
         return InternshipContractDTO.builder()
@@ -61,18 +63,20 @@ public class InternshipContractDTO {
             .studentId(contract.getStudent() != null ? contract.getStudent().getId() : null)
             .studentFirstName(contract.getStudent() != null ? contract.getStudent().getFirstName() : null)
             .studentLastName(contract.getStudent() != null ? contract.getStudent().getLastName() : null)
+            .studentEmail(contract.getStudent() != null ? contract.getStudent().getEmail() : null)
             .employerId(contract.getEmployer() != null ? contract.getEmployer().getId() : null)
             .employerCompany(contract.getEmployer() != null ? contract.getEmployer().getCompany() : null)
+            .employerEmail(contract.getEmployer() != null ? contract.getEmployer().getEmail() : null)
             .internshipOfferId(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getId() : null)
             .internshipOfferTitle(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getTitle() : null)
+            .internshipOfferSession(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getSession() : null)
+            .internshipOfferProgram(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getProgram() : null)
+            .internshipOfferAddress(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getAddress() : null)
             .professorFirstName(contract.getProfessor() != null ? contract.getProfessor().getFirstName() : null)
             .professorLastName(contract.getProfessor() != null ? contract.getProfessor().getLastName() : null)
             .professorEmail(contract.getProfessor() != null ? contract.getProfessor().getEmail() : null)
             .professorId(contract.getProfessor() != null ? contract.getProfessor().getId() : null)
-            .studentEmail(contract.getStudent() != null ? contract.getStudent().getEmail() : null)
             .studentProgram(contract.getStudent() != null ? contract.getStudent().getProgram() : null)
-            .internshipOfferAddress(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getAddress() : null)
-            .internshipOfferSession(contract.getInternshipOffer() != null ? contract.getInternshipOffer().getSession() : null)
             .build();
     }
 

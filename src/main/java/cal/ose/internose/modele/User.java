@@ -31,14 +31,26 @@ public abstract class User {
     private Credentials credentials;
 
     public String getEmail() {
-        return credentials != null ? credentials.getEmail() : null;
+        if (credentials == null) {
+            return null;
+        }
+
+        return credentials.getEmail();
     }
 
     public String getPassword() {
-        return credentials != null ? credentials.getPassword() : null;
+        if (credentials == null) {
+            return null;
+        }
+
+        return credentials.getPassword();
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return credentials != null ? credentials.getAuthorities() : null;
+        if (credentials == null) {
+            return null;
+        }
+
+        return credentials.getAuthorities();
     }
 }
