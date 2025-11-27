@@ -16,9 +16,9 @@ public interface InternshipContractDAO extends JpaRepository<InternshipContract,
 
     @Query("SELECT io FROM InternshipContract io WHERE io.professor = :professor " +
         "AND (:session IS NULL OR io.internshipOffer.session = :session) " +
-        "AND (:student IS NULL OR :student LIKE CONCAT(io.student.firstName, ' ', io.student.lastName)) " +
-        "AND (:company IS NULL OR :company LIKE io.employer.company) " +
-        "AND (:program IS NULL OR :program LIKE io.internshipOffer.program)")
+        "AND (:student IS NULL OR CONCAT(io.student.firstName, ' ', io.student.lastName) LIKE :student) " +
+        "AND (:company IS NULL OR io.employer.company LIKE :company) " +
+        "AND (:program IS NULL OR io.internshipOffer.program LIKE :program)")
     List<InternshipContract> findAllByProfessorWithOptionalFilters(@Param("professor") Professor professor, @Param("session") String session, @Param("student") String studentName,
                                                                    @Param("company") String company, @Param("program") String internshipProgram);
 }
