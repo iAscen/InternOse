@@ -9,9 +9,10 @@ interface FilterMenuOffersProps {
   isHistory?: boolean;
   availableSessions?: string[];
   selectedSession?: string;
+  activeTab?: string; // Pour savoir quel onglet est actif et adapter les filtres
 }
 
-export default function FilterMenuOffers({applyFilters, userRole, isHistory = false, availableSessions = [], selectedSession = ''}: FilterMenuOffersProps) {
+export default function FilterMenuOffers({applyFilters, userRole, isHistory = false, availableSessions = [], selectedSession = '', activeTab}: FilterMenuOffersProps) {
   const {t} = useTranslation();
 
   const getInitialFormData = () => {
@@ -40,8 +41,7 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
         }
         return {
           status: "",
-          program: "",
-          session: selectedSession
+          program: ""
         };
       default:
         return {};
@@ -80,10 +80,12 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
         const title = formData.title != "" ? formData.title : undefined;
         applyFilters([program, title]);
       } else {
+        // Pour les onglets "offers" et "approved-offers", on envoie [status, program]
+        // Le status est ignoré car l'onglet détermine déjà le statut
+        // La session n'est pas dans le filtre car elle n'est disponible que dans l'historique
         const status = formData.status != "" ? formData.status : undefined;
         const program = formData.program != "" ? formData.program : undefined;
-        const session = formData.session != "" ? formData.session : undefined;
-        applyFilters([status, program, session]);
+        applyFilters([status, program]);
       }
     }
   }
@@ -194,25 +196,33 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
           </>
         );
       }
+      // Pour l'EMPLOYER, on n'affiche le filtre par statut que si on n'est pas dans un onglet spécifique
+      // Les onglets "offers" et "approved-offers" filtrent déjà par statut
+      const showStatusFilter = activeTab !== 'offers' && activeTab !== 'approved-offers';
+      // Le filtre par session n'est disponible que dans l'onglet "history"
+      const showSessionFilter = isHistory;
+      
       return (
         <>
-          <div className="mb-3">
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-              {t('im.status')}
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status || ""}
-              onChange={handleSelectChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-            >
-              <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
-              <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-              <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
-              <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
-            </select>
-          </div>
+          {showStatusFilter && (
+            <div className="mb-3">
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('im.status')}
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status || ""}
+                onChange={handleSelectChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+              >
+                <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
+                <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
+                <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+                <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
+              </select>
+            </div>
+          )}
           <ProgramSelector onChange={handleSelectChange} value={formData.program}/>
         </>
       );

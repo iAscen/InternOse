@@ -23,7 +23,14 @@ export function filterInternshipOffers(
     }
 
     if (filters.program && offer.program) {
-      if (!offer.program.toLowerCase().includes(filters.program.toLowerCase())) {
+      // Le filtre est un code de programme (ex: "420.B0") du ProgramSelector
+      // L'offre peut avoir "420.B0" ou "420.B0 - Techniques de l'informatique"
+      // On vérifie si le programme de l'offre contient le code du filtre
+      const offerProgramLower = offer.program.toLowerCase().trim();
+      const filterProgramLower = filters.program.toLowerCase().trim();
+      // Vérifier si le programme contient le code (ex: "420.b0" dans "420.b0 - techniques...")
+      // ou si le programme commence par le code
+      if (!offerProgramLower.includes(filterProgramLower) && !offerProgramLower.startsWith(filterProgramLower)) {
         return false;
       }
     }
@@ -263,8 +270,9 @@ export function sortContracts(
         comparison = companyA.localeCompare(companyB);
         break;
       case 'program':
-        // Note: program is not in InternshipContract, would need to be added
-        comparison = 0;
+        const programA = a.studentProgram || '';
+        const programB = b.studentProgram || '';
+        comparison = programA.localeCompare(programB);
         break;
       case 'status':
         const allSignedA = a.isSignedStudent && a.isSignedEmployer && a.isSignedInternshipManager;
@@ -314,8 +322,11 @@ export function filterProfessorContracts(
       }
     }
 
-    // Note: program filtering would require program field in InternshipContract
-    // For now, we skip program filtering
+    if (filters.program && contract.studentProgram) {
+      if (!contract.studentProgram.toLowerCase().includes(filters.program.toLowerCase())) {
+        return false;
+      }
+    }
 
     return true;
   });

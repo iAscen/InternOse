@@ -90,29 +90,36 @@ export default function ProfessorStudentDetailsModal({
                   {contract.studentFirstName} {contract.studentLastName}
                 </p>
               </div>
-              {contract.internshipOfferTitle && (
+              {contract.studentEmail && (
                 <div>
-                  <label className="text-sm font-medium text-gray-600">{t('professor.internshipTitle')}</label>
-                  <p className="text-base text-gray-900 mt-1">{contract.internshipOfferTitle}</p>
+                  <label className="text-sm font-medium text-gray-600">{t('professor.studentEmail')}</label>
+                  <p className="text-base text-gray-900 mt-1">
+                    <a href={`mailto:${contract.studentEmail}`} className="text-indigo-600 hover:text-indigo-800">
+                      {contract.studentEmail}
+                    </a>
+                  </p>
                 </div>
               )}
-            </div>
-          </section>
-
-          {/* Student Information */}
-          <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {t('professor.studentInfo')}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">{t('professor.studentName')}</label>
-                <p className="text-base text-gray-900 mt-1">
-                  {contract.studentFirstName} {contract.studentLastName}
-                </p>
-              </div>
-              {contract.internshipOfferTitle && (
+              {contract.studentProgram && (
                 <div>
+                  <label className="text-sm font-medium text-gray-600">{t('professor.studentProgram')}</label>
+                  <p className="text-base text-gray-900 mt-1">{contract.studentProgram}</p>
+                </div>
+              )}
+              {contract.internshipOfferSession && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">{t('professor.session')}</label>
+                  <p className="text-base text-gray-900 mt-1">
+                    {(() => {
+                      const parts = contract.internshipOfferSession.split(/[-\s]+/);
+                      const year = parts[1] || '';
+                      return t('common.winterSession', { year });
+                    })()}
+                  </p>
+                </div>
+              )}
+              {contract.internshipOfferTitle && (
+                <div className="md:col-span-2">
                   <label className="text-sm font-medium text-gray-600">{t('professor.internshipTitle')}</label>
                   <p className="text-base text-gray-900 mt-1">{contract.internshipOfferTitle}</p>
                 </div>
@@ -130,6 +137,12 @@ export default function ProfessorStudentDetailsModal({
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t('professor.companyName')}</label>
                   <p className="text-base text-gray-900 mt-1">{contract.employerCompany}</p>
+                </div>
+              )}
+              {contract.internshipOfferAddress && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">{t('professor.companyAddress')}</label>
+                  <p className="text-base text-gray-900 mt-1">{contract.internshipOfferAddress}</p>
                 </div>
               )}
             </div>

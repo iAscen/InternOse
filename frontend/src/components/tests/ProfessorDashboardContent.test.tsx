@@ -10,7 +10,14 @@ import ProfessorDashboardContent from '../dashboard/ProfessorDashboardContent';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key
+    t: (key: string, params?: any) => {
+      // Gérer les traductions avec paramètres
+      if (key === 'common.winterSession' && params?.year) {
+        return `Hiver ${params.year}`;
+      }
+      // Retourner la clé telle quelle pour les autres cas
+      return key;
+    }
   })
 }));
 
@@ -83,7 +90,7 @@ describe('ProfessorDashboardContent', () => {
             expect(professorAPI.findInternshipContracts).toHaveBeenCalledWith(1);
         });
 
-        const noStudentFoundMessage = screen.getAllByText('professorDashboard.noStudentFound')
+        const noStudentFoundMessage = screen.getAllByText('professor.noStudentFound')
         expect(noStudentFoundMessage).toHaveLength(1)
     }),
 
@@ -105,7 +112,7 @@ describe('ProfessorDashboardContent', () => {
         );
 
         await waitFor(() => {
-            const student = screen.getAllByText('professorDashboard.employer')
+            const student = screen.getAllByText('professor.companyName')
             expect(student).toHaveLength(1)
         });
     }),

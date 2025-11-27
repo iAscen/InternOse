@@ -258,7 +258,7 @@ public class InternOSEApplication {
                             .duration(8)
                             .salary(30.0)
                             .address("Kahnawake, Québec")
-                            .session("Autum-2023")
+                            .session("Winter-2023")
                             .build()
                     );
                 }

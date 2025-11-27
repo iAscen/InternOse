@@ -6,12 +6,12 @@ import {studentAPI} from '~/services/StudentAPI';
 import CVUploadSection from './CVUploadSection';
 import CVStatusCard from './CVStatusCard';
 import StatisticsCard from './StatisticsCard';
-import SortButton from "~/components/dashboard/SortButton";
+import DashboardLayout from './DashboardLayout';
+import DashboardHeader from './DashboardHeader';
+import DashboardSection from './DashboardSection';
 import SortMenuOffers from "~/components/dashboard/SortMenuOffers";
-import FilterButton from "~/components/dashboard/FilterButton";
 import FilterMenuOffers from "~/components/dashboard/FilterMenuOffers";
 import OfferList from "~/components/dashboard/OfferList";
-import DashboardSidebar from './DashboardSidebar';
 import InternshipContractDetailsModal from './InternshipContractDetailsModal';
 import type {InternshipOffer, InternshipContract} from "~/interfaces";
 import {dashboardService} from "~/services/dashboardService";
@@ -365,20 +365,10 @@ export default function StudentDashboardContent() {
   };
 
   return (
-    <>
-      <div className="mx-auto flex min-h-screen w-full min-w-[320px] flex-col bg-slate-100 lg:ps-96">
-        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab}/>
+    <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab} error={null}>
+        <DashboardHeader subtitle="student.dashboardSubtitle" />
 
-        <main id="page-content" className="flex max-w-full flex-auto flex-col pt-20 lg:pt-0 bg-slate-100">
-          <div className="mx-auto w-full xl:max-w-7xl bg-slate-100">
-            {/* En-tête du dashboard étudiant - en dehors du conteneur blanc */}
-            <div className="mx-auto px-4 sm:px-0 pt-6 pb-3 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
-              <p
-                className="text-base sm:text-lg font-semibold text-slate-700 leading-relaxed">{t('student.dashboardSubtitle')}</p>
-            </div>
-
-            <div
-              className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
+        <div className="mx-auto px-4 sm:px-0 pt-4 pb-8 sm:max-w-2xl md:max-w-3xl lg:max-w-5xl xl:max-w-7xl space-y-8">
 
               {/* Contenu selon l'onglet actif */}
               {activeTab === 'overview' && (
@@ -416,7 +406,7 @@ export default function StudentDashboardContent() {
 
                   {/* Navigation rapide */}
                   <div className="rounded-lg border border-slate-200 bg-white p-6">
-                    <h2 className="text-xl font-bold text-slate-900 mb-4">Navigation rapide</h2>
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">{t('student.quickNavigation')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <button
                         onClick={() => setActiveTab('cv')}
@@ -433,7 +423,7 @@ export default function StudentDashboardContent() {
                           <span className="font-semibold text-slate-900">{t('student.cv')}</span>
                         </div>
                         <p className="text-sm text-slate-600 text-left">
-                          {cvStatus === 'approved' ? 'CV approuvé' : cvStatus === 'pending' ? 'CV en validation' : 'Téléverser votre CV'}
+                          {cvStatus === 'approved' ? t('student.cvApproved') : cvStatus === 'pending' ? t('student.cvPending') : t('student.uploadYourCv')}
                         </p>
                       </button>
 
@@ -453,7 +443,10 @@ export default function StudentDashboardContent() {
                           <span className="font-semibold text-slate-900">{t('student.offers')}</span>
                         </div>
                         <p className="text-sm text-slate-600 text-left">
-                          {allOffers.filter(o => !o.applicationStatus).length} offres disponibles
+                          {t('student.offersAvailable', { 
+                            count: allOffers.filter(o => !o.applicationStatus).length,
+                            plural: allOffers.filter(o => !o.applicationStatus).length > 1 ? 's' : ''
+                          })}
                         </p>
                       </button>
 
@@ -490,7 +483,10 @@ export default function StudentDashboardContent() {
                               return true;
                             }).length;
 
-                            return `${activeApplications} candidature${activeApplications > 1 ? 's' : ''} active${activeApplications > 1 ? 's' : ''}`;
+                            return t('student.activeApplications', { 
+                              count: activeApplications,
+                              plural: activeApplications > 1 ? 's' : ''
+                            });
                           })()}
                         </p>
                       </button>
@@ -510,7 +506,10 @@ export default function StudentDashboardContent() {
                           <span className="font-semibold text-slate-900">{t('student.contracts')}</span>
                         </div>
                         <p className="text-sm text-slate-600 text-left">
-                          {contracts.length} entente{contracts.length > 1 ? 's' : ''} de stage
+                          {t('student.internshipContractsCount', { 
+                            count: contracts.length,
+                            plural: contracts.length > 1 ? 's' : ''
+                          })}
                         </p>
                       </button>
                     </div>
@@ -592,58 +591,52 @@ export default function StudentDashboardContent() {
               )}
 
               {activeTab === 'offers' && cvStatus === 'approved' && (
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                  <div className="px-6 pt-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-900">{t("im.internshipOffersSection")}</h2>
-                        <p className="text-sm font-medium text-slate-500 mt-1">{t("student.internshipOffersSubtitle")}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="relative" ref={sortOffersMenuRef}>
-                          <SortButton onClick={() => {
-                            setShowSortMenuOffers(!showSortMenuOffers)
-                            setShowFilterMenuOffers(false)
-                          }}/>
-                          {showSortMenuOffers &&
-                            <SortMenuOffers
-                              userRole="STUDENT"
-                              applySorting={(sortBy: string) => {
-                                setShowSortMenuOffers(false);
-                                setOfferSortBy(sortBy);
-                              }}/>
-                          }
-                        </div>
-                        <div className="relative" ref={filterOffersMenuRef}>
-                          <FilterButton onClick={() => {
-                            setShowSortMenuOffers(false)
-                            setShowFilterMenuOffers(!showFilterMenuOffers)
-                          }}/>
-                          {showFilterMenuOffers &&
-                            <FilterMenuOffers
-                              userRole="STUDENT"
-                              applyFilters={(filterBy: string[]) => {
-                                setShowFilterMenuOffers(false);
-                                setOfferFilters(filterBy);
-                              }}/>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <OfferList
-                      isStudent={true}
-                      isEmployer={false}
-                      loading={loading}
-                      offers={filteredOffers}
-                      numbersOfApplications={[]}
-                      onOfferValidation={() => loadOffers()}
-                      onApplicationSuccess={handleApplicationSuccess}
-                      cvStatus={cvStatus}
+                <DashboardSection
+                  title="im.internshipOffersSection"
+                  subtitle="student.internshipOffersSubtitle"
+                  showSort={true}
+                  showFilter={true}
+                  sortMenuRef={sortOffersMenuRef}
+                  filterMenuRef={filterOffersMenuRef}
+                  onSortToggle={() => {
+                    setShowSortMenuOffers(!showSortMenuOffers);
+                    setShowFilterMenuOffers(false);
+                  }}
+                  onFilterToggle={() => {
+                    setShowSortMenuOffers(false);
+                    setShowFilterMenuOffers(!showFilterMenuOffers);
+                  }}
+                  sortMenu={showSortMenuOffers && (
+                    <SortMenuOffers
+                      userRole="STUDENT"
+                      applySorting={(sortBy: string) => {
+                        setShowSortMenuOffers(false);
+                        setOfferSortBy(sortBy);
+                      }}
                     />
-                  </div>
-                </div>
+                  )}
+                  filterMenu={showFilterMenuOffers && (
+                    <FilterMenuOffers
+                      userRole="STUDENT"
+                      applyFilters={(filterBy: string[]) => {
+                        setShowFilterMenuOffers(false);
+                        setOfferFilters(filterBy);
+                      }}
+                    />
+                  )}
+                  loading={loading}
+                >
+                  <OfferList
+                    isStudent={true}
+                    isEmployer={false}
+                    loading={loading}
+                    offers={filteredOffers}
+                    numbersOfApplications={[]}
+                    onOfferValidation={() => loadOffers()}
+                    onApplicationSuccess={handleApplicationSuccess}
+                    cvStatus={cvStatus}
+                  />
+                </DashboardSection>
               )}
 
               {activeTab === 'offers' && cvStatus !== 'approved' && (
@@ -887,15 +880,12 @@ export default function StudentDashboardContent() {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </main>
-      </div>
+        </div>
 
       {/* Modal de détails du contrat */}
       {selectedContract && (
         <InternshipContractDetailsModal
-          contract={selectedContract}
+          contract={selectedContract as InternshipContract}
           onClose={() => setSelectedContract(null)}
           onContractUpdate={async () => {
             // Recharger le contrat après signature
@@ -913,6 +903,6 @@ export default function StudentDashboardContent() {
           }}
         />
       )}
-    </>
+    </DashboardLayout>
   );
 }

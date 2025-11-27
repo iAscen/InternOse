@@ -5,7 +5,13 @@ import type { InternshipOffer } from '~/interfaces';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key
+    t: (key: string, params?: any) => {
+      // Gérer les traductions avec paramètres
+      if (key === 'common.winterSession' && params?.year) {
+        return `Hiver ${params.year}`;
+      }
+      return key;
+    }
   })
 }));
 
@@ -40,7 +46,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
       address: 'Montréal, QC',
       verificationStatus: 'APPROVED',
       applicationId: 1,
-      session: 'Winter-2024'
+      session: 'Winter-2025'
     },
     {
       id: 2,
@@ -49,13 +55,13 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
       program: 'Informatique',
       requiredSkills: 'Python, SQL',
       duration: 12,
-      startDate: '2024-01-15',
-      endDate: '2024-04-15',
+      startDate: '2025-01-15',
+      endDate: '2025-04-15',
       salary: 22,
       address: 'Québec, QC',
       verificationStatus: 'APPROVED',
       applicationId: 2,
-      session: 'Winter-2024'
+      session: 'Winter-2025'
     }
   ];
 
@@ -67,13 +73,13 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
       program: 'Design',
       requiredSkills: 'Figma, Adobe XD',
       duration: 12,
-      startDate: '2024-05-01',
-      endDate: '2024-08-01',
+      startDate: '2024-01-15',
+      endDate: '2024-04-15',
       salary: 18,
       address: 'Laval, QC',
       verificationStatus: 'APPROVED',
       applicationId: 3,
-      session: 'Autumn-2024'
+      session: 'Winter-2024'
     }
   ];
 
@@ -93,7 +99,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={allMockOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
@@ -118,7 +124,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
 
   describe('Sélection de session par défaut', () => {
     it('devrait sélectionner automatiquement la première session disponible quand isHistory est true', () => {
-      const availableSessions = ['Winter-2024', 'Autumn-2024', 'Autumn-2024'];
+      const availableSessions = ['Winter-2025', 'Winter-2024', 'Winter-2024'];
 
       render(
         <OfferList
@@ -133,11 +139,11 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
         />
       );
 
-      expect(mockOnSessionChange).toHaveBeenCalledWith('Winter-2024');
+      expect(mockOnSessionChange).toHaveBeenCalledWith('Winter-2025');
     });
 
     it('devrait utiliser la session fournie via selectedSession si elle est spécifiée', () => {
-      const availableSessions = ['Winter-2024', 'Autumn-2024'];
+      const availableSessions = ['Winter-2025', 'Winter-2024'];
 
       render(
         <OfferList
@@ -148,7 +154,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           numbersOfApplications={[]}
           isHistory={true}
           availableSessions={availableSessions}
-          selectedSession="Autumn-2024"
+          selectedSession="Winter-2025"
           onSessionChange={mockOnSessionChange}
         />
       );
@@ -184,16 +190,16 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={allMockOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Winter-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          selectedSession="Winter-2025"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
-      // Devrait afficher les offres de la session Hiver 2024
+      // Devrait afficher les offres de la session Hiver 2025
       expect(screen.getByText('Développeur Full Stack')).toBeInTheDocument();
       expect(screen.getByText('Analyste de données')).toBeInTheDocument();
 
-      // Ne devrait pas afficher les offres de la session Automne 2024
+      // Ne devrait pas afficher les offres de la session Hiver 2024
       expect(screen.queryByText('Designer UX/UI')).not.toBeInTheDocument();
     });
 
@@ -206,8 +212,8 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={allMockOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Winter-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          selectedSession="Winter-2025"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
@@ -223,12 +229,12 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={allMockOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Autumn-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          selectedSession="Winter-2024"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
-      // Maintenant devrait afficher les offres de la session Automne 2024
+      // Maintenant devrait afficher les offres de la session Hiver 2024
       expect(screen.getByText('Designer UX/UI')).toBeInTheDocument();
       expect(screen.queryByText('Développeur Full Stack')).not.toBeInTheDocument();
     });
@@ -260,13 +266,13 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={allMockOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          availableSessions={['Winter-2025', 'Winter-2024']}
           onSessionChange={mockOnSessionChange}
         />
       );
 
       // Quand availableSessions est fourni, la première session est automatiquement sélectionnée
-      // Donc seules les offres de la session 'Hiver 2024' devraient être affichées
+      // Donc seules les offres de la session 'Hiver 2025' devraient être affichées
       expect(screen.getByText('Développeur Full Stack')).toBeInTheDocument();
       expect(screen.getByText('Analyste de données')).toBeInTheDocument();
       expect(screen.queryByText('Designer UX/UI')).not.toBeInTheDocument();
@@ -283,7 +289,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={mockOffersSession1}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Winter-2024"
+          selectedSession="Winter-2025"
           availableSessions={['Winter-2024']}
         />
       );
@@ -322,8 +328,8 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
   describe('Gestion de plusieurs sessions', () => {
     it('devrait filtrer correctement les offres lorsqu\'il y a plusieurs sessions disponibles', () => {
       const multiSessionOffers: InternshipOffer[] = [
-        { ...mockOffersSession1[0], session: 'Winter-2024' },
-        { ...mockOffersSession1[1], session: 'Winter-2024' },
+        { ...mockOffersSession1[0], session: 'Winter-2025' },
+        { ...mockOffersSession1[1], session: 'Winter-2025' },
         { ...mockOffersSession2[0], session: 'Winter-2024' },
         {
           id: 4,
@@ -338,7 +344,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           address: 'Sherbrooke, QC',
           verificationStatus: 'APPROVED',
           applicationId: 4,
-          session: 'Autumn-2024'
+          session: 'Winter-2024'
         }
       ];
 
@@ -350,16 +356,16 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={multiSessionOffers}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Autumn-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024', 'Autumn-2024']}
+          selectedSession="Winter-2024"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
-      // Devrait afficher uniquement l'offre de la session Automne 2024
+      // Devrait afficher uniquement les offres de la session Winter-2024
       expect(screen.getByText('Développeur Mobile')).toBeInTheDocument();
+      expect(screen.getByText('Designer UX/UI')).toBeInTheDocument(); // Cette offre a aussi session: 'Winter-2024'
       expect(screen.queryByText('Développeur Full Stack')).not.toBeInTheDocument();
       expect(screen.queryByText('Analyste de données')).not.toBeInTheDocument();
-      expect(screen.queryByText('Designer UX/UI')).not.toBeInTheDocument();
     });
 
     it('devrait afficher un message si aucune offre ne correspond à la session sélectionnée', () => {
@@ -371,12 +377,12 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={mockOffersSession1}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Autumn-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024', 'Autumn-2024']}
+          selectedSession="Winter-2024"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
-      // Devrait afficher le message d'absence d'offres
+      // Devrait afficher le message d'absence d'offres (pour étudiant, c'est im.internshipOffersSectionEmpty)
       expect(screen.getByText('im.internshipOffersSectionEmpty')).toBeInTheDocument();
     });
   });
@@ -394,8 +400,8 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
         />
       );
 
-      // Vérifier que la session est affichée
-      const sessionElements = screen.getAllByText('Winter-2024');
+      // Vérifier que la session est affichée (traduite en "Hiver 2025")
+      const sessionElements = screen.getAllByText('Hiver 2025');
       expect(sessionElements.length).toBeGreaterThan(0);
     });
 
@@ -411,9 +417,9 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
         />
       );
 
-      // Vérifier que les deux sessions sont présentes
-      expect(screen.getAllByText('Winter-2024').length).toBeGreaterThan(0);
-      expect(screen.getByText('Autumn-2024')).toBeInTheDocument();
+      // Vérifier que les deux sessions sont présentes (traduites)
+      expect(screen.getAllByText('Hiver 2025').length).toBeGreaterThan(0);
+      expect(screen.getByText('Hiver 2024')).toBeInTheDocument();
     });
   });
 
@@ -470,8 +476,8 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={offersWithStatus}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Winter-2024"
-          availableSessions={['Winter-2024', 'Autumn-2024']}
+          selectedSession="Winter-2025"
+          availableSessions={['Winter-2025', 'Winter-2024']}
         />
       );
 
@@ -490,7 +496,7 @@ describe('OfferList - Fonctionnalités d\'historique et de sessions', () => {
           offers={mockOffersSession1}
           numbersOfApplications={[]}
           isHistory={true}
-          selectedSession="Winter-2024"
+          selectedSession="Winter-2025"
           availableSessions={['Winter-2024']}
           selectOffer={mockSelectOffer}
         />

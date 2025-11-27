@@ -550,7 +550,6 @@ class EmployerAPI {
 
       let url = buildFullApiUrl(API_PATHS.EMPLOYER.CONTRACT, { studentID: String(studentId) });
       url += `?employerID=${employerId}&internshipOfferID=${offerId}`;
-      console.log('🔍 Fetching contract from:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -566,12 +565,27 @@ class EmployerAPI {
           success: true,
           data: contract
         };
-      } else {
-        const errorData = await response.json();
+      } else if (response.status === 404) {
+        // Le contrat n'existe pas encore, ce n'est pas une erreur - retourner silencieusement
+        // Ne pas lire le body pour éviter les warnings dans la console
         return {
           success: false,
-          error: errorData.message || 'Erreur lors de la récupération du contrat'
+          error: 'Contract not found'
         };
+      } else {
+        // Pour les autres erreurs, lire le message d'erreur
+        try {
+          const errorData = await response.json();
+          return {
+            success: false,
+            error: errorData.message || 'Erreur lors de la récupération du contrat'
+          };
+        } catch {
+          return {
+            success: false,
+            error: 'Erreur lors de la récupération du contrat'
+          };
+        }
       }
     } catch (error) {
       return {

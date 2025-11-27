@@ -121,10 +121,14 @@ export interface InternshipContract {
   studentId?: number;
   studentFirstName?: string;
   studentLastName?: string;
+  studentEmail?: string;
+  studentProgram?: string;
   employerId?: number;
   employerCompany?: string;
   internshipOfferId?: number;
   internshipOfferTitle?: string;
+  internshipOfferAddress?: string;
+  internshipOfferSession?: string;
   professorFirstName?: string;
   professorLastName?: string;
   professorEmail?: string;

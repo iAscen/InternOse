@@ -411,7 +411,11 @@ export default function OfferList({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        {offer.session}
+                        {offer.session ? (() => {
+                          const parts = offer.session.split(/[-\s]+/);
+                          const year = parts[1] || '';
+                          return t('common.winterSession', { year });
+                        })() : ''}
                       </div>
                       </div>
                       {offer.salary > 0 && (
