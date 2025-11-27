@@ -178,3 +178,42 @@ export interface InternAssessment {
   signature: string;
   signatureDate: string;
 }
+
+// Enums pour l'évaluation du milieu de stage
+export type SiteAssessmentOptions =
+  | 'EXCELLENT'
+  | 'VERY_GOOD'
+  | 'GOOD'
+  | 'SATISFACTORY'
+  | 'UNSATISFACTORY'
+  | 'NOT_APPLICABLE';
+
+export type OverallSiteAppreciation =
+  | 'EXCELLENT'
+  | 'VERY_GOOD'
+  | 'GOOD'
+  | 'SATISFACTORY'
+  | 'UNSATISFACTORY';
+
+export type Recommendation =
+  | 'STRONGLY_RECOMMEND'
+  | 'RECOMMEND'
+  | 'RECOMMEND_WITH_RESERVATIONS'
+  | 'DO_NOT_RECOMMEND';
+
+export interface SiteAssessment {
+  studentName: string;
+  companyName: string;
+  supervisorName: string;
+  internshipPosition: string;
+  internshipDuration: string;
+  siteAssessment: Record<string, SiteAssessmentOptions>;
+  siteAssessmentComments: Record<string, string>;
+  overallSiteAppreciation: OverallSiteAppreciation;
+  generalComments?: string;
+  recommendation: Recommendation;
+  academicConformity?: string;
+  professorName: string;
+  signature: string;
+  assessmentDate: string;
+}

@@ -67,7 +67,8 @@ export const API_PATHS = {
   },
 
   PROFESSOR: {
-    CONTRACTS: '/professors/{professorID}/contracts'
+    CONTRACTS: '/professors/{professorID}/contracts',
+    SITE_ASSESSMENT: '/professors/{professorID}/site-assessment'
   }
 
 } as const;

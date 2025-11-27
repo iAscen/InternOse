@@ -543,18 +543,28 @@ export default function InternshipAssessmentDetailsModal({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('internshipAssessment.generalAppreciation')} <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    required
-                    value={formData.overallInternAppreciation}
-                    onChange={(e) => setFormData({ ...formData, overallInternAppreciation: e.target.value as OverallInternAppreciation })}
-                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="GREATLY_EXCEEDS_EXPECTATIONS">{t('internshipAssessment.appreciations.GREATLY_EXCEEDS_EXPECTATIONS')}</option>
-                    <option value="EXCEEDS_EXPECTATIONS">{t('internshipAssessment.appreciations.EXCEEDS_EXPECTATIONS')}</option>
-                    <option value="FULLY_MEETS_EXPECTATIONS">{t('internshipAssessment.appreciations.FULLY_MEETS_EXPECTATIONS')}</option>
-                    <option value="PARTIALLY_MEETS_EXPECTATIONS">{t('internshipAssessment.appreciations.PARTIALLY_MEETS_EXPECTATIONS')}</option>
-                    <option value="DOES_NOT_MEET_EXPECTATIONS">{t('internshipAssessment.appreciations.DOES_NOT_MEET_EXPECTATIONS')}</option>
-                  </select>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    {[
+                      { value: 'GREATLY_EXCEEDS_EXPECTATIONS' as OverallInternAppreciation, label: t('internshipAssessment.appreciations.GREATLY_EXCEEDS_EXPECTATIONS') },
+                      { value: 'EXCEEDS_EXPECTATIONS' as OverallInternAppreciation, label: t('internshipAssessment.appreciations.EXCEEDS_EXPECTATIONS') },
+                      { value: 'FULLY_MEETS_EXPECTATIONS' as OverallInternAppreciation, label: t('internshipAssessment.appreciations.FULLY_MEETS_EXPECTATIONS') },
+                      { value: 'PARTIALLY_MEETS_EXPECTATIONS' as OverallInternAppreciation, label: t('internshipAssessment.appreciations.PARTIALLY_MEETS_EXPECTATIONS') },
+                      { value: 'DOES_NOT_MEET_EXPECTATIONS' as OverallInternAppreciation, label: t('internshipAssessment.appreciations.DOES_NOT_MEET_EXPECTATIONS') },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, overallInternAppreciation: option.value })}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          formData.overallInternAppreciation === option.value
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="mb-4">

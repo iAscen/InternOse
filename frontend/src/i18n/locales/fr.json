@@ -691,5 +691,77 @@
             "connectionError": "Erreur de connexion au serveur"
         },
         "viewAssessment": "Voir l'évaluation du stagiaire"
+    },
+    "siteAssessment": {
+        "title": "Évaluation du milieu de stage",
+        "assessment": "Évaluation",
+        "generalInformation": "Informations générales",
+        "studentName": "Nom de l'étudiant",
+        "companyName": "Nom de l'entreprise",
+        "supervisorName": "Nom du superviseur",
+        "internshipPosition": "Poste de stage",
+        "internshipDuration": "Durée du stage",
+        "assessmentCriteria": "Critères d'évaluation",
+        "criteria": {
+            "welcome": "Accueil et intégration",
+            "supervision": "Qualité de l'encadrement",
+            "tasks": "Pertinence des tâches",
+            "objectives": "Clarté des objectifs",
+            "communication": "Communication",
+            "academicConformity": "Conformité académique"
+        },
+        "options": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Très bon",
+            "GOOD": "Bon",
+            "SATISFACTORY": "Satisfaisant",
+            "UNSATISFACTORY": "Insatisfaisant",
+            "NOT_APPLICABLE": "Non applicable"
+        },
+        "ratings": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Très bon",
+            "GOOD": "Bon",
+            "SATISFACTORY": "Satisfaisant",
+            "UNSATISFACTORY": "Insatisfaisant",
+            "NOT_APPLICABLE": "Non applicable"
+        },
+        "selectOption": "Sélectionner une option",
+        "notCompleted": "Non complété",
+        "assessmentCriteriaSubtitle": "Évaluez le milieu de stage selon les critères suivants",
+        "commentPlaceholder": "Commentaires (optionnel)",
+        "overallAppreciation": "Appréciation globale",
+        "appreciation": "Appréciation",
+        "appreciationOptions": {
+            "EXCELLENT": "Excellent",
+            "VERY_GOOD": "Très bon",
+            "GOOD": "Bon",
+            "SATISFACTORY": "Satisfaisant",
+            "UNSATISFACTORY": "Insatisfaisant"
+        },
+        "generalComments": "Commentaires généraux",
+        "commentsPlaceholder": "Commentaires généraux sur le milieu de stage...",
+        "recommendation": "Recommandation",
+        "recommendationLabel": "Recommandation",
+        "recommendationOptions": {
+            "STRONGLY_RECOMMEND": "Recommandation forte",
+            "RECOMMEND": "Recommandation",
+            "RECOMMEND_WITH_RESERVATIONS": "Recommandation avec réserves",
+            "DO_NOT_RECOMMEND": "Ne pas recommander"
+        },
+        "academicConformity": "Conformité académique",
+        "academicConformityPlaceholder": "Commentaires sur la conformité académique du milieu de stage...",
+        "signature": "Signature",
+        "professorName": "Nom du professeur",
+        "assessmentDate": "Date d'évaluation",
+        "submit": "Soumettre l'évaluation",
+        "evaluateSite": "Évaluer le milieu de stage",
+        "viewAssessment": "Voir l'évaluation du milieu de stage",
+        "errors": {
+            "incompleteForm": "Veuillez remplir tous les champs obligatoires",
+            "missingInfo": "Impossible de récupérer les informations nécessaires",
+            "submissionError": "Erreur lors de la soumission de l'évaluation",
+            "connectionError": "Erreur de connexion au serveur"
+        }
     }
 }
