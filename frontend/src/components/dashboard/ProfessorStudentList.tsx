@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { InternshipContract } from '~/interfaces';
+import { formatSessionForDisplay } from '~/utils/sessionUtils';
 
 interface ProfessorStudentListProps {
   contracts: InternshipContract[];
@@ -78,7 +79,7 @@ export default function ProfessorStudentList({
                     <label className="text-xs font-medium text-slate-500 uppercase">
                       {t('professor.session')}
                     </label>
-                    <p className="text-sm text-slate-900 mt-1">{contract.internshipOfferSession}</p>
+                    <p className="text-sm text-slate-900 mt-1">{formatSessionForDisplay(contract.internshipOfferSession, t)}</p>
                   </div>
                 )}
                 {contract.employerCompany && (

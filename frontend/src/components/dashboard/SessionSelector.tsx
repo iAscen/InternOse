@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { formatSessionForDisplay} from "~/utils/sessionUtils";
 
 interface SessionSelectorProps {
   id: string;
@@ -7,20 +8,6 @@ interface SessionSelectorProps {
   onChange: (session: string) => void;
 }
 
-/**
- * Formate une session pour l'affichage avec i18n
- * "Winter-2024" -> "Hiver 2024" (fr) ou "Winter 2024" (en)
- */
-function formatSessionForDisplay(session: string, t: any): string {
-  if (!session) return session;
-  
-  // Extraire l'année
-  const parts = session.split(/[-\s]+/);
-  const year = parts[1] || parts[0]?.match(/\d{4}/)?.[0] || '';
-  
-  // Retourner la traduction (toujours Winter/Hiver)
-  return t('common.winterSession', { year });
-}
 
 export default function SessionSelector({ id, value, availableSessions, onChange }: SessionSelectorProps) {
   const { t } = useTranslation();

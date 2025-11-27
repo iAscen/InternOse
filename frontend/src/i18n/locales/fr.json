@@ -192,7 +192,7 @@
             "validationError": "Erreur lors de la validation de la candidature",
             "missingIds": "Erreur : IDs manquants",
             "serverError": "Erreur de connexion au serveur",
-            "viewOnlyMode": "Lecture seule"
+            "viewOnlyMode": "Lecture seulement"
         }
     },
     "employer": {
