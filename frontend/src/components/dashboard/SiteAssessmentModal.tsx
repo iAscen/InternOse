@@ -279,6 +279,7 @@ export default function SiteAssessmentModal({
               values={siteAssessment.siteAssessment}
               comments={siteAssessment.siteAssessmentComments}
               getLabel={(value) => getAssessmentLabel(value as SiteAssessmentOptions)}
+              options={assessmentOptions.map((o) => o.value)}
             />
           </div>
 
@@ -287,11 +288,29 @@ export default function SiteAssessmentModal({
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {t('siteAssessment.overallAppreciation')}
             </h3>
-            <div className="p-4 bg-blue-50 rounded-lg mb-3">
+            <div className="p-3 bg-gray-50 rounded-lg mb-3">
               <p className="text-sm font-medium text-gray-700 mb-2">{t('siteAssessment.appreciation')}</p>
-              <p className="text-base font-semibold text-blue-700">
-                {getAppreciationLabel(siteAssessment.overallSiteAppreciation)}
-              </p>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                {([
+                  'EXCELLENT',
+                  'VERY_GOOD',
+                  'GOOD',
+                  'SATISFACTORY',
+                  'UNSATISFACTORY',
+                ] as OverallSiteAppreciation[]).map((opt) => (
+                  <div
+                    key={opt}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium text-center select-none ${
+                      siteAssessment.overallSiteAppreciation === opt
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                    title={getAppreciationLabel(opt)}
+                  >
+                    {getAppreciationLabel(opt)}
+                  </div>
+                ))}
+              </div>
             </div>
             {siteAssessment.generalComments && (
               <div className="p-3 bg-gray-50 rounded-lg">
@@ -309,10 +328,27 @@ export default function SiteAssessmentModal({
               {t('siteAssessment.recommendation')}
             </h3>
             <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-1">{t('siteAssessment.recommendationLabel')}</p>
-              <p className="text-sm font-semibold text-gray-900">
-                {getRecommendationLabel(siteAssessment.recommendation)}
-              </p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('siteAssessment.recommendationLabel')}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {([
+                  'STRONGLY_RECOMMEND',
+                  'RECOMMEND',
+                  'RECOMMEND_WITH_RESERVATIONS',
+                  'DO_NOT_RECOMMEND',
+                ] as Recommendation[]).map((opt) => (
+                  <div
+                    key={opt}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium text-center select-none ${
+                      siteAssessment.recommendation === opt
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                    title={getRecommendationLabel(opt)}
+                  >
+                    {getRecommendationLabel(opt)}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
