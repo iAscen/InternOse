@@ -3,9 +3,11 @@ package cal.ose.internose.service;
 import cal.ose.internose.modele.InternshipContract;
 import cal.ose.internose.modele.Professor;
 import cal.ose.internose.modele.SiteAssessment;
+import cal.ose.internose.modele.User;
 import cal.ose.internose.persistance.InternshipContractDAO;
 import cal.ose.internose.persistance.SiteAssessmentDAO;
 import cal.ose.internose.persistance.ProfessorDAO;
+import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.service.DTOs.SiteAssessmentDTO;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,6 +28,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +43,12 @@ class ProfessorServiceTests {
 
     @Mock
     private ProfessorDAO professorDAO;
+
+    @Mock
+    private UserDAO userDAO;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ProfessorService professorService;
@@ -65,15 +78,14 @@ class ProfessorServiceTests {
             .internshipPosition("Développeur Kotlin")
             .internshipDuration("8 semaines")
             .siteAssessment(Map.of(
-                "Accueil et intégration", SiteAssessment.AssessmentOptions.EXCELLENT
+                "welcomeMeasures", SiteAssessment.AssessmentOptions.COMPLETELY_AGREE
             ))
             .siteAssessmentComments(Map.of(
-                "Accueil et intégration", "Très bon accueil"
+                "welcomeMeasures", "Très bon accueil"
             ))
             .overallSiteAppreciation(SiteAssessment.OverallSiteAppreciation.EXCELLENT)
             .generalComments("Excellent milieu de stage")
             .recommendation(SiteAssessment.Recommendation.STRONGLY_RECOMMEND)
-            .academicConformity("Conforme aux objectifs")
             .professorName("Thomas Dupont")
             .signature("Thomas Dupont")
             .assessmentDate("2024-11-23")
@@ -87,8 +99,19 @@ class ProfessorServiceTests {
     @Test
     void testSaveSiteAssessment_Success() throws ForbiddenException {
         // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        User user = mock(User.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@example.com");
+        SecurityContextHolder.setContext(securityContext);
+
         when(internshipContractDAO.findById(1L)).thenReturn(Optional.of(internshipContract));
         when(siteAssessmentDAO.findByInternshipContract(internshipContract)).thenReturn(null);
+        when(userDAO.findByCredentials_Email("test@example.com")).thenReturn(Optional.of(user));
+        when(user.getPassword()).thenReturn("encodedPassword");
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(siteAssessmentDAO.save(any(SiteAssessment.class))).thenReturn(siteAssessment);
 
         // Act

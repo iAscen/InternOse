@@ -124,7 +124,19 @@ export default function InternshipApplications({
         </span>
       );
 	}
-	else if (application.applicationStatus === 'ACCEPTED_BY_STUDENT') {
+	else if (application.applicationStatus === 'PENDING_ACCEPTANCE') {
+		return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+          {t('im.pendingAcceptance')}
+        </span>
+      );
+	} else if (application.applicationStatus === 'HIRED') {
+		return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+          {t('im.hired')}
+        </span>
+      );
+	} else if (application.applicationStatus === 'ACCEPTED_BY_STUDENT') {
 		return (
         <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
           {t('im.acceptedByStudent')}
@@ -395,7 +407,7 @@ export default function InternshipApplications({
 										)}
 														
 										{/* Bouton pour créer une entente de stage (Gestionnaire seulement, not in history) */}
-										{!isHistory && application.applicationStatus === 'ACCEPTED_BY_STUDENT' && isInternshipManager && (
+										{!isHistory && (application.applicationStatus === 'ACCEPTED_BY_STUDENT' || application.applicationStatus === 'HIRED') && isInternshipManager && (
                       <button
                         onClick={(e) => handleContract(application, e)}
 																className="inline-flex items-center gap-2 rounded-lg border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"

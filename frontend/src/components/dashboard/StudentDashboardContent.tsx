@@ -166,7 +166,7 @@ export default function StudentDashboardContent() {
       const contractsMapLocal = new Map<number, InternshipContract>();
 
       // Pour chaque offre où l'étudiant a postulé, essayer de charger le contrat
-      // Priorité aux offres avec PENDING_CONTRACT ou ACCEPTED_BY_STUDENT
+      // Priorité aux offres avec PENDING_CONTRACT ou HIRED
       if (allOffers.length > 0) {
         // Charger les contrats en parallèle pour améliorer les performances
         const contractPromises = allOffers
@@ -228,8 +228,8 @@ export default function StudentDashboardContent() {
     const approvedApplications = applications.filter(app =>
       app.applicationStatus === 'ACCEPTED' ||
       app.applicationStatus === 'accepted' ||
-      app.applicationStatus === 'ACCEPTED_BY_STUDENT' ||
-      app.applicationStatus === 'accepted_by_student'
+      app.applicationStatus === 'HIRED' ||
+      app.applicationStatus === 'hired'
     ).length;
 
     return {
@@ -313,10 +313,22 @@ export default function StudentDashboardContent() {
           textColor: 'text-emerald-600',
           badgeClasses: 'border-emerald-200 bg-emerald-50 text-emerald-700'
         };
+      case 'PENDING_ACCEPTANCE':
+        return {
+          text: t('student.pendingAcceptance'),
+          textColor: 'text-blue-600',
+          badgeClasses: 'border-blue-200 bg-blue-50 text-blue-700'
+        };
       case 'ACCEPTED':
       case 'ACCEPTED_BY_STUDENT':
         return {
           text: t('student.accepted'),
+          textColor: 'text-emerald-600',
+          badgeClasses: 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        };
+      case 'HIRED':
+        return {
+          text: t('student.hired'),
           textColor: 'text-emerald-600',
           badgeClasses: 'border-emerald-200 bg-emerald-50 text-emerald-700'
         };
@@ -679,7 +691,7 @@ export default function StudentDashboardContent() {
                         }
 
                         // Si pas de contrat créé (pas de statut PENDING_CONTRACT et pas dans contractsMap)
-                        // l'offre reste dans Candidatures, même si le statut est ACCEPTED_BY_STUDENT
+                        // l'offre reste dans Candidatures, même si le statut est HIRED
                         return true;
                       });
 
@@ -738,8 +750,8 @@ export default function StudentDashboardContent() {
 
                       // Ajouter les offres avec PENDING_CONTRACT qui ont un contrat
                       // mais qui n'ont pas encore été ajoutées (car le contrat n'est pas encore chargé)
-                      // NOTE: On n'ajoute PAS les offres avec ACCEPTED_BY_STUDENT si le contrat n'existe pas encore
-                      // car ACCEPTED_BY_STUDENT signifie que l'étudiant a accepté, mais le contrat n'a pas encore été créé par le gestionnaire
+                      // NOTE: On n'ajoute PAS les offres avec HIRED si le contrat n'existe pas encore
+                      // car HIRED signifie que l'étudiant a accepté, mais le contrat n'a pas encore été créé par le gestionnaire
                       allOffers.forEach(offer => {
                         // Seulement PENDING_CONTRACT indique qu'un contrat a été créé par le gestionnaire
                         if (offer.applicationStatus === 'PENDING_CONTRACT' && offer.id) {

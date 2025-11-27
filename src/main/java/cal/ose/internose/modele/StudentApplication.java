@@ -40,8 +40,10 @@ public class StudentApplication {
         PENDING_INTERVIEW,
         APPROVED,
         REJECTED,
+        PENDING_ACCEPTANCE, // En attente d'acceptation de l'étudiant
         ACCEPTED_BY_STUDENT,
         REJECTED_BY_STUDENT,
+        HIRED, // Embauché
         PENDING_CONTRACT
     }
 }

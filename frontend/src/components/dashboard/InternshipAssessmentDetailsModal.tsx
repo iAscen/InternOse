@@ -52,8 +52,8 @@ export default function InternshipAssessmentDetailsModal({
     weeklySupervisionHours: 0,
     futureCollaboration: 'MAYBE',
     academicPreparationAdequacy: '',
-    signerName: '',
-    signerTitle: '',
+    signerName: userAPI.getUserName() || '',
+    signerTitle: contract.supervisorTitle || '',
     signature: '',
     signatureDate: '',
   });
@@ -62,6 +62,18 @@ export default function InternshipAssessmentDetailsModal({
   const OFFER_PROGRAM = useMemo(() => {
     return loadedOffer?.program ?? formData.studentProgram ?? '';
   }, [loadedOffer?.program, formData.studentProgram]);
+
+  useEffect(() => {
+    // Pré-remplir le nom et le titre du signataire avec les informations de l'utilisateur connecté
+    const userName = userAPI.getUserName();
+    if (userName) {
+      setFormData(prev => ({ 
+        ...prev, 
+        signerName: prev.signerName || userName,
+        signerTitle: prev.signerTitle || contract.supervisorTitle || t('internshipAssessment.defaultSignerTitle')
+      }));
+    }
+  }, [t, contract.supervisorTitle]);
 
   useEffect(() => {
     const loadAssessment = async () => {
@@ -688,6 +700,29 @@ export default function InternshipAssessmentDetailsModal({
                       placeholder={t('internshipAssessment.signerTitlePlaceholder')}
                     />
                   </div>
+                </div>
+
+                <div className={`border rounded-lg p-4 mt-4 ${
+                  submitAttempted && (!formData.signature || formData.signature.trim() === '')
+                    ? 'border-red-300 bg-red-50' 
+                    : 'border-gray-200'
+                }`}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('internshipAssessment.passwordSignature')} <span className="text-red-500">*</span>
+                    {submitAttempted && (!formData.signature || formData.signature.trim() === '') && (
+                      <span className="ml-2 text-xs text-red-600 font-normal">
+                        ({t('internshipAssessment.notCompleted')})
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={formData.signature}
+                    onChange={(e) => setFormData({ ...formData, signature: e.target.value })}
+                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
+                    placeholder={t('internshipAssessment.passwordSignaturePlaceholder')}
+                  />
                 </div>
               </div>
             </form>

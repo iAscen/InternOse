@@ -25,8 +25,16 @@ public class SiteAssessmentDTO {
     private String generalComments;
 
     private Recommendation recommendation;
-    private String academicConformity;
-
+    
+    // Heures par semaine pour les trois mois
+    private Integer hoursPerWeekFirstMonth;
+    private Integer hoursPerWeekSecondMonth;
+    private Integer hoursPerWeekThirdMonth;
+    
+    // Observations générales
+    private Boolean variableWorkShifts;
+    private String workShiftTimes; // Format: "De ____ à ____" (3 lignes possibles)
+    
     private String professorName;
     private String signature;
     private String assessmentDate;
@@ -44,7 +52,11 @@ public class SiteAssessmentDTO {
             .overallSiteAppreciation(siteAssessment.getOverallSiteAppreciation())
             .generalComments(siteAssessment.getGeneralComments())
             .recommendation(siteAssessment.getRecommendation())
-            .academicConformity(siteAssessment.getAcademicConformity())
+            .hoursPerWeekFirstMonth(siteAssessment.getHoursPerWeekFirstMonth())
+            .hoursPerWeekSecondMonth(siteAssessment.getHoursPerWeekSecondMonth())
+            .hoursPerWeekThirdMonth(siteAssessment.getHoursPerWeekThirdMonth())
+            .variableWorkShifts(siteAssessment.getVariableWorkShifts())
+            .workShiftTimes(siteAssessment.getWorkShiftTimes())
             .professorName(siteAssessment.getProfessorName())
             .signature(siteAssessment.getSignature())
             .assessmentDate(siteAssessment.getAssessmentDate())

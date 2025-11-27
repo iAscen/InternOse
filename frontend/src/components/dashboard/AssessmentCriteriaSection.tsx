@@ -61,7 +61,7 @@ export default function AssessmentCriteriaSection({
             </label>
 
             {useButtons ? (
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mb-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
                 {options.map((option) => (
                   <button
                     key={option.value}

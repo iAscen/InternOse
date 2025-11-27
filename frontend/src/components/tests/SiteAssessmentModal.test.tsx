@@ -53,15 +53,15 @@ describe('SiteAssessmentModal', () => {
     internshipPosition: 'Stage en développement logiciel',
     internshipDuration: '2024-07-01 - 2024-12-31',
     siteAssessment: {
-      'Accueil et intégration': 'EXCELLENT',
-      'Qualité de l\'encadrement': 'VERY_GOOD',
-      'Pertinence des tâches': 'GOOD',
-      'Clarté des objectifs': 'EXCELLENT',
-      'Communication': 'VERY_GOOD',
-      'Conformité académique': 'GOOD',
+      'welcomeMeasures': 'COMPLETELY_AGREE',
+      'supervisionTime': 'PARTIALLY_AGREE',
+      'tasksConformity': 'PARTIALLY_AGREE',
+      'workEnvironmentSafety': 'COMPLETELY_AGREE',
+      'supervisorCommunication': 'PARTIALLY_AGREE',
+      'academicConformity': 'PARTIALLY_AGREE',
     },
     siteAssessmentComments: {
-      'Accueil et intégration': 'Excellent accueil',
+      'welcomeMeasures': 'Excellent accueil',
     },
     overallSiteAppreciation: 'GOOD',
     generalComments: 'Bon milieu de stage',
@@ -146,28 +146,26 @@ describe('SiteAssessmentModal', () => {
       expect(screen.getByText('siteAssessment.submit')).toBeInTheDocument();
     });
 
-    // Remplir tous les critères d'évaluation
-    const excellentButtons = screen.getAllByText('siteAssessment.ratings.EXCELLENT');
-    // Il devrait y avoir au moins 6 critères
-    expect(excellentButtons.length).toBeGreaterThanOrEqual(6);
+    // Remplir tous les critères d'évaluation (il y a 10 critères)
+    // Chaque critère a 5 boutons, donc il y a 10 boutons avec le texte COMPLETELY_AGREE (un par critère)
+    const excellentButtons = screen.getAllByText('siteAssessment.ratings.COMPLETELY_AGREE');
+    // Il devrait y avoir exactement 10 boutons (un par critère)
+    expect(excellentButtons.length).toBeGreaterThanOrEqual(10);
 
-    // Cliquer sur les 6 premiers boutons EXCELLENT (un pour chaque critère)
-    for (let i = 0; i < 6; i++) {
-      fireEvent.click(excellentButtons[i]);
-    }
+    // Cliquer sur tous les boutons COMPLETELY_AGREE (un pour chaque critère)
+    excellentButtons.forEach(button => {
+      fireEvent.click(button);
+    });
 
-    // Remplir la signature - chercher par placeholder ou par query plus spécifique
-    const allInputs = screen.getAllByRole('textbox');
-    // Find the signature input - it's not readonly and not disabled
-    const writableInputs = allInputs.filter(input => !input.hasAttribute('readonly') && !input.hasAttribute('disabled'));
+    // Sélectionner l'appréciation globale (requis)
+    const excellentAppreciationButton = screen.getByRole('button', { name: 'siteAssessment.appreciationOptions.EXCELLENT' });
+    fireEvent.click(excellentAppreciationButton);
 
-    // Should have only one writable input (signature) plus textareas
-    const signatureInput = writableInputs.find(input => input.tagName === 'INPUT');
+    // Remplir la signature - c'est un champ password, pas un textbox
+    const signatureInput = screen.getByPlaceholderText('siteAssessment.passwordSignaturePlaceholder') as HTMLInputElement;
     expect(signatureInput).toBeDefined();
-
-    if (signatureInput) {
-      fireEvent.change(signatureInput, { target: { value: 'M. Martin' } });
-    }
+    expect(signatureInput.type).toBe('password');
+    fireEvent.change(signatureInput, { target: { value: 'M. Martin' } });
 
     // Soumettre le formulaire
     const submitButton = screen.getByText('siteAssessment.submit');
@@ -268,19 +266,22 @@ describe('SiteAssessmentModal', () => {
       expect(screen.getByText('siteAssessment.submit')).toBeInTheDocument();
     });
 
-    // Remplir le formulaire
-    const excellentButtons = screen.getAllByText('siteAssessment.ratings.EXCELLENT');
-    for (let i = 0; i < 6; i++) {
-      fireEvent.click(excellentButtons[i]);
-    }
+    // Remplir le formulaire (10 critères)
+    // Chaque critère a 5 boutons, donc il y a 10 boutons avec le texte COMPLETELY_AGREE (un par critère)
+    const excellentButtons = screen.getAllByText('siteAssessment.ratings.COMPLETELY_AGREE');
+    // Cliquer sur tous les boutons COMPLETELY_AGREE (un pour chaque critère)
+    excellentButtons.forEach(button => {
+      fireEvent.click(button);
+    });
 
-    // Trouver le champ de signature - c'est le seul input text qui n'est ni readonly ni disabled
-    const allInputs = document.querySelectorAll('input[type="text"]');
-    const signatureInput = Array.from(allInputs).find(
-      input => !input.hasAttribute('readonly') && !input.hasAttribute('disabled')
-    ) as HTMLInputElement;
+    // Sélectionner l'appréciation globale (requis)
+    const excellentAppreciationButton = screen.getByRole('button', { name: 'siteAssessment.appreciationOptions.EXCELLENT' });
+    fireEvent.click(excellentAppreciationButton);
 
-    expect(signatureInput).toBeTruthy();
+    // Trouver le champ de signature - c'est un champ password
+    const signatureInput = screen.getByPlaceholderText('siteAssessment.passwordSignaturePlaceholder') as HTMLInputElement;
+    expect(signatureInput).toBeDefined();
+    expect(signatureInput.type).toBe('password');
     fireEvent.change(signatureInput, { target: { value: 'M. Martin' } });
 
     // Soumettre

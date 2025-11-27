@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { SiteAssessment, InternshipContract, SiteAssessmentOptions, OverallSiteAppreciation, Recommendation } from '~/interfaces';
 import { useEffect, useState } from "react";
 import { professorAPI } from "~/services/ProfessorAPI";
+import { userAPI } from "~/services/UserAPI";
 import AssessmentModalLayout from './AssessmentModalLayout';
 import AssessmentCriteriaSection, { type AssessmentCriterion, type AssessmentOption } from './AssessmentCriteriaSection';
 import AssessmentViewSection from './AssessmentViewSection';
@@ -27,20 +28,23 @@ export default function SiteAssessmentModal({
 
   // Critères d'évaluation du milieu de stage
   const assessmentCriteria: AssessmentCriterion[] = [
-    { key: 'Accueil et intégration', label: t('siteAssessment.criteria.welcome') },
-    { key: 'Qualité de l\'encadrement', label: t('siteAssessment.criteria.supervision') },
-    { key: 'Pertinence des tâches', label: t('siteAssessment.criteria.tasks') },
-    { key: 'Clarté des objectifs', label: t('siteAssessment.criteria.objectives') },
-    { key: 'Communication', label: t('siteAssessment.criteria.communication') },
-    { key: 'Conformité académique', label: t('siteAssessment.criteria.academicConformity') },
+    { key: 'tasksConformity', label: t('siteAssessment.criteria.tasksConformity') },
+    { key: 'welcomeMeasures', label: t('siteAssessment.criteria.welcomeMeasures') },
+    { key: 'supervisionTime', label: t('siteAssessment.criteria.supervisionTime') },
+    { key: 'workEnvironmentSafety', label: t('siteAssessment.criteria.workEnvironmentSafety') },
+    { key: 'workClimate', label: t('siteAssessment.criteria.workClimate') },
+    { key: 'publicTransportAccess', label: t('siteAssessment.criteria.publicTransportAccess') },
+    { key: 'salary', label: t('siteAssessment.criteria.salary') },
+    { key: 'supervisorCommunication', label: t('siteAssessment.criteria.supervisorCommunication') },
+    { key: 'equipmentAdequacy', label: t('siteAssessment.criteria.equipmentAdequacy') },
+    { key: 'workload', label: t('siteAssessment.criteria.workload') },
   ];
 
   const assessmentOptions: AssessmentOption[] = [
-    { value: 'EXCELLENT', label: t('siteAssessment.ratings.EXCELLENT') },
-    { value: 'VERY_GOOD', label: t('siteAssessment.ratings.VERY_GOOD') },
-    { value: 'GOOD', label: t('siteAssessment.ratings.GOOD') },
-    { value: 'SATISFACTORY', label: t('siteAssessment.ratings.SATISFACTORY') },
-    { value: 'UNSATISFACTORY', label: t('siteAssessment.ratings.UNSATISFACTORY') },
+    { value: 'COMPLETELY_AGREE', label: t('siteAssessment.ratings.COMPLETELY_AGREE') },
+    { value: 'PARTIALLY_AGREE', label: t('siteAssessment.ratings.PARTIALLY_AGREE') },
+    { value: 'PARTIALLY_DISAGREE', label: t('siteAssessment.ratings.PARTIALLY_DISAGREE') },
+    { value: 'COMPLETELY_DISAGREE', label: t('siteAssessment.ratings.COMPLETELY_DISAGREE') },
     { value: 'NOT_APPLICABLE', label: t('siteAssessment.ratings.NOT_APPLICABLE') },
   ];
 
@@ -59,8 +63,12 @@ export default function SiteAssessmentModal({
     overallSiteAppreciation: 'GOOD',
     generalComments: '',
     recommendation: 'RECOMMEND',
-    academicConformity: '',
-    professorName: `${contract.professorFirstName || ''} ${contract.professorLastName || ''}`.trim(),
+    hoursPerWeekFirstMonth: undefined,
+    hoursPerWeekSecondMonth: undefined,
+    hoursPerWeekThirdMonth: undefined,
+    variableWorkShifts: undefined,
+    workShiftTimes: '',
+    professorName: userAPI.getUserName() || `${contract.professorFirstName || ''} ${contract.professorLastName || ''}`.trim(),
     signature: '',
     assessmentDate: '',
   });
@@ -95,11 +103,10 @@ export default function SiteAssessmentModal({
 
   const getAssessmentLabel = (value: SiteAssessmentOptions): string => {
     const labels: Record<SiteAssessmentOptions, string> = {
-      'EXCELLENT': t('siteAssessment.options.EXCELLENT'),
-      'VERY_GOOD': t('siteAssessment.options.VERY_GOOD'),
-      'GOOD': t('siteAssessment.options.GOOD'),
-      'SATISFACTORY': t('siteAssessment.options.SATISFACTORY'),
-      'UNSATISFACTORY': t('siteAssessment.options.UNSATISFACTORY'),
+      'COMPLETELY_AGREE': t('siteAssessment.options.COMPLETELY_AGREE'),
+      'PARTIALLY_AGREE': t('siteAssessment.options.PARTIALLY_AGREE'),
+      'PARTIALLY_DISAGREE': t('siteAssessment.options.PARTIALLY_DISAGREE'),
+      'COMPLETELY_DISAGREE': t('siteAssessment.options.COMPLETELY_DISAGREE'),
       'NOT_APPLICABLE': t('siteAssessment.options.NOT_APPLICABLE'),
     };
     return labels[value] || value;
@@ -281,7 +288,66 @@ export default function SiteAssessmentModal({
               getLabel={(value) => getAssessmentLabel(value as SiteAssessmentOptions)}
               options={assessmentOptions.map((o) => o.value)}
             />
+            {/* Affichage du salaire horaire si présent */}
+            {siteAssessment.siteAssessmentComments?.['salaryHourlyRate'] && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-700">{t('siteAssessment.salaryPerHour')}</p>
+                <p className="text-sm text-gray-900">{siteAssessment.siteAssessmentComments['salaryHourlyRate']} $/heure</p>
+              </div>
+            )}
           </div>
+
+          {/* Heures par semaine */}
+          {(siteAssessment.hoursPerWeekFirstMonth !== undefined || 
+            siteAssessment.hoursPerWeekSecondMonth !== undefined || 
+            siteAssessment.hoursPerWeekThirdMonth !== undefined) && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t('siteAssessment.hoursPerWeek')}
+              </h3>
+              <div className="space-y-2">
+                {siteAssessment.hoursPerWeekFirstMonth !== undefined && (
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekFirstMonth')}</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekFirstMonth} heures/semaine</p>
+                  </div>
+                )}
+                {siteAssessment.hoursPerWeekSecondMonth !== undefined && (
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekSecondMonth')}</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekSecondMonth} heures/semaine</p>
+                  </div>
+                )}
+                {siteAssessment.hoursPerWeekThirdMonth !== undefined && (
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekThirdMonth')}</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekThirdMonth} heures/semaine</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Quarts de travail variables */}
+          {siteAssessment.variableWorkShifts !== undefined && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t('siteAssessment.variableShifts')}
+              </h3>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-900 mb-2">
+                  {siteAssessment.variableWorkShifts ? t('siteAssessment.yes') : t('siteAssessment.no')}
+                </p>
+                {siteAssessment.variableWorkShifts && siteAssessment.workShiftTimes && (
+                  <div className="space-y-1">
+                    {siteAssessment.workShiftTimes.split('\n').filter(line => line.trim()).map((line, idx) => (
+                      <p key={idx} className="text-sm text-gray-900">{line}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Appréciation globale */}
           <div className="mb-6">
@@ -351,20 +417,6 @@ export default function SiteAssessmentModal({
               </div>
             </div>
           </div>
-
-          {/* Conformité académique */}
-          {siteAssessment.academicConformity && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {t('siteAssessment.academicConformity')}
-              </h3>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-900 whitespace-pre-wrap">
-                  {siteAssessment.academicConformity}
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Signature */}
           <div className="mb-6">
@@ -473,6 +525,66 @@ export default function SiteAssessmentModal({
               useButtons={true}
               getLabel={(value) => getAssessmentLabel(value as SiteAssessmentOptions)}
             />
+            {/* Champ spécial pour le salaire horaire */}
+            {formData.siteAssessment['salary'] && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('siteAssessment.salaryPerHour')}
+                </label>
+                <input
+                  type="text"
+                  value={formData.siteAssessmentComments['salaryHourlyRate'] || ''}
+                  onChange={(e) => handleCommentChange('salaryHourlyRate', e.target.value)}
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={t('siteAssessment.salaryPerHourPlaceholder')}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Heures par semaine */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {t('siteAssessment.hoursPerWeek')}
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('siteAssessment.hoursPerWeekFirstMonth')}
+                </label>
+                <input
+                  type="number"
+                  value={formData.hoursPerWeekFirstMonth || ''}
+                  onChange={(e) => handleInputChange('hoursPerWeekFirstMonth', e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('siteAssessment.hoursPerWeekSecondMonth')}
+                </label>
+                <input
+                  type="number"
+                  value={formData.hoursPerWeekSecondMonth || ''}
+                  onChange={(e) => handleInputChange('hoursPerWeekSecondMonth', e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('siteAssessment.hoursPerWeekThirdMonth')}
+                </label>
+                <input
+                  type="number"
+                  value={formData.hoursPerWeekThirdMonth || ''}
+                  onChange={(e) => handleInputChange('hoursPerWeekThirdMonth', e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="0"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Appréciation globale */}
@@ -551,18 +663,58 @@ export default function SiteAssessmentModal({
             </div>
           </div>
 
-          {/* Conformité académique */}
+          {/* Quarts de travail variables */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {t('siteAssessment.academicConformity')}
+              {t('siteAssessment.variableShifts')}
             </h3>
-            <textarea
-              value={formData.academicConformity}
-              onChange={(e) => handleInputChange('academicConformity', e.target.value)}
-              className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-              rows={4}
-              placeholder={t('siteAssessment.academicConformityPlaceholder')}
-            />
+            <div>
+              <div className="flex gap-4 mb-3">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('variableWorkShifts', true)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    formData.variableWorkShifts === true
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {t('siteAssessment.yes')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('variableWorkShifts', false)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    formData.variableWorkShifts === false
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {t('siteAssessment.no')}
+                </button>
+              </div>
+              {formData.variableWorkShifts === true && (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">{t('siteAssessment.workShiftTimes')}</span>
+                      <input
+                        type="text"
+                        value={formData.workShiftTimes?.split('\n')[num - 1] || ''}
+                        onChange={(e) => {
+                          const lines = (formData.workShiftTimes || '').split('\n');
+                          lines[num - 1] = e.target.value;
+                          while (lines.length < num) lines.push('');
+                          handleInputChange('workShiftTimes', lines.join('\n'));
+                        }}
+                        className="text-black flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={`De ____ à ____`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Signature */}
@@ -589,7 +741,7 @@ export default function SiteAssessmentModal({
                   : 'border-gray-200'
               }`}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('siteAssessment.signature')} <span className="text-red-500">*</span>
+                  {t('siteAssessment.passwordSignature')} <span className="text-red-500">*</span>
                   {submitAttempted && (!formData.signature || formData.signature.trim() === '') && (
                     <span className="ml-2 text-xs text-red-600 font-normal">
                       ({t('siteAssessment.notCompleted')})
@@ -597,10 +749,11 @@ export default function SiteAssessmentModal({
                   )}
                 </label>
                 <input
-                  type="text"
+                  type="password"
                   value={formData.signature}
                   onChange={(e) => handleInputChange('signature', e.target.value)}
                   className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
+                  placeholder={t('siteAssessment.passwordSignaturePlaceholder')}
                   required
                 />
               </div>

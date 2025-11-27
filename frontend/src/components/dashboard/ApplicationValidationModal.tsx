@@ -51,7 +51,9 @@ export default function ApplicationValidationModal({
   const isProcessed = (cv: Cv) => {
     return cv.applicationStatus === 'ACCEPTED' || 
            cv.applicationStatus === 'APPROVED' ||
+           cv.applicationStatus === 'PENDING_ACCEPTANCE' ||
            cv.applicationStatus === 'ACCEPTED_BY_STUDENT' ||
+           cv.applicationStatus === 'HIRED' ||
            cv.applicationStatus === 'REJECTED_BY_STUDENT' ||
            cv.applicationStatus === 'REJECTED' ||
            cv.applicationStatus === 'PENDING_CONTRACT';
@@ -60,13 +62,29 @@ export default function ApplicationValidationModal({
   const getStatusDisplay = (cv: Cv) => {
     const isApproved = cv.applicationStatus === 'ACCEPTED' || cv.applicationStatus === 'APPROVED';
     const isRejected = cv.applicationStatus === 'REJECTED';
-    const acceptedByStudent = cv.applicationStatus === 'ACCEPTED_BY_STUDENT'
-    const rejectedByStudent = cv.applicationStatus === 'REJECTED_BY_STUDENT'
-    const pendingContract = cv.applicationStatus === 'PENDING_CONTRACT'
+    const pendingAcceptance = cv.applicationStatus === 'PENDING_ACCEPTANCE';
+    const acceptedByStudent = cv.applicationStatus === 'ACCEPTED_BY_STUDENT';
+    const hired = cv.applicationStatus === 'HIRED';
+    const rejectedByStudent = cv.applicationStatus === 'REJECTED_BY_STUDENT';
+    const pendingContract = cv.applicationStatus === 'PENDING_CONTRACT';
     
     if (isApproved) {
       return {
         label: t('im.approved'),
+        color: 'bg-green-100 text-green-800',
+        bgColor: 'bg-green-100',
+        iconColor: 'text-green-600'
+      };
+    } else if (pendingAcceptance) {
+      return {
+        label: t('im.pendingAcceptance'),
+        color: 'bg-blue-100 text-blue-800',
+        bgColor: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      };
+    } else if (hired) {
+      return {
+        label: t('im.hired'),
         color: 'bg-green-100 text-green-800',
         bgColor: 'bg-green-100',
         iconColor: 'text-green-600'

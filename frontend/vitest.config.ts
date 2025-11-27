@@ -11,6 +11,7 @@ export default defineConfig({
     css: true,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     pool: 'threads',
+    // @ts-expect-error - poolOptions is valid in vitest but types may not be updated
     poolOptions: {
       threads: {
         singleThread: true,

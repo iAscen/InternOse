@@ -7,8 +7,12 @@ import cal.ose.internose.service.exceptions.ApplicationAlreadyReviewedException;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.service.exceptions.InterviewAlreadyScheduledException;
 import cal.ose.internose.utilities.SessionUtil;
+import cal.ose.internose.persistance.UserDAO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +29,8 @@ public class EmployerService {
     private final StudentDAO studentDAO;
     private final InternshipContractDAO internshipContractDAO;
     private final InternAssessmentDAO internAssessmentDAO;
+    private final UserDAO userDAO;
+    private final PasswordEncoder passwordEncoder;
 
     public List<InternshipOfferDTO> listInternshipOffers(Long employerID) {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
@@ -178,7 +184,13 @@ public class EmployerService {
         }
 
         if (approved) {
-            studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.APPROVED);
+            // Si la candidature est en entrevue, passer à "En attente d'acceptation de l'étudiant"
+            // Sinon, passer à "Approuvée" (pour les candidatures PENDING)
+            if (currentStatus == StudentApplication.ApplicationStatus.PENDING_INTERVIEW) {
+                studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE);
+            } else {
+                studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.APPROVED);
+            }
             studentApplication.setRejectionReason(null);
         } else {
             studentApplication.setApplicationStatus(StudentApplication.ApplicationStatus.REJECTED);
@@ -200,7 +212,7 @@ public class EmployerService {
                     studentsWhoRejectedTheOffer++;
                 }
 
-                if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
+                if (application.getApplicationStatus() == StudentApplication.ApplicationStatus.HIRED) {
                     studentsWhoAcceptedTheOffer++;
                 }
             }
@@ -219,7 +231,7 @@ public class EmployerService {
         List<StudentApplication> applications = studentApplicationDAO.findByInternshipOffer(offer);
 
         for (StudentApplication application: applications) {
-            if ((application.getApplicationStatus() == StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT ||
+            if ((application.getApplicationStatus() == StudentApplication.ApplicationStatus.HIRED ||
                 application.getApplicationStatus() == StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT) &&
                 application.getSeenStatus() == StudentApplication.SeenStatus.UNSEEN) {
 
@@ -290,10 +302,28 @@ public class EmployerService {
         if (optionalInternAssessment.isPresent())
             throw new ForbiddenException("Vous ne pouvez pas modifier une évaluation du stagiaire");
 
+        // Valider le mot de passe de l'utilisateur connecté
+        validatePassword(internAssessmentDTO.getSignature());
+
         InternAssessment internAssessment = InternAssessment.fromDTO(internAssessmentDTO);
         internAssessment.setInternshipContract(internshipContract);
         internAssessment = internAssessmentDAO.save(internAssessment);
         return InternAssessmentDTO.fromEntity(internAssessment);
+    }
+
+    private void validatePassword(String password) throws ForbiddenException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new ForbiddenException("Utilisateur non authentifié");
+        }
+        
+        String email = authentication.getName();
+        User user = userDAO.findByCredentials_Email(email)
+            .orElseThrow(() -> new ForbiddenException("Utilisateur non trouvé"));
+        
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ForbiddenException("Mot de passe incorrect");
+        }
     }
 
     public void isOwnerOfInternshipContract(Long employerID, InternshipContract internshipContract) throws ForbiddenException {

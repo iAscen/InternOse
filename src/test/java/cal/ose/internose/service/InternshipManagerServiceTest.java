@@ -383,7 +383,7 @@ class InternshipManagerServiceTest {
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
         when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
         when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
-            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.APPROVED).build()));
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE).build()));
 
         // Act && Assert
         assertThrows(InternshipOfferNotAcceptedByStudentException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
@@ -406,7 +406,7 @@ class InternshipManagerServiceTest {
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
         when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
         when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
-            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.APPROVED).build()));
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE).build()));
 
         // Act && Assert
         assertThrows(SessionMismatchException.class, () -> internshipManagerService.createInternshipContract(createInternshipContractDTO));
@@ -430,7 +430,7 @@ class InternshipManagerServiceTest {
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
         when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(internshipOffer));
         when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
-            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT).build()));
+            .thenReturn(Optional.ofNullable(StudentApplication.builder().applicationStatus(StudentApplication.ApplicationStatus.HIRED).build()));
 
         when(internshipContractDAO.findByStudentAndInternshipOffer(any(), any())).thenReturn(Optional.of(internshipContract));
 
@@ -471,7 +471,7 @@ class InternshipManagerServiceTest {
         offer.setEmployer(employer);
 
         StudentApplication application = new StudentApplication();
-        application.setApplicationStatus(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT);
+        application.setApplicationStatus(StudentApplication.ApplicationStatus.HIRED);
 
         when(studentDAO.findById(1L)).thenReturn(Optional.of(student));
         when(internshipOfferDAO.findById(1L)).thenReturn(Optional.of(offer));

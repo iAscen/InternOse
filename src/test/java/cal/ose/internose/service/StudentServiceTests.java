@@ -455,7 +455,7 @@ public class StudentServiceTests {
                 .id(1L)
                 .student(student)
                 .internshipOffer(internshipOffer)
-                .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE)
                 .build();
 
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
@@ -470,7 +470,7 @@ public class StudentServiceTests {
         // Assert
         verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
         assertThat(application.getApplicationStatus())
-                .isEqualTo(StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT);
+                .isEqualTo(StudentApplication.ApplicationStatus.HIRED);
     }
 
     @Test
@@ -491,7 +491,7 @@ public class StudentServiceTests {
                 .id(1L)
                 .student(student)
                 .internshipOffer(internshipOffer)
-                .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE)
                 .build();
 
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
@@ -585,7 +585,7 @@ public class StudentServiceTests {
                 .id(1L)
                 .student(student)
                 .internshipOffer(internshipOffer)
-                .applicationStatus(StudentApplication.ApplicationStatus.APPROVED)
+                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE)
                 .build();
 
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));

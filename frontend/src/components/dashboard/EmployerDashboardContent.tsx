@@ -145,7 +145,7 @@ export default function EmployerDashboardContent() {
             const applicationsResponse = await employerAPI.getStudentApplicationsBy(offer.id, null, null, null, null);
             if (applicationsResponse.success && applicationsResponse.data) {
               // Seulement PENDING_CONTRACT indique qu'un contrat a été créé par le gestionnaire
-              // ACCEPTED_BY_STUDENT signifie que l'étudiant a accepté, mais le contrat n'a pas encore été créé
+              // HIRED signifie que l'étudiant a accepté, mais le contrat n'a pas encore été créé
               const applicationsWithContract = applicationsResponse.data.filter((app: any) =>
                 app.applicationStatus === 'PENDING_CONTRACT'
               );

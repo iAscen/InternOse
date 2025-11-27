@@ -225,14 +225,18 @@ public class StudentService {
             .findByStudentAndInternshipOffer(student, internshipOffer)
             .orElseThrow(() -> new NoSuchElementException("Vous n'avez pas postulé à cette offre de stage"));
         
-        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.APPROVED)
+        // Vérifier que la candidature est en attente d'acceptation de l'étudiant
+        StudentApplication.ApplicationStatus currentStatus = studentApplication.getApplicationStatus();
+        if (currentStatus != StudentApplication.ApplicationStatus.APPROVED && 
+            currentStatus != StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE) {
             throw new Exception("Cette offre n'a pas été acceptée par l'employeur ou a déjà été traitée");
+        }
         
         if (internshipOffer.getExpirationDate() != null && internshipOffer.getExpirationDate().isBefore(java.time.LocalDate.now()))
             throw new Exception("Cette offre de stage a expiré, vous ne pouvez plus y répondre");
         
         studentApplication.setApplicationStatus(accepted 
-            ? StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT 
+            ? StudentApplication.ApplicationStatus.HIRED 
             : StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);
 
         studentApplication.setSeenStatus(StudentApplication.SeenStatus.UNSEEN);

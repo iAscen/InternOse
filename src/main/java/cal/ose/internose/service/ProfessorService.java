@@ -11,10 +11,12 @@ import cal.ose.internose.service.DTOs.InternshipContractDTO;
 import cal.ose.internose.service.DTOs.SiteAssessmentDTO;
 import cal.ose.internose.service.exceptions.ForbiddenException;
 import cal.ose.internose.utilities.SessionUtil;
+import cal.ose.internose.persistance.UserDAO;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -29,6 +31,8 @@ public class ProfessorService {
     private final InternshipContractDAO internshipContractDAO;
     private final ProfessorDAO professorDAO;
     private final SiteAssessmentDAO siteAssessmentDAO;
+    private final UserDAO userDAO;
+    private final PasswordEncoder passwordEncoder;
     private final InternAssessmentDAO internAssessmentDAO;
 
     public List<InternshipContractDTO> findInternshipContractsBy(long professorId, String studentName, String company, String internshipProgram, String sortBy) throws ForbiddenException {
@@ -119,10 +123,28 @@ public class ProfessorService {
         if (optionalSiteAssessment.isPresent())
             throw new ForbiddenException("Vous ne pouvez pas modifier une évaluation du milieu de stage");
 
+        // Valider le mot de passe de l'utilisateur connecté
+        validatePassword(siteAssessmentDTO.getSignature());
+
         SiteAssessment siteAssessment = SiteAssessment.fromDTO(siteAssessmentDTO);
         siteAssessment.setInternshipContract(internshipContract);
         siteAssessment = siteAssessmentDAO.save(siteAssessment);
         return SiteAssessmentDTO.fromEntity(siteAssessment);
+    }
+
+    private void validatePassword(String password) throws ForbiddenException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new ForbiddenException("Utilisateur non authentifié");
+        }
+        
+        String email = authentication.getName();
+        User user = userDAO.findByCredentials_Email(email)
+            .orElseThrow(() -> new ForbiddenException("Utilisateur non trouvé"));
+        
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ForbiddenException("Mot de passe incorrect");
+        }
     }
 
     public void isProfessorOfInternshipContract(Long professorID, InternshipContract internshipContract) throws ForbiddenException {

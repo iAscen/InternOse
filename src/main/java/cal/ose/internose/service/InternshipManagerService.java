@@ -110,7 +110,7 @@ public class InternshipManagerService {
             throw new SessionMismatchException();
         }
 
-        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.ACCEPTED_BY_STUDENT) {
+        if (studentApplication.getApplicationStatus() != StudentApplication.ApplicationStatus.HIRED) {
             throw new InternshipOfferNotAcceptedByStudentException();
         }
 

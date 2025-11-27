@@ -181,11 +181,10 @@ export interface InternAssessment {
 
 // Enums pour l'évaluation du milieu de stage
 export type SiteAssessmentOptions =
-  | 'EXCELLENT'
-  | 'VERY_GOOD'
-  | 'GOOD'
-  | 'SATISFACTORY'
-  | 'UNSATISFACTORY'
+  | 'COMPLETELY_AGREE'
+  | 'PARTIALLY_AGREE'
+  | 'PARTIALLY_DISAGREE'
+  | 'COMPLETELY_DISAGREE'
   | 'NOT_APPLICABLE';
 
 export type OverallSiteAppreciation =
@@ -212,7 +211,11 @@ export interface SiteAssessment {
   overallSiteAppreciation: OverallSiteAppreciation;
   generalComments?: string;
   recommendation: Recommendation;
-  academicConformity?: string;
+  hoursPerWeekFirstMonth?: number;
+  hoursPerWeekSecondMonth?: number;
+  hoursPerWeekThirdMonth?: number;
+  variableWorkShifts?: boolean;
+  workShiftTimes?: string; // Format: "De ____ à ____" (3 lignes possibles)
   professorName: string;
   signature: string;
   assessmentDate: string;

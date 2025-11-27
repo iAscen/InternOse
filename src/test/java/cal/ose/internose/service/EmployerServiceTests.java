@@ -578,7 +578,7 @@ public class EmployerServiceTests {
             employerService.reviewApplication(internshipOfferID, studentID, true, "");
 
             // Assert
-            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.APPROVED);
+            assertThat(application.getApplicationStatus()).isEqualTo(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE);
             verify(studentApplicationDAO, times(1)).save(any(StudentApplication.class));
         }
 

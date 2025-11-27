@@ -30,11 +30,10 @@ public class SiteAssessment {
     private String internshipDuration;
 
     public enum AssessmentOptions {
-        EXCELLENT,
-        VERY_GOOD,
-        GOOD,
-        SATISFACTORY,
-        UNSATISFACTORY,
+        COMPLETELY_AGREE,
+        PARTIALLY_AGREE,
+        PARTIALLY_DISAGREE,
+        COMPLETELY_DISAGREE,
         NOT_APPLICABLE
     }
 
@@ -70,9 +69,16 @@ public class SiteAssessment {
         DO_NOT_RECOMMEND
     }
     private Recommendation recommendation;
-
-    @Column(length = 1000)
-    private String academicConformity;
+    
+    // Heures par semaine pour les trois mois
+    private Integer hoursPerWeekFirstMonth;
+    private Integer hoursPerWeekSecondMonth;
+    private Integer hoursPerWeekThirdMonth;
+    
+    // Observations générales
+    private Boolean variableWorkShifts;
+    private String workShiftTimes; // Format: "De ____ à ____" (3 lignes possibles)
+    
     private String professorName;
     private String signature;
     private String assessmentDate;
@@ -89,7 +95,11 @@ public class SiteAssessment {
             .overallSiteAppreciation(siteAssessmentDTO.getOverallSiteAppreciation())
             .generalComments(siteAssessmentDTO.getGeneralComments())
             .recommendation(siteAssessmentDTO.getRecommendation())
-            .academicConformity(siteAssessmentDTO.getAcademicConformity())
+            .hoursPerWeekFirstMonth(siteAssessmentDTO.getHoursPerWeekFirstMonth())
+            .hoursPerWeekSecondMonth(siteAssessmentDTO.getHoursPerWeekSecondMonth())
+            .hoursPerWeekThirdMonth(siteAssessmentDTO.getHoursPerWeekThirdMonth())
+            .variableWorkShifts(siteAssessmentDTO.getVariableWorkShifts())
+            .workShiftTimes(siteAssessmentDTO.getWorkShiftTimes())
             .professorName(siteAssessmentDTO.getProfessorName())
             .signature(siteAssessmentDTO.getSignature())
             .assessmentDate(siteAssessmentDTO.getAssessmentDate())
