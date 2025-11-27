@@ -60,7 +60,7 @@ export default function SiteAssessmentModal({
     generalComments: '',
     recommendation: 'RECOMMEND',
     academicConformity: '',
-    professorName: '',
+    professorName: `${contract.professorFirstName || ''} ${contract.professorLastName || ''}`.trim(),
     signature: '',
     assessmentDate: '',
   });
@@ -151,7 +151,7 @@ export default function SiteAssessmentModal({
   };
 
   const isFormValid = (): boolean => {
-    if (!formData.professorName || !formData.signature) {
+    if (!formData.signature) {
       return false;
     }
     // Vérifier que tous les critères sont évalués
@@ -523,7 +523,7 @@ export default function SiteAssessmentModal({
             <textarea
               value={formData.academicConformity}
               onChange={(e) => handleInputChange('academicConformity', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
+              className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
               rows={4}
               placeholder={t('siteAssessment.academicConformityPlaceholder')}
             />
@@ -535,25 +535,16 @@ export default function SiteAssessmentModal({
               {t('siteAssessment.signature')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className={`border rounded-lg p-4 ${
-                submitAttempted && (!formData.professorName || formData.professorName.trim() === '')
-                  ? 'border-red-300 bg-red-50' 
-                  : 'border-gray-200'
-              }`}>
+              <div className="border rounded-lg p-4 border-gray-200">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('siteAssessment.professorName')} <span className="text-red-500">*</span>
-                  {submitAttempted && (!formData.professorName || formData.professorName.trim() === '') && (
-                    <span className="ml-2 text-xs text-red-600 font-normal">
-                      ({t('siteAssessment.notCompleted')})
-                    </span>
-                  )}
+                  {t('siteAssessment.professorName')}
                 </label>
                 <input
                   type="text"
                   value={formData.professorName}
                   onChange={(e) => handleInputChange('professorName', e.target.value)}
                   className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
-                  required
+                  disabled
                 />
               </div>
               <div className={`border rounded-lg p-4 ${
