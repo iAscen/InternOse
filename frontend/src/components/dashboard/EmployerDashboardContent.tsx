@@ -26,7 +26,7 @@ import {employerAPI} from "~/services/EmployerAPI";
 import {useClickOutside} from "~/hooks/useClickOutside";
 import {filterInternshipOffers, sortInternshipOffers, filterContracts, sortContracts} from "~/utils/filterUtils";
 import InternshipContractList from './InternshipContractList';
-import {getAvailableSessions} from "~/utils/avaliableSessions";
+import {getAvailableSessions, getCurrentSession} from "~/utils/avaliableSessions";
 
 export default function EmployerDashboardContent() {
   const {t} = useTranslation();
@@ -129,7 +129,12 @@ export default function EmployerDashboardContent() {
       setLoadingContracts(true);
       const contractsList: InternshipContract[] = [];
 
-      const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      // Filtrer par session actuelle (sauf dans l'onglet historique)
+      let approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      if (activeTab !== 'history') {
+        const currentSession = getCurrentSession();
+        approvedOffers = approvedOffers.filter(offer => offer.session === currentSession);
+      }
 
       if (approvedOffers.length > 0) {
         const contractPromises: Promise<{
@@ -191,7 +196,7 @@ export default function EmployerDashboardContent() {
     } finally {
       setLoadingContracts(false);
     }
-  }, [allOffers]);
+  }, [allOffers, activeTab]);
 
   useEffect(() => {
     if (allOffers.length > 0) {
@@ -216,8 +221,15 @@ export default function EmployerDashboardContent() {
 
       if (response.success && response.data) {
         setAllOffers(response.data);
+        // Compter les candidatures pour toutes les offres (le filtrage par session se fait dans countNumberOfApplicationsForOffers)
         await countNumberOfApplicationsForOffers(response.data);
-        await countNumberOfUnseenApplications(response.data);
+        // Filtrer par session actuelle pour les unseen applications (sauf historique)
+        let offersToCount = response.data;
+        if (activeTab !== 'history') {
+          const currentSession = getCurrentSession();
+          offersToCount = response.data.filter(offer => offer.session === currentSession);
+        }
+        await countNumberOfUnseenApplications(offersToCount);
       } else {
         setError(response.error || t('dashboard.loadingError'));
       }
@@ -250,6 +262,12 @@ export default function EmployerDashboardContent() {
   useEffect(() => {
     let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
 
+    // Filtrer par session actuelle (sauf dans l'onglet historique)
+    if (activeTab !== 'history') {
+      const currentSession = getCurrentSession();
+      filtered = filtered.filter(offer => offer.session === currentSession);
+    }
+
     // Pour l'onglet "offers", les filtres sont [status, program]
     // Mais on filtre déjà par PENDING, donc on ignore le status du filtre
     const status = offerFilters[0];
@@ -267,10 +285,16 @@ export default function EmployerDashboardContent() {
     }
 
     setFilteredOffers(filtered);
-  }, [allOffers, offerFilters, offerSortBy]);
+  }, [allOffers, offerFilters, offerSortBy, activeTab]);
 
   useEffect(() => {
     let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
+
+    // Filtrer par session actuelle (sauf dans l'onglet historique)
+    if (activeTab !== 'history') {
+      const currentSession = getCurrentSession();
+      filtered = filtered.filter(offer => offer.session === currentSession);
+    }
 
     // Pour l'onglet "approved-offers", les filtres sont [status, program]
     // Mais toutes les offres sont déjà APPROVED, donc on ignore le status
@@ -289,7 +313,7 @@ export default function EmployerDashboardContent() {
     }
 
     setFilteredApprovedOffers(filtered);
-  }, [allOffers, offerFilters, offerSortBy]);
+  }, [allOffers, offerFilters, offerSortBy, activeTab]);
 
   useEffect(() => {
     // Combiner allOffers et pastOffers pour l'historique, en évitant les doublons
@@ -361,7 +385,13 @@ export default function EmployerDashboardContent() {
     const errorMes = "Erreur lors du comptage des candidatures sur vos offres de stage."
     const numbersOfApplicationsMap = new Map<number, number>();
     try {
-      for (const offer of offersList) {
+      // Filtrer par session actuelle (sauf dans l'onglet historique)
+      let filteredOffersList = offersList;
+      if (activeTab !== 'history') {
+        const currentSession = getCurrentSession();
+        filteredOffersList = offersList.filter(offer => offer.session === currentSession);
+      }
+      for (const offer of filteredOffersList) {
         if (offer.id) {
           let response = await employerAPI.getStudentApplicationsBy(offer.id, applicationStatus, program, institution, sortBy)
           if (response.success) {
@@ -384,8 +414,12 @@ export default function EmployerDashboardContent() {
       let pendingCount = 0;
       let interviewCount = 0;
 
-      // Seulement pour les offres approuvées
-      const approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      // Seulement pour les offres approuvées de la session actuelle
+      let approvedOffers = allOffers.filter(offer => offer.verificationStatus === 'APPROVED' && offer.id);
+      if (activeTab !== 'history') {
+        const currentSession = getCurrentSession();
+        approvedOffers = approvedOffers.filter(offer => offer.session === currentSession);
+      }
 
       for (const offer of approvedOffers) {
         if (!offer.id) continue;
@@ -414,7 +448,15 @@ export default function EmployerDashboardContent() {
     }
   }
 
-  const stats = dashboardService.calculateStats(allOffers);
+  // Calculer les stats uniquement pour la session actuelle (sauf historique)
+  const stats = useMemo(() => {
+    let offersForStats = allOffers;
+    if (activeTab !== 'history') {
+      const currentSession = getCurrentSession();
+      offersForStats = allOffers.filter(offer => offer.session === currentSession);
+    }
+    return dashboardService.calculateStats(offersForStats);
+  }, [allOffers, activeTab]);
 
   useEffect(() => {
     loadOffers();
@@ -426,7 +468,7 @@ export default function EmployerDashboardContent() {
     if (allOffers.length > 0 && stats.approved > 0) {
       countApplicationStatuses();
     }
-  }, [allOffers.length]);
+  }, [allOffers.length, activeTab]);
 
   const mapFormDataToRequest = (formData: CreateOfferFormData): CreateInternshipOfferRequest => {
     return {
@@ -541,7 +583,7 @@ export default function EmployerDashboardContent() {
                   </div>
                   <div className="sm:col-span-6 xl:col-span-4">
                     <StatisticsCard
-                      title={t('dashboard.validated')}
+                      title={t('dashboard.validatedOffers')}
                       value={stats.approved}
                       icon={statsIcons.approved}
                       bgColor="bg-green-100"
@@ -671,7 +713,11 @@ export default function EmployerDashboardContent() {
                       <div className="flex justify-between items-center py-3">
                         <span className="text-sm font-medium text-slate-700">{t('employer.offersWithApplications')}</span>
                         <span className="text-lg font-bold text-blue-600">
-                        {filteredApprovedOffers.length}
+                        {allOffers.filter(offer => 
+                          offer.verificationStatus === 'APPROVED' && 
+                          offer.id && 
+                          (numbersOfApplications.get(offer.id) || 0) > 0
+                        ).length}
                       </span>
                       </div>
                     </div>

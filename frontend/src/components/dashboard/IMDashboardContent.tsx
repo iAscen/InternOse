@@ -1,9 +1,9 @@
-﻿import { useEffect, useState, useRef, useMemo } from "react";
+﻿import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { userAPI } from "~/services/UserAPI";
 import { dashboardService } from "~/services/dashboardService";
-import type {InternshipOffer, Professor, UnseenApplicationsCount} from "~/interfaces";
+import type {InternshipOffer, Professor} from "~/interfaces";
 import type { Cv } from "~/interfaces"
 import StatisticsCard from "~/components/dashboard/StatisticsCard";
 import DashboardLayout from "~/components/dashboard/DashboardLayout";
@@ -25,7 +25,7 @@ import {employerAPI} from "~/services/EmployerAPI";
 import InternshipContractList from "~/components/dashboard/InternshipContractList";
 import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
 import type { InternshipContract } from "~/interfaces";
-import { getAvailableSessions } from "~/utils/avaliableSessions";
+import { getAvailableSessions, getCurrentSession } from "~/utils/avaliableSessions";
 
 export default function IMDashboardContent() {
     const { t } = useTranslation();
@@ -206,13 +206,23 @@ export default function IMDashboardContent() {
         }
     }
 
-    const loadContracts = async () => {
+    const loadContracts = useCallback(async () => {
         try {
             setLoading(true);
             const response = await internshipManagerAPI.getAllInternshipContracts();
             if (response.success && response.data) {
                 console.log("Contracts loaded")
-                setContracts(response.data);
+                // Filtrer par session actuelle (sauf dans l'onglet historique)
+                let contracts = response.data;
+                if (activeTab !== 'history') {
+                    const currentSession = getCurrentSession();
+                    contracts = response.data.filter((contract: InternshipContract) => {
+                        // Trouver l'offre correspondante pour vérifier la session
+                        const offer = allOffers.find(o => o.id === contract.internshipOfferId);
+                        return offer && offer.session === currentSession;
+                    });
+                }
+                setContracts(contracts);
             } else {
                 setError(response.error || t('dashboard.loadingError'));
             }
@@ -221,12 +231,18 @@ export default function IMDashboardContent() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [allOffers, activeTab, t]);
 
     // Apply filters and sorting to offers (PENDING only)
     useEffect(() => {
         // Filtrer seulement les offres PENDING ou sans statut
         let filtered = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING');
+        
+        // Filtrer par session actuelle (sauf dans l'onglet historique)
+        if (activeTab !== 'history') {
+            const currentSession = getCurrentSession();
+            filtered = filtered.filter(offer => offer.session === currentSession);
+        }
         
         // Apply filters
         const program = offerFilters[0];
@@ -245,12 +261,18 @@ export default function IMDashboardContent() {
         }
         
         setFilteredOffers(filtered);
-    }, [allOffers, offerFilters, offerSortBy]);
+    }, [allOffers, offerFilters, offerSortBy, activeTab]);
 
     // Apply filters and sorting to approved offers
     useEffect(() => {
         // Filtrer seulement les offres APPROVED
         let filtered = allOffers.filter(offer => offer.verificationStatus === 'APPROVED');
+        
+        // Filtrer par session actuelle (sauf dans l'onglet historique)
+        if (activeTab !== 'history') {
+            const currentSession = getCurrentSession();
+            filtered = filtered.filter(offer => offer.session === currentSession);
+        }
         
         // Apply filters
         const program = offerFilters[0];
@@ -269,7 +291,7 @@ export default function IMDashboardContent() {
         }
         
         setFilteredApprovedOffers(filtered);
-    }, [allOffers, offerFilters, offerSortBy]);
+    }, [allOffers, offerFilters, offerSortBy, activeTab]);
 
     useEffect(() => {
         let filtered = allOffers;
@@ -337,9 +359,14 @@ export default function IMDashboardContent() {
     useEffect(() => {
         loadOffers();
         loadCvs();
-        loadContracts();
         loadProfessors();
     }, []);
+
+    useEffect(() => {
+        if (allOffers.length > 0) {
+            loadContracts();
+        }
+    }, [allOffers.length, activeTab, loadContracts]);
 
     // Réinitialiser selectedOffer quand on change d'onglet (sauf si on reste sur approved-offers)
     useEffect(() => {
@@ -393,7 +420,11 @@ export default function IMDashboardContent() {
                   <StatisticsCard
                     title={t('im.pendingSubmissions')}
                     value={(() => {
-                      const pendingOffers = allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length;
+                      const currentSession = getCurrentSession();
+                      const pendingOffers = allOffers.filter(offer => 
+                        offer.session === currentSession && 
+                        (!offer.verificationStatus || offer.verificationStatus === 'PENDING')
+                      ).length;
                       const pendingCvs = allCvs.filter(cv => cv.cvStatus === 'pending' || cv.cvStatus === 'PENDING').length;
                       return pendingOffers + pendingCvs;
                     })()}
@@ -405,9 +436,13 @@ export default function IMDashboardContent() {
                 <div className="sm:col-span-6 xl:col-span-4">
                   <StatisticsCard
                     title={t('im.approvedSubmissions')}
-                    value={
-                      allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length
-                    }
+                    value={(() => {
+                      const currentSession = getCurrentSession();
+                      return allOffers.filter(offer => 
+                        offer.session === currentSession && 
+                        offer.verificationStatus === 'APPROVED'
+                      ).length;
+                    })()}
                     icon={statsIcons.approved}
                     bgColor="bg-green-100"
                     iconColor="text-green-600"
@@ -416,10 +451,15 @@ export default function IMDashboardContent() {
                 <div className="sm:col-span-6 xl:col-span-4">
                   <StatisticsCard
                     title={t('im.refusedSubmissions')}
-                    value={
-                      allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length +
-                      allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length
-                    }
+                    value={(() => {
+                      const currentSession = getCurrentSession();
+                      const rejectedOffers = allOffers.filter(offer => 
+                        offer.session === currentSession && 
+                        offer.verificationStatus === 'REJECTED'
+                      ).length;
+                      const rejectedCvs = allCvs.filter(cv => cv.cvStatus === 'rejected' || cv.cvStatus === 'REJECTED').length;
+                      return rejectedOffers + rejectedCvs;
+                    })()}
                     icon={statsIcons.refused}
                     bgColor="bg-red-100"
                     iconColor="text-red-600"
@@ -445,8 +485,20 @@ export default function IMDashboardContent() {
                     </div>
                     <p className="text-sm text-slate-600 text-left">
                       {t('im.offersPending', { 
-                        count: allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length,
-                        plural: allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length > 1 ? 's' : ''
+                        count: (() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            (!offer.verificationStatus || offer.verificationStatus === 'PENDING')
+                          ).length;
+                        })(),
+                        plural: (() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            (!offer.verificationStatus || offer.verificationStatus === 'PENDING')
+                          ).length > 1 ? 's' : '';
+                        })()
                       })}
                     </p>
                   </button>
@@ -485,8 +537,20 @@ export default function IMDashboardContent() {
                     </div>
                     <p className="text-sm text-slate-600 text-left">
                       {t('im.offersValidated', { 
-                        count: allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length,
-                        plural: allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length > 1 ? 's' : ''
+                        count: (() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            offer.verificationStatus === 'APPROVED'
+                          ).length;
+                        })(),
+                        plural: (() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            offer.verificationStatus === 'APPROVED'
+                          ).length > 1 ? 's' : '';
+                        })()
                       })}
                     </p>
                   </button>
@@ -521,19 +585,37 @@ export default function IMDashboardContent() {
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-slate-600">{t('im.pendingStatus')}</span>
                       <span className="text-lg font-bold text-yellow-600">
-                        {allOffers.filter(offer => !offer.verificationStatus || offer.verificationStatus === 'PENDING').length}
+                        {(() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            (!offer.verificationStatus || offer.verificationStatus === 'PENDING')
+                          ).length;
+                        })()}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-slate-600">{t('im.approvedStatus')}</span>
                       <span className="text-lg font-bold text-green-600">
-                        {allOffers.filter(offer => offer.verificationStatus === 'APPROVED').length}
+                        {(() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            offer.verificationStatus === 'APPROVED'
+                          ).length;
+                        })()}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-slate-600">{t('im.rejectedStatus')}</span>
                       <span className="text-lg font-bold text-red-600">
-                        {allOffers.filter(offer => offer.verificationStatus === 'REJECTED').length}
+                        {(() => {
+                          const currentSession = getCurrentSession();
+                          return allOffers.filter(offer => 
+                            offer.session === currentSession && 
+                            offer.verificationStatus === 'REJECTED'
+                          ).length;
+                        })()}
                       </span>
                     </div>
                   </div>

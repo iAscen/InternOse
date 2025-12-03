@@ -140,18 +140,18 @@ class UserAPI {
   // Gestion du token JWT
   saveToken(token: string): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('jwt_token', token);
+    sessionStorage.setItem('jwt_token', token);
   }
 
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('jwt_token');
+    return sessionStorage.getItem('jwt_token');
   }
 
   removeToken(): void {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('user_role');
+    sessionStorage.removeItem('jwt_token');
+    sessionStorage.removeItem('user_role');
   }
 
   isAuthenticated(): boolean {
@@ -162,12 +162,12 @@ class UserAPI {
   // Gestion du rôle utilisateur
   saveUserRole(role: 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR'): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('user_role', role);
+    sessionStorage.setItem('user_role', role);
   }
 
   getUserRole(): 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null;
+    return sessionStorage.getItem('user_role') as 'EMPLOYER' | 'STUDENT' | 'INTERNSHIP_MANAGER' | 'PROFESSOR' | null;
   }
 
   // Récupérer le nom complet de l'utilisateur depuis le JWT (décodage simple)

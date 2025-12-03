@@ -218,7 +218,7 @@ export default function FilterMenuOffers({applyFilters, userRole, isHistory = fa
               >
                 <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
                 <option value="PENDING" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-                <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+                <option value="APPROVED" className="text-gray-900 bg-white">{t('dashboard.validatedOffers')}</option>
                 <option value="REJECTED" className="text-gray-900 bg-white">{t('dashboard.rejected')}</option>
               </select>
             </div>

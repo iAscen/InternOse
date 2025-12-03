@@ -34,7 +34,7 @@ export default function CvList({cvs, loading, onCvValidation}: CvListProps) {
         if (statusLower === "approved") {
             return (
                 <span className="inline-block rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs leading-4 font-semibold text-emerald-700">
-                    {t('dashboard.validated')}
+                    {t('dashboard.validatedCvs')}
                 </span>
             );
         } else if (statusLower === "rejected") {

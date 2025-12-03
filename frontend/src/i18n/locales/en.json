@@ -143,6 +143,8 @@
         "totalOffers": "Total offers",
         "pending": "Pending",
         "validated": "Validated",
+        "validatedOffers": "Approved offers",
+        "validatedCvs": "Approved CVs",
         "rejected": "Rejected",
         "expired": "Expired",
         "myOffers": "My internship offers",

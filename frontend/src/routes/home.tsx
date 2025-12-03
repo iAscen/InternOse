@@ -22,14 +22,14 @@ export default function Home() {
   // Rediriger automatiquement vers le bon dashboard si l'utilisateur est connecté
   useEffect(() => {
     if (userAPI.isAuthenticated()) {
-      // Essayer d'abord de récupérer le rôle depuis localStorage
+      // Essayer d'abord de récupérer le rôle depuis sessionStorage
       let userRole = userAPI.getUserRole();
       
-      // Si pas trouvé dans localStorage, essayer depuis le JWT
+      // Si pas trouvé dans sessionStorage, essayer depuis le JWT
       if (!userRole) {
         userRole = userAPI.getUserRoleFromJWT();
         if (userRole) {
-          // Sauvegarder le rôle dans localStorage pour éviter de re-décoder le JWT
+          // Sauvegarder le rôle dans sessionStorage pour éviter de re-décoder le JWT
           userAPI.saveUserRole(userRole);
         }
       }

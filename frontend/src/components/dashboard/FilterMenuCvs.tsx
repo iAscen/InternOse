@@ -46,7 +46,7 @@ export default function FilterMenuOffers({ applyFilters }: FilterMenuOffersProps
                                 >
                                     <option value="" className="text-gray-900 bg-white">{t('im.allStatuses')}</option>
                                     <option value="pending" className="text-gray-900 bg-white">{t('dashboard.pending')}</option>
-                                    <option value="approved" className="text-gray-900 bg-white">{t('dashboard.validated')}</option>
+                                    <option value="approved" className="text-gray-900 bg-white">{t('dashboard.validatedCvs')}</option>
                                 </select>
                             </div>
                         </FormSection>

@@ -125,19 +125,21 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
       {/* Sidebar */}
       <nav
         id="page-sidebar"
-        className={`fixed start-0 z-[70] flex w-96 flex-col overflow-auto bg-slate-100 transition-transform duration-300 ease-out ${
+        className={`fixed start-0 z-[110] flex w-96 flex-col overflow-auto bg-slate-100 transition-transform duration-300 ease-out ${
           mobileSidebarOpen ? 'translate-x-0 top-0 bottom-0 h-screen' : '-translate-x-full lg:translate-x-0 top-0'
-        } lg:top-0`}
+        } lg:top-0 lg:z-[70]`}
         style={mobileSidebarOpen ? { height: '100vh' } : { height: 'calc(100vh - 7rem)' }}
         aria-label="Dashboard Navigation"
       >
         {/* Sidebar Header */}
-        <div className="flex h-24 w-full flex-none items-center justify-between px-8 bg-slate-100">
+        <div className={`flex w-full flex-none items-center justify-between px-6 sm:px-8 bg-slate-100 border-b border-slate-200 ${
+          mobileSidebarOpen ? 'h-20 sm:h-24 pt-safe' : 'h-24'
+        }`}>
           <Link
             to="/"
-            className="inline-flex items-center gap-3 text-2xl font-bold tracking-tight text-slate-900 transition hover:opacity-80 active:opacity-100"
+            className="inline-flex items-center gap-3 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 transition hover:opacity-80 active:opacity-100"
           >
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg">
+            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg">
               <svg
                 className="bi bi-window-sidebar inline-block size-6 text-white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -205,7 +207,7 @@ export default function DashboardSidebar({ activeTab, onTabChange }: DashboardSi
       {/* Mobile Overlay */}
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}

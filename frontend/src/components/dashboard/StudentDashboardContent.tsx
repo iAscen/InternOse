@@ -17,6 +17,7 @@ import type {InternshipOffer, InternshipContract} from "~/interfaces";
 import {dashboardService} from "~/services/dashboardService";
 import {filterInternshipOffers, sortInternshipOffers} from '~/utils/filterUtils';
 import {useClickOutside} from '~/hooks/useClickOutside';
+import {getCurrentSession} from '~/utils/avaliableSessions';
 
 
 export default function StudentDashboardContent() {
@@ -88,6 +89,10 @@ export default function StudentDashboardContent() {
   // Apply filters and sorting to offers
   useEffect(() => {
     let filtered = allOffers;
+
+    // Filtrer par session actuelle (pas d'onglet historique pour les étudiants, mais on filtre toujours)
+    const currentSession = getCurrentSession();
+    filtered = filtered.filter(offer => offer.session === currentSession);
 
     // Exclure les offres où l'étudiant a déjà postulé (pour la section "Offres de stage")
     if (activeTab === 'offers') {
@@ -165,11 +170,15 @@ export default function StudentDashboardContent() {
       const contractsList: InternshipContract[] = [];
       const contractsMapLocal = new Map<number, InternshipContract>();
 
+      // Filtrer par session actuelle
+      const currentSession = getCurrentSession();
+      const offersForContracts = allOffers.filter(offer => offer.session === currentSession);
+
       // Pour chaque offre où l'étudiant a postulé, essayer de charger le contrat
       // Priorité aux offres avec PENDING_CONTRACT ou HIRED
-      if (allOffers.length > 0) {
+      if (offersForContracts.length > 0) {
         // Charger les contrats en parallèle pour améliorer les performances
-        const contractPromises = allOffers
+        const contractPromises = offersForContracts
           .filter(offer => offer.applicationStatus && offer.id)
           .map(async (offer) => {
             if (!offer.id) return null;

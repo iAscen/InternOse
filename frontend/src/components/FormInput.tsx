@@ -38,10 +38,10 @@ export default function FormInput({
         name={name}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+        className={`w-full px-4 py-3 border-2 rounded-xl shadow-sm focus:outline-none focus:ring-4 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white ${
           error 
-            ? "border-red-400 bg-red-50 focus:ring-red-100" 
-            : "border-gray-300 hover:border-blue-400 focus:border-blue-500 focus:ring-blue-100"
+            ? "border-red-400 bg-red-50 focus:ring-red-200 focus:border-red-500" 
+            : "border-gray-200 hover:border-blue-300 focus:border-blue-500 focus:ring-blue-200"
         }`}
         placeholder={placeholder}
         required={required}

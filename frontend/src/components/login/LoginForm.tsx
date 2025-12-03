@@ -99,7 +99,7 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{t('auth.loginTitle')}</span>
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -107,44 +107,51 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 max-w-md mx-auto border border-white/20">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            {t('auth.loginCredentials')}
+          </h2>
+        </div>
 
-          {/* Informations personnelles */}
-            <FormSection title={t('auth.loginCredentials')}>
-                <div className="flex flex-col items-center space-y-6">
-                    <FormInput
-                        id="email"
-                        name="email"
-                        type="email"
-                        label={t('common.email')}
-                        placeholder={t('auth.emailPlaceholder')}
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        autoComplete="email"
-                    />
-                    <FormInput
-                        id="password"
-                        name="password"
-                        type="password"
-                        label={t('common.password')}
-                        placeholder={t('auth.passwordPlaceholder')}
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={8}
-                        autoComplete="current-password"
-                    />
-                </div>
-            </FormSection>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-5">
+            <FormInput
+              id="email"
+              name="email"
+              type="email"
+              label={t('common.email')}
+              placeholder={t('auth.emailPlaceholder')}
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+            />
+            <FormInput
+              id="password"
+              name="password"
+              type="password"
+              label={t('common.password')}
+              placeholder={t('auth.passwordPlaceholder')}
+              value={formData.password}
+              onChange={handleChange}
+              required
+              minLength={8}
+              autoComplete="current-password"
+            />
+          </div>
 
           {/* Bouton de soumission */}
-          <div className="pt-2">
+          <div className="pt-4">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {isLoading ? (
                 <>
@@ -155,15 +162,20 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
                   {t('common.loading')}
                 </>
               ) : (
-                t('common.login')
+                <>
+                  {t('common.login')}
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </>
               )}
             </button>
 
             {/* Affichage des erreurs sous le bouton */}
             {error && (
-              <div className="mt-4 text-center">
-                <div className="inline-flex items-center px-4 py-3 rounded-lg bg-red-50 border border-red-200 shadow-sm">
-                  <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <div className="mt-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="inline-flex items-center w-full px-4 py-3 rounded-xl bg-red-50 border-2 border-red-200 shadow-sm">
+                  <svg className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
                   <p className="text-sm font-medium text-red-700">{error}</p>
@@ -172,6 +184,19 @@ export default function LoginForm({ onBack: _onBack }: LoginFormProps) {
             )}
           </div>
         </form>
+
+        {/* Lien vers l'inscription */}
+        <div className="mt-8 text-center border-t border-gray-200 pt-6">
+          <p className="text-sm text-gray-600 mb-4">
+            {t('auth.noAccount')}{' '}
+            <a
+              href="/signup"
+              className="font-semibold text-blue-600 hover:text-blue-700 transition-colors duration-200"
+            >
+              {t('common.signup')}
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -48,7 +48,8 @@ public class EmployerService {
         Employer employer = employerDAO.findById(employerID).orElseThrow();
         InternshipOffer internshipOffer = InternshipOffer.fromDTO(internshipOfferDTO);
         internshipOffer.setEmployer(employer);
-        internshipOffer.setSession(SessionUtil.getCurrentSession());
+        // Calculer la session basée sur la date de début de l'offre, pas la date actuelle
+        internshipOffer.setSession(SessionUtil.getSessionForDate(internshipOfferDTO.getStartDate()));
         internshipOffer.setVerificationStatus(VerificationStatus.PENDING);
         internshipOffer = internshipOfferDAO.save(internshipOffer);
         return InternshipOfferDTO.fromEntity(internshipOffer);

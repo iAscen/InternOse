@@ -2,25 +2,21 @@ import type { InternshipOffer } from "~/interfaces";
 
 /**
  * Génère la session actuelle (Winter-YYYY)
- * Basé sur la logique du backend SessionUtil.getCurrentSession()
+ * Basé sur la logique : si on est à partir du 1er mai, la session devient Hiver de l'année suivante
+ * Exemple : 1er mai 2025 -> Winter-2026, mais mars 2025 -> Winter-2025
  */
-function getCurrentSession(): string {
+export function getCurrentSession(): string {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1; // 1-12
   const day = now.getDate();
 
-  // Si on est avant le 23 janvier, on est encore dans la session de l'année précédente
-  if (month === 1 && day < 23) {
-    return `Winter-${year - 1}`;
+  // Si on est à partir du 1er mai (mois >= 5 et jour >= 1), on est dans la session de l'année suivante
+  if (month > 5 || (month === 5 && day >= 1)) {
+    return `Winter-${year + 1}`;
   }
 
-  // Si on est avant le 25 juin, on est dans la session de l'année en cours
-  if (month < 6 || (month === 6 && day < 25)) {
-    return `Winter-${year}`;
-  }
-
-  // Après le 25 juin, on est dans la session de l'année en cours
+  // Avant le 1er mai, on est dans la session de l'année en cours
   return `Winter-${year}`;
 }
 
