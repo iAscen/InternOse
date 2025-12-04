@@ -26,7 +26,6 @@ public class InternshipManagerService {
     private final StudentApplicationDAO studentApplicationDAO;
     private final InternshipContractDAO internshipContractDAO;
     private final ProfessorDAO professorDAO;
-    private final NotificationDAO notificationDAO;
 
     public List<InternshipOfferDTO> findInternshipsBy(Boolean isVerified, String program, String title, String session, String sortBy) {
         String programPattern = program != null ? "%" + program + "%" : "%";
@@ -182,7 +181,6 @@ public class InternshipManagerService {
 
     public InternshipContractDTO assignProfessorToContract(long contractID, Long professorID) {
         InternshipContract internshipContract = internshipContractDAO.findById(contractID).orElseThrow();
-        Student student = internshipContract.getStudent();
         InternshipOffer internshipOffer = internshipContract.getInternshipOffer();
 
         if (!internshipOffer.getSession().equals(SessionUtil.getCurrentSession())) {
@@ -195,33 +193,7 @@ public class InternshipManagerService {
             professor = professorDAO.findById(professorID).orElseThrow();
         }
 
-        Professor previousProfessor = internshipContract.getProfessor();
-
-        if (professor != null && previousProfessor != professor) {
-            Notification notificationForProfessor = createStudentAssignedToProfessorNotification(
-                professor, "L'étudiant " + student.getFirstName() + " "
-                + student.getLastName() + " vous a été assigné.");
-
-            notificationDAO.save(notificationForProfessor);
-
-            Notification notificationForStudent = createStudentAssignedToProfessorNotification(
-                student, "Vous avez été assigné au professeur " + professor.getFirstName() + " " + professor.getLastName() + "."
-            );
-
-            notificationDAO.save(notificationForStudent);
-        }
-
         internshipContract.setProfessor(professor);
         return InternshipContractDTO.fromEntity(internshipContractDAO.save(internshipContract));
-    }
-
-    private Notification createStudentAssignedToProfessorNotification(User userToNotify, String message) {
-        LocalDateTime now = LocalDateTime.now();
-        return Notification.builder()
-            .type(NotificationType.STUDENT_ASSIGNED_TO_PROFESSOR)
-            .user(userToNotify)
-            .createdAt(now)
-            .message(message)
-            .build();
     }
 }

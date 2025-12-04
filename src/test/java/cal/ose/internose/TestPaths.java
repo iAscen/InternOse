@@ -8,17 +8,7 @@ import cal.ose.internose.security.Paths;
  */
 public class TestPaths {
 
-    // Base
-    public static final String API_BASE_PATH = Paths.API_BASE_PATH;
-
-    // Authentification
-    public static final String AUTH_BASE_PATH = Paths.AUTH_BASE_PATH;
-    public static final String EMPLOYER_REGISTER_PATH = Paths.EMPLOYER_REGISTER_PATH;
-    public static final String STUDENT_REGISTER_PATH = Paths.STUDENT_REGISTER_PATH;
-    public static final String LOGIN_PATH = Paths.LOGIN_PATH;
-
     // Employeur
-    public static final String EMPLOYER_BASE_PATH = Paths.EMPLOYER_BASE_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFERS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFERS_PATH;
     public static final String EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH = Paths.EMPLOYER_PAST_SESSIONS_INTERNSHIP_OFFERS_PATH;
     public static final String EMPLOYER_INTERNSHIP_OFFER_APPLICATIONS_PATH = Paths.EMPLOYER_INTERNSHIP_OFFER_STUDENT_APPLICATIONS_PATH;
@@ -28,36 +18,21 @@ public class TestPaths {
     public static final String EMPLOYER_SIGN_CONTRACT_PATH = Paths.EMPLOYER_SIGN_CONTRACT_PATH;
 
     // Étudiant
-    public static final String STUDENT_BASE_PATH = Paths.STUDENT_BASE_PATH;
-    public static final String STUDENT_RESUME_PATH = Paths.STUDENT_RESUME_PATH;
     public static final String STUDENT_RESUME_STATUS_PATH = Paths.STUDENT_RESUME_STATUS_PATH;
     public static final String STUDENT_INTERNSHIP_OFFERS_LIST_PATH = Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH;
     public static final String STUDENT_SEARCH_INTERNSHIP_OFFERS_LIST_PATH = Paths.STUDENT_INTERNSHIP_OFFERS_LIST_PATH;
     public static final String STUDENT_INTERNSHIP_OFFER_DETAILS_PATH = Paths.STUDENT_INTERNSHIP_OFFER_DETAILS_PATH;
-    public static final String STUDENT_APPLY_INTERNSHIP_PATH = Paths.STUDENT_APPLY_TO_INTERNSHIP_OFFER_PATH;
 
     // Gestionnaire de stages
-    public static final String INTERNSHIP_MANAGER_BASE_PATH = Paths.INTERNSHIP_MANAGER_BASE_PATH;
-    public static final String INTERNSHIP_MANAGER_OFFERS_PATH = Paths.INTERNSHIP_MANAGER_OFFERS_PATH;
-    public static final String INTERNSHIP_MANAGER_VALIDATION_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH;
-    public static final String INTERNSHIP_MANAGER_SEARCH_PATH = Paths.INTERNSHIP_MANAGER_OFFERS_PATH;
-    public static final String INTERNSHIP_MANAGER_VERIFY_OFFER_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_OFFER_PATH;
     public static final String INTERNSHIP_MANAGER_STUDENTS_CVS_PATH = Paths.INTERNSHIP_MANAGER_RESUMES_PATH;
-    public static final String INTERNSHIP_MANAGER_RESUMES_PATH = Paths.INTERNSHIP_MANAGER_RESUMES_PATH;
     public static final String INTERNSHIP_MANAGER_RESUME_PATH = Paths.INTERNSHIP_MANAGER_RESUME_PATH;
     public static final String INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH = Paths.INTERNSHIP_MANAGER_DOWNLOAD_RESUME_PATH;
     public static final String INTERNSHIP_MANAGER_VERIFY_RESUME_PATH = Paths.INTERNSHIP_MANAGER_VERIFY_RESUME_PATH;
 
     // Professor
-    public static final String PROFESSOR_BASE_PATH = Paths.PROFESSOR_BASE_PATH;
-    public static final String PROFESSOR_INTERNSHIP_CONTRACTS = Paths.PROFESSOR_INTERNSHIP_CONTRACTS;
     public static final String PROFESSOR_INTERNSHIP_SITE_ASSESSMENT = Paths.PROFESSOR_INTERNSHIP_SITE_ASSESSMENT;
 
     // Méthodes utilitaires pour construire les URLs avec paramètres
-    public static String buildStudentResumeStatusUrl(Long studentId) {
-        return STUDENT_RESUME_STATUS_PATH + "?studentID=" + studentId;
-    }
-
     public static String buildStudentInternshipOffersUrl(Long studentId) {
         return STUDENT_INTERNSHIP_OFFERS_LIST_PATH + "?studentID=" + studentId;
     }
