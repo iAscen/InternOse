@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import SiteAssessmentModal from '../dashboard/SiteAssessmentModal';
 import type { InternshipContract, SiteAssessment } from '~/interfaces';
@@ -157,9 +157,42 @@ describe('SiteAssessmentModal', () => {
       fireEvent.click(button);
     });
 
+    // Attendre que le champ salaryHourlyRate apparaisse (car le critère salary est maintenant évalué)
+    // et le remplir
+    let salaryInput: HTMLInputElement;
+    await waitFor(() => {
+      salaryInput = screen.getByPlaceholderText('siteAssessment.salaryPerHourPlaceholder') as HTMLInputElement;
+      expect(salaryInput).toBeInTheDocument();
+    }, { timeout: 2000 });
+    fireEvent.change(salaryInput!, { target: { value: '25' } });
+
     // Sélectionner l'appréciation globale (requis)
     const excellentAppreciationButton = screen.getByRole('button', { name: 'siteAssessment.appreciationOptions.EXCELLENT' });
     fireEvent.click(excellentAppreciationButton);
+
+    // Remplir les heures par semaine (requis)
+    // Trouver les labels et ensuite les inputs dans le même conteneur parent
+    const hoursFirstMonthLabel = screen.getByText('siteAssessment.hoursPerWeekFirstMonth');
+    const hoursFirstMonthContainer = hoursFirstMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursFirstMonthContainer).toBeDefined();
+    const hoursFirstMonthInput = within(hoursFirstMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursFirstMonthInput, { target: { value: '35' } });
+
+    const hoursSecondMonthLabel = screen.getByText('siteAssessment.hoursPerWeekSecondMonth');
+    const hoursSecondMonthContainer = hoursSecondMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursSecondMonthContainer).toBeDefined();
+    const hoursSecondMonthInput = within(hoursSecondMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursSecondMonthInput, { target: { value: '35' } });
+
+    const hoursThirdMonthLabel = screen.getByText('siteAssessment.hoursPerWeekThirdMonth');
+    const hoursThirdMonthContainer = hoursThirdMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursThirdMonthContainer).toBeDefined();
+    const hoursThirdMonthInput = within(hoursThirdMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursThirdMonthInput, { target: { value: '35' } });
+
+    // Sélectionner "Non" pour les quarts de travail variables (pour éviter de devoir remplir workShiftTimes)
+    const noVariableShiftsButton = screen.getByRole('button', { name: /siteAssessment\.no/i });
+    fireEvent.click(noVariableShiftsButton);
 
     // Remplir la signature - c'est un champ password, pas un textbox
     const signatureInput = screen.getByPlaceholderText('siteAssessment.passwordSignaturePlaceholder') as HTMLInputElement;
@@ -274,9 +307,42 @@ describe('SiteAssessmentModal', () => {
       fireEvent.click(button);
     });
 
+    // Attendre que le champ salaryHourlyRate apparaisse (car le critère salary est maintenant évalué)
+    // et le remplir
+    let salaryInput: HTMLInputElement;
+    await waitFor(() => {
+      salaryInput = screen.getByPlaceholderText('siteAssessment.salaryPerHourPlaceholder') as HTMLInputElement;
+      expect(salaryInput).toBeInTheDocument();
+    }, { timeout: 2000 });
+    fireEvent.change(salaryInput!, { target: { value: '25' } });
+
     // Sélectionner l'appréciation globale (requis)
     const excellentAppreciationButton = screen.getByRole('button', { name: 'siteAssessment.appreciationOptions.EXCELLENT' });
     fireEvent.click(excellentAppreciationButton);
+
+    // Remplir les heures par semaine (requis)
+    // Trouver les labels et ensuite les inputs dans le même conteneur parent
+    const hoursFirstMonthLabel = screen.getByText('siteAssessment.hoursPerWeekFirstMonth');
+    const hoursFirstMonthContainer = hoursFirstMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursFirstMonthContainer).toBeDefined();
+    const hoursFirstMonthInput = within(hoursFirstMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursFirstMonthInput, { target: { value: '35' } });
+
+    const hoursSecondMonthLabel = screen.getByText('siteAssessment.hoursPerWeekSecondMonth');
+    const hoursSecondMonthContainer = hoursSecondMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursSecondMonthContainer).toBeDefined();
+    const hoursSecondMonthInput = within(hoursSecondMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursSecondMonthInput, { target: { value: '35' } });
+
+    const hoursThirdMonthLabel = screen.getByText('siteAssessment.hoursPerWeekThirdMonth');
+    const hoursThirdMonthContainer = hoursThirdMonthLabel.closest('div[class*="border"]') as HTMLElement;
+    expect(hoursThirdMonthContainer).toBeDefined();
+    const hoursThirdMonthInput = within(hoursThirdMonthContainer).getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.change(hoursThirdMonthInput, { target: { value: '35' } });
+
+    // Sélectionner "Non" pour les quarts de travail variables (pour éviter de devoir remplir workShiftTimes)
+    const noVariableShiftsButton = screen.getByRole('button', { name: /siteAssessment\.no/i });
+    fireEvent.click(noVariableShiftsButton);
 
     // Trouver le champ de signature - c'est un champ password
     const signatureInput = screen.getByPlaceholderText('siteAssessment.passwordSignaturePlaceholder') as HTMLInputElement;

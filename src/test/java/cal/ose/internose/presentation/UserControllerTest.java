@@ -7,7 +7,6 @@ import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.ErrorMessages;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

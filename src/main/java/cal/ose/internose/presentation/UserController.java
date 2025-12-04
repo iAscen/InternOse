@@ -8,14 +8,11 @@ import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
 import cal.ose.internose.service.exceptions.UserAlreadyExistsException;
 import cal.ose.internose.service.exceptions.WeakPasswordException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -24,7 +21,6 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 public class UserController {
     private UserService userService;
-    private final ObjectMapper objectMapper;
 
     @PostMapping(Paths.EMPLOYER_REGISTER_PATH)
     public ResponseEntity<String> registerEmployer(@RequestBody EmployerDTO employerDTO)

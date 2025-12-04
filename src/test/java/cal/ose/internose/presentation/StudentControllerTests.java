@@ -4,7 +4,6 @@ import cal.ose.internose.modele.Credentials;
 import cal.ose.internose.modele.Student;
 import cal.ose.internose.modele.UserRole;
 import cal.ose.internose.modele.VerificationStatus;
-import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.TestPaths;
 import cal.ose.internose.service.DTOs.InternshipOfferDTO;
