@@ -215,7 +215,7 @@ export interface SiteAssessment {
   hoursPerWeekSecondMonth?: number;
   hoursPerWeekThirdMonth?: number;
   variableWorkShifts?: boolean;
-  workShiftTimes?: string; // Format: "De ____ à ____" (3 lignes possibles)
+  workShiftTimes?: string; // Format: "____-____" (3 lignes possibles)
   professorName: string;
   signature: string;
   assessmentDate: string;

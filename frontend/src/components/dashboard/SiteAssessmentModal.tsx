@@ -165,6 +165,27 @@ export default function SiteAssessmentModal({
     const missingCriteria = assessmentCriteria.filter(
       criterion => !formData.siteAssessment[criterion.key]
     );
+    // Vérifier que les heures par semaine sont remplies
+    if (formData.hoursPerWeekFirstMonth === undefined ||
+        formData.hoursPerWeekSecondMonth === undefined ||
+        formData.hoursPerWeekThirdMonth === undefined) {
+      return false;
+    }
+    // Vérifier que les heures de quarts de travail sont remplies si variableWorkShifts est true
+    if (formData.variableWorkShifts === true) {
+      const lines = (formData.workShiftTimes || '').split('\n');
+      // Au moins une ligne doit être remplie
+      const hasAtLeastOneShift = lines.some(line => line.trim() !== '');
+      if (!hasAtLeastOneShift) {
+        return false;
+      }
+    }
+    // Vérifier que le salaire horaire est rempli si le critère salary est évalué
+    if (formData.siteAssessment['salary'] &&
+        (!formData.siteAssessmentComments['salaryHourlyRate'] ||
+         formData.siteAssessmentComments['salaryHourlyRate'].trim() === '')) {
+      return false;
+    }
     return missingCriteria.length === 0;
   };
 
@@ -187,8 +208,14 @@ export default function SiteAssessmentModal({
       setLoading(true);
       setError(null);
 
+      // Format workShiftTimes with hyphen separator: "12:12-13:24"
+      const workShiftTimesFormatted = formData.workShiftTimes
+        ? formData.workShiftTimes.replace(/ to /g, '-')
+        : '';
+
       const assessmentData = {
         ...formData,
+        workShiftTimes: workShiftTimesFormatted,
         assessmentDate: new Date().toISOString().split('T')[0],
       };
 
@@ -215,7 +242,10 @@ export default function SiteAssessmentModal({
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   return (
@@ -292,7 +322,7 @@ export default function SiteAssessmentModal({
             {siteAssessment.siteAssessmentComments?.['salaryHourlyRate'] && (
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium text-gray-700">{t('siteAssessment.salaryPerHour')}</p>
-                <p className="text-sm text-gray-900">{siteAssessment.siteAssessmentComments['salaryHourlyRate']} $/heure</p>
+                <p className="text-sm text-gray-900">{siteAssessment.siteAssessmentComments['salaryHourlyRate']} {t('siteAssessment.salary')}</p>
               </div>
             )}
           </div>
@@ -309,19 +339,19 @@ export default function SiteAssessmentModal({
                 {siteAssessment.hoursPerWeekFirstMonth !== undefined && (
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekFirstMonth')}</p>
-                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekFirstMonth} heures/semaine</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekFirstMonth} {t('siteAssessment.hoursPerWeekSuffix')}</p>
                   </div>
                 )}
                 {siteAssessment.hoursPerWeekSecondMonth !== undefined && (
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekSecondMonth')}</p>
-                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekSecondMonth} heures/semaine</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekSecondMonth} {t('siteAssessment.hoursPerWeekSuffix')}</p>
                   </div>
                 )}
                 {siteAssessment.hoursPerWeekThirdMonth !== undefined && (
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium text-gray-700">{t('siteAssessment.hoursPerWeekThirdMonth')}</p>
-                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekThirdMonth} heures/semaine</p>
+                    <p className="text-sm text-gray-900">{siteAssessment.hoursPerWeekThirdMonth} {t('siteAssessment.hoursPerWeekSuffix')}</p>
                   </div>
                 )}
               </div>
@@ -527,16 +557,29 @@ export default function SiteAssessmentModal({
             />
             {/* Champ spécial pour le salaire horaire */}
             {formData.siteAssessment['salary'] && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('siteAssessment.salaryPerHour')}
+              <div className={`mt-4 border rounded-lg p-4 ${
+                submitAttempted && (!formData.siteAssessmentComments['salaryHourlyRate'] || 
+                                    formData.siteAssessmentComments['salaryHourlyRate'].trim() === '')
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200'
+              }`}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('siteAssessment.salaryPerHour')} <span className="text-red-500">*</span>
+                  {submitAttempted && (!formData.siteAssessmentComments['salaryHourlyRate'] ||
+                                       formData.siteAssessmentComments['salaryHourlyRate'].trim() === '') && (
+                    <span className="ml-2 text-xs text-red-600 font-normal">
+                      ({t('siteAssessment.notCompleted')})
+                    </span>
+                  )}
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  min={0}
                   value={formData.siteAssessmentComments['salaryHourlyRate'] || ''}
                   onChange={(e) => handleCommentChange('salaryHourlyRate', e.target.value)}
-                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                   placeholder={t('siteAssessment.salaryPerHourPlaceholder')}
+                  required
                 />
               </div>
             )}
@@ -548,40 +591,70 @@ export default function SiteAssessmentModal({
               {t('siteAssessment.hoursPerWeek')}
             </h3>
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('siteAssessment.hoursPerWeekFirstMonth')}
+              <div className={`border rounded-lg p-4 ${
+                submitAttempted && formData.hoursPerWeekFirstMonth === undefined
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200'
+              }`}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('siteAssessment.hoursPerWeekFirstMonth')} <span className="text-red-500">*</span>
+                  {submitAttempted && formData.hoursPerWeekFirstMonth === undefined && (
+                    <span className="ml-2 text-xs text-red-600 font-normal">
+                      ({t('siteAssessment.notCompleted')})
+                    </span>
+                  )}
                 </label>
                 <input
                   type="number"
-                  value={formData.hoursPerWeekFirstMonth || ''}
+                  value={formData.hoursPerWeekFirstMonth ?? ''}
                   onChange={(e) => handleInputChange('hoursPerWeekFirstMonth', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="0"
+                  required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('siteAssessment.hoursPerWeekSecondMonth')}
+              <div className={`border rounded-lg p-4 ${
+                submitAttempted && formData.hoursPerWeekSecondMonth === undefined
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200'
+              }`}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('siteAssessment.hoursPerWeekSecondMonth')} <span className="text-red-500">*</span>
+                  {submitAttempted && formData.hoursPerWeekSecondMonth === undefined && (
+                    <span className="ml-2 text-xs text-red-600 font-normal">
+                      ({t('siteAssessment.notCompleted')})
+                    </span>
+                  )}
                 </label>
                 <input
                   type="number"
-                  value={formData.hoursPerWeekSecondMonth || ''}
+                  value={formData.hoursPerWeekSecondMonth ?? ''}
                   onChange={(e) => handleInputChange('hoursPerWeekSecondMonth', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="0"
+                  required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('siteAssessment.hoursPerWeekThirdMonth')}
+              <div className={`border rounded-lg p-4 ${
+                submitAttempted && formData.hoursPerWeekThirdMonth === undefined
+                  ? 'border-red-300 bg-red-50' 
+                  : 'border-gray-200'
+              }`}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('siteAssessment.hoursPerWeekThirdMonth')} <span className="text-red-500">*</span>
+                  {submitAttempted && formData.hoursPerWeekThirdMonth === undefined && (
+                    <span className="ml-2 text-xs text-red-600 font-normal">
+                      ({t('siteAssessment.notCompleted')})
+                    </span>
+                  )}
                 </label>
                 <input
                   type="number"
-                  value={formData.hoursPerWeekThirdMonth || ''}
+                  value={formData.hoursPerWeekThirdMonth ?? ''}
                   onChange={(e) => handleInputChange('hoursPerWeekThirdMonth', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="0"
+                  required
                 />
               </div>
             </div>
@@ -694,24 +767,95 @@ export default function SiteAssessmentModal({
                 </button>
               </div>
               {formData.variableWorkShifts === true && (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((num) => (
-                    <div key={num} className="flex items-center gap-2">
-                      <span className="text-sm text-gray-700">{t('siteAssessment.workShiftTimes')}</span>
-                      <input
-                        type="text"
-                        value={formData.workShiftTimes?.split('\n')[num - 1] || ''}
-                        onChange={(e) => {
-                          const lines = (formData.workShiftTimes || '').split('\n');
-                          lines[num - 1] = e.target.value;
-                          while (lines.length < num) lines.push('');
-                          handleInputChange('workShiftTimes', lines.join('\n'));
-                        }}
-                        className="text-black flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder={`De ____ à ____`}
-                      />
-                    </div>
-                  ))}
+                <div className={`border rounded-lg p-4 ${
+                  submitAttempted && !formData.workShiftTimes?.split('\n').some(line => line.trim() !== '')
+                    ? 'border-red-300 bg-red-50' 
+                    : 'border-gray-200'
+                }`}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('siteAssessment.workShiftTimes')} <span className="text-red-500">*</span>
+                    {submitAttempted && !formData.workShiftTimes?.split('\n').some(line => line.trim() !== '') && (
+                      <span className="ml-2 text-xs text-red-600 font-normal">
+                        ({t('siteAssessment.notCompleted')})
+                      </span>
+                    )}
+                  </label>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((num) => {
+                      const lines = (formData.workShiftTimes || "").split("\n");
+                      const currentLine = lines[num - 1] || "";
+
+                      // Parse time values - handle formats: "15:40 to 18:30", "15:40 18:30", or "15:40-18:30"
+                      let fromValue = "";
+                      let toValue = "";
+
+                      if (currentLine.includes(" to ")) {
+                        // Old format with "to"
+                        const parts = currentLine.split(" to ").map((part) => part.trim());
+                        fromValue = parts[0] || "";
+                        toValue = parts[1] || "";
+                      } else if (currentLine.includes("-")) {
+                        // New format with hyphen
+                        const parts = currentLine.split("-").map((part) => part.trim());
+                        fromValue = parts[0] || "";
+                        toValue = parts[1] || "";
+                      } else {
+                        // Format with just space
+                        const parts = currentLine.trim().split(/\s+/);
+                        fromValue = parts[0] || "";
+                        toValue = parts[1] || "";
+                      }
+
+                      return (
+                        <div key={num} className="flex items-center gap-2">
+                          <span className="text-sm text-gray-700 whitespace-nowrap">
+                            {num}:
+                          </span>
+
+                          {/* FROM INPUT */}
+                          <input
+                            type="time"
+                            value={fromValue}
+                            max={toValue || undefined}
+                            onChange={(e) => {
+                              const newFrom = e.target.value;
+                              const updatedLines = [...lines];
+                              while (updatedLines.length < num) {
+                                updatedLines.push('');
+                              }
+                              updatedLines[num - 1] = newFrom || toValue ? `${newFrom} to ${toValue}` : '';
+                              handleInputChange("workShiftTimes", updatedLines.join("\n"));
+                            }}
+                            className="text-black px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required={num === 1}
+                          />
+
+                          <span className="text-sm text-gray-700">
+                            {t("siteAssessment.workShiftTimesTo")}
+                          </span>
+
+                          {/* TO INPUT */}
+                          <input
+                            type="time"
+                            value={toValue}
+                            min={fromValue || undefined}
+                            onChange={(e) => {
+                              const newTo = e.target.value;
+                              const updatedLines = [...lines];
+                              while (updatedLines.length < num) {
+                                updatedLines.push('');
+                              }
+                              updatedLines[num - 1] = fromValue || newTo ? `${fromValue} to ${newTo}` : '';
+                              handleInputChange("workShiftTimes", updatedLines.join("\n"));
+                            }}
+                            className="text-black px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required={num === 1}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
                 </div>
               )}
             </div>

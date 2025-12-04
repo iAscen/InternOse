@@ -32,7 +32,9 @@
         "notAssigned": "Not assigned",
         "assigned": "Assigned",
         "clear": "Clear",
-        "winterSession": "Winter {{year}}"
+        "winterSession": "Winter {{year}}",
+        "submitting" : "Submitting"
+
     },
     "navigation": {
         "home": "Home",
@@ -767,6 +769,7 @@
         "hoursPerWeekFirstMonth": "First month:",
         "hoursPerWeekSecondMonth": "Second month:",
         "hoursPerWeekThirdMonth": "Third month:",
+        "hoursPerWeekSuffix": "hour(s)/week",
         "generalObservations": "General Observations",
         "preferredFor": "This environment is to be favored for an internship",
         "openToAccept": "This environment is open to welcoming:",
@@ -779,16 +782,17 @@
         "yes": "YES",
         "no": "NO",
         "workShiftTimes": "From ____ to ____",
+        "workShiftTimesTo" : "to",
         "salaryPerHour": "Specify the hourly salary:",
         "salaryPerHourPlaceholder": "Amount in $/hour",
+        "salary": "$/hour",
         "signature": "Signature",
         "passwordSignature": "Password (signature)",
         "passwordSignaturePlaceholder": "Enter your password to sign",
         "professorName": "Professor Name",
         "assessmentDate": "Assessment Date",
         "submit": "Submit Assessment",
-        "evaluateSite": "Evaluate Internship Site",
-        "viewAssessment": "View Site Assessment",
+        "evaluateSite": "Internship Site Evaluation",
         "errors": {
             "incompleteForm": "Please fill in all required fields",
             "missingInfo": "Unable to retrieve necessary information",
