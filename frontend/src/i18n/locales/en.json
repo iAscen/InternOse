@@ -781,8 +781,7 @@
         "professorName": "Professor Name",
         "assessmentDate": "Assessment Date",
         "submit": "Submit Assessment",
-        "evaluateSite": "Evaluate Internship Site",
-        "viewAssessment": "View Site Assessment",
+        "evaluateSite": "Internship Site Evaluation",
         "errors": {
             "incompleteForm": "Please fill in all required fields",
             "missingInfo": "Unable to retrieve necessary information",

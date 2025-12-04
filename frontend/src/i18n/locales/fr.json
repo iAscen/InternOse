@@ -786,8 +786,7 @@
         "professorName": "Nom du professeur",
         "assessmentDate": "Date d'évaluation",
         "submit": "Soumettre l'évaluation",
-        "evaluateSite": "Évaluer le milieu de stage",
-        "viewAssessment": "Voir l'évaluation du milieu de stage",
+        "evaluateSite": "Évaluation du milieu de stage",
         "errors": {
             "incompleteForm": "Veuillez remplir tous les champs obligatoires",
             "missingInfo": "Impossible de récupérer les informations nécessaires",
