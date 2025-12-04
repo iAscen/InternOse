@@ -799,6 +799,8 @@ export default function EmployerDashboardContent() {
                     countNumberOfUnseenApplications={countNumberOfUnseenApplications}
                     offers={allOffers}
                     isInternshipManager={false}
+                    allContracts={contracts}
+                    onContractCreated={loadContracts}
                   />
                 ) : (
                   <DashboardSection
@@ -969,6 +971,7 @@ export default function EmployerDashboardContent() {
                 offers={allOffers}
                 onContractCreated={loadContracts}
                 isHistory={true}
+                allContracts={contracts}
               />
             )}
           </div>

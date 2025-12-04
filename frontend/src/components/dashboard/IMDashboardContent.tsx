@@ -56,6 +56,7 @@ export default function IMDashboardContent() {
     const [contracts, setContracts] = useState<InternshipContract[]>([]);
     const [selectedHistorySession, setSelectedHistorySession] = useState<string>('');
     const [professors, setProfessors] = useState<Professor[]>([])
+    const [contractsUpdateKey, setContractsUpdateKey] = useState(0)
 
     // Get available sessions from approved offers for history view
     const availableSessions = useMemo(() => {
@@ -223,6 +224,8 @@ export default function IMDashboardContent() {
                     });
                 }
                 setContracts(contracts);
+                // Incrémenter la clé pour forcer le rechargement dans InternshipApplications
+                setContractsUpdateKey(prev => prev + 1);
             } else {
                 setError(response.error || t('dashboard.loadingError'));
             }
@@ -766,6 +769,8 @@ export default function IMDashboardContent() {
               offers={allOffers}
               onContractCreated={loadContracts}
               isHistory={false}
+              contractsUpdateKey={contractsUpdateKey}
+              allContracts={contracts}
             />
           )}
 
@@ -936,6 +941,8 @@ export default function IMDashboardContent() {
                 offers={allOffers}
                 onContractCreated={loadContracts}
                 isHistory={true}
+                contractsUpdateKey={contractsUpdateKey}
+                allContracts={contracts}
               />
             )}
       </div>

@@ -19,6 +19,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
     email: '',
     password: '',
     confirmPassword: '',
+    institution: '',
   });
 
   const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -54,6 +55,7 @@ export default function StudentForm({ onBack }: StudentFormProps) {
         email: formData.email,
         password: formData.password,
         role: 'STUDENT',
+        institution: formData.institution,
       };
 
       const response = await userAPI.registerStudent(registrationData);
@@ -123,6 +125,16 @@ export default function StudentForm({ onBack }: StudentFormProps) {
                 onChange={handleChange}
                 required
                 autoComplete="email"
+              />
+              <FormInput
+                id="institution"
+                name="institution"
+                type="text"
+                label={t('auth.institution')}
+                placeholder={t('auth.institutionPlaceholder')}
+                value={formData.institution}
+                onChange={handleChange}
+                required
               />
             </div>
           </FormSection>

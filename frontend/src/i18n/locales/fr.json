@@ -115,6 +115,8 @@
         "lastNamePlaceholder": "Votre nom",
         "employerEmailPlaceholder": "votre-courriel@email.com",
         "companyNamePlaceholder": "Nom de votre entreprise",
+        "institution": "École",
+        "institutionPlaceholder": "Nom de votre école (ex: AL, Cégep de ...)",
         "createEmployerAccount": "Créer mon compte employeur",
         "createStudentAccount": "Créer mon compte étudiant",
         "creatingAccount": "Création du compte...",
@@ -236,6 +238,13 @@
         "semester": "Semestre",
         "dashboardSubtitle": "Gérez votre CV et vos candidatures",
         "uploadMyCV": "Téléverser mon CV",
+        "uploadCVDescription": "Téléversez votre CV au format PDF pour postuler aux offres de stage.",
+        "dragAndDropCV": "Glissez-déposez votre CV ici",
+        "clickToSelect": "cliquez pour sélectionner",
+        "or": "ou",
+        "cvValidating": "CV en cours de validation...",
+        "pdfOnly": "PDF uniquement",
+        "maxSize": "Taille maximale : 10MB",
         "interviewsPlanned": "Entrevues planifiées",
         "accepted": "Acceptées",
         "importantInfo": "Informations importantes",
@@ -267,7 +276,7 @@
         "noApplications": "Vous n'avez pas encore de candidatures.",
         "cvPendingMessage": "Votre CV est en cours de validation. Vous pourrez voir les offres une fois qu'il sera approuvé.",
         "cvRequiredMessage": "Vous devez téléverser et faire approuver votre CV pour voir les offres de stage.",
-        "pending": "En attente",
+        "pending": "En attente de convocation",
         "pendingInterview": "En attente de l'entrevue",
         "pendingContract": "Contrat en attente",
         "approved": "Approuvée",
@@ -518,7 +527,8 @@
             "title": "CV rejeté",
             "description": "Votre CV \"{{fileName}}\" a été rejeté. Veuillez téléverser un meilleur CV pour pouvoir postuler aux offres de stage.",
             "uploadNewCv": "Téléverser un nouveau CV"
-        }
+        },
+        "defaultFileName": "votre CV"
     },
     "interviewInvitation": {
         "title": "Convoquer un étudiant",

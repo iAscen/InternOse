@@ -31,8 +31,9 @@ public class StudentController {
     public ResponseEntity<String> getResumeStatus(@RequestParam Long studentID) {
         try {
             StudentDTO studentDTO = studentService.getStudentByID(studentID);
+            // Retourner le DTO complet pour inclure le nom du fichier et autres informations
             return getResponseEntity(
-                HttpStatus.OK, objectMapper.writeValueAsString(studentDTO.getResumeVerificationStatus())
+                HttpStatus.OK, objectMapper.writeValueAsString(studentDTO)
             );
         }  catch (NoSuchElementException e) {
             return getResponseEntity(

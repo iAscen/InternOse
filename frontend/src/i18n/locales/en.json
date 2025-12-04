@@ -115,6 +115,8 @@
         "lastNamePlaceholder": "Your last name",
         "employerEmailPlaceholder": "your.email@company.com",
         "companyNamePlaceholder": "Your company name",
+        "institution": "School",
+        "institutionPlaceholder": "Your school name (e.g., AL, Cégep de ...)",
         "createEmployerAccount": "Create my employer account",
         "createStudentAccount": "Create my student account",
         "creatingAccount": "Creating account...",
@@ -235,6 +237,13 @@
         "semester": "Semester",
         "dashboardSubtitle": "Manage your profile and applications",
         "uploadMyCV": "Upload my resume",
+        "uploadCVDescription": "Upload your resume in PDF format to apply for internship offers.",
+        "dragAndDropCV": "Drag and drop your resume here",
+        "clickToSelect": "click to select",
+        "or": "or",
+        "cvValidating": "Resume being validated...",
+        "pdfOnly": "PDF only",
+        "maxSize": "Maximum size: 10MB",
         "interviewsPlanned": "Interviews planned",
         "accepted": "Accepted",
         "importantInfo": "Important information",
@@ -266,7 +275,7 @@
         "noApplications": "You don't have any applications yet.",
         "cvPendingMessage": "Your resume is being validated. You will be able to see offers once it is approved.",
         "cvRequiredMessage": "You must upload and get your resume approved to see internship offers.",
-        "pending": "Pending",
+        "pending": "Awaiting interview invitation",
         "pendingInterview": "Pending interview",
         "pendingContract": "Pending contract",
         "approved": "Approved",
@@ -513,7 +522,8 @@
             "title": "CV rejected",
             "description": "Your CV \"{{fileName}}\" has been rejected. Please upload a new version.",
             "uploadNewCv": "Upload new CV"
-        }
+        },
+        "defaultFileName": "your CV"
     },
     "interviewInvitation": {
         "title": "Invite Student to Interview",

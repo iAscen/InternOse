@@ -22,7 +22,7 @@ export default function CreateOfferForm({onSubmit, onCancel, loading}: CreateOff
     address: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const {name, value} = e.target;
     setFormData(prev => ({
       ...prev,
@@ -139,7 +139,7 @@ export default function CreateOfferForm({onSubmit, onCancel, loading}: CreateOff
           />
         </div>
         <div>
-          <ProgramSelector onChange={handleInputChange}/>
+          <ProgramSelector onChange={handleInputChange} value={formData.program}/>
         </div>
         <div>
           <label htmlFor="qualifications" className="block text-sm font-medium text-gray-700 mb-2">
