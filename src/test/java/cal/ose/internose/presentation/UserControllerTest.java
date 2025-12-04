@@ -3,7 +3,6 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
-import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.ErrorMessages;
@@ -54,12 +53,8 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.EMPLOYER_REGISTER_PATH, requestJson);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.CREATED,
-            null,
-            "jwt"
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("jwt");
     }
 
     @Test
@@ -75,12 +70,8 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.EMPLOYER_REGISTER_PATH, requestJson);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.BAD_REQUEST,
-            ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(),
-            null
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage());
     }
 
     @Test
@@ -94,12 +85,8 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.STUDENT_REGISTER_PATH, requestJson);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.CREATED,
-            null,
-            "jwt"
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("jwt");
     }
 
     @Test
@@ -115,12 +102,8 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.STUDENT_REGISTER_PATH, requestBody);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.BAD_REQUEST,
-            ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage(),
-            null
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(ErrorMessages.PASSWORD_MISSING_NUMBER.getMessage());
     }
 
     @Test
@@ -134,12 +117,8 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestBody);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.OK,
-            null,
-            "jwt-token"
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("jwt-token");
     }
 
     @Test
@@ -153,59 +132,7 @@ class UserControllerTest {
         MvcResult mvcResult = performRequest(Paths.LOGIN_PATH, requestBody);
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.FORBIDDEN,
-            "Incorrect username or password",
-            null
-        );
-    }
-
-    @Test
-    void findNotifications_Ok() throws Exception {
-        // Arrange
-        long userId = 1L;
-        NotificationDTO notifDTO = NotificationDTO.builder()
-            .id(100L)
-            .message("Hello")
-            .checked(false)
-            .build();
-        List<NotificationDTO> notifications = List.of(notifDTO);
-
-        when(userService.findNotifications(userId)).thenReturn(notifications);
-
-        // Act
-        MvcResult mvcResult = mockMvc.perform(
-                get(Paths.USER_NOTIFICATIONS_PATH.replace("{userID}", String.valueOf(userId)))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        // Assert
-        String json = mvcResult.getResponse().getContentAsString();
-        List<NotificationDTO> result = objectMapper.readValue(
-            json, new TypeReference<List<NotificationDTO>>() {}
-        );
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.getFirst().getMessage()).isEqualTo("Hello");
-    }
-
-    @Test
-    void findNotifications_NotFound() throws Exception {
-        // Arrange
-        long userId = 1L;
-        when(userService.findNotifications(userId)).thenThrow(new NoSuchElementException("Utilisateur non trouvé"));
-
-        // Act
-        MvcResult mvcResult = mockMvc.perform(
-                get(Paths.USER_NOTIFICATIONS_PATH.replace("{userID}", String.valueOf(userId)))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        // Assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        assertThat(mvcResult.getResponse().getContentAsString())
-            .contains("Utilisateur non trouvé");
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -222,12 +149,7 @@ class UserControllerTest {
         ).andReturn();
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.NOT_FOUND,
-            "not found",
-            null
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -244,12 +166,8 @@ class UserControllerTest {
         ).andReturn();
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.BAD_REQUEST,
-            "illegal",
-            null
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("illegal");
     }
 
     @Test
@@ -266,12 +184,8 @@ class UserControllerTest {
         ).andReturn();
 
         // Assert
-        assertMvcResult(
-            mvcResult,
-            HttpStatus.OK,
-            null,
-            "Winter-2025"
-        );
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Winter-2025");
     }
 
     private MvcResult performRequest(String path, String body) throws Exception {
@@ -284,7 +198,7 @@ class UserControllerTest {
 
 
 
-    private void assertMvcResult(
+    /*private void assertMvcResult(
         MvcResult mvcResult,
         HttpStatus expectedHttpStatus,
         String expectedErrorMessage,
@@ -294,12 +208,12 @@ class UserControllerTest {
         String responseContent = mvcResult.getResponse().getContentAsString();
         assertThat(responseContent).isNotNull();
 
-//        if (expectedSuccessMessage == null) {
-//            ErrorResponseDTO errorResponse = objectMapper.readValue(responseContent, ErrorResponseDTO.class);
-//            assertThat(errorResponse.getMessage()).isEqualTo(expectedErrorMessage);
-//        } else {
-//            String jwt = mvcResult.getResponse().getContentAsString();
-//            assertThat(jwt).isEqualTo(expectedSuccessMessage);
-//        }
-    }
+        if (expectedSuccessMessage == null) {
+            ErrorResponseDTO errorResponse = objectMapper.readValue(responseContent, ErrorResponseDTO.class);
+            assertThat(errorResponse.getMessage()).isEqualTo(expectedErrorMessage);
+        } else {
+            String jwt = mvcResult.getResponse().getContentAsString();
+            assertThat(jwt).isEqualTo(expectedSuccessMessage);
+        }
+    }*/
 }

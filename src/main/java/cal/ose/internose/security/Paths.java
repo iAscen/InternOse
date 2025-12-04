@@ -10,11 +10,6 @@ public class Paths {
     public static final String LOGIN_PATH = AUTH_BASE_PATH + "/login";
     public static final String SET_SESSION_PATH = AUTH_BASE_PATH + "/session";
 
-    // User
-    public static final String USER_BASE_PATH = API_BASE_PATH + "/user";
-    public static final String USER_NOTIFICATIONS_PATH = USER_BASE_PATH + "/{userID}/notifications";
-    public static final String USER_CHECK_NOTIFICATION_PATH = API_BASE_PATH + "/user/notifications/{notificationID}";
-
     // Employeur
     public static final String EMPLOYER_BASE_PATH = API_BASE_PATH + "/employer";
     public static final String EMPLOYER_INTERNSHIP_OFFERS_PATH = EMPLOYER_BASE_PATH + "/internship-offers";
