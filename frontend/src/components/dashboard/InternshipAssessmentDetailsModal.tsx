@@ -462,18 +462,7 @@ export default function InternshipAssessmentDetailsModal({
                     <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.signatureDate')}</p>
                     <p className="text-sm text-gray-900">{formatDate(internAssessment.signatureDate)}</p>
                   </div>
-                  {internAssessment.signature && (
-                    <div className="md:col-span-2">
-                      <p className="text-sm font-medium text-gray-700 mb-2">{t('internshipAssessment.signature')}</p>
-                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <img
-                          src={internAssessment.signature}
-                          alt="Signature"
-                          className="max-h-24 object-contain"
-                        />
-                      </div>
-                    </div>
-                  )}
+                  
                 </div>
               </div>
             </>
@@ -743,7 +732,7 @@ export default function InternshipAssessmentDetailsModal({
                     />
                   </div>
                 </div>
-
+                    
                 <div className={`border rounded-lg p-4 mt-4 ${
                   submitAttempted && (!formData.signature || formData.signature.trim() === '')
                     ? 'border-red-300 bg-red-50' 
@@ -757,7 +746,8 @@ export default function InternshipAssessmentDetailsModal({
                       </span>
                     )}
                   </label>
-                  <input
+                  
+                    <input
                     type="password"
                     required
                     value={formData.signature}
@@ -765,6 +755,7 @@ export default function InternshipAssessmentDetailsModal({
                     className="text-black w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                     placeholder={t('internshipAssessment.passwordSignaturePlaceholder')}
                   />
+
                 </div>
               </div>
             </form>

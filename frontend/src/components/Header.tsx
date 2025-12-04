@@ -1,13 +1,11 @@
 import {Link} from "react-router";
-import {useState, useRef, useEffect} from "react";
+import {useState, useRef} from "react";
 import {useTranslation} from "react-i18next";
 import {userAPI} from "~/services/UserAPI";
 import {useAuth, useClickOutside} from "~/hooks";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ClientOnly from "./ClientOnly";
 import { useMobileSidebar } from "~/contexts/MobileSidebarContext";
-import { NotificationsModal } from "./NotificationsModal";
-import type { Notification } from "~/interfaces";
 
 
 export default function Header() {
@@ -15,67 +13,9 @@ export default function Header() {
   const {t} = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [notificationsError, setNotificationsError] = useState<String | null>(null)
-  const [showNotificationsModal, setShowModificationsModal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadNotifications()
-  }, [])
-
-  const getUserId = async () => {
-   const role = userAPI.getUserRoleFromJWT()
-   let id = null
-
-   if (role === "EMPLOYER")
-      id = await userAPI.getEmployerIdFromJWT()
-    if (role === "PROFESSOR")
-      id = await userAPI.getProfessorIdFromJWT()
-    if (role === "STUDENT")
-      id = await userAPI.getStudentIdFromJWT()
-    if (role === 'INTERNSHIP_MANAGER')
-      id = await userAPI.getInternshipManagerIdFromJWT()
-
-    return id;
-  }
-
-  const loadNotifications = async () => {
-    try {
-      const userId = await getUserId()
-      if (userId) {
-        const response = await userAPI.getNotifications(userId)
-        if (response.success && response.data) {
-          setNotifications(response.data)
-        }
-        else 
-          setNotificationsError(response.error ?? t('navigation.notificationsNotFoundError'))
-      }
-      else {
-        setNotificationsError(t('navigation.notificationsNotFoundError'))
-      }
-    } catch(Error) {
-      setNotificationsError(t('navigation.notificationsNotFoundError'))
-    }
-  }
-
-  const checkNotification = async (notificationId: number) => {
-    try {
-      const response = await userAPI.checkNotification(notificationId)
-
-      if (response.error)
-        setNotificationsError(response.error)
-    } catch(Error) {
-      setNotificationsError(t('navigation.notificationCheckingError'))
-    }
-  }
-
-  const onNotificationDeletionButtonClick = async (notificationId: number) => {
-    await checkNotification(notificationId)
-    await loadNotifications()
-  }
-  
   // Get mobile sidebar state if on dashboard
   const isDashboard = isAuthenticated && (userRole === 'EMPLOYER' || userRole === 'STUDENT' || userRole === 'INTERNSHIP_MANAGER' || userRole === 'PROFESSOR');
   let mobileSidebarContext;
@@ -155,17 +95,6 @@ export default function Header() {
 
           {/* Right side: Notification bell (left) + languageSwitcher(center) + Actions (right) */}
           <div className={`flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0 ${isDashboard ? 'ml-auto' : ''}`}>
-
-
-          {showNotificationsModal && 
-            <NotificationsModal 
-              onClose={() => setShowModificationsModal(false)}
-              notifications={notifications}
-              error={notificationsError}
-              onNotificationDeletionButtonClick={onNotificationDeletionButtonClick}
-              >
-            </NotificationsModal>
-          }
             
             {/* Language Switcher - Always on the left */}
             <ClientOnly 

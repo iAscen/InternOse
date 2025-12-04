@@ -1,7 +1,6 @@
 package cal.ose.internose.service;
 
 import cal.ose.internose.modele.*;
-import cal.ose.internose.persistance.NotificationDAO;
 import cal.ose.internose.persistance.UserDAO;
 import cal.ose.internose.security.JwtTokenProvider;
 import cal.ose.internose.service.DTOs.*;
@@ -20,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -32,7 +30,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final NotificationDAO notificationDAO;
 
     public void registerInternshipManager(InternshipManagerDTO internshipManagerDTO)
         throws RequiredFieldException, UserAlreadyExistsException, WeakPasswordException {
@@ -108,25 +105,6 @@ public class UserService {
         return jwtTokenProvider.generateToken(
             authentication, user.getId(), user.getFirstName(), user.getLastName(), user.getSession()
         );
-    }
-
-    public List<NotificationDTO> findNotifications(long userId) {
-        User user = userDAO.findById(userId).orElseThrow();
-        return notificationDAO.findByUserAndCheckedOrderByCreatedAt(user, false).stream().map(
-            notification -> NotificationDTO.builder()
-                .id(notification.getId())
-                .type(notification.getType())
-                .createdAt(notification.getCreatedAt())
-                .message(notification.getMessage())
-                .checked(notification.isChecked())
-                .build()
-        ).toList();
-    }
-
-    public void checkNotification(long notificationId) {
-        Notification notification = notificationDAO.findById(notificationId).orElseThrow();
-        notification.setChecked(true);
-        notificationDAO.save(notification);
     }
 
     private String registerUser(String email, String password, User user)

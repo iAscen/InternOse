@@ -4,8 +4,7 @@ import type {
   StudentRegistrationRequest,
   EmployerRegistrationRequest,
   ErrorResponseDTO,
-  ApiResponse,
-  Notification
+  ApiResponse
 } from '~/interfaces';
 import {ErrorService} from './errorService';
 import { API_PATHS, buildFullApiUrl } from '~/constants/apiPaths';
@@ -526,94 +525,6 @@ class UserAPI {
       return {
         success: false,
         error: 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.',
-      };
-    }
-  }
-
-  async getNotifications(userID: number): Promise<ApiResponse<Notification[]>> {
-    try {
-      const token = userAPI.getToken();
-      if (!token) {
-        return {
-          success: false,
-          error: 'Token d\'authentification manquant',
-        };
-      }
-
-      let url = buildFullApiUrl(API_PATHS.USER.NOTIFICATIONS)
-      url = url.replace("{userID}", String(userID))
-
-      console.log('URL: ' + url)
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const body = await response.json();
-        return {
-          success: true,
-          data: body,
-        };
-      } else {
-        const errorData = await response.json();
-        return {
-          success: false,
-          error: errorData.error || 'Erreur lors de la recuperation des notifications',
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Erreur de connexion au serveur',
-      };
-    }
-  }
-
-  async checkNotification(notificationID: number): Promise<ApiResponse<any>> {
-    try {
-      const token = userAPI.getToken();
-      if (!token) {
-        return {
-          success: false,
-          error: 'Token d\'authentification manquant',
-        };
-      }
-
-      let url = buildFullApiUrl(API_PATHS.USER.CHECK_NOTIFICATION)
-      url = url.replace("{notificationID}", String(notificationID))
-
-      console.log('URL: ' + url)
-
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        //const body = await response.json();
-        return {
-          success: true,
-          //data: body,
-        };
-      } else {
-        const errorData = await response.json();
-        return {
-          success: false,
-          error: errorData.error || 'Erreur lors de la supprimation de la notification',
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Erreur de connexion au serveur',
       };
     }
   }

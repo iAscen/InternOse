@@ -41,8 +41,6 @@ class InternshipManagerServiceTest {
     private StudentDAO studentDAO;
     @Mock
     private ProfessorDAO professorDAO;
-    @Mock
-    private NotificationDAO notificationDAO;
     @InjectMocks
     private InternshipManagerService internshipManagerService;
 
@@ -660,7 +658,6 @@ class InternshipManagerServiceTest {
         InternshipContractDTO internshipContractDTO = internshipManagerService.assignProfessorToContract(1L, 2L);
 
         // Assert
-        verify(notificationDAO, times(2)).save(any(Notification.class));
         assertEquals("professor@gmail.com", internshipContractDTO.getProfessorEmail());
     }
 

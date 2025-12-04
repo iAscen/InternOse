@@ -27,7 +27,6 @@ public class InternshipOffer {
     private int duration;
     private LocalDate startDate;
     private LocalDate endDate;
-    private LocalDate expirationDate;
     private double salary;
     private String address;
     @Enumerated(EnumType.STRING)

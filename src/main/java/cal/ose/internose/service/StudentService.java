@@ -232,9 +232,6 @@ public class StudentService {
             throw new Exception("Cette offre n'a pas été acceptée par l'employeur ou a déjà été traitée");
         }
         
-        if (internshipOffer.getExpirationDate() != null && internshipOffer.getExpirationDate().isBefore(java.time.LocalDate.now()))
-            throw new Exception("Cette offre de stage a expiré, vous ne pouvez plus y répondre");
-        
         studentApplication.setApplicationStatus(accepted 
             ? StudentApplication.ApplicationStatus.HIRED 
             : StudentApplication.ApplicationStatus.REJECTED_BY_STUDENT);

@@ -432,7 +432,6 @@ public class StudentServiceTests {
                 .salary(750.0)
                 .duration(12)
                 .startDate(LocalDate.of(2024, 6, 1))
-                .expirationDate(LocalDate.now().plusDays(10))
                 .verificationStatus(VerificationStatus.APPROVED)
                 .build();
     }
@@ -552,40 +551,6 @@ public class StudentServiceTests {
                 .student(student)
                 .internshipOffer(internshipOffer)
                 .applicationStatus(StudentApplication.ApplicationStatus.PENDING) // Pas APPROVED
-                .build();
-
-        when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));
-        when(internshipOfferDAO.findById(internshipOfferID)).thenReturn(Optional.of(internshipOffer));
-        when(studentApplicationDAO.findByStudentAndInternshipOffer(student, internshipOffer))
-                .thenReturn(Optional.of(application));
-
-        // Act & Assert
-        assertThrows(
-                Exception.class,
-                () -> studentService.respondToApprovedOffer(studentID, internshipOfferID, true));
-        verify(studentApplicationDAO, never()).save(any(StudentApplication.class));
-    }
-
-    @Test
-    @DisplayName("Test de la méthode respondToApprovedOffer() - offre expirée")
-    public void testRespondToApprovedOffer_ExpiredOffer() {
-        // Arrange
-        Long studentID = 1L;
-        Long internshipOfferID = 1L;
-
-        Student student = exampleStudent();
-        student.setId(studentID);
-
-        InternshipOffer internshipOffer = createTestOffer();
-        internshipOffer.setExpirationDate(LocalDate.now().minusDays(1));
-        internshipOffer.setId(internshipOfferID);
-        internshipOffer.setEndDate(LocalDate.now().minusDays(1)); // Offre expirée
-
-        StudentApplication application = StudentApplication.builder()
-                .id(1L)
-                .student(student)
-                .internshipOffer(internshipOffer)
-                .applicationStatus(StudentApplication.ApplicationStatus.PENDING_ACCEPTANCE)
                 .build();
 
         when(studentDAO.findById(studentID)).thenReturn(Optional.of(student));

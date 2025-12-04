@@ -1,5 +1,6 @@
 package cal.ose.internose;
 
+import cal.ose.internose.modele.InternshipContract;
 import cal.ose.internose.service.*;
 import cal.ose.internose.service.DTOs.*;
 import org.slf4j.Logger;

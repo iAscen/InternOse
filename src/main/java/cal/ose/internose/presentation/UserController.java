@@ -3,7 +3,6 @@ package cal.ose.internose.presentation;
 import cal.ose.internose.security.Paths;
 import cal.ose.internose.service.DTOs.EmployerDTO;
 import cal.ose.internose.service.DTOs.LoginDTO;
-import cal.ose.internose.service.DTOs.NotificationDTO;
 import cal.ose.internose.service.DTOs.StudentDTO;
 import cal.ose.internose.service.UserService;
 import cal.ose.internose.service.exceptions.RequiredFieldException;
@@ -48,30 +47,6 @@ public class UserController {
             return getResponseEntity(HttpStatus.OK, jwt);
         } catch (Exception e) {
             return getResponseEntity(HttpStatus.FORBIDDEN, "{ \"message\": \"" + e.getMessage() + "\" }");
-        }
-    }
-
-    @GetMapping(Paths.USER_NOTIFICATIONS_PATH)
-    public ResponseEntity<String> findNotifications(@PathVariable long userID) {
-        try {
-            List<NotificationDTO> notifications = userService.findNotifications(userID);
-            return getResponseEntity(HttpStatus.OK, objectMapper.writeValueAsString(notifications));
-        } catch (NoSuchElementException e) {
-            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        } catch (JsonProcessingException e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
-        }
-    }
-
-    @PutMapping(Paths.USER_CHECK_NOTIFICATION_PATH)
-    public ResponseEntity<String> checkNotification(@PathVariable long notificationID) {
-        try{
-            userService.checkNotification(notificationID);
-            return ResponseEntity.ok(null);
-        } catch (NoSuchElementException e) {
-            return getResponseEntity(HttpStatus.NOT_FOUND, "{ \"message\": \"" + e.getMessage() + "\" }");
-        } catch (Exception e) {
-            return getResponseEntity(HttpStatus.BAD_REQUEST, "{ \"message\": \"" + e.getMessage() + "\" }");
         }
     }
 

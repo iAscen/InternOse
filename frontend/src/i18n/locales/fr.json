@@ -40,11 +40,7 @@
         "home": "Accueil",
         "dashboard": "Tableau de bord",
         "profile": "Profil",
-        "settings": "Paramètres",
-        "notifications": "Notifications",
-        "notificationsNotFoundError": "Les notifications n'ont pas pu être chargées",
-        "notificationCheckingError": "La notification n'a pas pu être supprimée",
-        "noNotificationsFound": "Vous n'avez aucune notification"
+        "settings": "Paramètres"
     },
     "messages": {
         "loginSuccess": "Connexion réussie",
