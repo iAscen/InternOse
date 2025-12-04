@@ -11,13 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StudentApplicationDAO extends JpaRepository<StudentApplication, Long> {
-    // C'est le nom de fonction le plus court!!
-    List<StudentApplication> findAllByInternshipOfferAndApplicationStatusAndStudentInstitutionAndStudentProgram(
-        InternshipOffer internshipOffer,
-        StudentApplication.ApplicationStatus applicationStatus,
-        String institution,
-        String program
-    );
     
     // Query flexible avec filtres optionnels
     @Query("SELECT sa FROM StudentApplication sa WHERE sa.internshipOffer = :internshipOffer " +
