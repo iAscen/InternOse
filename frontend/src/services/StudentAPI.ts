@@ -120,22 +120,39 @@ class StudentAPI {
         const result = await response.json();
         console.log('🔍 CV status response:', result);
         
-        // Handle both string response and object response
+        // Handle both string response (old format) and object response (new format with StudentDTO)
         let status = 'none';
+        let fileName = '';
+        let uploadedAt = '';
+        let validatedAt = '';
+        let rejectionReason = '';
+        
         if (typeof result === 'string') {
+          // Ancien format: juste le statut en string (pour compatibilité)
           status = result.toLowerCase();
+        } else if (result && result.resumeVerificationStatus) {
+          // Nouveau format: StudentDTO complet
+          status = result.resumeVerificationStatus.toLowerCase();
+          fileName = result.resumeFileName || '';
+          uploadedAt = result.resumeUploadDate ? new Date(result.resumeUploadDate).toISOString() : '';
+          validatedAt = result.resumeVerifiedDate ? new Date(result.resumeVerifiedDate).toISOString() : '';
+          rejectionReason = result.resumeRejectionReason || '';
         } else if (result && result.verificationStatus) {
+          // Format alternatif (pour compatibilité)
           status = result.verificationStatus.toLowerCase();
+          fileName = result.resumeFileName || result.fileName || '';
         }
+        
+        console.log('🔍 Parsed CV status:', { status, fileName, uploadedAt, validatedAt, rejectionReason });
         
         return {
           success: true,
           data: {
             status: status,
-            fileName: result.resumeFileName || '',
-            uploadedAt: result.upload_date || '',
-            validatedAt: result.verifyDate || '',
-            rejectionReason: result.rejectionReason || ''
+            fileName: fileName,
+            uploadedAt: uploadedAt,
+            validatedAt: validatedAt,
+            rejectionReason: rejectionReason
           },
         };
       } else {

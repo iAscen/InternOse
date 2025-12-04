@@ -26,7 +26,7 @@ export default function CVStatusCard({ status, fileName, onStatusChange }: CVSta
       case 'pending':
         return {
           title: t('cvStatus.pending.title'),
-          description: t('cvStatus.pending.description', { fileName }),
+          description: t('cvStatus.pending.description', { fileName: fileName || t('cvStatus.defaultFileName') }),
           icon: (
             <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -39,7 +39,7 @@ export default function CVStatusCard({ status, fileName, onStatusChange }: CVSta
       case 'approved':
         return {
           title: t('cvStatus.approved.title'),
-          description: t('cvStatus.approved.description', { fileName }),
+          description: t('cvStatus.approved.description', { fileName: fileName || t('cvStatus.defaultFileName') }),
           icon: (
             <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -52,7 +52,7 @@ export default function CVStatusCard({ status, fileName, onStatusChange }: CVSta
       case 'rejected':
         return {
           title: t('cvStatus.rejected.title'),
-          description: t('cvStatus.rejected.description', { fileName }),
+          description: t('cvStatus.rejected.description', { fileName: fileName || t('cvStatus.defaultFileName') }),
           icon: (
             <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

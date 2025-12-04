@@ -10,6 +10,7 @@ export interface StudentRegistrationRequest {
   email: string;
   password: string;
   role: 'STUDENT';
+  institution: string;
 }
 
 export interface EmployerRegistrationRequest {

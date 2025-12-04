@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CVUploadSectionProps {
   onCVUpload: (file: File) => void;
@@ -6,6 +7,7 @@ interface CVUploadSectionProps {
 }
 
 export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectionProps) {
+  const { t } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -13,13 +15,13 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
   const validateFile = (file: File): string | null => {
     // Vérifier le type de fichier
     if (file.type !== 'application/pdf') {
-      return 'Seuls les fichiers PDF sont acceptés.';
+      return t('student.pdfOnlyError');
     }
 
     // Vérifier la taille (max 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB en bytes
     if (file.size > maxSize) {
-      return 'Le fichier est trop volumineux. Taille maximale : 10MB.';
+      return t('student.fileTooLargeError');
     }
 
     return null;
@@ -78,9 +80,9 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-slate-900">Téléverser mon CV</h2>
+        <h2 className="text-xl font-bold text-slate-900">{t('student.uploadMyCV')}</h2>
         <p className="text-sm font-medium text-slate-500 mt-1">
-          Téléversez votre CV au format PDF pour postuler aux offres de stage.
+          {t('student.uploadCVDescription')}
         </p>
       </div>
 
@@ -120,24 +122,24 @@ export default function CVUploadSection({ onCVUpload, disabled }: CVUploadSectio
 
           <div>
             <p className="text-lg font-semibold text-slate-900">
-              {disabled ? 'CV en cours de validation...' : 'Glissez-déposez votre CV ici'}
+              {disabled ? t('student.cvValidating') : t('student.dragAndDropCV')}
             </p>
             <p className="text-sm font-medium text-slate-500 mt-1">
-              ou{' '}
+              {t('student.or')}{' '}
               <button
                 type="button"
                 onClick={onButtonClick}
                 disabled={disabled}
                 className="text-indigo-600 hover:text-indigo-700 font-semibold disabled:text-slate-400"
               >
-                cliquez pour sélectionner
+                {t('student.clickToSelect')}
               </button>
             </p>
           </div>
 
           <div className="text-xs font-medium text-slate-500">
-            <p>Format accepté : PDF uniquement</p>
-            <p>Taille maximale : 10MB</p>
+            <p>{t('student.acceptedFormat')} {t('student.pdfOnly')}</p>
+            <p>{t('student.maxSize')}</p>
           </div>
         </div>
       </div>

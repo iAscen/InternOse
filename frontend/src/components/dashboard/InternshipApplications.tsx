@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, type Dispatch, type SetStateAction } from 
 import { useTranslation } from "react-i18next";
 import type { Cv, InternshipOffer, CreateInterviewInvitationRequest, InternshipContract } from "~/interfaces";
 import { employerAPI } from "~/services/EmployerAPI";
+import { internshipManagerAPI } from "~/services/InternshipManagerAPI";
 import ApplicationValidationModal from "./ApplicationValidationModal";
 import InterviewInvitationModal from "./InterviewInvitationModal";
 import SortButton from "./SortButton";
@@ -11,17 +12,18 @@ import SortMenuApplications from "./SortMenuApplications";
 import { useClickOutside } from "~/hooks/useClickOutside";
 import InternshipContractModal from "~/components/dashboard/InternshipContractModal";
 import InternshipContractDetailsModal from "~/components/dashboard/InternshipContractDetailsModal";
-import {internshipManagerAPI} from "~/services/InternshipManagerAPI";
 
 
 interface InternshipCandidatesProps {
   isInternshipManager: boolean;
-		setSelectedOffer: Dispatch<SetStateAction<InternshipOffer | null>>
+	setSelectedOffer: Dispatch<SetStateAction<InternshipOffer | null>>
     internship: InternshipOffer
 	countNumberOfUnseenApplications?: (offers: InternshipOffer[]) => Promise<void>
 	offers?: InternshipOffer[]
 	onContractCreated?: () => void
 	isHistory?: boolean
+	contractsUpdateKey?: number // Clé qui change quand les contrats sont mis à jour
+	allContracts?: InternshipContract[] // Tous les contrats chargés (pour le gestionnaire de stage)
 }
 
 export default function InternshipApplications({
@@ -31,7 +33,9 @@ export default function InternshipApplications({
  countNumberOfUnseenApplications,
  offers,
  onContractCreated,
- isHistory = false
+ isHistory = false,
+ contractsUpdateKey = 0,
+ allContracts = []
 }: InternshipCandidatesProps) {
 	const [applications, setApplications] = useState<Cv[]>([])
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -45,8 +49,16 @@ export default function InternshipApplications({
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const [selectedContract, setSelectedContract] = useState<InternshipContract | null>(null);
 	const [loadingContract, setLoadingContract] = useState(false);
+	const [contractsMap, setContractsMap] = useState<Map<number, InternshipContract>>(new Map());
 	const {t} = useTranslation()
 	const cleanupRuns = useRef(0)
+	const [contractsUpdateTrigger, setContractsUpdateTrigger] = useState(0)
+	const onContractCreatedRef = useRef(onContractCreated)
+	
+	// Mettre à jour la ref quand onContractCreated change
+	useEffect(() => {
+		onContractCreatedRef.current = onContractCreated;
+	}, [onContractCreated]);
 
 	// Refs pour les dropdowns
 	const sortMenuRef = useRef<HTMLDivElement>(null);
@@ -77,14 +89,54 @@ export default function InternshipApplications({
 
 			cleanupRuns.current += 1
 		}
-	}, []);
+	}, [internship.id]);
+
+	// Recharger les contrats quand ils sont mis à jour (via contractsUpdateTrigger ou contractsUpdateKey)
+	useEffect(() => {
+		if (applications.length > 0 && (contractsUpdateTrigger > 0 || contractsUpdateKey > 0)) {
+			// Si on a déjà les contrats chargés, les utiliser de manière synchrone pour éviter le loading
+			// Sinon, charger de manière asynchrone
+			if (allContracts.length > 0) {
+				loadContractsForApplicationsSync(applications);
+			} else {
+				loadContractsForApplications(applications);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [contractsUpdateTrigger, contractsUpdateKey]);
+	
+	// Recharger les contrats quand on revient sur le composant (internship.id change) ou quand allContracts change
+	// Note: Les contrats sont aussi chargés dans fetchStudentApplications, mais ce useEffect
+	// s'assure qu'ils sont rechargés si on change d'offre ou si les contrats sont mis à jour
+	useEffect(() => {
+		if (applications.length > 0) {
+			// Si on a déjà les contrats chargés, les utiliser de manière synchrone pour éviter le loading
+			// Sinon, charger de manière asynchrone
+			if (allContracts.length > 0) {
+				loadContractsForApplicationsSync(applications);
+			} else {
+				loadContractsForApplications(applications);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [internship.id, allContracts.length]);
 
 	const fetchStudentApplications = async (applicationStatus: string | null, program: string | null, institution: string | null, sortBy: string | null) => {
 		const errorMes = "Erreur lors de l'obtention des candidatures."
 		try {
 			let response = await employerAPI.getStudentApplicationsBy(internship.id!, applicationStatus, program, institution, sortBy)
 			if (response.success) {
-				setApplications(response.data!)
+				const apps = response.data!;
+				setApplications(apps)
+				// Si on a déjà les contrats chargés (gestionnaire ou employeur), les utiliser de manière synchrone
+				// Sinon, charger de manière asynchrone via l'API
+				if (allContracts.length > 0) {
+					// Chargement synchrone pour éviter le loading
+					loadContractsForApplicationsSync(apps);
+				} else {
+					// Chargement asynchrone si les contrats ne sont pas encore chargés
+					await loadContractsForApplications(apps);
+				}
 			}
 			else
 				setErrorMessage(response.error || errorMes)
@@ -92,6 +144,66 @@ export default function InternshipApplications({
 		catch(error) {
 			setErrorMessage(errorMes)
 		}
+	}
+
+	// Fonction synchrone pour charger les contrats depuis allContracts (gestionnaire de stage ou employeur)
+	const loadContractsForApplicationsSync = (applications: Cv[]) => {
+		if (!internship.id) return;
+		
+		const contracts = new Map<number, InternshipContract>();
+		const applicationsWithContract = applications.filter(app => 
+			app.applicationStatus === 'PENDING_CONTRACT' && app.id
+		);
+
+		// Filtrer les contrats pour cette offre et les applications
+		allContracts.forEach(contract => {
+			if (contract.internshipOfferId === internship.id && contract.studentId) {
+				// Vérifier si ce contrat correspond à une application
+				const app = applicationsWithContract.find(a => a.id === contract.studentId);
+				if (app) {
+					contracts.set(contract.studentId, contract);
+				}
+			}
+		});
+
+		// Mettre à jour la map avec tous les contrats chargés
+		setContractsMap(contracts);
+		console.log(`Loaded ${contracts.size} contracts (sync) for ${applicationsWithContract.length} applications with PENDING_CONTRACT status`);
+	}
+
+	const loadContractsForApplications = async (applications: Cv[]) => {
+		if (!internship.id) return;
+		
+		const contracts = new Map<number, InternshipContract>();
+		const applicationsWithContract = applications.filter(app => 
+			app.applicationStatus === 'PENDING_CONTRACT' && app.id
+		);
+
+		// Pour l'employeur, charger les contrats via l'API
+		const contractPromises = applicationsWithContract.map(async (app) => {
+			if (!app.id) return null;
+			try {
+				const response = await employerAPI.getInternshipContract(internship.id, app.id);
+				if (response.success && response.data) {
+					return { studentId: app.id, contract: response.data };
+				}
+			} catch (error) {
+				// Ignorer silencieusement les erreurs (contrat peut ne pas exister encore)
+				console.debug(`Contract not found for student ${app.id}:`, error);
+			}
+			return null;
+		});
+
+		const results = await Promise.all(contractPromises);
+		results.forEach(result => {
+			if (result && result.contract) {
+				contracts.set(result.studentId, result.contract);
+			}
+		});
+
+		// Mettre à jour la map avec tous les contrats chargés
+		setContractsMap(contracts);
+		console.log(`Loaded ${contracts.size} contracts (async) for ${applicationsWithContract.length} applications with PENDING_CONTRACT status`);
 	}
 
 	const getDateWithoutTime = (date: string) => {
@@ -143,9 +255,27 @@ export default function InternshipApplications({
         </span>
       );
 	} else if (application.applicationStatus === 'PENDING_CONTRACT') {
+      // Vérifier si le contrat est complètement signé
+      const contract = application.id ? contractsMap.get(application.id) : null;
+      
+      // Si le contrat n'est pas encore chargé, afficher "En attente de signatures" par défaut
+      // Sinon, vérifier si toutes les signatures sont présentes
+      if (contract) {
+        const allSigned = contract.isSignedStudent && contract.isSignedEmployer && contract.isSignedInternshipManager;
+        
+        if (allSigned) {
+          return (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+              {t('internshipContract.fullySigned')}
+            </span>
+          );
+        }
+      }
+      
+      // Par défaut, afficher "En attente de signatures" si le contrat n'est pas chargé ou pas complètement signé
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-          {t('im.pendingContract')}
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+          {t('internshipContract.pendingSignatures')}
         </span>
       );
   }
@@ -208,6 +338,9 @@ export default function InternshipApplications({
         if (onContractCreated) {
           onContractCreated();
         }
+        
+        // Déclencher le rechargement des contrats dans ce composant
+        setContractsUpdateTrigger(prev => prev + 1);
 
         setTimeout(() => {
           setSuccessMessage(null);
@@ -490,6 +623,20 @@ export default function InternshipApplications({
               const response = await employerAPI.getInternshipContract(internship.id, selectedContract.studentId);
               if (response.success && response.data) {
                 setSelectedContract(response.data);
+                // Mettre à jour le contrat dans la map
+                setContractsMap(prev => {
+                  const newMap = new Map(prev);
+                  newMap.set(selectedContract.studentId!, response.data!);
+                  return newMap;
+                });
+                // Recharger les candidatures pour mettre à jour les statuts
+                await fetchStudentApplications(null, null, null, null);
+                // Notifier le parent pour recharger les contrats dans d'autres tabs
+                if (onContractCreated) {
+                  onContractCreated();
+                }
+                // Déclencher le rechargement des contrats dans ce composant
+                setContractsUpdateTrigger(prev => prev + 1);
               }
             } catch (error) {
               console.error('Error reloading contract:', error);
