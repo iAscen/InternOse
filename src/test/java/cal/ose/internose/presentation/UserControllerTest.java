@@ -20,13 +20,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
@@ -195,25 +193,4 @@ class UserControllerTest {
                 .content(body)
         ).andReturn();
     }
-
-
-
-    /*private void assertMvcResult(
-        MvcResult mvcResult,
-        HttpStatus expectedHttpStatus,
-        String expectedErrorMessage,
-        String expectedSuccessMessage
-    ) throws Exception {
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(expectedHttpStatus.value());
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        assertThat(responseContent).isNotNull();
-
-        if (expectedSuccessMessage == null) {
-            ErrorResponseDTO errorResponse = objectMapper.readValue(responseContent, ErrorResponseDTO.class);
-            assertThat(errorResponse.getMessage()).isEqualTo(expectedErrorMessage);
-        } else {
-            String jwt = mvcResult.getResponse().getContentAsString();
-            assertThat(jwt).isEqualTo(expectedSuccessMessage);
-        }
-    }*/
 }
