@@ -32,7 +32,9 @@
         "notAssigned": "Non assigné",
         "assigned": "Assigné",
         "clear": "Effacer",
-        "winterSession": "Hiver {{year}}"
+        "winterSession": "Hiver {{year}}",
+        "submitting" : "Soumission en cours..."
+
     },
     "navigation": {
         "home": "Accueil",
@@ -776,6 +778,7 @@
         "hoursPerWeekFirstMonth": "Premier mois :",
         "hoursPerWeekSecondMonth": "Deuxième mois :",
         "hoursPerWeekThirdMonth": "Troisième mois :",
+        "hoursPerWeekSuffix": "heure(s)/semaine",
         "generalObservations": "Observations générales",
         "preferredFor": "Ce milieu est à privilégier pour un stage",
         "openToAccept": "Ce milieu est ouvert à accueillir :",
@@ -788,8 +791,10 @@
         "yes": "OUI",
         "no": "NON",
         "workShiftTimes": "De ____ à ____",
+        "workShiftTimesTo" : "à",
         "salaryPerHour": "Préciser le salaire horaire :",
         "salaryPerHourPlaceholder": "Montant en $/heure",
+        "salary": "$/heure",
         "signature": "Signature",
         "passwordSignature": "Mot de passe (signature)",
         "passwordSignaturePlaceholder": "Entrez votre mot de passe pour signer",
