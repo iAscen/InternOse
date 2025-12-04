@@ -123,17 +123,6 @@ export default function InternshipAssessmentDetailsModal({
     return date.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  const getAssessmentLabel = (value: string) => {
-    const labels: Record<string, string> = {
-      'COMPLETELY_AGREE': t('internshipAssessment.ratings.COMPLETELY_AGREE'),
-      'PARTIALLY_AGREE': t('internshipAssessment.ratings.PARTIALLY_AGREE'),
-      'PARTIALLY_DISAGREE': t('internshipAssessment.ratings.PARTIALLY_DISAGREE'),
-      'COMPLETELY_DISAGREE': t('internshipAssessment.ratings.COMPLETELY_DISAGREE'),
-      'NOT_APPLICABLE': t('internshipAssessment.ratings.NOT_APPLICABLE')
-    };
-    return labels[value] || value;
-  };
-
   const getAppreciationLabel = (value: string) => {
     const labels: Record<string, string> = {
       'GREATLY_EXCEEDS_EXPECTATIONS': t('internshipAssessment.appreciations.GREATLY_EXCEEDS_EXPECTATIONS'),
@@ -323,19 +312,38 @@ export default function InternshipAssessmentDetailsModal({
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {t('internshipAssessment.skillsAssessment')}
                 </h3>
-                <div className="space-y-3">
-                  {Object.entries(internAssessment.internAssessment).map(([key, value]) => (
-                    <div key={key} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700">{assessmentCriteria.find(c => c.key === key)?.label || key}</span>
-                        <span className="text-sm font-semibold text-blue-600">
-                          {getAssessmentLabel(value)}
-                        </span>
+                <div className="space-y-4">
+                  {assessmentCriteria.map((criterion) => (
+                    <div key={criterion.key} className="border rounded-lg p-4 border-gray-200">
+                      <label className="block text-sm font-medium text-gray-900 mb-3">
+                        {criterion.label}
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+                        {[
+                          { value: 'COMPLETELY_AGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.excellent') },
+                          { value: 'PARTIALLY_AGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.veryGood') },
+                          { value: 'PARTIALLY_DISAGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.good') },
+                          { value: 'COMPLETELY_DISAGREE' as AssessmentOptions, label: t('internshipAssessment.ratings.needsImprovement') },
+                          { value: 'NOT_APPLICABLE' as AssessmentOptions, label: t('internshipAssessment.ratings.notApplicable') },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium text-center select-none ${
+                              internAssessment.internAssessment[criterion.key] === option.value
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
                       </div>
-                      {internAssessment.internAssessmentComments[key] && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {internAssessment.internAssessmentComments[key]}
-                        </p>
+                      {internAssessment.internAssessmentComments[criterion.key] && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">
+                            {internAssessment.internAssessmentComments[criterion.key]}
+                          </p>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -347,11 +355,29 @@ export default function InternshipAssessmentDetailsModal({
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {t('internshipAssessment.overallAppreciation')}
                 </h3>
-                <div className="p-4 bg-blue-50 rounded-lg mb-3">
+                <div className="p-3 bg-gray-50 rounded-lg mb-3">
                   <p className="text-sm font-medium text-gray-700 mb-2">{t('internshipAssessment.appreciation')}</p>
-                  <p className="text-base font-semibold text-blue-700">
-                    {getAppreciationLabel(internAssessment.overallInternAppreciation)}
-                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    {([
+                      'GREATLY_EXCEEDS_EXPECTATIONS',
+                      'EXCEEDS_EXPECTATIONS',
+                      'FULLY_MEETS_EXPECTATIONS',
+                      'PARTIALLY_MEETS_EXPECTATIONS',
+                      'DOES_NOT_MEET_EXPECTATIONS',
+                    ] as OverallInternAppreciation[]).map((opt) => (
+                      <div
+                        key={opt}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium text-center select-none ${
+                          internAssessment.overallInternAppreciation === opt
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                        title={getAppreciationLabel(opt)}
+                      >
+                        {getAppreciationLabel(opt)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 {internAssessment.appreciationComment && (
                   <div className="p-3 bg-gray-50 rounded-lg">
@@ -379,11 +405,27 @@ export default function InternshipAssessmentDetailsModal({
                     <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.weeklySupervisionHours')}</p>
                     <p className="text-sm text-gray-900">{internAssessment.weeklySupervisionHours} {t('internshipAssessment.hours')}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700">{t('internshipAssessment.futureCollaboration')}</p>
-                    <p className="text-sm text-gray-900">
-                      {getCollaborationLabel(internAssessment.futureCollaboration)}
-                    </p>
+                  <div className="p-3 bg-gray-50 rounded-lg md:col-span-2">
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('internshipAssessment.futureCollaboration')}</p>
+                    <div className="flex gap-4">
+                      {([
+                        'YES',
+                        'MAYBE',
+                        'NO',
+                      ] as FutureCollaboration[]).map((opt) => (
+                        <div
+                          key={opt}
+                          className={`px-6 py-2 rounded-lg font-medium text-center select-none ${
+                            internAssessment.futureCollaboration === opt
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}
+                          title={getCollaborationLabel(opt)}
+                        >
+                          {getCollaborationLabel(opt)}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
